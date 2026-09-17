@@ -329,6 +329,8 @@ def _pages(rm) -> list[tuple[str, str]]:
     out = [("index.html", "Overview")]
     for n in range(rm.meta["prg_bank_count"]):
         out.append((f"bank{n}.html", f"Bank {n}"))
+    if any(r["kind"] == "text" for r in rm.regions):
+        out.append(("text.html", "Text"))
     return out
 
 
@@ -511,6 +513,75 @@ def _bank_page(rm, n: int) -> str:
     return "".join(p)
 
 
+def _text_page(rm) -> str:
+    """Every decoded string, with where on screen it goes."""
+    rows = [r for r in rm.regions if r["kind"] == "text"]
+    total = sum(r["size"] for r in rows)
+    # The character count per block is the count byte with bit 7 masked off, which is the
+    # same rule $D591 uses to work out the length. Deriving it from the block size instead
+    # would need the two routines' different header sizes and would be a second, worse
+    # statement of something the count byte already says.
+    chars_total = sum(rm.rom[r["offset"]] & 0x7F for r in rows)
+    p = ["<h1>Text</h1>",
+         '<p class="sub">Every string the code writes to the screen through the two '
+         "inline-argument routines at <code>$D576</code> and <code>$D53F</code>. These are "
+         "not a block of text somewhere in the ROM: each one is written immediately after "
+         "the <code>JSR</code> that prints it, so the bytes are scattered through the code "
+         "of six banks and every one of them was found by the code trace rather than by "
+         "searching for text.</p>"]
+
+    p.append(_stats([
+        ("Strings", f"{len(rows)}"),
+        ("Bytes", f"{total:,}"),
+        ("Banks", f"{len({r['prg_bank'] for r in rows})}"),
+        ("Characters", f"{chars_total:,}"),
+    ]))
+
+    p.append('<div class="note"><strong>The encoding is plain ASCII for A-Z, 0-9, space and '
+             "a colon.</strong> Not by assumption: sixteen of these blocks read as English "
+             "on a straight ASCII reading with no substitutions at all, which is more "
+             "independent agreement than a coincidence can carry. The only codes outside "
+             "that set anywhere in the payloads are <code>$5B</code> to <code>$5F</code>.")
+    p.append("</div>")
+    p.append('<div class="note warn"><strong>$5C-$5F are graphics, and $5B is a lead.</strong> '
+             "Bank 1 writes <code>$5C $5E</code> to PPU <code>$21AF</code> and "
+             "<code>$5D $5F</code> to <code>$21CF</code> — 32 bytes apart, one nametable "
+             "row — so those four tiles are one symbol two tiles wide and two tall. That is "
+             "layout, not resemblance. <code>$5B</code> is different: it sits just after "
+             "<code>Z</code> and appears at the end of <em>CONGRATULATIONS</em> and twice in "
+             "<em>FR[ BA[ END</em>, and a full stop fits all three. That is a guess from "
+             "context and is recorded as one. The thing that would settle it is the font, "
+             "and there is no font to look at — CHR is RAM here, so no tile exists in this "
+             "file until code uploads it.</div>")
+
+    p.append("<h2>The strings</h2>")
+    body = []
+    for r in sorted(rows, key=lambda r: (r["prg_bank"], r["cpu_addr"])):
+        raw = rm.rom[r["offset"]:r["end"]]
+        inline_addr = r["description"].find("[ppu_hi]") != -1
+        chars = raw[3:] if inline_addr else raw[1:]
+        text = "".join(chr(c) if 33 <= c < 127 else "·" for c in chars)
+        dest = (f"${raw[1]:02X}{raw[2]:02X}" if inline_addr else "from $18/$19")
+        body.append(
+            f'<tr><td class="mono">{r["prg_bank"]}</td>'
+            f'<td class="mono"><a href="bank{r["prg_bank"]}.html#{_h(r["id"])}">'
+            f'${r["cpu_addr"]:04X}</a></td>'
+            f'<td class="mono">{dest}</td>'
+            f'<td class="mono">{raw[0]:02X}</td>'
+            f'<td class="mono">{r["size"]}</td>'
+            f'<td><code>{_h(text)}</code></td></tr>')
+    p.append('<div class="scroll"><table><thead><tr><th>Bank</th><th>Block</th>'
+             "<th>PPU address</th><th>Count</th><th>Bytes</th><th>Reads as</th></tr></thead>"
+             f"<tbody>{''.join(body)}</tbody></table></div>")
+    p.append('<p class="meta">The count byte is the number of characters. A block is that '
+             "count plus three when the routine is <code>$D576</code>, which carries its PPU "
+             "address inline, and plus one when it is <code>$D53F</code>, which takes the "
+             "address from RAM. Two blocks have bit 7 set in the count; it is masked off "
+             "before the length is worked out, and what it means to the queue that consumes "
+             "these is not established.</p>")
+    return "".join(p)
+
+
 # --------------------------------------------------------------------------- entry point
 
 def build_site(rm, out: Path) -> list[str]:
@@ -519,6 +590,8 @@ def build_site(rm, out: Path) -> list[str]:
     pages = {"index.html": _index(rm)}
     for n in range(rm.meta["prg_bank_count"]):
         pages[f"bank{n}.html"] = _bank_page(rm, n)
+    if any(r["kind"] == "text" for r in rm.regions):
+        pages["text.html"] = _text_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
@@ -529,6 +602,7 @@ def build_site(rm, out: Path) -> list[str]:
 
     for name, body in pages.items():
         title = (rm.meta["title"] if name == "index.html"
+                 else f'Text - {rm.meta["title"]}' if name == "text.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

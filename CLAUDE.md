@@ -123,9 +123,13 @@ Do not re-derive these; do check anything that depends on them.
   STA $zp+1` — a routine taking its own return address as a pointer — finds eleven matches,
   six real and five byte-scan false positives, all listed in `annotations/dispatch.json`
   with the reason for each rejection:
-  - `$D576` and `$D53F` print a run of inline PPU-string items. Item length is
-    `(first byte & $7F) + 3` below `$C0` and 9 at or above; **where the run stops is not
-    established** and is the biggest open thread in the project.
+  - `$D576` and `$D53F` queue **one** inline PPU-string item per call — not a run.
+    `$D57C-$D584` looks like a loop over items and is a loop waiting for room: `$D7C3`
+    never touches `$16`/`$17`, so re-entering re-tests the same bytes. Block length is
+    `(first byte & $7F) + 3` below `$C0` and 9 at or above; `$D53F` is two bytes shorter
+    because it takes the PPU address from `$18`/`$19` instead of the stream. All 32 blocks
+    resume on a legal opcode. **This was published as an unresolved variable-length stream
+    first; the correction is in `annotations/dispatch.json`, not edited away.**
   - `$D5CC` takes exactly four inline bytes — the one member with a constant length, read
     off the `ADC #$04` at `$D5EC` and confirmed by the four `LDA ($16),Y` before it.
   - `$D6B0` (and per-bank copies at `$9F12` in bank 5 and `$85F6` in bank 6) is an inline
@@ -137,6 +141,10 @@ Do not re-derive these; do check anything that depends on them.
   bank is walked once per live bank that reaches it, so a `JSR $8000` there could legitimately
   land in several; none does. `reassemble.py` prints the figure on every run, and if it ever
   stops being zero that is a finding, not a bug.
+- **A routine that cannot return is computed, not assumed.** 26 reached routines have no
+  reachable `RTS`, and the walk stops at the 5 call sites that enter one. Without it the
+  trace decoded the bytes after a far call to bank 0 `$8015` — an endless display loop — as
+  instructions, when a pointer built at `$8AC8`/`$8ACC` names them as data.
 - **`BNE x / BEQ y` back to back is unconditional**, so the second branch's fall-through is
   unreachable. There are 38 such pairs, and at bank 5 `$82D7` the bytes being jumped over
   are a table that `$82B9 LDA $82D9,Y` reads.
@@ -189,17 +197,12 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Settle where an inline PPU-string block ends.** Twenty traced paths stop at a `$D576`
-   or `$D53F` call site, and the same answer gives up the game's text. The obstacle is
-   `$D6C0`, which decides the loop's carry from `$21` and `$A5` — both runtime. Read `$D7C3`
-   (the per-item handler) to its end before trusting any model of the loop; per playbook
-   section 8, a handler with no terminator falls through into another and takes its
-   operands, and that is a grammar problem that presents as a data problem.
-2. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
+1. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
    entry count must come from each caller — an index mask, a `CPY` bound — and never from
    dividing the gap.
-3. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
+2. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
    call anywhere in the ROM targets it.
-4. **Find the `$2007` writers.** That is the whole graphics problem on a CHR RAM cartridge,
+3. **Find the `$2007` writers.** It would also settle `$5B`, since a font is the only
+   thing that can. That is the whole graphics problem on a CHR RAM cartridge,
    and the question is what routines write the port, not what points at a block.
-5. Start a RAM map. The list above is already too long to keep in prose.
+4. Start a RAM map. The list above is already too long to keep in prose.

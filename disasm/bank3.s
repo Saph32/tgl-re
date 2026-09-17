@@ -27,9 +27,25 @@ L3_8018:
 L3_801B:
         jmp     L3_822A
 
-; ---- UNCLAIMED (gap) $801E-$809F, 130 bytes
+; ---- UNCLAIMED (gap) $801E-$802D, 16 bytes
         .byte   $FF,$FF,$00,$00,$86,$96,$86,$96,$13,$97,$73,$97,$EF,$97,$EB,$98
-        .byte   $A5,$18,$18,$69,$03,$85,$18,$20,$71,$C1,$04,$30,$30,$30,$30,$60
+
+; ---- bank3.code_802E (code) $802E-$8037, 10 bytes
+L3_802E:
+        lda     $18
+        clc
+        adc     #$03
+        sta     $18
+        jsr     L7_C171
+
+; ---- bank3.inline_8038 (text) $8038-$803C, 5 bytes
+; "0000" at $8038
+        .byte   $04,$30,$30,$30,$30
+
+; ---- bank3.code_803D (code) $803D-$803D, 1 bytes
+        rts
+
+; ---- UNCLAIMED (gap) $803E-$809F, 98 bytes
         .byte   $FF,$FF,$2D,$99,$91,$99,$91,$99,$73,$9A,$A5,$9A,$09,$9B,$4D,$9B
         .byte   $06,$9C,$4A,$9C,$6D,$9C,$B1,$9C,$DD,$9D,$41,$9E,$76,$A4,$F8,$A4
         .byte   $71,$A6,$D1,$A7,$C4,$A9,$88,$AA,$97,$AB,$FB,$AB,$7D,$AC,$E1,$AC
@@ -58,48 +74,213 @@ L3_80A0:
         sta     $0183
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $80C1-$8229, 361 bytes
-        .byte   $0C,$20,$84,$59,$4F,$55,$20,$47,$4F,$54,$20,$49,$54,$45,$4D,$20
-        .byte   $DE,$C0,$20,$06,$C0,$06,$11,$80,$A9,$80,$85,$14,$A9,$C8,$85,$18
-        .byte   $A9,$20,$85,$19,$A6,$76,$E0,$92,$B0,$6D,$A5,$15,$DD,$7A,$81,$90
-        .byte   $66,$A5,$15,$48,$A5,$14,$48,$A5,$19,$48,$A5,$18,$48,$20,$0C,$82
-        .byte   $BD,$7B,$81,$20,$06,$C0,$02,$14,$80,$A6,$76,$68,$85,$18,$68,$85
-        .byte   $19,$68,$85,$14,$68,$85,$15,$BD,$7A,$81,$20,$51,$C0,$20,$2E,$80
-        .byte   $A5,$18,$18,$69,$05,$85,$18,$A9,$00,$85,$17,$A0,$C0,$A5,$14,$20
-        .byte   $54,$C0,$A0,$64,$20,$21,$C0,$E8,$E8,$86,$76,$A5,$14,$18,$69,$04
-        .byte   $85,$14,$A5,$18,$29,$C0,$18,$69,$80,$09,$08,$85,$18,$90,$02,$E6
-        .byte   $19,$A5,$19,$C9,$23,$90,$8F,$20,$6F,$C0,$14,$23,$28,$47,$4F,$20
-        .byte   $54,$4F,$20,$54,$48,$45,$20,$4E,$45,$58,$54,$20,$53,$50,$41,$43
-        .byte   $45,$A0,$B4,$20,$21,$C0,$4C,$ED,$C0,$00,$10,$00,$00,$00,$0D,$00
-        .byte   $11,$01,$02,$01,$03,$02,$09,$02,$04,$02,$01,$03,$07,$04,$11,$05
-        .byte   $0D,$06,$06,$07,$05,$07,$08,$08,$0A,$08,$0D,$09,$11,$0A,$0E,$0B
-        .byte   $06,$0C,$09,$0D,$02,$0E,$0D,$0F,$0F,$10,$10,$10,$04,$11,$03,$12
-        .byte   $08,$13,$0D,$14,$11,$15,$0B,$16,$00,$17,$0F,$18,$07,$19,$0D,$1A
-        .byte   $0B,$1B,$0B,$1C,$0A,$1D,$0D,$1D,$05,$1E,$01,$1F,$08,$1F,$04,$20
-        .byte   $11,$21,$0D,$22,$09,$23,$07,$24,$10,$25,$11,$25,$05,$26,$03,$28
-        .byte   $0F,$29,$02,$2A,$0A,$2B,$0D,$2C,$00,$2D,$01,$2E,$0D,$2E,$11,$2E
-        .byte   $10,$2F,$0F,$30,$0E,$32,$0B,$33,$0D,$34,$06,$35,$0B,$36,$11,$38
-        .byte   $10,$3A,$0D,$3C,$0D,$44,$0D,$46,$11,$50,$11,$A5,$14,$85,$18,$A9
-        .byte   $01,$06,$18,$2A,$06,$18,$2A,$06,$18,$2A,$06,$18,$2A,$85,$19,$BD
-        .byte   $7B,$81,$20,$06,$C0,$02,$02,$80,$60
+; ---- bank3.inline_80C1 (text) $80C1-$80CF, 15 bytes
+; "YOU GOT ITEM" at $80C1
+        .byte   $0C,$20,$84,$59,$4F,$55,$20,$47,$4F,$54,$20,$49,$54,$45,$4D
 
-; ---- bank3.code_822A (code) $822A-$822F, 6 bytes
+; ---- bank3.code_80D0 (code) $80D0-$80D5, 6 bytes
+        jsr     L7_C0DE
+        jsr     L7_C006
+
+; ---- bank3.inline_80D6 (data) $80D6-$80D8, 3 bytes
+; Far-call argument at $80D6
+        .byte   $06,$11,$80
+
+; ---- bank3.code_80D9 (code) $80D9-$8106, 46 bytes
+        lda     #$80
+        sta     $14
+        lda     #$C8
+        sta     $18
+        lda     #$20
+        sta     $19
+        ldx     $76
+L3_80E7:
+        cpx     #$92
+        bcs     L3_8158
+        lda     $15
+        cmp     $817A,X
+        bcc     L3_8158
+        lda     $15
+        pha
+        lda     $14
+        pha
+        lda     $19
+        pha
+        lda     $18
+        pha
+        jsr     L3_820C
+        lda     $817B,X
+        jsr     L7_C006
+
+; ---- bank3.inline_8107 (data) $8107-$8109, 3 bytes
+; Far-call argument at $8107
+        .byte   $02,$14,$80
+
+; ---- bank3.code_810A (code) $810A-$815A, 81 bytes
+        ldx     $76
+        pla
+        sta     $18
+        pla
+        sta     $19
+        pla
+        sta     $14
+        pla
+        sta     $15
+        lda     $817A,X
+        jsr     L7_C051
+        jsr     L3_802E
+        lda     $18
+        clc
+        adc     #$05
+        sta     $18
+        lda     #$00
+        sta     $17
+        ldy     #$C0
+        lda     $14
+        jsr     L7_C054
+        ldy     #$64
+        jsr     L7_C021
+        inx
+        inx
+        stx     $76
+        lda     $14
+        clc
+        adc     #$04
+        sta     $14
+        lda     $18
+        and     #$C0
+        clc
+        adc     #$80
+        ora     #$08
+        sta     $18
+        bcc     L3_8152
+        inc     $19
+L3_8152:
+        lda     $19
+        cmp     #$23
+        bcc     L3_80E7
+L3_8158:
+        jsr     L7_C06F
+
+; ---- bank3.inline_815B (text) $815B-$8171, 23 bytes
+; "GO TO THE NEXT SPACE" at $815B
+        .byte   $14,$23,$28,$47,$4F,$20,$54,$4F,$20,$54,$48,$45,$20,$4E,$45,$58
+        .byte   $54,$20,$53,$50,$41,$43,$45
+
+; ---- bank3.code_8172 (code) $8172-$8179, 8 bytes
+        ldy     #$B4
+        jsr     L7_C021
+        jmp     L7_C0ED
+
+; ---- UNCLAIMED (gap) $817A-$820B, 146 bytes
+        .byte   $00,$10,$00,$00,$00,$0D,$00,$11,$01,$02,$01,$03,$02,$09,$02,$04
+        .byte   $02,$01,$03,$07,$04,$11,$05,$0D,$06,$06,$07,$05,$07,$08,$08,$0A
+        .byte   $08,$0D,$09,$11,$0A,$0E,$0B,$06,$0C,$09,$0D,$02,$0E,$0D,$0F,$0F
+        .byte   $10,$10,$10,$04,$11,$03,$12,$08,$13,$0D,$14,$11,$15,$0B,$16,$00
+        .byte   $17,$0F,$18,$07,$19,$0D,$1A,$0B,$1B,$0B,$1C,$0A,$1D,$0D,$1D,$05
+        .byte   $1E,$01,$1F,$08,$1F,$04,$20,$11,$21,$0D,$22,$09,$23,$07,$24,$10
+        .byte   $25,$11,$25,$05,$26,$03,$28,$0F,$29,$02,$2A,$0A,$2B,$0D,$2C,$00
+        .byte   $2D,$01,$2E,$0D,$2E,$11,$2E,$10,$2F,$0F,$30,$0E,$32,$0B,$33,$0D
+        .byte   $34,$06,$35,$0B,$36,$11,$38,$10,$3A,$0D,$3C,$0D,$44,$0D,$46,$11
+        .byte   $50,$11
+
+; ---- bank3.code_820C (code) $820C-$8225, 26 bytes
+L3_820C:
+        lda     $14
+        sta     $18
+        lda     #$01
+        asl     $18
+        rol     A
+        asl     $18
+        rol     A
+        asl     $18
+        rol     A
+        asl     $18
+        rol     A
+        sta     $19
+        lda     $817B,X
+        jsr     L7_C006
+
+; ---- bank3.inline_8226 (data) $8226-$8228, 3 bytes
+; Far-call argument at $8226
+        .byte   $02,$02,$80
+
+; ---- bank3.code_8229 (code) $8229-$822F, 7 bytes
+        rts
 L3_822A:
         ldx     #$FF
         txs
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8230-$82AB, 124 bytes
-        .byte   $0A,$20,$88,$53,$4F,$55,$4E,$44,$20,$54,$45,$53,$54,$A9,$01,$85
-        .byte   $15,$A9,$01,$85,$14,$A9,$20,$85,$19,$A9,$CD,$85,$18,$A5,$15,$20
-        .byte   $51,$C0,$20,$E4,$C0,$85,$19,$F0,$F9,$A5,$F5,$D0,$08,$C6,$14,$D0
-        .byte   $F1,$A9,$02,$D0,$02,$A9,$0F,$85,$14,$A5,$19,$29,$04,$F0,$08,$A5
-        .byte   $15,$20,$30,$C0,$4C,$52,$82,$A5,$19,$29,$08,$F0,$09,$20,$06,$C0
-        .byte   $00,$FF,$7F,$4C,$52,$82,$A5,$19,$29,$03,$F0,$C6,$C9,$02,$D0,$0A
-        .byte   $C6,$15,$D0,$B1,$A9,$47,$85,$15,$D0,$AB,$C9,$01,$D0,$B4,$E6,$15
-        .byte   $A5,$15,$C9,$48,$90,$9F,$A9,$01,$85,$15,$D0,$99
+; ---- bank3.inline_8230 (text) $8230-$823C, 13 bytes
+; "SOUND TEST" at $8230
+        .byte   $0A,$20,$88,$53,$4F,$55,$4E,$44,$20,$54,$45,$53,$54
 
-; ---- bank3.code_82AC (code) $82AC-$82BC, 17 bytes
+; ---- bank3.code_823D (code) $823D-$827F, 67 bytes
+        lda     #$01
+        sta     $15
+        lda     #$01
+        sta     $14
+L3_8245:
+        lda     #$20
+        sta     $19
+        lda     #$CD
+        sta     $18
+        lda     $15
+        jsr     L7_C051
+L3_8252:
+        jsr     L7_C0E4
+        sta     $19
+        beq     L3_8252
+        lda     $F5
+        bne     L3_8265
+        dec     $14
+        bne     L3_8252
+        lda     #$02
+        bne     L3_8267
+L3_8265:
+        lda     #$0F
+L3_8267:
+        sta     $14
+        lda     $19
+        and     #$04
+        beq     L3_8277
+        lda     $15
+        jsr     L7_C030
+        jmp     L3_8252
+L3_8277:
+        lda     $19
+        and     #$08
+        beq     L3_8286
+        jsr     L7_C006
+
+; ---- bank3.inline_8280 (data) $8280-$8282, 3 bytes
+; Far-call argument at $8280
+        .byte   $00,$FF,$7F
+
+; ---- bank3.code_8283 (code) $8283-$82BC, 58 bytes
+        jmp     L3_8252
+L3_8286:
+        lda     $19
+        and     #$03
+        beq     L3_8252
+        cmp     #$02
+        bne     L3_829A
+        dec     $15
+        bne     L3_8245
+        lda     #$47
+        sta     $15
+        bne     L3_8245
+L3_829A:
+        cmp     #$01
+        bne     L3_8252
+        inc     $15
+        lda     $15
+        cmp     #$48
+        bcc     L3_8245
+        lda     #$01
+        sta     $15
+        bne     L3_8245
 L3_82AC:
         lda     #$1F
         jsr     L7_C030
@@ -131,7 +312,7 @@ L3_82AC:
 ; Far-call argument at $82DC
         .byte   $02,$11,$80
 
-; ---- bank3.code_82DF (code) $82DF-$8351, 115 bytes
+; ---- bank3.code_82DF (code) $82DF-$82F5, 23 bytes
         lda     #$22
         sta     $19
         lda     #$84
@@ -142,11 +323,11 @@ L3_82AC:
         jsr     L3_8B7E
         lda     #$19
         jmp     L7_C030
-L3_82F6:
-        jsr     L7_C0E4
-        and     #$F0
-        beq     L3_82F6
-        jmp     L3_8B7E
+
+; ---- UNCLAIMED (gap) $82F6-$82FF, 10 bytes
+        .byte   $20,$E4,$C0,$29,$F0,$F0,$F9,$4C,$7E,$8B
+
+; ---- bank3.code_8300 (code) $8300-$8317, 24 bytes
 L3_8300:
         lda     #$1F
         jsr     L7_C030
@@ -156,18 +337,13 @@ L3_8300:
         jsr     L3_834F
         lda     #$01
         sta     $0400
-L3_8315:
         jsr     L3_887F
-        bcc     L3_8323
-        jsr     L3_876F
-        jsr     L3_82F6
-        jmp     L3_8315
-L3_8323:
-        lda     $2F
-        beq     L3_832A
-        jsr     L3_8473
-L3_832A:
-        jmp     L3_8397
+
+; ---- UNCLAIMED (gap) $8318-$832C, 21 bytes
+        .byte   $90,$09,$20,$6F,$87,$20,$F6,$82,$4C,$15,$83,$A5,$2F,$F0,$03,$20
+        .byte   $73,$84,$4C,$97,$83
+
+; ---- bank3.code_832D (code) $832D-$8351, 37 bytes
 L3_832D:
         jsr     L3_82AC
         jsr     L3_83AE
@@ -211,7 +387,7 @@ L3_834F:
 ; Inline argument at $8367
         .byte   $14,$23,$06,$20
 
-; ---- bank3.code_836B (code) $836B-$8512, 424 bytes
+; ---- bank3.code_836B (code) $836B-$8375, 11 bytes
         lda     #$00
         ldy     #$20
 L3_836F:
@@ -219,22 +395,20 @@ L3_836F:
         dey
         bne     L3_836F
         rts
-L3_8376:
-        jsr     L3_8711
-        beq     L3_8397
-        lda     #$00
-        sta     $0400
+
+; ---- UNCLAIMED (gap) $8376-$837F, 10 bytes
+        .byte   $20,$11,$87,$F0,$1C,$A9,$00,$8D,$00,$04
+
+; ---- bank3.code_8380 (code) $8380-$8385, 6 bytes
 L3_8380:
         jsr     L3_8B7E
         jsr     L3_887F
-        bcs     L3_838E
-        jsr     L3_87F2
-        jmp     L3_8391
-L3_838E:
-        jsr     L3_87B5
-L3_8391:
-        jsr     L3_82F6
-        jmp     L3_8376
+
+; ---- UNCLAIMED (gap) $8386-$8396, 17 bytes
+        .byte   $B0,$06,$20,$F2,$87,$4C,$91,$83,$20,$B5,$87,$20,$F6,$82,$4C,$76
+        .byte   $83
+
+; ---- bank3.code_8397 (code) $8397-$8442, 172 bytes
 L3_8397:
         jsr     L7_C015
         lda     #$1F
@@ -318,12 +492,11 @@ L3_8439:
         lsr     A
         rol     $10
         rts
-L3_8443:
-        ldy     #$00
-        sty     $10
-        jsr     L3_8439
-        ldy     $10
-        rts
+
+; ---- UNCLAIMED (gap) $8443-$844C, 10 bytes
+        .byte   $A0,$00,$84,$10,$20,$39,$84,$A4,$10,$60
+
+; ---- bank3.code_844D (code) $844D-$8472, 38 bytes
 L3_844D:
         sta     $10
         lda     $18
@@ -350,84 +523,18 @@ L3_844D:
         inc     $18
 L3_8472:
         rts
-L3_8473:
-        ldy     #$11
-L3_8475:
-        lda     $0438,Y
-        sta     $049F,Y
-        dey
-        bne     L3_8475
-        lda     $04AE
-        and     #$7F
-        sta     $04AE
-        lda     $04B0
-        and     #$7F
-        sta     $04B0
-        lda     #$00
-        lsr     $04A8
-        rol     A
-        lsr     $04A8
-        rol     A
-        lsr     $04A8
-        rol     A
-        lsr     $04A8
-        rol     A
-        sta     $46
-        lda     $044A
-        and     #$07
-        sta     $6B
-        lda     $044A
-        and     #$F8
-        bne     L3_84B2
-        lda     #$FF
-L3_84B2:
-        sta     $47
-        lda     $044B
-        jsr     L3_8443
-        sta     $7C
-        iny
-        sty     $4A
-        lda     $044C
-        jsr     L3_8443
-        sta     $7D
-        sty     $4B
-        lda     #$00
-        lsr     $04AB
-        rol     A
-        lsr     $04AB
-        rol     A
-        tay
-        lda     $044E
-        jsr     L3_8502
-        sty     $0175
-        sta     $0174
-        lda     $19
-        sta     $0173
-        lda     #$00
-        lsr     $04AB
-        rol     A
-        lsr     $04AB
-        rol     A
-        tay
-        lda     $044D
-        jsr     L3_8502
-        sty     $0172
-        sta     $0171
-        lda     $19
-        sta     $0170
-        rts
-L3_8502:
-        pha
-        lda     #$64
-        sta     $10
-        pla
-        jsr     L7_C10E
-        sta     $19
-        lda     #$0A
-        jsr     L7_C10B
-        rts
 
-; ---- UNCLAIMED (gap) $8513-$8515, 3 bytes
+; ---- UNCLAIMED (gap) $8473-$8515, 163 bytes
+        .byte   $A0,$11,$B9,$38,$04,$99,$9F,$04,$88,$D0,$F7,$AD,$AE,$04,$29,$7F
+        .byte   $8D,$AE,$04,$AD,$B0,$04,$29,$7F,$8D,$B0,$04,$A9,$00,$4E,$A8,$04
+        .byte   $2A,$4E,$A8,$04,$2A,$4E,$A8,$04,$2A,$4E,$A8,$04,$2A,$85,$46,$AD
+        .byte   $4A,$04,$29,$07,$85,$6B,$AD,$4A,$04,$29,$F8,$D0,$02,$A9,$FF,$85
+        .byte   $47,$AD,$4B,$04,$20,$43,$84,$85,$7C,$C8,$84,$4A,$AD,$4C,$04,$20
+        .byte   $43,$84,$85,$7D,$84,$4B,$A9,$00,$4E,$AB,$04,$2A,$4E,$AB,$04,$2A
+        .byte   $A8,$AD,$4E,$04,$20,$02,$85,$8C,$75,$01,$8D,$74,$01,$A5,$19,$8D
+        .byte   $73,$01,$A9,$00,$4E,$AB,$04,$2A,$4E,$AB,$04,$2A,$A8,$AD,$4D,$04
+        .byte   $20,$02,$85,$8C,$72,$01,$8D,$71,$01,$A5,$19,$8D,$70,$01,$60,$48
+        .byte   $A9,$64,$85,$10,$68,$20,$0E,$C1,$85,$19,$A9,$0A,$20,$0B,$C1,$60
         .byte   $13,$06,$0B
 
 ; ---- bank3.code_8516 (code) $8516-$870C, 503 bytes
@@ -739,28 +846,59 @@ L3_8711:
         jsr     L3_8BB3
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8723-$876E, 76 bytes
-        .byte   $06,$21,$4B,$47,$4F,$20,$4F,$55,$54,$20,$6F,$C0,$0A,$21,$8B,$57
-        .byte   $4F,$52,$44,$20,$43,$48,$45,$43,$4B,$A2,$04,$BD,$0C,$87,$9D,$03
-        .byte   $02,$CA,$D0,$F7,$20,$64,$88,$20,$E4,$C0,$29,$2C,$D0,$0C,$A5,$F5
-        .byte   $29,$D0,$F0,$F0,$AD,$04,$02,$C9,$54,$60,$AD,$04,$02,$C9,$54,$D0
-        .byte   $04,$A9,$64,$D0,$02,$A9,$54,$8D,$04,$02,$D0,$D8
+; ---- bank3.inline_8723 (text) $8723-$872B, 9 bytes
+; "GO OUT" at $8723
+        .byte   $06,$21,$4B,$47,$4F,$20,$4F,$55,$54
 
-; ---- bank3.code_876F (code) $876F-$8774, 6 bytes
-L3_876F:
-        jsr     L3_8783
-L3_8772:
+; ---- bank3.code_872C (code) $872C-$872E, 3 bytes
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8775-$8782, 14 bytes
-        .byte   $0A,$21,$8A,$57,$52,$4F,$4E,$47,$20,$57,$4F,$52,$44,$60
+; ---- bank3.inline_872F (text) $872F-$873B, 13 bytes
+; "WORD CHECK" at $872F
+        .byte   $0A,$21,$8B,$57,$4F,$52,$44,$20,$43,$48,$45,$43,$4B
 
-; ---- bank3.code_8783 (code) $8783-$87CC, 74 bytes
+; ---- bank3.code_873C (code) $873C-$8774, 57 bytes
+        ldx     #$04
+L3_873E:
+        lda     $870C,X
+        sta     $0203,X
+        dex
+        bne     L3_873E
+L3_8747:
+        jsr     L3_8864
+        jsr     L7_C0E4
+        and     #$2C
+        bne     L3_875D
+        lda     $F5
+        and     #$D0
+        beq     L3_8747
+        lda     $0204
+        cmp     #$54
+        rts
+L3_875D:
+        lda     $0204
+        cmp     #$54
+        bne     L3_8768
+        lda     #$64
+        bne     L3_876A
+L3_8768:
+        lda     #$54
+L3_876A:
+        sta     $0204
+        bne     L3_8747
+        jsr     L3_8783
+        jsr     L7_C06F
+
+; ---- bank3.inline_8775 (text) $8775-$8781, 13 bytes
+; "WRONG WORD" at $8775
+        .byte   $0A,$21,$8A,$57,$52,$4F,$4E,$47,$20,$57,$4F,$52,$44
+
+; ---- bank3.code_8782 (code) $8782-$87B4, 51 bytes
+        rts
 L3_8783:
         lda     #$21
         sta     $19
         lda     #$88
-L3_8789:
         sta     $18
         ldx     #$0E
         ldy     #$00
@@ -785,34 +923,14 @@ L3_879E:
 L3_87B0:
         ldy     #$03
         jmp     L3_8BB3
-L3_87B5:
-        jsr     L3_8B7E
-        lda     #$21
-        sta     $19
-        lda     #$48
-        sta     $18
-        ldx     #$0E
-        ldy     #$07
-        jsr     L3_8BB3
-        jsr     L3_8772
-        jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $87CD-$87F1, 37 bytes
-        .byte   $09,$21,$CA,$54,$48,$45,$20,$41,$42,$4F,$56,$45,$20,$FB,$87,$A9
-        .byte   $20,$85,$19,$A9,$86,$85,$18,$A2,$00,$BD,$40,$07,$20,$81,$86,$E8
-        .byte   $E0,$20,$D0,$F5,$60
-
-; ---- bank3.code_87F2 (code) $87F2-$87FD, 12 bytes
-L3_87F2:
-        lda     #$22
-        sta     $19
-        lda     #$08
-        jsr     L3_8789
-        jsr     L7_C06F
-
-; ---- UNCLAIMED (gap) $87FE-$880E, 17 bytes
-        .byte   $0D,$22,$0A,$57,$4F,$52,$44,$20,$49,$53,$20,$52,$49,$47,$48,$54
-        .byte   $60
+; ---- UNCLAIMED (gap) $87B5-$880E, 90 bytes
+        .byte   $20,$7E,$8B,$A9,$21,$85,$19,$A9,$48,$85,$18,$A2,$0E,$A0,$07,$20
+        .byte   $B3,$8B,$20,$72,$87,$20,$6F,$C0,$09,$21,$CA,$54,$48,$45,$20,$41
+        .byte   $42,$4F,$56,$45,$20,$FB,$87,$A9,$20,$85,$19,$A9,$86,$85,$18,$A2
+        .byte   $00,$BD,$40,$07,$20,$81,$86,$E8,$E0,$20,$D0,$F5,$60,$A9,$22,$85
+        .byte   $19,$A9,$08,$20,$89,$87,$20,$6F,$C0,$0D,$22,$0A,$57,$4F,$52,$44
+        .byte   $20,$49,$53,$20,$52,$49,$47,$48,$54,$60
 
 ; ---- bank3.code_880F (code) $880F-$8876, 104 bytes
 L3_880F:
@@ -1302,10 +1420,16 @@ L3_8B4F:
 L3_8B59:
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8B5C-$8B7D, 34 bytes
-        .byte   $0B,$22,$2F,$46,$52,$5B,$20,$42,$41,$5B,$20,$45,$4E,$44,$60,$A9
-        .byte   $20,$85,$15,$A9,$20,$85,$14,$A9,$00,$85,$17,$A9,$14,$85,$16,$20
-        .byte   $84,$C0
+; ---- bank3.inline_8B5C (text) $8B5C-$8B69, 14 bytes
+; "FR[ BA[ END" at $8B5C
+        .byte   $0B,$22,$2F,$46,$52,$5B,$20,$42,$41,$5B,$20,$45,$4E,$44
+
+; ---- bank3.code_8B6A (code) $8B6A-$8B6A, 1 bytes
+        rts
+
+; ---- UNCLAIMED (gap) $8B6B-$8B7D, 19 bytes
+        .byte   $A9,$20,$85,$15,$A9,$20,$85,$14,$A9,$00,$85,$17,$A9,$14,$85,$16
+        .byte   $20,$84,$C0
 
 ; ---- bank3.code_8B7E (code) $8B7E-$8CEE, 369 bytes
 L3_8B7E:

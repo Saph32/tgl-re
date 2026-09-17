@@ -302,7 +302,7 @@ def main() -> int:
         return 1
 
     tr = _tc.Trace(rm)
-    tr.run()
+    tr.run_to_fixpoint()
     emitter = Emitter(rm, tr)
 
     sections: list[tuple[str, str, int, int]] = [

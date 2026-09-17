@@ -138,10 +138,19 @@ L1_8112:
         jsr     L1_80F7
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $811C-$8129, 14 bytes
-        .byte   $02,$21,$AF,$5C,$5E,$20,$6F,$C0,$02,$21,$CF,$5D,$5F,$60
+; ---- bank1.inline_811C (text) $811C-$8120, 5 bytes
+; "\^" at $811C
+        .byte   $02,$21,$AF,$5C,$5E
 
-; ---- bank1.code_812A (code) $812A-$8169, 64 bytes
+; ---- bank1.code_8121 (code) $8121-$8123, 3 bytes
+        jsr     L7_C06F
+
+; ---- bank1.inline_8124 (text) $8124-$8128, 5 bytes
+; "]_" at $8124
+        .byte   $02,$21,$CF,$5D,$5F
+
+; ---- bank1.code_8129 (code) $8129-$8169, 65 bytes
+        rts
 L1_812A:
         lda     #$00
         ldy     #$AA

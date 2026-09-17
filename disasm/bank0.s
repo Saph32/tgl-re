@@ -33,12 +33,14 @@ L0_8018:
 L0_8034:
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8037-$805A, 36 bytes
+; ---- bank0.inline_8037 (data) $8037-$8059, 35 bytes
+; Queued PPU write at $8037
         .byte   $20,$1C,$C0,$7E,$7E,$7E,$7E,$7E,$3C,$08,$00,$80,$EC,$80,$EC,$EC
         .byte   $68,$30,$00,$BE,$BA,$00,$36,$0E,$0E,$0E,$00,$00,$BE,$00,$12,$0A
-        .byte   $0A,$0E,$00,$60
+        .byte   $0A,$0E,$00
 
-; ---- bank0.code_805B (code) $805B-$8151, 247 bytes
+; ---- bank0.code_805A (code) $805A-$8151, 248 bytes
+        rts
 L0_805B:
         jsr     L7_C159
         ldx     #$00
@@ -211,14 +213,51 @@ L0_8167:
 ; ---- bank0.code_818E (code) $818E-$8190, 3 bytes
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8191-$81DC, 76 bytes
-        .byte   $02,$27,$20,$53,$43,$20,$6F,$C0,$04,$27,$35,$53,$48,$4F,$54,$20
-        .byte   $6F,$C0,$07,$27,$28,$30,$20,$20,$43,$48,$49,$50,$A9,$00,$20,$2F
-        .byte   $C1,$20,$06,$C0,$05,$32,$80,$A9,$00,$85,$A2,$A9,$1F,$85,$19,$A9
-        .byte   $E0,$85,$18,$A9,$02,$A0,$02,$20,$42,$C0,$A9,$11,$85,$19,$A9,$00
-        .byte   $85,$18,$A9,$01,$A0,$02,$20,$42,$C0,$4C,$45,$C0
+; ---- bank0.inline_8191 (text) $8191-$8195, 5 bytes
+; "SC" at $8191
+        .byte   $02,$27,$20,$53,$43
 
-; ---- bank0.code_81DD (code) $81DD-$8207, 43 bytes
+; ---- bank0.code_8196 (code) $8196-$8198, 3 bytes
+        jsr     L7_C06F
+
+; ---- bank0.inline_8199 (text) $8199-$819F, 7 bytes
+; "SHOT" at $8199
+        .byte   $04,$27,$35,$53,$48,$4F,$54
+
+; ---- bank0.code_81A0 (code) $81A0-$81A2, 3 bytes
+        jsr     L7_C06F
+
+; ---- bank0.inline_81A3 (text) $81A3-$81AC, 10 bytes
+; "0  CHIP" at $81A3
+        .byte   $07,$27,$28,$30,$20,$20,$43,$48,$49,$50
+
+; ---- bank0.code_81AD (code) $81AD-$81B4, 8 bytes
+        lda     #$00
+        jsr     L7_C12F
+        jsr     L7_C006
+
+; ---- bank0.inline_81B5 (data) $81B5-$81B7, 3 bytes
+; Far-call argument at $81B5
+        .byte   $05,$32,$80
+
+; ---- bank0.code_81B8 (code) $81B8-$8207, 80 bytes
+        lda     #$00
+        sta     $A2
+        lda     #$1F
+        sta     $19
+        lda     #$E0
+        sta     $18
+        lda     #$02
+        ldy     #$02
+        jsr     L7_C042
+        lda     #$11
+        sta     $19
+        lda     #$00
+        sta     $18
+        lda     #$01
+        ldy     #$02
+        jsr     L7_C042
+        jmp     L7_C045
 L0_81DD:
         jsr     L7_C14A
         ldy     #$01
@@ -268,16 +307,71 @@ L0_8216:
 ; ---- bank0.code_8234 (code) $8234-$8236, 3 bytes
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8237-$82C4, 142 bytes
-        .byte   $09,$21,$4B,$47,$41,$4D,$45,$20,$4F,$56,$45,$52,$24,$30,$50,$1F
-        .byte   $A5,$51,$D0,$1B,$A5,$30,$29,$02,$D0,$15,$20,$B0,$82,$A0,$78,$20
-        .byte   $E4,$C0,$29,$10,$D0,$03,$88,$D0,$F6,$20,$ED,$C0,$4C,$4D,$C1,$A5
-        .byte   $30,$29,$02,$85,$30,$F0,$14,$A5,$4D,$D0,$10,$A5,$4C,$C9,$FA,$B0
-        .byte   $0A,$A5,$46,$C9,$07,$90,$04,$A9,$FA,$85,$4C,$20,$6F,$C0,$14,$21
-        .byte   $A7,$43,$4F,$4E,$54,$49,$4E,$55,$45,$20,$20,$50,$55,$53,$48,$20
-        .byte   $53,$54,$41,$52,$54,$20,$B0,$82,$20,$E4,$C0,$29,$10,$F0,$F9,$A9
-        .byte   $02,$85,$2F,$20,$ED,$C0,$4C,$50,$C1,$A9,$30,$8D,$81,$01,$A9,$16
-        .byte   $8D,$83,$01,$4C,$DE,$C0,$08,$09,$0A,$0B,$00,$01,$02,$03
+; ---- bank0.inline_8237 (text) $8237-$8242, 12 bytes
+; "GAME OVER" at $8237
+        .byte   $09,$21,$4B,$47,$41,$4D,$45,$20,$4F,$56,$45,$52
+
+; ---- bank0.code_8243 (code) $8243-$8284, 66 bytes
+        bit     $30
+        bvc     L0_8266
+        lda     $51
+        bne     L0_8266
+        lda     $30
+        and     #$02
+        bne     L0_8266
+        jsr     L0_82B0
+        ldy     #$78
+L0_8256:
+        jsr     L7_C0E4
+        and     #$10
+        bne     L0_8260
+        dey
+        bne     L0_8256
+L0_8260:
+        jsr     L7_C0ED
+        jmp     L7_C14D
+L0_8266:
+        lda     $30
+        and     #$02
+        sta     $30
+        beq     L0_8282
+        lda     $4D
+        bne     L0_8282
+        lda     $4C
+        cmp     #$FA
+        bcs     L0_8282
+        lda     $46
+        cmp     #$07
+        bcc     L0_8282
+        lda     #$FA
+        sta     $4C
+L0_8282:
+        jsr     L7_C06F
+
+; ---- bank0.inline_8285 (text) $8285-$829B, 23 bytes
+; "CONTINUE  PUSH START" at $8285
+        .byte   $14,$21,$A7,$43,$4F,$4E,$54,$49,$4E,$55,$45,$20,$20,$50,$55,$53
+        .byte   $48,$20,$53,$54,$41,$52,$54
+
+; ---- bank0.code_829C (code) $829C-$82BC, 33 bytes
+        jsr     L0_82B0
+L0_829F:
+        jsr     L7_C0E4
+        and     #$10
+        beq     L0_829F
+        lda     #$02
+        sta     $2F
+        jsr     L7_C0ED
+        jmp     L7_C150
+L0_82B0:
+        lda     #$30
+        sta     $0181
+        lda     #$16
+        sta     $0183
+        jmp     L7_C0DE
+
+; ---- UNCLAIMED (gap) $82BD-$82C4, 8 bytes
+        .byte   $08,$09,$0A,$0B,$00,$01,$02,$03
 
 ; ---- bank0.code_82C5 (code) $82C5-$8311, 77 bytes
 L0_82C5:
@@ -480,12 +574,52 @@ L0_8430:
 L0_8433:
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8436-$8484, 79 bytes
-        .byte   $01,$23,$E9,$33,$20,$5B,$84,$20,$E4,$C0,$A8,$29,$10,$D0,$2D,$98
-        .byte   $29,$2C,$F0,$F3,$A5,$2F,$49,$01,$85,$2F,$20,$5B,$84,$A9,$33,$20
-        .byte   $CC,$97,$4C,$3D,$84,$A5,$2F,$D0,$0A,$20,$6F,$C0,$83,$22,$86,$3A
-        .byte   $20,$20,$60,$20,$6F,$C0,$83,$22,$86,$20,$20,$3A,$60,$0F,$0F,$0F
-        .byte   $00,$0F,$0F,$10,$0F,$0F,$30,$0F,$0F,$05,$0A,$0F,$5F,$AF,$FF
+; ---- bank0.inline_8436 (text) $8436-$8439, 4 bytes
+; "3" at $8436
+        .byte   $01,$23,$E9,$33
+
+; ---- bank0.code_843A (code) $843A-$8461, 40 bytes
+        jsr     L0_845B
+L0_843D:
+        jsr     L7_C0E4
+        tay
+        and     #$10
+        bne     L0_8472
+        tya
+        and     #$2C
+        beq     L0_843D
+        lda     $2F
+        eor     #$01
+        sta     $2F
+        jsr     L0_845B
+        lda     #$33
+        jsr     L0_97CC
+        jmp     L0_843D
+L0_845B:
+        lda     $2F
+        bne     L0_8469
+        jsr     L7_C06F
+
+; ---- bank0.inline_8462 (text) $8462-$8467, 6 bytes
+; ":  " at $8462
+        .byte   $83,$22,$86,$3A,$20,$20
+
+; ---- bank0.code_8468 (code) $8468-$846B, 4 bytes
+        rts
+L0_8469:
+        jsr     L7_C06F
+
+; ---- bank0.inline_846C (text) $846C-$8471, 6 bytes
+; "  :" at $846C
+        .byte   $83,$22,$86,$20,$20,$3A
+
+; ---- bank0.code_8472 (code) $8472-$8472, 1 bytes
+L0_8472:
+        rts
+
+; ---- UNCLAIMED (gap) $8473-$8484, 18 bytes
+        .byte   $0F,$0F,$0F,$00,$0F,$0F,$10,$0F,$0F,$30,$0F,$0F,$05,$0A,$0F,$5F
+        .byte   $AF,$FF
 
 ; ---- bank0.code_8485 (code) $8485-$84F6, 114 bytes
 L0_8485:

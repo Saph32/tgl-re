@@ -2748,6 +2748,7 @@ L7_E110:
         sta     $19
         lda     #$22
         sta     $18
+L7_E118:
         lda     #$09
         jsr     L7_D6C0
         bcs     L7_E15E
@@ -2790,14 +2791,37 @@ L7_E15E:
 L7_E15F:
         jsr     L7_D576
 
-; ---- UNCLAIMED (gap) $E162-$E1A2, 65 bytes
-        .byte   $04,$27,$62,$41,$52,$45,$41,$A9,$27,$85,$19,$A9,$66,$85,$18,$A5
-        .byte   $30,$29,$02,$F0,$05,$A5,$51,$4C,$CD,$E1,$A5,$50,$20,$CD,$E1,$A9
-        .byte   $6B,$85,$18,$A5,$52,$20,$D3,$E1,$A9,$58,$99,$03,$01,$20,$F7,$D6
-        .byte   $A9,$6F,$85,$18,$A5,$53,$20,$D3,$E1,$A9,$59,$99,$03,$01,$4C,$F7
-        .byte   $D6
+; ---- bank7.inline_E162 (text) $E162-$E168, 7 bytes
+; "AREA" at $E162
+        .byte   $04,$27,$62,$41,$52,$45,$41
 
-; ---- bank7.code_E1A3 (code) $E1A3-$E3F8, 598 bytes
+; ---- bank7.code_E169 (code) $E169-$E3F8, 656 bytes
+        lda     #$27
+        sta     $19
+        lda     #$66
+        sta     $18
+        lda     $30
+        and     #$02
+        beq     L7_E17C
+        lda     $51
+        jmp     L7_E1CD
+L7_E17C:
+        lda     $50
+        jsr     L7_E1CD
+        lda     #$6B
+        sta     $18
+        lda     $52
+        jsr     L7_E1D3
+        lda     #$58
+        sta     $0103,Y
+        jsr     L7_D6F7
+        lda     #$6F
+        sta     $18
+        lda     $53
+        jsr     L7_E1D3
+        lda     #$59
+        sta     $0103,Y
+        jmp     L7_D6F7
 L7_E1A3:
         sty     $12
         ldy     #$00
@@ -5251,11 +5275,13 @@ L7_F5C2:
         jsr     L7_FA6B
         jsr     L7_D53F
 
-; ---- UNCLAIMED (gap) $F5CC-$F5DD, 18 bytes
-        .byte   $0C,$20,$59,$4F,$55,$20,$47,$4F,$54,$20,$4B,$45,$59,$A0,$28,$20
-        .byte   $8B,$FF
+; ---- bank7.inline_F5CC (text) $F5CC-$F5D8, 13 bytes
+; " YOU GOT KEY" at $F5CC
+        .byte   $0C,$20,$59,$4F,$55,$20,$47,$4F,$54,$20,$4B,$45,$59
 
-; ---- bank7.code_F5DE (code) $F5DE-$F686, 169 bytes
+; ---- bank7.code_F5D9 (code) $F5D9-$F686, 174 bytes
+        ldy     #$28
+        jsr     L7_FF8B
 L7_F5DE:
         lda     #$05
         sta     $0500
@@ -5333,10 +5359,29 @@ L7_F667:
         jsr     L7_D7C3
         jsr     L7_D576
 
-; ---- UNCLAIMED (gap) $F687-$F6B1, 43 bytes
+; ---- bank7.inline_F687 (text) $F687-$F699, 19 bytes
+; "YOUR FINAL SCORE" at $F687
         .byte   $10,$20,$86,$59,$4F,$55,$52,$20,$46,$49,$4E,$41,$4C,$20,$53,$43
-        .byte   $4F,$52,$45,$20,$76,$D5,$01,$20,$CE,$30,$A9,$20,$85,$19,$A9,$C8
-        .byte   $85,$18,$20,$18,$E1,$20,$6F,$D7,$02,$20,$80
+        .byte   $4F,$52,$45
+
+; ---- bank7.code_F69A (code) $F69A-$F69C, 3 bytes
+        jsr     L7_D576
+
+; ---- bank7.inline_F69D (text) $F69D-$F6A0, 4 bytes
+; "0" at $F69D
+        .byte   $01,$20,$CE,$30
+
+; ---- bank7.code_F6A1 (code) $F6A1-$F6AE, 14 bytes
+        lda     #$20
+        sta     $19
+        lda     #$C8
+        sta     $18
+        jsr     L7_E118
+        jsr     L7_D76F
+
+; ---- bank7.inline_F6AF (data) $F6AF-$F6B1, 3 bytes
+; Far-call argument at $F6AF
+        .byte   $02,$20,$80
 
 ; ---- bank7.code_F6B2 (code) $F6B2-$F6DA, 41 bytes
 L7_F6B2:

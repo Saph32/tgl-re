@@ -5,22 +5,24 @@
     {
       "cpu_addr": "$D576",
       "bank": null,
-      "kind": "stream",
-      "name": "print inline PPU string (A)",
+      "kind": "ppu_string",
+      "name": "queue inline PPU string (address inline)",
       "aliases": [
         "$C06F, entry slot 37 of bank 7"
       ],
-      "description": "Pops its return address into $16/$17, then loops: $D591 reads the next item's first byte and derives that item's total length - (byte & $7F) + 3 below $C0, and 9 at or above it - $D5A5 copies that many bytes into a staging buffer at $0100,X and advances $16 past them, and the loop repeats while $D591 returns carry set. $D587 then pushes the advanced pointer back and RTSes, so control resumes after the whole inline block. Worked example, bank 3 $8230: 0A 20 88 then the ten characters 'SOUND TEST' - count $0A, a PPU address $2088, thirteen bytes in all, which is $0A + 3 exactly. Decoding those thirteen bytes as instructions is how this trace first walked off the rails, producing 'SRE $4E55 / NOP $20 / NOP $45,X' out of the ASCII 'OUND TEST'. NOT ESTABLISHED, and the reason the kind is 'stream' rather than a length: where the block STOPS. The loop's carry comes from $D6C0, which adds the item length to $21 and tests the sum against $31 and $51 - a runtime condition. Either the termination really is runtime-dependent, which cannot be true of data that determines a return address, or the reading of $D6C0 is wrong. Until that is settled the trace stops at each call site and records a lead rather than inventing a resumption point."
+      "description": "CORRECTION. This was registered as a variable-length stream whose termination could not be established, on the reading that $D57C-$D584 loops over a run of items. It does not. It loops over ONE item, waiting for room: $D7C3 never touches $16/$17, so re-entering $D591 re-tests the same bytes. Exactly one item is consumed per call and the block length is a function of its first byte. What the loop is really doing: $D591 computes the item's length and hands it to $D6C0, which adds it to $21 - the fill level of a PPU write queue staged at $0100 - and clears carry only when the item fits. Carry set means no room, so $D7C3 is called to drain the queue and the same item is tested again. The thresholds are the queue's: $51 is the hard limit, $31 an early-flush point taken when $A5 is non-zero. $D587 then copies the item in through $D5A5 and advances $16 past exactly its own bytes, and $D58A pushes the advanced pointer back so the caller resumes after the block. FORMAT: [count][ppu_hi][ppu_lo][count characters], so the block is count + 3 bytes. The length rule read off $D591 is (first byte & $7F) + 3 below $C0 and 9 at or above, and $D5A5 advances $16 by exactly that. CONFIRMED AT EVERY SITE: all 20 call sites of this routine and of $D53F resume on a legal opcode under this rule, and 16 of the 20 payloads read as English - GAME OVER, CONGRATULATIONS, YOU GOT ITEM, SOUND TEST, GO OUT, WRONG WORD, THE ABOVE, WORD IS RIGHT, AREA, YOUR FINAL SCORE. Characters are ASCII for A-Z and space. CORRECTION: an earlier version of this entry said no site in the ROM uses a count in $80-$BF and that bit 7 therefore had no example to read. That was written before the trace reached bank 0 $845F and $8469, which both call this routine with a count of $83 - three characters, six bytes, exactly as the (byte & $7F) + 3 rule says. So bit 7 IS used. What it MEANS is still not established: it is masked off before the length is computed, but the count byte is copied into the queue whole, so the queue's consumer at $D7C3 and beyond sees it. Both sites write to PPU $2286 and differ only in where the ':' sits among two spaces.",
+      "block_adjust": 0
     },
     {
       "cpu_addr": "$D53F",
       "bank": null,
-      "kind": "stream",
-      "name": "print inline PPU string (B)",
+      "kind": "ppu_string",
+      "name": "queue inline PPU string (address from $18/$19)",
       "aliases": [
         "$C171, entry slot 123 of bank 7"
       ],
-      "description": "Byte-for-byte the same loop as $D576 over the same helpers $D591, $D7C3 and $D587, differing only in where it enters. Worked example, bank 7 $F5CC: 0C 20 59 then 'YOU GOT KEY' - count $0C and a PPU address $2059. NOT ESTABLISHED: what distinguishes it from $D576. Both were found by the same class scan; neither is a guess about the other."
+      "description": "The same mechanism as $D576 and the same length rule, with one difference that changes the block size: **the PPU address is not in the stream.** $D550-$D56F writes the count byte, then $19 and $18 from RAM, into the queue header, and only then copies characters - and it sets $11 to length MINUS 3 rather than length. So the block is [count][count characters], count + 1 bytes, two fewer than $D576's. Worked example, bank 7 $F5CC: 0C then ' YOU GOT KEY' - twelve characters, thirteen bytes, resuming at $F5D9 on LDY #$28 / JSR $FF8B. The two - 2 is not a guess: $D558 is SEC / SBC #$03 and the copy resumes at $D5AF with Y already advanced by one more than $D5A5 leaves it.",
+      "block_adjust": -2
     },
     {
       "cpu_addr": "$D5CC",
@@ -110,7 +112,16 @@
   "dispatch_tables": [],
   "unresolved": [
     "$8A97 in bank 2: JMP ($10C0). $10C0 mirrors to $00C0 in the 2 KB of CPU RAM, so this is a jump through a RAM vector - the mechanism playbook section 4 records as hiding a quarter of a bank on another cartridge. Nothing that installs it has been looked for yet.",
-    "Every call site of the three jump_table helpers: the inline table's entry count is not established at any of them, so none of their targets beyond the one Y selects is reached.",
-    "Bank 4 is reached at 19 bytes of 16,384. Its opening JMP table has a single entry, which is the odd one out among the eight banks, and no far call in the ROM targets it. Whatever reaches bank 4 is a mechanism nothing here has enumerated."
-  ]
+    "Bank 4 is reached at 19 bytes of 16,384. Its opening JMP table has a single entry, which is the odd one out among the eight banks, and no far call in the ROM targets it. Whatever reaches bank 4 is a mechanism nothing here has enumerated.",
+    "What bit 7 of a PPU-string count byte means. Two sites use it, bank 0 $845F and $8469, both writing to PPU $2286.",
+    "What the $C0-and-above form of a PPU-string item is. Two sites use it, bank 5 $86DD and $86EE, and its length is the fixed 9 rather than a character count. Its payload is not ASCII.",
+    "Every call site of the three jump_table helpers: the inline table's entry count is not established at any of them, so none of their targets beyond the one the index selects is reached."
+  ],
+  "_ppu_string_comment": "The PPU write queue these two feed: $0100 is the buffer, $21 its fill level, $20 a count of entries, $25 the length of the entry being added, $24 scratch. $D6E0 opens an entry and returns the write position in A; $D6F7 commits it. $D7C3 drains. None of that is claimed as understood beyond what these two routines need.",
+  "character_encoding": {
+    "summary": "Plain ASCII for A-Z, 0-9, space and ':', with at least five extra glyphs at $5B-$5F.",
+    "evidence": "Sixteen of the 32 text blocks read as English on a straight ASCII reading with no substitutions - GAME OVER, CONGRATULATIONS, CONTINUE PUSH START, GO TO THE NEXT SPACE, YOU GOT ITEM, SOUND TEST, WORD CHECK, WRONG WORD, GO OUT, CHIP MAX, WEAPON POWER, USE CHIP, ATTACK, SHIELD, AREA, YOUR FINAL SCORE, YOU GOT KEY. That many independent blocks agreeing is not a coincidence that needs arguing about. Across every text payload the only codes outside A-Z and space are $30, $33, $3A, $5B, $5C, $5D, $5E and $5F, and the first three are '0', '3' and ':' in ASCII, which fit their contexts ('0  CHIP', '3', ':  ').",
+    "glyphs_5C_5F": "$5C-$5F are graphics, not letters, and the layout says so rather than the shapes. Bank 1 $811C writes $5C $5E to PPU $21AF and bank 1 $8124 writes $5D $5F to PPU $21CF. Those two addresses are 32 bytes apart, which is one nametable row, so the four tiles form a 2x2 block - a single symbol two tiles wide and two tall. No guess about what it depicts.",
+    "glyph_5B": "LEAD, not established. $5B sits immediately after 'Z' ($5A) and appears three times: at the end of 'CONGRATULATIONS' and twice in 'FR[ BA[ END'. A full stop fits all three readings - 'CONGRATULATIONS.', 'FR. BA. END' - and nothing else obvious does. That is resemblance, which per playbook section 10 is a lead and never a confirmation, and the thing that would settle it is the font. There is no font to look at: CHR is RAM on this cartridge and no uploader has been found, so the tiles do not exist anywhere in this file as tiles. Re-check this entry when one turns up."
+  }
 }

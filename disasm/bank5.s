@@ -771,55 +771,282 @@ L5_84D1:
         jsr     L7_C042
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8518-$86DF, 456 bytes
+; ---- bank5.inline_8518 (data) $8518-$852A, 19 bytes
+; Queued PPU write at $8518
         .byte   $10,$10,$00,$00,$00,$00,$00,$00,$00,$00,$00,$FF,$80,$80,$80,$80
-        .byte   $80,$80,$80,$20,$6F,$C0,$03,$27,$B0,$4B,$45,$59,$20,$05,$88,$A0
-        .byte   $00,$84,$18,$A9,$18,$85,$19,$A5,$18,$48,$A5,$19,$48,$98,$48,$20
-        .byte   $06,$C0,$02,$02,$80,$68,$A8,$68,$85,$19,$68,$18,$69,$40,$85,$18
-        .byte   $90,$02,$E6,$19,$C8,$C0,$0C,$D0,$DE,$A0,$01,$A5,$18,$48,$A5,$19
-        .byte   $48,$98,$48,$20,$06,$C0,$02,$05,$80,$68,$A8,$68,$85,$19,$68,$18
-        .byte   $69,$40,$85,$18,$90,$02,$E6,$19,$C8,$C0,$08,$D0,$DE,$20,$06,$C0
-        .byte   $00,$17,$80,$A0,$00,$84,$16,$C0,$1C,$D0,$03,$4C,$EA,$85,$B0,$14
-        .byte   $84,$17,$98,$4A,$4A,$20,$78,$C0,$A4,$17,$2D,$B0,$04,$F0,$02,$A9
-        .byte   $01,$48,$10,$15,$B9,$90,$86,$09,$20,$85,$18,$B9,$91,$86,$85,$19
-        .byte   $98,$4A,$4A,$E9,$07,$20,$75,$C0,$48,$A8,$B9,$DA,$85,$85,$17,$A4
-        .byte   $16,$B9,$90,$86,$85,$18,$B9,$91,$86,$85,$19,$68,$D0,$08,$A9,$20
-        .byte   $D0,$07,$00,$00,$55,$AA,$B9,$93,$86,$48,$B9,$92,$86,$A8,$68,$20
-        .byte   $54,$C0,$A5,$16,$18,$69,$04,$A8,$C0,$50,$F0,$03,$4C,$8D,$85,$20
-        .byte   $6F,$C0,$02,$2D,$C2,$4E,$4F,$20,$6F,$C0,$03,$2D,$E2,$55,$53,$45
-        .byte   $AD,$AE,$04,$29,$C0,$F0,$16,$20,$6F,$C0,$02,$2E,$50,$45,$45,$A9
-        .byte   $2E,$85,$19,$A9,$70,$85,$18,$AD,$AF,$04,$20,$51,$C0,$20,$6F,$C0
-        .byte   $08,$2C,$90,$43,$48,$49,$50,$20,$4D,$41,$58,$A5,$4E,$85,$16,$A5
-        .byte   $4F,$85,$17,$A9,$2C,$85,$19,$A9,$99,$85,$18,$20,$4E,$C0,$20,$82
-        .byte   $87,$20,$9F,$87,$20,$6F,$C0,$0C,$2D,$30,$57,$45,$41,$50,$4F,$4E
-        .byte   $20,$50,$4F,$57,$45,$52,$20,$6F,$C0,$08,$2D,$50,$55,$53,$45,$20
-        .byte   $43,$48,$49,$50,$20,$CB,$89,$A5,$FF,$29,$DF,$09,$08,$85,$FF,$8D
-        .byte   $00,$20,$A5,$3C,$8D,$76,$01,$A9,$05,$85,$15,$A9,$00,$85,$14,$20
-        .byte   $06,$C0,$02,$1D,$80,$4C,$63,$C0,$10,$2C,$C4,$B0,$12,$2C,$C4,$B4
-        .byte   $14,$2C,$C5,$B8,$16,$2C,$C5,$BC,$18,$2C,$C6,$C0,$1A,$2C,$C6,$C4
-        .byte   $1C,$2C,$C7,$C8,$00,$00,$00,$00,$C8,$2D,$DA,$80,$CE,$2D,$DB,$84
-        .byte   $D4,$2D,$DD,$88,$DA,$2D,$DE,$8C,$02,$2E,$E0,$90,$08,$2E,$E2,$94
-        .byte   $0E,$2E,$E3,$98,$14,$2E,$E5,$9C,$1A,$2E,$E6,$A0,$42,$2E,$E0,$A4
-        .byte   $48,$2E,$E2,$A8,$4E,$2E,$E3,$AC
+        .byte   $80,$80,$80
+
+; ---- bank5.code_852B (code) $852B-$852D, 3 bytes
+        jsr     L7_C06F
+
+; ---- bank5.inline_852E (text) $852E-$8533, 6 bytes
+; "KEY" at $852E
+        .byte   $03,$27,$B0,$4B,$45,$59
+
+; ---- bank5.code_8534 (code) $8534-$8549, 22 bytes
+        jsr     L5_8805
+        ldy     #$00
+        sty     $18
+        lda     #$18
+        sta     $19
+L5_853F:
+        lda     $18
+        pha
+        lda     $19
+        pha
+        tya
+        pha
+        jsr     L7_C006
+
+; ---- bank5.inline_854A (data) $854A-$854C, 3 bytes
+; Far-call argument at $854A
+        .byte   $02,$02,$80
+
+; ---- bank5.code_854D (code) $854D-$856D, 33 bytes
+        pla
+        tay
+        pla
+        sta     $19
+        pla
+        clc
+        adc     #$40
+        sta     $18
+        bcc     L5_855C
+        inc     $19
+L5_855C:
+        iny
+        cpy     #$0C
+        bne     L5_853F
+        ldy     #$01
+L5_8563:
+        lda     $18
+        pha
+        lda     $19
+        pha
+        tya
+        pha
+        jsr     L7_C006
+
+; ---- bank5.inline_856E (data) $856E-$8570, 3 bytes
+; Far-call argument at $856E
+        .byte   $02,$05,$80
+
+; ---- bank5.code_8571 (code) $8571-$8587, 23 bytes
+        pla
+        tay
+        pla
+        sta     $19
+        pla
+        clc
+        adc     #$40
+        sta     $18
+        bcc     L5_8580
+        inc     $19
+L5_8580:
+        iny
+        cpy     #$08
+        bne     L5_8563
+        jsr     L7_C006
+
+; ---- bank5.inline_8588 (data) $8588-$858A, 3 bytes
+; Far-call argument at $8588
+        .byte   $00,$17,$80
+
+; ---- bank5.code_858B (code) $858B-$85DA, 80 bytes
+        ldy     #$00
+L5_858D:
+        sty     $16
+        cpy     #$1C
+        bne     L5_8596
+        jmp     L5_85EA
+L5_8596:
+        bcs     L5_85AC
+        sty     $17
+        tya
+        lsr     A
+        lsr     A
+        jsr     L7_C078
+        ldy     $17
+        and     $04B0
+        beq     L5_85A9
+        lda     #$01
+L5_85A9:
+        pha
+        bpl     L5_85C1
+L5_85AC:
+        lda     $8690,Y
+        ora     #$20
+        sta     $18
+        lda     $8691,Y
+        sta     $19
+        tya
+        lsr     A
+        lsr     A
+        sbc     #$07
+        jsr     L7_C075
+        pha
+L5_85C1:
+        tay
+        lda     $85DA,Y
+        sta     $17
+        ldy     $16
+        lda     $8690,Y
+        sta     $18
+        lda     $8691,Y
+        sta     $19
+        pla
+        bne     L5_85DE
+        lda     #$20
+        bne     L5_85E1
+        brk
+
+; ---- UNCLAIMED (gap) $85DB-$85DD, 3 bytes
+        .byte   $00,$55,$AA
+
+; ---- bank5.code_85DE (code) $85DE-$85F9, 28 bytes
+L5_85DE:
+        lda     $8693,Y
+L5_85E1:
+        pha
+        lda     $8692,Y
+        tay
+        pla
+        jsr     L7_C054
+L5_85EA:
+        lda     $16
+        clc
+        adc     #$04
+        tay
+        cpy     #$50
+        beq     L5_85F7
+        jmp     L5_858D
+L5_85F7:
+        jsr     L7_C06F
+
+; ---- bank5.inline_85FA (text) $85FA-$85FE, 5 bytes
+; "NO" at $85FA
+        .byte   $02,$2D,$C2,$4E,$4F
+
+; ---- bank5.code_85FF (code) $85FF-$8601, 3 bytes
+        jsr     L7_C06F
+
+; ---- bank5.inline_8602 (text) $8602-$8607, 6 bytes
+; "USE" at $8602
+        .byte   $03,$2D,$E2,$55,$53,$45
+
+; ---- bank5.code_8608 (code) $8608-$8611, 10 bytes
+        lda     $04AE
+        and     #$C0
+        beq     L5_8625
+        jsr     L7_C06F
+
+; ---- bank5.inline_8612 (text) $8612-$8616, 5 bytes
+; "EE" at $8612
+        .byte   $02,$2E,$50,$45,$45
+
+; ---- bank5.code_8617 (code) $8617-$8627, 17 bytes
+        lda     #$2E
+        sta     $19
+        lda     #$70
+        sta     $18
+        lda     $04AF
+        jsr     L7_C051
+L5_8625:
+        jsr     L7_C06F
+
+; ---- bank5.inline_8628 (text) $8628-$8632, 11 bytes
+; "CHIP MAX" at $8628
+        .byte   $08,$2C,$90,$43,$48,$49,$50,$20,$4D,$41,$58
+
+; ---- bank5.code_8633 (code) $8633-$864E, 28 bytes
+        lda     $4E
+        sta     $16
+        lda     $4F
+        sta     $17
+        lda     #$2C
+        sta     $19
+        lda     #$99
+        sta     $18
+        jsr     L7_C04E
+        jsr     L5_8782
+        jsr     L5_879F
+        jsr     L7_C06F
+
+; ---- bank5.inline_864F (text) $864F-$865D, 15 bytes
+; "WEAPON POWER" at $864F
+        .byte   $0C,$2D,$30,$57,$45,$41,$50,$4F,$4E,$20,$50,$4F,$57,$45,$52
+
+; ---- bank5.code_865E (code) $865E-$8660, 3 bytes
+        jsr     L7_C06F
+
+; ---- bank5.inline_8661 (text) $8661-$866B, 11 bytes
+; "USE CHIP" at $8661
+        .byte   $08,$2D,$50,$55,$53,$45,$20,$43,$48,$49,$50
+
+; ---- bank5.code_866C (code) $866C-$8689, 30 bytes
+        jsr     L5_89CB
+        lda     $FF
+        and     #$DF
+        ora     #$08
+        sta     $FF
+        sta     $2000
+        lda     $3C
+        sta     $0176
+        lda     #$05
+        sta     $15
+        lda     #$00
+        sta     $14
+        jsr     L7_C006
+
+; ---- bank5.inline_868A (data) $868A-$868C, 3 bytes
+; Far-call argument at $868A
+        .byte   $02,$1D,$80
+
+; ---- bank5.code_868D (code) $868D-$868F, 3 bytes
+        jmp     L7_C063
+
+; ---- UNCLAIMED (gap) $8690-$86DF, 80 bytes
+        .byte   $10,$2C,$C4,$B0,$12,$2C,$C4,$B4,$14,$2C,$C5,$B8,$16,$2C,$C5,$BC
+        .byte   $18,$2C,$C6,$C0,$1A,$2C,$C6,$C4,$1C,$2C,$C7,$C8,$00,$00,$00,$00
+        .byte   $C8,$2D,$DA,$80,$CE,$2D,$DB,$84,$D4,$2D,$DD,$88,$DA,$2D,$DE,$8C
+        .byte   $02,$2E,$E0,$90,$08,$2E,$E2,$94,$0E,$2E,$E3,$98,$14,$2E,$E5,$9C
+        .byte   $1A,$2E,$E6,$A0,$42,$2E,$E0,$A4,$48,$2E,$E2,$A8,$4E,$2E,$E3,$AC
 
 ; ---- bank5.code_86E0 (code) $86E0-$86E2, 3 bytes
 L5_86E0:
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $86E3-$86EC, 10 bytes
-        .byte   $C7,$3C,$20,$20,$20,$20,$F7,$00,$FF,$60
+; ---- bank5.inline_86E3 (data) $86E3-$86EB, 9 bytes
+; Queued PPU write at $86E3
+        .byte   $C7,$3C,$20,$20,$20,$20,$F7,$00,$FF
 
-; ---- bank5.code_86ED (code) $86ED-$86F3, 7 bytes
+; ---- bank5.code_86EC (code) $86EC-$86F3, 8 bytes
+        rts
 L5_86ED:
         lda     $3C
         beq     L5_86E0
         jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $86F4-$8710, 29 bytes
-        .byte   $C7,$3C,$3C,$3E,$3D,$3F,$F7,$00,$FF,$A9,$13,$85,$19,$A9,$C0,$85
-        .byte   $18,$A5,$3C,$38,$E9,$01,$20,$06,$C0,$02,$02,$80,$60
+; ---- bank5.inline_86F4 (data) $86F4-$86FC, 9 bytes
+; Queued PPU write at $86F4
+        .byte   $C7,$3C,$3C,$3E,$3D,$3F,$F7,$00,$FF
 
-; ---- bank5.code_8711 (code) $8711-$875C, 76 bytes
+; ---- bank5.code_86FD (code) $86FD-$870C, 16 bytes
+        lda     #$13
+        sta     $19
+        lda     #$C0
+        sta     $18
+        lda     $3C
+        sec
+        sbc     #$01
+        jsr     L7_C006
+
+; ---- bank5.inline_870D (data) $870D-$870F, 3 bytes
+; Far-call argument at $870D
+        .byte   $02,$02,$80
+
+; ---- bank5.code_8710 (code) $8710-$875C, 77 bytes
+        rts
 L5_8711:
         sei
         jsr     L7_C00F
@@ -879,41 +1106,240 @@ L5_8762:
 ; Far-call argument at $8779
         .byte   $06,$FF,$7F
 
-; ---- bank5.code_877C (code) $877C-$8781, 6 bytes
+; ---- bank5.code_877C (code) $877C-$8784, 9 bytes
         lda     $0177
         jmp     L7_C060
+L5_8782:
+        jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $8782-$8936, 437 bytes
-        .byte   $20,$6F,$C0,$06,$2C,$B0,$41,$54,$54,$41,$43,$4B,$A9,$2C,$85,$19
-        .byte   $A9,$B7,$85,$18,$A9,$CD,$85,$15,$A5,$4A,$4C,$B9,$87,$20,$6F,$C0
-        .byte   $06,$2C,$D0,$53,$48,$49,$45,$4C,$44,$A9,$2C,$85,$19,$A9,$D7,$85
-        .byte   $18,$A9,$CC,$85,$15,$A5,$4B,$D0,$01,$60,$48,$18,$69,$03,$20,$4B
-        .byte   $C0,$20,$3C,$C0,$A8,$68,$85,$10,$99,$00,$01,$A5,$19,$99,$01,$01
-        .byte   $A5,$18,$99,$02,$01,$A5,$15,$99,$03,$01,$C8,$C6,$10,$D0,$F6,$4C
-        .byte   $3F,$C0,$0E,$27,$A1,$03,$0E,$2D,$81,$0C,$8C,$2C,$01,$05,$8C,$2C
-        .byte   $0E,$0A,$01,$27,$A1,$07,$01,$27,$AE,$0B,$01,$2D,$81,$0D,$01,$2D
-        .byte   $8E,$0E,$FF,$A5,$A5,$D0,$FC,$A2,$00,$BD,$E4,$87,$C9,$FF,$F0,$1B
-        .byte   $85,$15,$BD,$E5,$87,$85,$19,$BD,$E6,$87,$85,$18,$BD,$E7,$87,$85
-        .byte   $14,$20,$36,$C0,$8A,$18,$69,$04,$AA,$D0,$DE,$A9,$8A,$85,$1B,$A9
-        .byte   $6E,$85,$1A,$A9,$2C,$85,$19,$A9,$02,$85,$18,$A9,$00,$85,$17,$A9
-        .byte   $00,$85,$14,$A2,$0B,$A9,$00,$9D,$50,$01,$CA,$10,$FA,$A9,$00,$85
-        .byte   $15,$A0,$00,$B1,$1A,$C9,$80,$F0,$5E,$A0,$01,$B1,$1A,$29,$07,$F0
-        .byte   $0B,$38,$E9,$01,$20,$78,$C0,$2D,$B0,$04,$F0,$4B,$20,$1F,$89,$A0
-        .byte   $00,$B1,$1A,$10,$42,$A0,$02,$B1,$1A,$10,$3C,$29,$7F,$C9,$15,$D0
-        .byte   $0E,$AD,$AA,$04,$09,$FC,$2D,$A9,$04,$C9,$FF,$D0,$2A,$F0,$05,$20
-        .byte   $7B,$C0,$90,$23,$A4,$17,$A5,$15,$0A,$0A,$69,$10,$99,$03,$02,$98
-        .byte   $69,$04,$85,$17,$A5,$14,$0A,$0A,$69,$3B,$99,$00,$02,$A9,$01,$99
-        .byte   $01,$02,$A9,$03,$99,$02,$02,$A0,$00,$B1,$1A,$29,$0F,$38,$65,$1A
-        .byte   $85,$1A,$A5,$1B,$69,$00,$85,$1B,$E6,$15,$A5,$15,$C9,$18,$F0,$03
-        .byte   $4C,$53,$88,$E6,$14,$A5,$14,$4A,$90,$03,$4C,$4F,$88,$A9,$0F,$20
-        .byte   $4B,$C0,$20,$3C,$C0,$A8,$A9,$0C,$99,$00,$01,$A5,$18,$99,$02,$01
-        .byte   $18,$69,$20,$85,$18,$A5,$19,$99,$01,$01,$69,$00,$85,$19,$A2,$00
-        .byte   $BD,$50,$01,$D0,$02,$A9,$20,$99,$03,$01,$C8,$E8,$E0,$0C,$D0,$F0
-        .byte   $20,$3F,$C0,$A5,$14,$C9,$18,$F0,$03,$4C,$45,$88,$60,$A5,$14,$4A
-        .byte   $A0,$01,$90,$02,$A0,$04,$A5,$15,$4A,$AA,$98,$90,$01,$0A,$1D,$50
-        .byte   $01,$9D,$50,$01,$60
+; ---- bank5.inline_8785 (text) $8785-$878D, 9 bytes
+; "ATTACK" at $8785
+        .byte   $06,$2C,$B0,$41,$54,$54,$41,$43,$4B
 
-; ---- bank5.code_8937 (code) $8937-$89C7, 145 bytes
+; ---- bank5.code_878E (code) $878E-$87A1, 20 bytes
+        lda     #$2C
+        sta     $19
+        lda     #$B7
+        sta     $18
+        lda     #$CD
+        sta     $15
+        lda     $4A
+        jmp     L5_87B9
+L5_879F:
+        jsr     L7_C06F
+
+; ---- bank5.inline_87A2 (text) $87A2-$87AA, 9 bytes
+; "SHIELD" at $87A2
+        .byte   $06,$2C,$D0,$53,$48,$49,$45,$4C,$44
+
+; ---- bank5.code_87AB (code) $87AB-$87E3, 57 bytes
+        lda     #$2C
+        sta     $19
+        lda     #$D7
+        sta     $18
+        lda     #$CC
+        sta     $15
+        lda     $4B
+L5_87B9:
+        bne     L5_87BC
+        rts
+L5_87BC:
+        pha
+        clc
+        adc     #$03
+        jsr     L7_C04B
+        jsr     L7_C03C
+        tay
+        pla
+        sta     $10
+        sta     $0100,Y
+        lda     $19
+        sta     $0101,Y
+        lda     $18
+        sta     $0102,Y
+L5_87D7:
+        lda     $15
+        sta     $0103,Y
+        iny
+        dec     $10
+        bne     L5_87D7
+        jmp     L7_C03F
+
+; ---- UNCLAIMED (gap) $87E4-$8804, 33 bytes
+        .byte   $0E,$27,$A1,$03,$0E,$2D,$81,$0C,$8C,$2C,$01,$05,$8C,$2C,$0E,$0A
+        .byte   $01,$27,$A1,$07,$01,$27,$AE,$0B,$01,$2D,$81,$0D,$01,$2D,$8E,$0E
+        .byte   $FF
+
+; ---- bank5.code_8805 (code) $8805-$89C7, 451 bytes
+L5_8805:
+        lda     $A5
+        bne     L5_8805
+        ldx     #$00
+L5_880B:
+        lda     $87E4,X
+        cmp     #$FF
+        beq     L5_882D
+        sta     $15
+        lda     $87E5,X
+        sta     $19
+        lda     $87E6,X
+        sta     $18
+        lda     $87E7,X
+        sta     $14
+        jsr     L7_C036
+        txa
+        clc
+        adc     #$04
+        tax
+        bne     L5_880B
+L5_882D:
+        lda     #$8A
+        sta     $1B
+        lda     #$6E
+        sta     $1A
+        lda     #$2C
+        sta     $19
+        lda     #$02
+        sta     $18
+        lda     #$00
+        sta     $17
+        lda     #$00
+        sta     $14
+L5_8845:
+        ldx     #$0B
+        lda     #$00
+L5_8849:
+        sta     $0150,X
+        dex
+        bpl     L5_8849
+L5_884F:
+        lda     #$00
+        sta     $15
+L5_8853:
+        ldy     #$00
+        lda     ($1A),Y
+        cmp     #$80
+        beq     L5_88B9
+        ldy     #$01
+        lda     ($1A),Y
+        and     #$07
+        beq     L5_886E
+        sec
+        sbc     #$01
+        jsr     L7_C078
+        and     $04B0
+        beq     L5_88B9
+L5_886E:
+        jsr     L5_891F
+        ldy     #$00
+        lda     ($1A),Y
+        bpl     L5_88B9
+        ldy     #$02
+        lda     ($1A),Y
+        bpl     L5_88B9
+        and     #$7F
+        cmp     #$15
+        bne     L5_8891
+        lda     $04AA
+        ora     #$FC
+        and     $04A9
+        cmp     #$FF
+        bne     L5_88B9
+        beq     L5_8896
+L5_8891:
+        jsr     L7_C07B
+        bcc     L5_88B9
+L5_8896:
+        ldy     $17
+        lda     $15
+        asl     A
+        asl     A
+        adc     #$10
+        sta     $0203,Y
+        tya
+        adc     #$04
+        sta     $17
+        lda     $14
+        asl     A
+        asl     A
+        adc     #$3B
+        sta     $0200,Y
+        lda     #$01
+        sta     $0201,Y
+        lda     #$03
+        sta     $0202,Y
+L5_88B9:
+        ldy     #$00
+        lda     ($1A),Y
+        and     #$0F
+        sec
+        adc     $1A
+        sta     $1A
+        lda     $1B
+        adc     #$00
+        sta     $1B
+        inc     $15
+        lda     $15
+        cmp     #$18
+        beq     L5_88D5
+        jmp     L5_8853
+L5_88D5:
+        inc     $14
+        lda     $14
+        lsr     A
+        bcc     L5_88DF
+        jmp     L5_884F
+L5_88DF:
+        lda     #$0F
+        jsr     L7_C04B
+        jsr     L7_C03C
+        tay
+        lda     #$0C
+        sta     $0100,Y
+        lda     $18
+        sta     $0102,Y
+        clc
+        adc     #$20
+        sta     $18
+        lda     $19
+        sta     $0101,Y
+        adc     #$00
+        sta     $19
+        ldx     #$00
+L5_8902:
+        lda     $0150,X
+        bne     L5_8909
+        lda     #$20
+L5_8909:
+        sta     $0103,Y
+        iny
+        inx
+        cpx     #$0C
+        bne     L5_8902
+        jsr     L7_C03F
+        lda     $14
+        cmp     #$18
+        beq     L5_891E
+        jmp     L5_8845
+L5_891E:
+        rts
+L5_891F:
+        lda     $14
+        lsr     A
+        ldy     #$01
+        bcc     L5_8928
+        ldy     #$04
+L5_8928:
+        lda     $15
+        lsr     A
+        tax
+        tya
+        bcc     L5_8930
+        asl     A
+L5_8930:
+        ora     $0150,X
+        sta     $0150,X
+        rts
 L5_8937:
         lda     $F5
         ora     $F6

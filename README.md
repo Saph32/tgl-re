@@ -32,6 +32,7 @@ python tools/whereis.py --bytes "4C DE FE"   # which bank really holds these byt
 python tools/trace-code.py --assumptions # the code trace, and what its answer rests on
 python tools/gen-code-regions.py         # regenerate the traced code regions
 python tools/reassemble.py               # rebuild the ROM from the map; write disasm/
+python tools/trace-code.py --inline      # calls with inline argument data
 ```
 
 `tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
@@ -109,3 +110,8 @@ it. The last one it caught was a typo in this project's own `annotations/rom.jso
 
 **Zero illegal opcodes says the trace stayed on the rails everywhere it went. It says
 nothing about where it did not go.** Bank 4 is at 20 bytes of 16,384.
+
+The game's on-screen text is decoded — 32 strings in six banks, plain ASCII, listed at
+`docs/text.html` with the PPU address each one is written to. None of it is a block of text
+sitting in the ROM: every string is written inline after the `JSR` that prints it, so all of
+them were found by the code trace rather than by searching for text.

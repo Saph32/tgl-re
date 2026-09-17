@@ -74,6 +74,18 @@ DATA_DESC = (
 )
 
 
+STR_DESC = (
+    "A queued PPU write item, written inline after `JSR ${target:04X}` at bank {bank} "
+    "${site:04X}. {shape} "
+    "The block is {size} bytes and the caller resumes immediately after it; the length "
+    "comes from the first byte by the rule in $D591 - (byte & $7F) + 3 below $C0, 9 at or "
+    "above - and $D5A5 advances the routine's own pointer by exactly that. "
+    "{payload}"
+    "Characters are ASCII for the letters and space. NOT ESTABLISHED: the glyphs for codes "
+    "outside A-Z and space, which only the font can settle - and no font has been found "
+    "yet, because CHR is RAM on this cartridge."
+)
+
 FAR_DESC = (
     "Three bytes of far-call argument following `JSR $D76F` at bank {bank} ${site:04X} - "
     "bank number, then the target address minus one, little-endian. They select "
@@ -118,7 +130,7 @@ def main() -> int:
         return 1
 
     tr = trace_code.Trace(rm)
-    tr.run()
+    tr.run_to_fixpoint()
     meta = rm.meta
 
     claimed = {o for r in rm.regions for o in range(r["offset"], r["end"])}
@@ -126,7 +138,7 @@ def main() -> int:
     # four a $D5CC call consumes. The jump tables are deliberately NOT here - the trace
     # knows where one entry is, not how many entries there are, and claiming the part it
     # walked to would be claiming an extent nothing establishes.
-    sized = {"fixed", "farcall"}
+    sized = {"fixed", "farcall", "ppu_string"}
     inline_bytes = {o for d in tr.sites_inline_data if d["kind"] in sized
                     for o in range(d["offset"], d["offset"] + d["size"])}
 
@@ -166,7 +178,47 @@ def main() -> int:
         rel = off - meta["prg_offset"]
         bank = rel // meta["prg_bank_size"]
         addr = bank_window(meta, bank) + rel % meta["prg_bank_size"]
-        if d["kind"] == "farcall":
+        # Reset per block. Leaving this out let `kind` leak from the previous iteration and
+        # every far-call argument that happened to follow a readable string was published
+        # as kind "text" with a description that said, correctly, that it was three bytes of
+        # far-call argument. The description and the kind disagreed and nothing compared
+        # them.
+        kind = "data"
+        if d["kind"] == "ppu_string":
+            site = next(c for c in tr.sites_inline
+                        if c["bank"] == d["bank"] and c["addr"] == d["addr"] - 3)
+            count = d["count"]
+            if site["target"] in (0xD576, 0xC06F):
+                shape = ("Its shape is [count][ppu_hi][ppu_lo][count characters]: the "
+                         f"destination ${rm.rom[off + 1]:02X}{rm.rom[off + 2]:02X} is in the "
+                         "block itself.")
+                chars = rm.rom[off + 3:off + d["size"]]
+            else:
+                shape = ("Its shape is [count][count characters]: unlike $D576 this routine "
+                         "takes the PPU address from $18/$19 in RAM rather than from the "
+                         "stream, which is what makes its block two bytes shorter.")
+                chars = rm.rom[off + 1:off + d["size"]]
+            printable = sum(1 for c in chars if 32 <= c < 127)
+            text = "".join(chr(c) if 32 <= c < 127 else "." for c in chars)
+            if chars and printable / len(chars) >= 0.8:
+                kind = "text"
+                payload = f'It reads "{text}". '
+                name = f'"{text}" at ${addr:04X}'
+            else:
+                kind = "data"
+                payload = (f"The {len(chars)} payload bytes are {text!r} read as ASCII, "
+                           "which is not text - so they are tile numbers for something "
+                           "drawn rather than written, and this region is kind data on "
+                           "that ground alone. ")
+                name = f"Queued PPU write at ${addr:04X}"
+            if count >= 0xC0:
+                payload += (f"The count byte is ${count:02X}, at or above $C0, so its length "
+                            "is the fixed 9 rather than a character count - the one branch "
+                            "of $D591 that does not derive the length from the byte. ")
+            description = STR_DESC.format(target=site["target"], bank=bank,
+                                          site=d["addr"] - 3, shape=shape,
+                                          size=d["size"], payload=payload)
+        elif d["kind"] == "farcall":
             call = next(c for c in tr.sites_farcalls
                         if c["bank"] == d["bank"] and c["addr"] == d["addr"] - 3)
             description = FAR_DESC.format(bank=bank, site=d["addr"] - 3,
@@ -186,7 +238,7 @@ def main() -> int:
             "id": f"bank{bank}.inline_{addr:04X}",
             "offset": off,
             "size": d["size"],
-            "kind": "data",
+            "kind": kind,
             "name": name,
             "confidence": "confirmed",
             "cpu_addr": addr,
@@ -209,10 +261,9 @@ def main() -> int:
     covered = sum(r["size"] for r in regions)
     print(f"{len(regions)} regions, {covered:,} bytes "
           f"({100 * covered / meta['prg_size']:.2f}% of PRG)")
-    print(f"  code {sum(r['size'] for r in regions if r['kind'] == 'code'):,} bytes in "
-          f"{sum(1 for r in regions if r['kind'] == 'code')} regions")
-    print(f"  data {sum(r['size'] for r in regions if r['kind'] == 'data'):,} bytes in "
-          f"{sum(1 for r in regions if r['kind'] == 'data')} regions")
+    for kind in sorted({r["kind"] for r in regions}):
+        rs = [r for r in regions if r["kind"] == kind]
+        print(f"  {kind:<5} {sum(r['size'] for r in rs):>6,} bytes in {len(rs):>3} regions")
 
     if args.check:
         old = OUT.read_text(encoding="utf-8") if OUT.exists() else ""

@@ -41,9 +41,13 @@ What the model covers
   RTS add the one back. The call site continues at pc+6 with its own bank restored, which
   is what $D79C does on the way home.
 * **Inline-argument calls**, from `annotations/dispatch.json`. Six routines in this ROM pop
-  their own return address and read the bytes after the call as data. One has a fixed
-  length and is stepped over; three are jump tables whose entry the trace resolves from A
-  or Y; two are variable-length streams the trace stops at rather than guessing.
+  their own return address and read the bytes after the call as data. Two queue a PPU
+  string whose length is a function of its first byte; one takes a fixed four bytes; three
+  are jump tables whose entry the trace resolves from A or Y and which never come back.
+* **Routines that never return**, computed rather than listed: a callee with no reachable
+  RTS does not resume at the instruction after the call, so the bytes there are not code.
+  This needs the trace and the trace needs it, so `run_to_fixpoint` iterates the two - two
+  passes on this ROM.
 * **Complementary branch pairs.** `BNE x / BEQ y` back to back is an unconditional two-way,
   so the second branch's fall-through is unreachable - and in this ROM it is a data table.
 * A small constant tracker for A, X and Y - immediates, the transfers between them, and
@@ -220,12 +224,19 @@ class Trace:
         self.inline_data: list[dict] = []
         self.dispatched: list[dict] = []
         self.unconditional_pairs: list[dict] = []
+        self.nonreturn_sites: list[dict] = []
+        self.farcall_targets: set[tuple] = set()
+        self._last_nonreturning: set[tuple] = set()
         # For the reassembler. `flow` maps an instruction's file offset to the file offsets
         # its OPERAND names - one per live bank it was reached under, so a bank-7 site that
         # calls $8000 can have several. `entry_points` holds every offset that must be an
         # instruction start for some reason other than an operand: a vector, an entry slot,
         # a far-call target, a resolved dispatch entry.
         self.flow: dict[int, set[int]] = {}
+        # Routines that never resume at the instruction after the call, as
+        # (live bank, address). Computed by `find_nonreturning`, not listed by
+        # hand, and fed back into a second pass - see `run_to_fixpoint`.
+        self.nonreturning: set[tuple] = set()
         self.entry_points: set[int] = set()
         self.aliases = entry_aliases(rm)
         self.registry = load_registry(ROOT)
@@ -305,7 +316,132 @@ class Trace:
             k += 3
         return out
 
+    # -- does a routine ever come back? ------------------------------------------
+
+    def _can_return(self, live, start) -> bool:
+        """Can any path from ``start`` reach an RTS or RTI?
+
+        Deliberately conservative: anything this cannot reason about - an indirect jump, an
+        illegal opcode, a tail call into the window with the bank unknown - counts as "yes,
+        it may return", so a routine is only called non-returning when every path out of it
+        is accounted for. A false "no" would make the trace stop at a live call site and
+        silently lose everything downstream, which is the more expensive mistake.
+        """
+        seen, work = set(), [(live, start)]
+        while work:
+            lv, a = work.pop()
+            while True:
+                place = self.m.resolve(lv, a)
+                if place is None or (lv, a) in seen:
+                    if place is None:
+                        return True          # cannot see it; assume it may return
+                    break
+                seen.add((lv, a))
+                insn = self.m.decode_at(lv, a)
+                if insn.mnemonic == "TRUNC" or insn.raw[0] not in DOCUMENTED:
+                    return True
+                if insn.mnemonic in ("RTS", "RTI"):
+                    return True
+                if insn.mnemonic in ("BRK", "KIL"):
+                    break
+                target = self._unalias(lv, insn.target)
+
+                if insn.mnemonic == "JSR" and target in SWITCH_FIXED:
+                    lv = SWITCH_FIXED[target]
+                    a += insn.size
+                    continue
+                if insn.mnemonic == "JSR" and target == SWITCH_A:
+                    return True              # bank now unknown; do not reason further
+                if insn.mnemonic == "JSR" and target == FARCALL:
+                    a += insn.size + 3
+                    continue
+                entry = self._inline_entry(lv, target) if insn.mnemonic == "JSR" else None
+                if entry is not None:
+                    if entry["kind"] == "jump_table":
+                        break                # RTSes into the table; never comes back here
+                    if entry["kind"] == "fixed":
+                        a += insn.size + entry["length"]
+                        continue
+                    count = self.m.byte(lv, a + insn.size)
+                    if count is None:
+                        return True
+                    length = 9 if count >= 0xC0 else (count & 0x7F) + 3
+                    a += insn.size + length + entry.get("block_adjust", 0)
+                    continue
+                if insn.mnemonic == "JSR":
+                    # The callee's body is NOT explored. An RTS inside a callee returns to
+                    # *this* routine, not out of it, so counting it would make almost every
+                    # routine look like it returns - which is what the first version of
+                    # this did, and why it found 22 non-returning routines and stopped at
+                    # none of them. Only an RTS reached without going through a JSR is a
+                    # way out of this routine.
+                    if (lv, target) in self.nonreturning:
+                        break
+                    a += insn.size
+                    continue
+                if insn.mnemonic == "JMP":
+                    if insn.mode != "abs":
+                        return True          # computed target; unknowable
+                    a = target
+                    continue
+                if insn.mnemonic in BRANCHES:
+                    work.append((lv, target))
+                a += insn.size
+        return False
+
+    def find_nonreturning(self) -> set[tuple]:
+        """Every reached JSR target with no reachable RTS, to a fixed point."""
+        found = set(self.nonreturning)
+        for (bank, addr), entry in self.inline.items():
+            if entry["kind"] == "jump_table":
+                found.add((bank, addr))
+                if bank is None:
+                    for n in range(self.rm.meta["prg_bank_count"]):
+                        found.add((n, addr))
+        changed = True
+        while changed:
+            changed = False
+            self.nonreturning = found
+            candidates = [(s["live"], s["target"]) for s in self.callsites
+                          if s["target"] not in ABI]
+            # A far call is a call. Its target is reached through the trampoline rather
+            # than by a JSR operand, so it is not in callsites - and leaving it out is how
+            # the one real case in this ROM was missed: bank 2 $8AFF far-calls bank 0
+            # $8015, which is an endless display loop, and the bytes after the call are the
+            # data block the pointer built at $8AC8/$8ACC names.
+            candidates += sorted(self.farcall_targets)
+            for key in candidates:
+                if key in found:
+                    continue
+                if not self._can_return(*key):
+                    found.add(key)
+                    changed = True
+        return found
+
     # -- the walk ----------------------------------------------------------------
+
+    def run_to_fixpoint(self, passes: int = 6) -> int:
+        """Trace, work out which routines never return, trace again knowing that.
+
+        Two passes are needed because the two answers depend on each other: the walk has to
+        know whether a callee returns before it can decide the bytes after the call are
+        code, and working that out needs a walk. Iterating to a fixed point is the honest
+        way round it, and the loop is bounded - it settles after two passes on this ROM.
+        """
+        for n in range(1, passes + 1):
+            self.run()
+            found = self.find_nonreturning()
+            if found == self._last_nonreturning:
+                return n
+            self._last_nonreturning = set(found)
+            self._reset(found)
+        return passes
+
+    def _reset(self, nonreturning) -> None:
+        keep = nonreturning
+        self.__init__(self.rm)
+        self.nonreturning = keep
+        self._last_nonreturning = set(keep)
 
     def run(self) -> None:
         self._work: list[tuple] = []
@@ -407,7 +543,11 @@ class Trace:
                 continue
 
             if insn.mnemonic == "JSR" and target == FARCALL:
-                self._farcall(live, bank, addr)
+                dest = self._farcall(live, bank, addr)
+                if dest is not None and dest in self.nonreturning:
+                    self.nonreturn_sites.append({"bank": bank, "addr": addr,
+                                                 "target": target})
+                    return
                 addr += insn.size + 3          # the three inline bytes are not code
                 continue
 
@@ -429,6 +569,24 @@ class Trace:
                                              "size": entry["length"], "kind": "fixed",
                                              "bank": bank, "addr": ret})
                     addr = ret + entry["length"]
+                    continue
+
+                if entry["kind"] == "ppu_string":
+                    # One item per call, and its length is a function of its first byte -
+                    # see the long note in annotations/dispatch.json, which records this as
+                    # a correction to an earlier reading of the same loop.
+                    count = self.m.byte(live, ret)
+                    if count is None:
+                        self.leads.append({"bank": bank, "addr": addr,
+                                           "why": "inline string runs off the bank"})
+                        return
+                    length = 9 if count >= 0xC0 else (count & 0x7F) + 3
+                    n = length + entry.get("block_adjust", 0)
+                    self.inline_data.append({
+                        "offset": self.m.offset(bank, index) + insn.size, "size": n,
+                        "kind": "ppu_string", "bank": bank, "addr": ret, "count": count,
+                        "target": target})
+                    addr = ret + n
                     continue
 
                 if entry["kind"] == "jump_table":
@@ -494,6 +652,15 @@ class Trace:
                 self.callsites.append({"bank": bank, "addr": addr, "live": live,
                                        "target": target})
                 self._push(live, target, (a, x, y), astack)
+                # A callee with no reachable RTS never comes back, so the bytes after the
+                # call are not the next instruction. In this ROM they are usually data: at
+                # bank 2 $8AFF the far call leads to an endless display loop, and the bytes
+                # at $8B05 that the trace used to decode are the block the pointer built at
+                # $8AC8/$8ACC names.
+                if (live, target) in self.nonreturning:
+                    self.nonreturn_sites.append({"bank": bank, "addr": addr,
+                                                 "target": target})
+                    return
             elif insn.mnemonic in BRANCHES:
                 self._push(live, target, (a, x, y), astack)
                 if COMPLEMENT.get(prev) == insn.mnemonic:
@@ -554,10 +721,11 @@ class Trace:
         if None in (lo, mid, hi):
             self.leads.append({"bank": bank, "addr": addr,
                                "why": "far call whose inline bytes run off the bank"})
-            return
+            return None
         target = ((mid | (hi << 8)) + 1) & 0xFFFF
         self.farcalls.append({"bank": bank, "addr": addr, "to_bank": lo & 0x07,
                               "target": target})
+        self.farcall_targets.add((lo & 0x07, target))
         # The three inline bytes are the trampoline's argument, not instructions. Recorded
         # so the region generator can claim them as data instead of leaving a three-byte
         # hole in the middle of a code region.
@@ -565,6 +733,7 @@ class Trace:
                                  self.m.fixed else 0x8000) + 3), "size": 3,
                                  "kind": "farcall", "bank": bank, "addr": addr + 3})
         self.seed(lo & 0x07, target, f"far call from bank {bank} ${addr:04X}")
+        return (lo & 0x07, target)
 
     def _push(self, live, addr, regs, astack) -> None:
         if addr is not None:
@@ -724,11 +893,11 @@ nothing at all about where it did not go.
     known: JMP ($10C0) in bank 2, where $10C0 mirrors $00C0 in CPU RAM. Playbook section 4
     records a RAM NMI vector hiding a quarter of a bank on another cartridge. Nothing that
     installs this one has been looked for.
- 4. **The two variable-length inline streams are not stepped over.** $D576 and $D53F read a
-    run of items through their own return address and resume after it, but where the run
-    stops has not been established, so the trace stops at each of their call sites instead
-    of inventing a resumption point. That is roughly two dozen paths that simply end, and it
-    is the largest single thing between this figure and a bigger one.
+ 4. **The inline PPU strings are stepped over on a rule read from $D591**, not on a
+    terminator: (first byte & $7F) + 3, less two for $D53F. Every one of the 32 blocks
+    resumes on a legal opcode, which is 32 independent agreements and is why this is in the
+    model rather than in the leads. What it does NOT establish is the $C0-and-above form:
+    two sites use it, its length is a fixed 9, and nothing says what the nine bytes are.
  5. **The inline jump tables are read at one entry each.** The trace resolves the entry the
     caller's index selects and no other, because nothing in the helper bounds the index.
     The count has to come from each caller - per playbook section 3, from an index mask or
@@ -746,10 +915,15 @@ nothing at all about where it did not go.
     not merge the register states of two paths meeting at one address. The first visitor to
     an address wins, which is the bug playbook section 6 names for find-callargs: a second
     predecessor carrying different constants is never walked.
- 9. **A bank is entered only where something reaches it.** Bank 4 is at 19 bytes of 16,384
+ 9. **"Never returns" is conservative by construction.** `_can_return` answers "it may
+    return" for anything it cannot reason about - an indirect jump, an illegal opcode, a
+    bank switch through A. So the 26 it names are sound and the list is a lower bound;
+    a routine that really never returns but exits through something unmodelled is still
+    treated as returning, and the bytes after the call are still decoded.
+10. **A bank is entered only where something reaches it.** Bank 4 is at 19 bytes of 16,384
     and nothing in the ROM far-calls it. "Nothing reaches this" is a claim about the
     searcher, not the ROM.
-10. **No latch write outside the nine routines is modelled.** On UxROM *any* store into
+11. **No latch write outside the nine routines is modelled.** On UxROM *any* store into
     $8000-$FFFF loads the bank register, so a stray STA $8000 would switch banks. An
     instruction-walk inventory of such stores over traced code is the check for this, and it
     has not been built. A byte scan is useless here - it returns thousands of operand bytes
@@ -784,7 +958,7 @@ def main() -> int:
         return 1
 
     tr = Trace(rm)
-    tr.run()
+    passes = tr.run_to_fixpoint()
     meta = rm.meta
     size = meta["prg_size"]
 
@@ -824,7 +998,11 @@ def main() -> int:
               f"bank {c['to_bank']} ${c['target']:04X}")
 
     changers, risky = bank_changing_calls(tr)
-    print(f"\n{len(tr.sites_switches)} bank-switch sites reached, "
+    stops = Trace._by_site(tr.nonreturn_sites, "bank", "addr")
+    print(f"\n{len(tr.nonreturning)} reached routines never return - no RTS is reachable in "
+          f"any of them - and the walk stops at {len(stops)} call sites because of it "
+          f"(settled in {passes} passes)")
+    print(f"{len(tr.sites_switches)} bank-switch sites reached, "
           f"{len(tr.sites_leads)} leads, "
           f"{len(tr.unknown_bank_entries)} entries into $8000-$BFFF with the bank unknown")
     print(f"{len(changers)} reached routines contain a bank switch; "
