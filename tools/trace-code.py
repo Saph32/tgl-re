@@ -220,6 +220,13 @@ class Trace:
         self.inline_data: list[dict] = []
         self.dispatched: list[dict] = []
         self.unconditional_pairs: list[dict] = []
+        # For the reassembler. `flow` maps an instruction's file offset to the file offsets
+        # its OPERAND names - one per live bank it was reached under, so a bank-7 site that
+        # calls $8000 can have several. `entry_points` holds every offset that must be an
+        # instruction start for some reason other than an operand: a vector, an entry slot,
+        # a far-call target, a resolved dispatch entry.
+        self.flow: dict[int, set[int]] = {}
+        self.entry_points: set[int] = set()
         self.aliases = entry_aliases(rm)
         self.registry = load_registry(ROOT)
         # Keyed by (bank, address) because three of these helpers live in switchable
@@ -275,6 +282,9 @@ class Trace:
 
     def seed(self, live: int | None, addr: int, why: str) -> None:
         self.seeds.append({"bank": live, "addr": addr, "why": why})
+        place = self.m.resolve(live, addr)
+        if place is not None:
+            self.entry_points.add(self.m.offset(*place))
         self._work.append((live, addr, (None, None, None), ()))
 
     def entry_table(self, bank: int) -> list[int]:
@@ -362,6 +372,17 @@ class Trace:
             # so the target is resolved through the aliases before anything is matched on it.
             target = self._unalias(live, insn.target)
 
+            # Record the operand-level control transfer for the reassembler, which turns
+            # these into labels. The RAW operand is recorded, not the unaliased target: the
+            # listing has to print `jsr L7_C06F` for a call through an entry slot, because
+            # $C06F is the address in the bytes. Where the slot leads is the tracer's
+            # business, not the assembler's.
+            if insn.mnemonic in ("JSR", "JMP") or insn.mnemonic in BRANCHES:
+                if insn.target is not None and insn.mode != "ind":
+                    dest = self.m.resolve(live, insn.target)
+                    if dest is not None:
+                        self.flow.setdefault(off, set()).add(self.m.offset(*dest))
+
             # --- the bank-switch ABI, recognised by target -----------------------
             if insn.mnemonic == "JSR" and target in SWITCH_FIXED:
                 new = SWITCH_FIXED[target]
@@ -439,6 +460,9 @@ class Trace:
                                              "bank": bank, "addr": ret})
                     self.dispatched.append({"bank": bank, "addr": addr, "index": idx // 2,
                                             "target": dest})
+                    place = self.m.resolve(live, dest)
+                    if place is not None:
+                        self.entry_points.add(self.m.offset(*place))
                     self._push(live, dest, (a, x, None), astack)
                     return
 
@@ -534,6 +558,12 @@ class Trace:
         target = ((mid | (hi << 8)) + 1) & 0xFFFF
         self.farcalls.append({"bank": bank, "addr": addr, "to_bank": lo & 0x07,
                               "target": target})
+        # The three inline bytes are the trampoline's argument, not instructions. Recorded
+        # so the region generator can claim them as data instead of leaving a three-byte
+        # hole in the middle of a code region.
+        self.inline_data.append({"offset": self.m.offset(bank, addr - (0xC000 if bank ==
+                                 self.m.fixed else 0x8000) + 3), "size": 3,
+                                 "kind": "farcall", "bank": bank, "addr": addr + 3})
         self.seed(lo & 0x07, target, f"far call from bank {bank} ${addr:04X}")
 
     def _push(self, live, addr, regs, astack) -> None:

@@ -238,6 +238,22 @@ def _check_region(region: dict, rom: bytes, meta: dict) -> dict:
     region["segment"] = _derive_segment(region, meta, bad)
     region["prg_bank"] = _derive_prg_bank(region, meta, bad)
     region["cpu_addr"] = _derive_cpu_addr(region, meta, bad)
+
+    # An id ending in four hex digits names an address, so it has to be the address the
+    # region is actually at. This looks like pedantry and is not: it is the only check that
+    # catches two same-sized regions whose offsets have been swapped. That corruption
+    # survives everything else - the same bytes are emitted in the same order, so the
+    # reassembly is still exact, and if the SHA-1s are recomputed they match too. Confirmed
+    # by doing it on purpose: bank0.code_8187 and bank0.code_818E were swapped with their
+    # hashes recomputed and the whole 131,088 bytes still rebuilt byte for byte.
+    if region["cpu_addr"] is not None and len(rid) > 5 and rid[-5] == "_":
+        try:
+            named = int(rid[-4:], 16)
+        except ValueError:
+            named = None
+        if named is not None and named != region["cpu_addr"]:
+            raise bad(f"the id names ${named:04X} but the region is at "
+                      f"${region['cpu_addr']:04X}")
     region["fields"] = [_check_field(f, region, rom, bad) for f in region.get("fields", [])]
     return region
 

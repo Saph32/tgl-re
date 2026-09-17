@@ -74,6 +74,17 @@ DATA_DESC = (
 )
 
 
+FAR_DESC = (
+    "Three bytes of far-call argument following `JSR $D76F` at bank {bank} ${site:04X} - "
+    "bank number, then the target address minus one, little-endian. They select "
+    "**bank {to_bank} ${target:04X}**. The stored word is ${stored:04X} rather than "
+    "${target:04X} because $D790 pushes these two bytes as a fake return address and lets "
+    "RTS add the one back; that is not an inference, it is what the four instructions at "
+    "$D799-$D7A4 do. A far call is the one reference in this ROM that no grep for an "
+    "operand will ever surface, so the target is recorded here where a reader will find it."
+)
+
+
 def _runs(offsets: set[int], meta: dict) -> list[tuple[int, int]]:
     """Contiguous stretches, split at PRG bank boundaries.
 
@@ -111,7 +122,12 @@ def main() -> int:
     meta = rm.meta
 
     claimed = {o for r in rm.regions for o in range(r["offset"], r["end"])}
-    inline_bytes = {o for d in tr.sites_inline_data if d["kind"] == "fixed"
+    # The inline blocks whose length is established: a far call's three bytes, and the
+    # four a $D5CC call consumes. The jump tables are deliberately NOT here - the trace
+    # knows where one entry is, not how many entries there are, and claiming the part it
+    # walked to would be claiming an extent nothing establishes.
+    sized = {"fixed", "farcall"}
+    inline_bytes = {o for d in tr.sites_inline_data if d["kind"] in sized
                     for o in range(d["offset"], d["offset"] + d["size"])}
 
     code = tr.covered - claimed - inline_bytes
@@ -143,28 +159,39 @@ def main() -> int:
 
     by_site = {}
     for d in tr.sites_inline_data:
-        if d["kind"] != "fixed" or d["offset"] in claimed:
+        if d["kind"] not in sized or d["offset"] in claimed:
             continue
         by_site[d["offset"]] = d
     for off, d in sorted(by_site.items()):
         rel = off - meta["prg_offset"]
         bank = rel // meta["prg_bank_size"]
         addr = bank_window(meta, bank) + rel % meta["prg_bank_size"]
-        site = next(c for c in tr.sites_inline
-                    if c["bank"] == d["bank"] and c["addr"] == d["addr"] - 3)
-        entry = tr.inline.get((None, site["target"])) or tr.inline[(bank, site["target"])]
+        if d["kind"] == "farcall":
+            call = next(c for c in tr.sites_farcalls
+                        if c["bank"] == d["bank"] and c["addr"] == d["addr"] - 3)
+            description = FAR_DESC.format(bank=bank, site=d["addr"] - 3,
+                                          to_bank=call["to_bank"], target=call["target"],
+                                          stored=(call["target"] - 1) & 0xFFFF)
+            name = f"Far-call argument at ${addr:04X}"
+        else:
+            site = next(c for c in tr.sites_inline
+                        if c["bank"] == d["bank"] and c["addr"] == d["addr"] - 3)
+            entry = (tr.inline.get((None, site["target"]))
+                     or tr.inline[(bank, site["target"])])
+            description = DATA_DESC.format(size=d["size"], target=site["target"],
+                                           bank=bank, site=d["addr"] - 3,
+                                           name=entry["name"])
+            name = f"Inline argument at ${addr:04X}"
         regions.append({
             "id": f"bank{bank}.inline_{addr:04X}",
             "offset": off,
             "size": d["size"],
             "kind": "data",
-            "name": f"Inline argument at ${addr:04X}",
+            "name": name,
             "confidence": "confirmed",
             "cpu_addr": addr,
             "sha1": hashlib.sha1(rm.rom[off:off + d["size"]]).hexdigest(),
-            "description": DATA_DESC.format(size=d["size"], target=site["target"],
-                                            bank=bank, site=d["addr"] - 3,
-                                            name=entry["name"]),
+            "description": description,
         })
 
     regions.sort(key=lambda r: r["offset"])

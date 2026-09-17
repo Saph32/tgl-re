@@ -31,6 +31,7 @@ python tools/whereis.py 8000 --bank 5    # an address in the switchable window
 python tools/whereis.py --bytes "4C DE FE"   # which bank really holds these bytes
 python tools/trace-code.py --assumptions # the code trace, and what its answer rests on
 python tools/gen-code-regions.py         # regenerate the traced code regions
+python tools/reassemble.py               # rebuild the ROM from the map; write disasm/
 ```
 
 `tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
@@ -69,7 +70,18 @@ every build:
   produces plausible noise rather than an error;
 - every region must get a card on some page of the site, so nothing can be annotated and
   then quietly not shown;
-- coverage percentages are computed, never typed.
+- coverage percentages are computed, never typed;
+- and the whole ROM is rebuilt from the region map and compared byte for byte.
+
+That last one needs a caveat stated up front, because it is easy to over-read: **the byte
+comparison alone cannot catch a wrong instruction-start address.** Disassembling and
+reassembling is faithful at whatever alignment you start from, so a region beginning one
+byte early rebuilds perfectly and prints a listing that reads fine. What catches it is a
+separate check — a code region's first byte must be one the trace begins an instruction at
+— along with a third, that every control-flow target resolves to an instruction start
+inside a code region. Both were confirmed to fail when they should by breaking the map on
+purpose, as were the checks for a region ending mid-instruction, a code region relabelled
+as data, and two same-sized regions trading places.
 
 Every region also carries a **confidence**: *confirmed* means the claim was checked
 against the bytes or against code that executes; *lead* means it is a hypothesis worth

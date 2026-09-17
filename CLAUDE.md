@@ -34,17 +34,44 @@ wrong finding away.
   **That file is generated; a hand edit to it is lost on the next run.** To say more about
   a stretch than the trace can, claim it in a hand-authored file — the generator subtracts
   everything already claimed before it emits, so a hand-written region always wins.
+- `tools/reassemble.py` — **the gate.** Writes `disasm/`, assembles it back against one
+  shared label table and refuses unless the image is the ROM byte for byte.
+  `tools/tgl/asm.py` is the assembler behind it; read its header before citing the check.
 - `annotations/dispatch.json` — hand-resolved control flow the trace cannot follow: the
   inline-argument call registry, the rejects from the scan that found it, and an
   `unresolved` list. **An empty `unresolved` list would be a weaker statement than it
   sounds** — it says every table the file knows about is resolved, not that every table is
   in the file.
-- `docs/` — generated. Never hand-edit; the tools overwrite it.
+- `disasm/` and `docs/` — generated. Never hand-edit; the tools overwrite them.
 
 What the build enforces, so you do not have to remember it: every region's SHA-1, no
 overlaps, no region straddling a bank boundary, `codec` mandatory on graphics regions, a
-CPU address that matches what the bank maps, and every region getting a card on some page
-of the site. Coverage percentages are computed, never typed.
+CPU address that matches what the bank maps, an id ending in four hex digits matching that
+address, the three vectors matching the bytes at `$FFFA`, and every region getting a card on
+some page of the site. Coverage percentages are computed, never typed.
+
+**What the reassembly check proves, and what it does not.** All 131,088 bytes rebuild from
+the region map and all 1,792 control-flow targets resolve to instruction starts inside code
+regions. Do not read more into that than it says — each of these was confirmed by breaking
+the map on purpose:
+
+| Corruption | Caught by |
+| --- | --- |
+| a code region starting one byte early | the instruction-start check, *not* byte-exactness |
+| a code region ending mid-instruction | the instruction-boundary check |
+| a code region relabelled as data | an undefined label in the listing |
+| two equal-sized code regions swapped | the SHA-1 |
+| …with their SHA-1s forged to match too | **only the id-vs-address check** — it rebuilds exactly |
+
+That last row is the one to remember: **byte-exactness alone cannot catch a wrong
+instruction-start address, and it cannot catch two regions trading places.** Disassembling
+and reassembling is faithful at any alignment. The byte comparison is the floor; the
+structural checks do the work.
+
+The opcode table is **not** independently verified: `asm.py` is `disasm.py`'s table
+inverted, so an error there cancels between the two directions and the round trip passes.
+The inversion is asserted to be a bijection over the 151 documented opcodes, which catches
+a table typo that made two mnemonic/mode pairs collide, and nothing more.
 
 One check exists on purpose and will look strange: the loader asserts iNES byte 5 is
 **zero**. That is the CHR RAM fact, and everything about how graphics have to be found here
@@ -105,6 +132,11 @@ Do not re-derive these; do check anything that depends on them.
     **jump table**: entry k is the two little-endian bytes at `ret+2k` holding target−1, and
     the caller picks it with `Y = 2k`. Two bytes earlier, `$D6AE` / `$9F10` / `$85F4` is
     `ASL A / TAY` — the same routine entered with the index in A instead.
+- **Every traced call into the switchable window happens under exactly one live bank.**
+  2,810 traced control-transfer sites and not one resolves to two banks. A site in the fixed
+  bank is walked once per live bank that reaches it, so a `JSR $8000` there could legitimately
+  land in several; none does. `reassemble.py` prints the figure on every run, and if it ever
+  stops being zero that is a finding, not a bug.
 - **`BNE x / BEQ y` back to back is unconditional**, so the second branch's fall-through is
   unreachable. There are 38 such pairs, and at bank 5 `$82D7` the bytes being jumped over
   are a table that `$82B9 LDA $82D9,Y` reads.
@@ -163,19 +195,11 @@ authoritative, up-to-date version of this list; what follows is what does not li
    (the per-item handler) to its end before trusting any model of the loop; per playbook
    section 8, a handler with no terminator falls through into another and takes its
    operands, and that is a grammar problem that presents as a data problem.
-2. **`tools/reassemble.py` — the gate.** Generate assembler source from the region map,
-   reassemble, and refuse to write unless the image is the ROM byte for byte. The playbook
-   records that on its first two runs it threw out two wrong instruction-start addresses.
-   Note what it cannot do: byte-exactness is blind to a region that starts one byte early.
-   `gen-code-regions.py` already carries the check that catches that — a code region must
-   begin where the trace began an instruction — and the reassembler needs the companion
-   one, that every control-flow target resolves to an instruction start inside a code
-   region.
-3. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
+2. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
    entry count must come from each caller — an index mask, a `CPY` bound — and never from
    dividing the gap.
-4. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
+3. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
    call anywhere in the ROM targets it.
-5. **Find the `$2007` writers.** That is the whole graphics problem on a CHR RAM cartridge,
+4. **Find the `$2007` writers.** That is the whole graphics problem on a CHR RAM cartridge,
    and the question is what routines write the port, not what points at a block.
-6. Start a RAM map. The list above is already too long to keep in prose.
+5. Start a RAM map. The list above is already too long to keep in prose.
