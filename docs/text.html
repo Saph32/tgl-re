@@ -93,4 +93,210 @@ margin-bottom:6px;font-family:ui-monospace,monospace}
 border:1px solid var(--line)}
 .sw{width:30px;height:24px;font:10px/24px ui-monospace,monospace;text-align:center;
 display:block}
-</style></head><body><nav><div class="inner"><a href="index.html" class="">Overview</a><a href="bank0.html" class="">Bank 0</a><a href="bank1.html" class="">Bank 1</a><a href="bank2.html" class="">Bank 2</a><a href="bank3.html" class="">Bank 3</a><a href="bank4.html" class="">Bank 4</a><a href="bank5.html" class="">Bank 5</a><a href="bank6.html" class="">Bank 6</a><a href="bank7.html" class="">Bank 7</a><a href="text.html" class="on">Text</a></div></nav><div class="wrap"><h1>Text</h1><p class="sub">Every string the code writes to the screen through the two inline-argument routines at <code>$D576</code> and <code>$D53F</code>. These are not a block of text somewhere in the ROM: each one is written immediately after the <code>JSR</code> that prints it, so the bytes are scattered through the code of six banks and every one of them was found by the code trace rather than by searching for text.</p><div class="grid"><div class="stat"><div class="k">Strings</div><div class="v">32</div></div><div class="stat"><div class="k">Bytes</div><div class="v">327</div></div><div class="stat"><div class="k">Banks</div><div class="v">6</div></div><div class="stat"><div class="k">Characters</div><div class="v">235</div></div></div><div class="note"><strong>The encoding is plain ASCII for A-Z, 0-9, space and a colon.</strong> Not by assumption: sixteen of these blocks read as English on a straight ASCII reading with no substitutions at all, which is more independent agreement than a coincidence can carry. The only codes outside that set anywhere in the payloads are <code>$5B</code> to <code>$5F</code>.</div><div class="note warn"><strong>$5C-$5F are graphics, and $5B is a lead.</strong> Bank 1 writes <code>$5C $5E</code> to PPU <code>$21AF</code> and <code>$5D $5F</code> to <code>$21CF</code> — 32 bytes apart, one nametable row — so those four tiles are one symbol two tiles wide and two tall. That is layout, not resemblance. <code>$5B</code> is different: it sits just after <code>Z</code> and appears at the end of <em>CONGRATULATIONS</em> and twice in <em>FR[ BA[ END</em>, and a full stop fits all three. That is a guess from context and is recorded as one. The thing that would settle it is the font, and there is no font to look at — CHR is RAM here, so no tile exists in this file until code uploads it.</div><h2>The strings</h2><div class="scroll"><table><thead><tr><th>Bank</th><th>Block</th><th>PPU address</th><th>Count</th><th>Bytes</th><th>Reads as</th></tr></thead><tbody><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8191">$8191</a></td><td class="mono">$2720</td><td class="mono">02</td><td class="mono">5</td><td><code>SC</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8199">$8199</a></td><td class="mono">$2735</td><td class="mono">04</td><td class="mono">7</td><td><code>SHOT</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_81A3">$81A3</a></td><td class="mono">$2728</td><td class="mono">07</td><td class="mono">10</td><td><code>0··CHIP</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8237">$8237</a></td><td class="mono">$214B</td><td class="mono">09</td><td class="mono">12</td><td><code>GAME·OVER</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8285">$8285</a></td><td class="mono">$21A7</td><td class="mono">14</td><td class="mono">23</td><td><code>CONTINUE··PUSH·START</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8436">$8436</a></td><td class="mono">$23E9</td><td class="mono">01</td><td class="mono">4</td><td><code>3</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8462">$8462</a></td><td class="mono">$2286</td><td class="mono">83</td><td class="mono">6</td><td><code>:··</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_846C">$846C</a></td><td class="mono">$2286</td><td class="mono">83</td><td class="mono">6</td><td><code>··:</code></td></tr><tr><td class="mono">1</td><td class="mono"><a href="bank1.html#bank1.inline_811C">$811C</a></td><td class="mono">$21AF</td><td class="mono">02</td><td class="mono">5</td><td><code>\^</code></td></tr><tr><td class="mono">1</td><td class="mono"><a href="bank1.html#bank1.inline_8124">$8124</a></td><td class="mono">$21CF</td><td class="mono">02</td><td class="mono">5</td><td><code>]_</code></td></tr><tr><td class="mono">2</td><td class="mono"><a href="bank2.html#bank2.inline_8A4E">$8A4E</a></td><td class="mono">$210C</td><td class="mono">10</td><td class="mono">19</td><td><code>CONGRATULATIONS[</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8038">$8038</a></td><td class="mono">from $18/$19</td><td class="mono">04</td><td class="mono">5</td><td><code>0000</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_80C1">$80C1</a></td><td class="mono">$2084</td><td class="mono">0C</td><td class="mono">15</td><td><code>YOU·GOT·ITEM</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_815B">$815B</a></td><td class="mono">$2328</td><td class="mono">14</td><td class="mono">23</td><td><code>GO·TO·THE·NEXT·SPACE</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8230">$8230</a></td><td class="mono">$2088</td><td class="mono">0A</td><td class="mono">13</td><td><code>SOUND·TEST</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8723">$8723</a></td><td class="mono">$214B</td><td class="mono">06</td><td class="mono">9</td><td><code>GO·OUT</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_872F">$872F</a></td><td class="mono">$218B</td><td class="mono">0A</td><td class="mono">13</td><td><code>WORD·CHECK</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8775">$8775</a></td><td class="mono">$218A</td><td class="mono">0A</td><td class="mono">13</td><td><code>WRONG·WORD</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8B5C">$8B5C</a></td><td class="mono">$222F</td><td class="mono">0B</td><td class="mono">14</td><td><code>FR[·BA[·END</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_852E">$852E</a></td><td class="mono">$27B0</td><td class="mono">03</td><td class="mono">6</td><td><code>KEY</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_85FA">$85FA</a></td><td class="mono">$2DC2</td><td class="mono">02</td><td class="mono">5</td><td><code>NO</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8602">$8602</a></td><td class="mono">$2DE2</td><td class="mono">03</td><td class="mono">6</td><td><code>USE</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8612">$8612</a></td><td class="mono">$2E50</td><td class="mono">02</td><td class="mono">5</td><td><code>EE</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8628">$8628</a></td><td class="mono">$2C90</td><td class="mono">08</td><td class="mono">11</td><td><code>CHIP·MAX</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_864F">$864F</a></td><td class="mono">$2D30</td><td class="mono">0C</td><td class="mono">15</td><td><code>WEAPON·POWER</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8661">$8661</a></td><td class="mono">$2D50</td><td class="mono">08</td><td class="mono">11</td><td><code>USE·CHIP</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8785">$8785</a></td><td class="mono">$2CB0</td><td class="mono">06</td><td class="mono">9</td><td><code>ATTACK</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_87A2">$87A2</a></td><td class="mono">$2CD0</td><td class="mono">06</td><td class="mono">9</td><td><code>SHIELD</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_E162">$E162</a></td><td class="mono">$2762</td><td class="mono">04</td><td class="mono">7</td><td><code>AREA</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_F5CC">$F5CC</a></td><td class="mono">from $18/$19</td><td class="mono">0C</td><td class="mono">13</td><td><code>·YOU·GOT·KEY</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_F687">$F687</a></td><td class="mono">$2086</td><td class="mono">10</td><td class="mono">19</td><td><code>YOUR·FINAL·SCORE</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_F69D">$F69D</a></td><td class="mono">$20CE</td><td class="mono">01</td><td class="mono">4</td><td><code>0</code></td></tr></tbody></table></div><p class="meta">The count byte is the number of characters. A block is that count plus three when the routine is <code>$D576</code>, which carries its PPU address inline, and plus one when it is <code>$D53F</code>, which takes the address from RAM. Two blocks have bit 7 set in the count; it is masked off before the length is worked out, and what it means to the queue that consumes these is not established.</p></div></body></html>
+</style></head><body><nav><div class="inner"><a href="index.html" class="">Overview</a><a href="bank0.html" class="">Bank 0</a><a href="bank1.html" class="">Bank 1</a><a href="bank2.html" class="">Bank 2</a><a href="bank3.html" class="">Bank 3</a><a href="bank4.html" class="">Bank 4</a><a href="bank5.html" class="">Bank 5</a><a href="bank6.html" class="">Bank 6</a><a href="bank7.html" class="">Bank 7</a><a href="text.html" class="on">Text</a></div></nav><div class="wrap"><h1>Text</h1><p class="sub">Three formats, not one, and they are not variations of each other. None of the text in this ROM sits in a block you could find by searching for it: the short strings are written inline after the <code>JSR</code> that prints them, the dialogue is behind a pointer table, and the screen layouts are reached through a pointer built from immediates that appears nowhere as an operand. All of it was found by following code.</p><div class="grid"><div class="stat"><div class="k">Inline strings</div><div class="v">32</div></div><div class="stat"><div class="k">Dialogue messages</div><div class="v">20</div></div><div class="stat"><div class="k">Screen scripts</div><div class="v">3</div></div><div class="stat"><div class="k">Bytes of text</div><div class="v">3,056</div></div></div><div class="note warn"><strong>Every punctuation glyph here is read from context, and the ROM cannot settle any of them.</strong> A font would, and there is no font: CHR is RAM on this cartridge, so no byte of this file is a tile until code uploads one, and no uploader has been found. The letters, digits and space are ASCII and need no argument. The rest are guesses with evidence, and the evidence is counted below.</div><h2>The dialogue script</h2><p class="sub">Twenty messages in bank 5, 2,263 bytes, the longest continuous prose in the ROM. <code>$00</code> ends a message, <code>$01</code> ends a screenful, <code>$0D</code> ends a line.</p><div class="note"><strong>What carries this is not that it decodes.</strong> It is that the twenty messages <em>partition</em> <code>$9639-$9F0F</code> end to end with no gap and nothing over, and that every one of the 21 pointers lands on a message head. Those are two statements about the same bytes from two directions &mdash; the table and the terminators &mdash; and neither was derived from the other. A grammar whose lengths were all one short would still cover every byte.</div><div class="card" id="bank5.message_9639"><h3>$9639 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 0 &middot; 634 bytes &middot; <a href="bank5.html#bank5.message_9639">on bank 5</a></p><pre>If someone is
+reading this...
+I must have
+failed.
+
+This star &quot;NAJU&quot;
+was our home,
+
+but we were
+invaded by
+evil life-forms.
+
+Everyone except
+me was killed.
+
+I am going to
+try to activate
+the self-
+destruct device.
+
+If I fail,
+I would like you
+to do this task
+so this cannot
+
+happen to any
+other race.
+
+The self-
+destruct
+mechanism
+
+is protected by
+a safety device
+
+which is located
+in
+the underground
+corridors.
+
+Remove each seal
+and go deep
+inside NAJU.
+
+If you destroy
+all 10 safety
+devices,the
+self-destruct
+
+sequence will be
+activated.
+
+I don&#x27;t have
+much time.
+
+I hope this
+message will
+not be read by
+anyone...
+
+it will mean
+that I have
+failed.</pre></div><div class="card" id="bank5.message_98B3"><h3>$98B3 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 1 &middot; 259 bytes &middot; <a href="bank5.html#bank5.message_98B3">on bank 5</a></p><pre>I put some
+weapons
+in these boxes.
+
+Take them out of
+the boxes to use
+them.
+
+Some weapons
+have been stolen
+by some of
+the life-forms;
+
+if you need
+these weapons
+
+you will have to
+destroy
+the life-forms.
+
+All the weapons
+need
+Power Chips.
+
+You must search
+for them.</pre></div><div class="card" id="bank5.message_99B6"><h3>$99B6 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 2 &middot; 349 bytes &middot; <a href="bank5.html#bank5.message_99B6">on bank 5</a></p><pre>I had all the
+corridors
+sealed.
+
+If you need to
+know how to
+remove the seal,
+
+ask the person
+who sealed it.
+
+To remove the
+seal at corridor
+NO.1,fire
+at the gate.
+
+All the rooms
+leading to the
+corridors are
+locked,
+
+so use the
+&quot;Warp panel&quot; to
+get into the
+room.
+
+To use the
+&quot;Warp panel&quot;,
+blast through
+the cover.
+
+You will also
+need the key
+for the panel.</pre></div><div class="card" id="bank5.message_9B13"><h3>$9B13 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 3 &middot; 92 bytes &middot; <a href="bank5.html#bank5.message_9B13">on bank 5</a></p><pre>There is a
+round creature
+in this room.
+
+It will give you
+items in
+exchange for
+Power Chips.</pre></div><div class="card" id="bank5.message_9B6F"><h3>$9B6F <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 4 &middot; 89 bytes &middot; <a href="bank5.html#bank5.message_9B6F">on bank 5</a></p><pre>Do you want
+me to record
+your
+progress?
+
+Set your
+weapon to
+&quot;NO USE&quot; and
+
+press
+button&quot;A&quot;.</pre></div><div class="card" id="bank5.message_9BC8"><h3>$9BC8 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot s 5, 6 &middot; 9 bytes &middot; <a href="bank5.html#bank5.message_9BC8">on bank 5</a></p><pre>Corridor</pre></div><div class="card" id="bank5.message_9BD1"><h3>$9BD1 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 7 &middot; 53 bytes &middot; <a href="bank5.html#bank5.message_9BD1">on bank 5</a></p><pre>I will sell
+this to you
+
+in exchange
+for Power
+Chips.</pre></div><div class="card" id="bank5.message_9C06"><h3>$9C06 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 8 &middot; 38 bytes &middot; <a href="bank5.html#bank5.message_9C06">on bank 5</a></p><pre>I will sell
+only one
+of these
+to you.</pre></div><div class="card" id="bank5.message_9C2C"><h3>$9C2C <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 9 &middot; 12 bytes &middot; <a href="bank5.html#bank5.message_9C2C">on bank 5</a></p><pre>Good Luck!</pre></div><div class="card" id="bank5.message_9C38"><h3>$9C38 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 10 &middot; 11 bytes &middot; <a href="bank5.html#bank5.message_9C38">on bank 5</a></p><pre>Any luck?</pre></div><div class="card" id="bank5.message_9C43"><h3>$9C43 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 11 &middot; 77 bytes &middot; <a href="bank5.html#bank5.message_9C43">on bank 5</a></p><pre>I see you
+are trying
+very hard,
+so I will
+
+remove the
+seal for
+Corridor
+No.4.</pre></div><div class="card" id="bank5.message_9C90"><h3>$9C90 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 12 &middot; 56 bytes &middot; <a href="bank5.html#bank5.message_9C90">on bank 5</a></p><pre>To remove
+the seal for
+Corridor No.2,
+
+touch
+everywhere.</pre></div><div class="card" id="bank5.message_9CC8"><h3>$9CC8 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 13 &middot; 100 bytes &middot; <a href="bank5.html#bank5.message_9CC8">on bank 5</a></p><pre>Wait,
+wait forever...
+
+The seal for
+No.3 will be
+removed.
+
+What are you
+doing here?
+Do not wait
+here!</pre></div><div class="card" id="bank5.message_9D2C"><h3>$9D2C <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 14 &middot; 119 bytes &middot; <a href="bank5.html#bank5.message_9D2C">on bank 5</a></p><pre>Seal No.4
+cannot
+be removed;
+
+I think I
+goofed up when
+I sealed it.
+
+Ask for help
+from the round
+creature
+several times.</pre></div><div class="card" id="bank5.message_9DA3"><h3>$9DA3 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 15 &middot; 63 bytes &middot; <a href="bank5.html#bank5.message_9DA3">on bank 5</a></p><pre>Fire into the
+corridor,
+
+then the seal
+on No.5 will be
+removed.</pre></div><div class="card" id="bank5.message_9DE2"><h3>$9DE2 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 16 &middot; 68 bytes &middot; <a href="bank5.html#bank5.message_9DE2">on bank 5</a></p><pre>I set seal 6
+very well;
+
+you will need
+a special weapon
+to break it.</pre></div><div class="card" id="bank5.message_9E26"><h3>$9E26 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 17 &middot; 87 bytes &middot; <a href="bank5.html#bank5.message_9E26">on bank 5</a></p><pre>Try to enter
+the room in
+the corridor
+several times;
+
+only then will
+seal 7 be
+removed.</pre></div><div class="card" id="bank5.message_9E7D"><h3>$9E7D <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 18 &middot; 56 bytes &middot; <a href="bank5.html#bank5.message_9E7D">on bank 5</a></p><pre>To remove seal 8,
+set your weapon
+to &quot;NO USE&quot; and
+fire.</pre></div><div class="card" id="bank5.message_9EB5"><h3>$9EB5 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 19 &middot; 47 bytes &middot; <a href="bank5.html#bank5.message_9EB5">on bank 5</a></p><pre>Seal 9 can be
+removed by
+standing on
+the gate.</pre></div><div class="card" id="bank5.message_9EE4"><h3>$9EE4 <span class="tag" style="background:#ed64a6">text</span></h3><p class="meta">slot 20 &middot; 44 bytes &middot; <a href="bank5.html#bank5.message_9EE4">on bank 5</a></p><pre>Keep firing, the
+last seal will
+be removed.</pre></div><h2>The pointer table</h2><div class="card" id="bank5.msgtable_960F"><h3>Dialogue message pointer table <span class="tag" style="background:#c77cf8">pointer_table</span> <span class="conf confirmed">confirmed</span></h3><p class="meta"><code>bank5.msgtable_960F</code> &middot; file 0x1561F-0x15648 &middot; 42 bytes &middot; PRG bank 5 &middot; CPU $960F-$9638</p><p class="desc">21 little-endian pointers, $960F-$9638, into the dialogue script that follows immediately. Read by bank 5 $8476: LDA $0620,X gives an object&#x27;s message number, ASL A doubles it into Y, and LDA $960F,Y / LDA $9610,Y fetch the two halves - so the base in the operand is this region&#x27;s own address, which is the strongest statement available that the table starts here. The entry count is bounded by structure, not by the reader: 21 x 2 = 42 bytes ends at $9639, exactly where the first message begins, with nothing over. NOTHING IN THE CODE BOUNDS IT - the index comes from $0620,X, an object field, and no CPY or mask on it has been found. Slots pointing at the same message: $9BC8 is named twice. That is in the data, not a parse error. Every one of the pointers lands on a message head, and the messages partition the block end to end - two statements from two directions, neither derived from the other.</p><pre>$960F  39 96 B3 98 B6 99 13 9B 6F 9B C8 9B C8 9B D1 9B  |9.......o.......|
+$961F  06 9C 2C 9C 38 9C 43 9C 90 9C C8 9C 2C 9D A3 9D  |..,.8.C.....,...|
+$962F  E2 9D 26 9E 7D 9E B5 9E E4 9E                    |..&amp;.}.....|</pre></div><h2>Screen scripts</h2><p class="sub">A different format for a different job &mdash; painting a whole screen rather than printing a sentence. An item is <code>[col][count][characters]</code>, <code>$FF</code> ends a row and steps the PPU address on by <code>$20</code>, <code>$FE</code> ends the script, and bit 7 of the count repeats one character instead of advancing through the source. All of that is read off the renderer at bank 0 <code>$8495</code>, not inferred from the data.</p><table><thead><tr><th>Block</th><th>Bytes</th><th></th></tr></thead><tbody><tr><td class="mono"><a href="bank0.html#bank0.ppuscript_86E8">$86E8</a></td><td class="mono">314</td><td>11 items over 20 row breaks</td></tr><tr><td class="mono"><a href="bank0.html#bank0.ppuscript_8836">$8836</a></td><td class="mono">129</td><td>26 items over 10 row breaks</td></tr><tr><td class="mono"><a href="bank0.html#bank0.ppuscript_89F9">$89F9</a></td><td class="mono">23</td><td>2 items over 2 row breaks</td></tr></tbody></table><h2>Inline strings</h2><p class="sub">Written immediately after the <code>JSR</code> that queues them, so the bytes sit in the instruction stream and the code tracer has to know about them or it decodes them as instructions.</p><div class="scroll"><table><thead><tr><th>Bank</th><th>Block</th><th>PPU address</th><th>Count</th><th>Bytes</th><th>Reads as</th></tr></thead><tbody><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8191">$8191</a></td><td class="mono">$2720</td><td class="mono">02</td><td class="mono">5</td><td><code>SC</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8199">$8199</a></td><td class="mono">$2735</td><td class="mono">04</td><td class="mono">7</td><td><code>SHOT</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_81A3">$81A3</a></td><td class="mono">$2728</td><td class="mono">07</td><td class="mono">10</td><td><code>0··CHIP</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8237">$8237</a></td><td class="mono">$214B</td><td class="mono">09</td><td class="mono">12</td><td><code>GAME·OVER</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8285">$8285</a></td><td class="mono">$21A7</td><td class="mono">14</td><td class="mono">23</td><td><code>CONTINUE··PUSH·START</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8436">$8436</a></td><td class="mono">$23E9</td><td class="mono">01</td><td class="mono">4</td><td><code>3</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_8462">$8462</a></td><td class="mono">$2286</td><td class="mono">83</td><td class="mono">6</td><td><code>:··</code></td></tr><tr><td class="mono">0</td><td class="mono"><a href="bank0.html#bank0.inline_846C">$846C</a></td><td class="mono">$2286</td><td class="mono">83</td><td class="mono">6</td><td><code>··:</code></td></tr><tr><td class="mono">1</td><td class="mono"><a href="bank1.html#bank1.inline_811C">$811C</a></td><td class="mono">$21AF</td><td class="mono">02</td><td class="mono">5</td><td><code>\^</code></td></tr><tr><td class="mono">1</td><td class="mono"><a href="bank1.html#bank1.inline_8124">$8124</a></td><td class="mono">$21CF</td><td class="mono">02</td><td class="mono">5</td><td><code>]_</code></td></tr><tr><td class="mono">2</td><td class="mono"><a href="bank2.html#bank2.inline_8A4E">$8A4E</a></td><td class="mono">$210C</td><td class="mono">10</td><td class="mono">19</td><td><code>CONGRATULATIONS[</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8038">$8038</a></td><td class="mono">from $18/$19</td><td class="mono">04</td><td class="mono">5</td><td><code>0000</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_80C1">$80C1</a></td><td class="mono">$2084</td><td class="mono">0C</td><td class="mono">15</td><td><code>YOU·GOT·ITEM</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_815B">$815B</a></td><td class="mono">$2328</td><td class="mono">14</td><td class="mono">23</td><td><code>GO·TO·THE·NEXT·SPACE</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8230">$8230</a></td><td class="mono">$2088</td><td class="mono">0A</td><td class="mono">13</td><td><code>SOUND·TEST</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8723">$8723</a></td><td class="mono">$214B</td><td class="mono">06</td><td class="mono">9</td><td><code>GO·OUT</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_872F">$872F</a></td><td class="mono">$218B</td><td class="mono">0A</td><td class="mono">13</td><td><code>WORD·CHECK</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8775">$8775</a></td><td class="mono">$218A</td><td class="mono">0A</td><td class="mono">13</td><td><code>WRONG·WORD</code></td></tr><tr><td class="mono">3</td><td class="mono"><a href="bank3.html#bank3.inline_8B5C">$8B5C</a></td><td class="mono">$222F</td><td class="mono">0B</td><td class="mono">14</td><td><code>FR[·BA[·END</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_852E">$852E</a></td><td class="mono">$27B0</td><td class="mono">03</td><td class="mono">6</td><td><code>KEY</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_85FA">$85FA</a></td><td class="mono">$2DC2</td><td class="mono">02</td><td class="mono">5</td><td><code>NO</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8602">$8602</a></td><td class="mono">$2DE2</td><td class="mono">03</td><td class="mono">6</td><td><code>USE</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8612">$8612</a></td><td class="mono">$2E50</td><td class="mono">02</td><td class="mono">5</td><td><code>EE</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8628">$8628</a></td><td class="mono">$2C90</td><td class="mono">08</td><td class="mono">11</td><td><code>CHIP·MAX</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_864F">$864F</a></td><td class="mono">$2D30</td><td class="mono">0C</td><td class="mono">15</td><td><code>WEAPON·POWER</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8661">$8661</a></td><td class="mono">$2D50</td><td class="mono">08</td><td class="mono">11</td><td><code>USE·CHIP</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_8785">$8785</a></td><td class="mono">$2CB0</td><td class="mono">06</td><td class="mono">9</td><td><code>ATTACK</code></td></tr><tr><td class="mono">5</td><td class="mono"><a href="bank5.html#bank5.inline_87A2">$87A2</a></td><td class="mono">$2CD0</td><td class="mono">06</td><td class="mono">9</td><td><code>SHIELD</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_E162">$E162</a></td><td class="mono">$2762</td><td class="mono">04</td><td class="mono">7</td><td><code>AREA</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_F5CC">$F5CC</a></td><td class="mono">from $18/$19</td><td class="mono">0C</td><td class="mono">13</td><td><code>·YOU·GOT·KEY</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_F687">$F687</a></td><td class="mono">$2086</td><td class="mono">10</td><td class="mono">19</td><td><code>YOUR·FINAL·SCORE</code></td></tr><tr><td class="mono">7</td><td class="mono"><a href="bank7.html#bank7.inline_F69D">$F69D</a></td><td class="mono">$20CE</td><td class="mono">01</td><td class="mono">4</td><td><code>0</code></td></tr></tbody></table></div><h2>The glyphs, and why each is only a lead</h2><div class="note warn"><strong>The three formats do not agree with each other, and that disagreement is the finding.</strong> The dialogue script uses <code>$3C</code> where a comma belongs; the bank 0 screen script uses <code>$5C</code> for the same job (<em>LONG AGO,AN ALIEN RACE</em>). An earlier entry in this project read <code>$5C-$5F</code> as a single 2&times;2 graphic from a bank 1 screen. All three readings cannot hold for one font &mdash; and they do not have to, because with CHR RAM the tile at a given index is whatever was uploaded last. Which is happening here is not established.</div></div></body></html>

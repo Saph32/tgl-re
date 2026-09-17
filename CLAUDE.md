@@ -37,6 +37,9 @@ wrong finding away.
 - `tools/reassemble.py` — **the gate.** Writes `disasm/`, assembles it back against one
   shared label table and refuses unless the image is the ROM byte for byte.
   `tools/tgl/asm.py` is the assembler behind it; read its header before citing the check.
+- `tools/parse-text.py` — parses the dialogue script and the screen scripts into
+  `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
+  hand-edit.
 - `annotations/dispatch.json` — hand-resolved control flow the trace cannot follow: the
   inline-argument call registry, the rejects from the scan that found it, and an
   `unresolved` list. **An empty `unresolved` list would be a weaker statement than it
@@ -145,6 +148,22 @@ Do not re-derive these; do check anything that depends on them.
   reachable `RTS`, and the walk stops at the 5 call sites that enter one. Without it the
   trace decoded the bytes after a far call to bank 0 `$8015` — an endless display loop — as
   instructions, when a pointer built at `$8AC8`/`$8ACC` names them as data.
+- **There are three text formats, and they do not share a character map.**
+  - **Inline PPU strings** after `JSR $D576`/`$D53F` — 32 of them, in the instruction
+    stream, handled by the tracer.
+  - **The dialogue script**, bank 5 `$9639-$9F0F` — 20 messages behind a 21-entry pointer
+    table at `$960F`, read by `LDA $960F,Y` / `LDA $9610,Y` at `$8476` with the index from
+    `$0620,X`. `$00` ends a message, `$01` a screenful, `$0D` a line. The messages
+    **partition** the block end to end, which is the check that carries it.
+  - **Screen scripts** for the renderer at bank 0 `$8495` — `[col][count][chars]`, `$FF`
+    ends a row and adds `$20` to the PPU address, `$FE` ends the script, and **bit 7 of the
+    count repeats one character** (a run-length fill). Three blocks confirmed, each with
+    its `LDA #lo / STA $16` call site read by hand.
+  - **The three disagree about punctuation.** The dialogue uses `$3C` for a comma; the
+    bank 0 script uses `$5C`. Both use `$5B` for a full stop. With CHR RAM the tile at an
+    index is whatever was uploaded last, so they need not agree — but which is happening
+    is not established. **Every glyph reading in this project is from context. There is no
+    font in the ROM to check any of them against.**
 - **`BNE x / BEQ y` back to back is unconditional**, so the second branch's fall-through is
   unreachable. There are 38 such pairs, and at bank 5 `$82D7` the bytes being jumped over
   are a table that `$82B9 LDA $82D9,Y` reads.
@@ -202,7 +221,7 @@ authoritative, up-to-date version of this list; what follows is what does not li
    dividing the gap.
 2. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
    call anywhere in the ROM targets it.
-3. **Find the `$2007` writers.** It would also settle `$5B`, since a font is the only
-   thing that can. That is the whole graphics problem on a CHR RAM cartridge,
-   and the question is what routines write the port, not what points at a block.
+3. **Find the `$2007` writers.** This is now overdue: it is the whole graphics problem,
+   and it is also the only thing that can settle a single punctuation glyph. The question is what routines write the port,
+   not what points at a block.
 4. Start a RAM map. The list above is already too long to keep in prose.

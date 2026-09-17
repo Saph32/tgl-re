@@ -513,72 +513,119 @@ def _bank_page(rm, n: int) -> str:
     return "".join(p)
 
 
+# The glyph readings, for display only. The evidence for each is in
+# annotations/regions/30-text.json, which is where they are argued; repeating the argument
+# here would be a second copy of a claim that nothing compares against the first.
+GLYPH_TEXT = {0x00: "", 0x01: "\n\n", 0x0D: "\n", 0x3B: ";", 0x3C: ",", 0x3D: "-",
+              0x3F: "?", 0x5B: ".", 0x5D: "!", 0x5E: '"', 0x60: "'"}
+
+
 def _text_page(rm) -> str:
-    """Every decoded string, with where on screen it goes."""
-    rows = [r for r in rm.regions if r["kind"] == "text"]
-    total = sum(r["size"] for r in rows)
-    # The character count per block is the count byte with bit 7 masked off, which is the
-    # same rule $D591 uses to work out the length. Deriving it from the block size instead
-    # would need the two routines' different header sizes and would be a second, worse
-    # statement of something the count byte already says.
-    chars_total = sum(rm.rom[r["offset"]] & 0x7F for r in rows)
+    """Every decoded string, in all three of the formats that carry text."""
+    inline = [r for r in rm.regions if r["kind"] == "text" and "inline_" in r["id"]]
+    msgs = [r for r in rm.regions if r["kind"] == "text" and "message_" in r["id"]]
+    scripts = [r for r in rm.regions if "ppuscript_" in r["id"]]
+    table = next((r for r in rm.regions if "msgtable_" in r["id"]), None)
+
     p = ["<h1>Text</h1>",
-         '<p class="sub">Every string the code writes to the screen through the two '
-         "inline-argument routines at <code>$D576</code> and <code>$D53F</code>. These are "
-         "not a block of text somewhere in the ROM: each one is written immediately after "
-         "the <code>JSR</code> that prints it, so the bytes are scattered through the code "
-         "of six banks and every one of them was found by the code trace rather than by "
-         "searching for text.</p>"]
+         '<p class="sub">Three formats, not one, and they are not variations of each other. '
+         "None of the text in this ROM sits in a block you could find by searching for it: "
+         "the short strings are written inline after the <code>JSR</code> that prints them, "
+         "the dialogue is behind a pointer table, and the screen layouts are reached through "
+         "a pointer built from immediates that appears nowhere as an operand. All of it was "
+         "found by following code.</p>"]
 
     p.append(_stats([
-        ("Strings", f"{len(rows)}"),
-        ("Bytes", f"{total:,}"),
-        ("Banks", f"{len({r['prg_bank'] for r in rows})}"),
-        ("Characters", f"{chars_total:,}"),
+        ("Inline strings", f"{len(inline)}"),
+        ("Dialogue messages", f"{len(msgs)}"),
+        ("Screen scripts", f"{len(scripts)}"),
+        ("Bytes of text", f"{sum(r['size'] for r in inline + msgs + scripts):,}"),
     ]))
 
-    p.append('<div class="note"><strong>The encoding is plain ASCII for A-Z, 0-9, space and '
-             "a colon.</strong> Not by assumption: sixteen of these blocks read as English "
-             "on a straight ASCII reading with no substitutions at all, which is more "
-             "independent agreement than a coincidence can carry. The only codes outside "
-             "that set anywhere in the payloads are <code>$5B</code> to <code>$5F</code>.")
-    p.append("</div>")
-    p.append('<div class="note warn"><strong>$5C-$5F are graphics, and $5B is a lead.</strong> '
-             "Bank 1 writes <code>$5C $5E</code> to PPU <code>$21AF</code> and "
-             "<code>$5D $5F</code> to <code>$21CF</code> — 32 bytes apart, one nametable "
-             "row — so those four tiles are one symbol two tiles wide and two tall. That is "
-             "layout, not resemblance. <code>$5B</code> is different: it sits just after "
-             "<code>Z</code> and appears at the end of <em>CONGRATULATIONS</em> and twice in "
-             "<em>FR[ BA[ END</em>, and a full stop fits all three. That is a guess from "
-             "context and is recorded as one. The thing that would settle it is the font, "
-             "and there is no font to look at — CHR is RAM here, so no tile exists in this "
-             "file until code uploads it.</div>")
+    p.append('<div class="note warn"><strong>Every punctuation glyph here is read from '
+             "context, and the ROM cannot settle any of them.</strong> A font would, and "
+             "there is no font: CHR is RAM on this cartridge, so no byte of this file is a "
+             "tile until code uploads one, and no uploader has been found. The letters, "
+             "digits and space are ASCII and need no argument. The rest are guesses with "
+             "evidence, and the evidence is counted below.</div>")
 
-    p.append("<h2>The strings</h2>")
-    body = []
-    for r in sorted(rows, key=lambda r: (r["prg_bank"], r["cpu_addr"])):
-        raw = rm.rom[r["offset"]:r["end"]]
-        inline_addr = r["description"].find("[ppu_hi]") != -1
-        chars = raw[3:] if inline_addr else raw[1:]
-        text = "".join(chr(c) if 33 <= c < 127 else "·" for c in chars)
-        dest = (f"${raw[1]:02X}{raw[2]:02X}" if inline_addr else "from $18/$19")
-        body.append(
-            f'<tr><td class="mono">{r["prg_bank"]}</td>'
-            f'<td class="mono"><a href="bank{r["prg_bank"]}.html#{_h(r["id"])}">'
-            f'${r["cpu_addr"]:04X}</a></td>'
-            f'<td class="mono">{dest}</td>'
-            f'<td class="mono">{raw[0]:02X}</td>'
-            f'<td class="mono">{r["size"]}</td>'
-            f'<td><code>{_h(text)}</code></td></tr>')
-    p.append('<div class="scroll"><table><thead><tr><th>Bank</th><th>Block</th>'
-             "<th>PPU address</th><th>Count</th><th>Bytes</th><th>Reads as</th></tr></thead>"
-             f"<tbody>{''.join(body)}</tbody></table></div>")
-    p.append('<p class="meta">The count byte is the number of characters. A block is that '
-             "count plus three when the routine is <code>$D576</code>, which carries its PPU "
-             "address inline, and plus one when it is <code>$D53F</code>, which takes the "
-             "address from RAM. Two blocks have bit 7 set in the count; it is masked off "
-             "before the length is worked out, and what it means to the queue that consumes "
-             "these is not established.</p>")
+    if msgs:
+        p.append("<h2>The dialogue script</h2>")
+        p.append('<p class="sub">Twenty messages in bank 5, 2,263 bytes, the longest '
+                 "continuous prose in the ROM. <code>$00</code> ends a message, "
+                 "<code>$01</code> ends a screenful, <code>$0D</code> ends a line.</p>")
+        p.append('<div class="note"><strong>What carries this is not that it decodes.</strong> '
+                 "It is that the twenty messages <em>partition</em> "
+                 "<code>$9639-$9F0F</code> end to end with no gap and nothing over, and that "
+                 "every one of the 21 pointers lands on a message head. Those are two "
+                 "statements about the same bytes from two directions &mdash; the table and "
+                 "the terminators &mdash; and neither was derived from the other. A grammar "
+                 "whose lengths were all one short would still cover every byte.</div>")
+        for r in msgs:
+            body = rm.rom[r["offset"]:r["end"]]
+            text = "".join(GLYPH_TEXT.get(c, chr(c) if 32 <= c < 127 else "·")
+                           for c in body).strip()
+            slot = r["description"].split("table slot")[1].split(".")[0].strip()
+            p.append(f'<div class="card" id="{_h(r["id"])}">'
+                     f'<h3>${r["cpu_addr"]:04X} '
+                     f'<span class="tag" style="background:{KIND_COLOURS["text"]}">text</span></h3>'
+                     f'<p class="meta">slot {_h(slot)} &middot; {r["size"]} bytes &middot; '
+                     f'<a href="bank{r["prg_bank"]}.html#{_h(r["id"])}">on bank '
+                     f'{r["prg_bank"]}</a></p>'
+                     f'<pre>{_h(text)}</pre></div>')
+
+    if table:
+        p.append("<h2>The pointer table</h2>")
+        p.append(_region_card(rm, table))
+
+    if scripts:
+        p.append("<h2>Screen scripts</h2>")
+        p.append('<p class="sub">A different format for a different job &mdash; painting a '
+                 "whole screen rather than printing a sentence. An item is "
+                 "<code>[col][count][characters]</code>, <code>$FF</code> ends a row and "
+                 "steps the PPU address on by <code>$20</code>, <code>$FE</code> ends the "
+                 "script, and bit 7 of the count repeats one character instead of advancing "
+                 "through the source. All of that is read off the renderer at bank 0 "
+                 "<code>$8495</code>, not inferred from the data.</p>")
+        rows = "".join(
+            f'<tr><td class="mono"><a href="bank{r["prg_bank"]}.html#{_h(r["id"])}">'
+            f'${r["cpu_addr"]:04X}</a></td><td class="mono">{r["size"]}</td>'
+            f'<td>{_h(r["description"].split(":")[1].split(",")[0].strip())}</td></tr>'
+            for r in scripts)
+        p.append("<table><thead><tr><th>Block</th><th>Bytes</th><th></th></tr></thead>"
+                 f"<tbody>{rows}</tbody></table>")
+
+    if inline:
+        p.append("<h2>Inline strings</h2>")
+        p.append('<p class="sub">Written immediately after the <code>JSR</code> that queues '
+                 "them, so the bytes sit in the instruction stream and the code tracer has "
+                 "to know about them or it decodes them as instructions.</p>")
+        body = []
+        for r in sorted(inline, key=lambda r: (r["prg_bank"], r["cpu_addr"])):
+            raw = rm.rom[r["offset"]:r["end"]]
+            has_addr = "[ppu_hi]" in r["description"]
+            chars = raw[3:] if has_addr else raw[1:]
+            text = "".join(chr(c) if 33 <= c < 127 else "·" for c in chars)
+            dest = f"${raw[1]:02X}{raw[2]:02X}" if has_addr else "from $18/$19"
+            body.append(
+                f'<tr><td class="mono">{r["prg_bank"]}</td>'
+                f'<td class="mono"><a href="bank{r["prg_bank"]}.html#{_h(r["id"])}">'
+                f'${r["cpu_addr"]:04X}</a></td><td class="mono">{dest}</td>'
+                f'<td class="mono">{raw[0]:02X}</td><td class="mono">{r["size"]}</td>'
+                f'<td><code>{_h(text)}</code></td></tr>')
+        p.append('<div class="scroll"><table><thead><tr><th>Bank</th><th>Block</th>'
+                 "<th>PPU address</th><th>Count</th><th>Bytes</th><th>Reads as</th></tr>"
+                 f"</thead><tbody>{''.join(body)}</tbody></table></div>")
+
+    p.append("<h2>The glyphs, and why each is only a lead</h2>")
+    p.append('<div class="note warn"><strong>The three formats do not agree with each other, '
+             "and that disagreement is the finding.</strong> The dialogue script uses "
+             "<code>$3C</code> where a comma belongs; the bank 0 screen script uses "
+             "<code>$5C</code> for the same job (<em>LONG AGO,AN ALIEN RACE</em>). An earlier "
+             "entry in this project read <code>$5C-$5F</code> as a single 2&times;2 graphic "
+             "from a bank 1 screen. All three readings cannot hold for one font &mdash; and "
+             "they do not have to, because with CHR RAM the tile at a given index is "
+             "whatever was uploaded last. Which is happening here is not established.</div>")
     return "".join(p)
 
 
