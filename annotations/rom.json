@@ -35,7 +35,7 @@
     }
   },
   "vectors": {
-    "nmi": 53877,
+    "nmi": 56437,
     "reset": 65246,
     "irq": 56563,
     "description": "$DC75, $FEDE and $DCF3, all in bank 7 - which is the only place they could usefully be, since bank 7 is the one the CPU can always see. All three were disassembled and all three decode as the code their name implies: RESET is a textbook power-on sequence (SEI/CLD/LDX #$FF/TXS, then three PPUSTATUS polls, then a clear of $0000-$07FF), NMI saves A/X/Y and runs a vblank handler that does OAM DMA from page 2, and IRQ is a real handler rather than a bare RTI - it polls PPUSTATUS bit 6 and reloads DMC_FREQ. See the vectors region for the byte-level argument."
@@ -77,18 +77,22 @@
       "evidence": "Opens with a 7-entry JMP table at $8000-$8014. Nothing else in this bank has been traced."
     },
     {
-      "role": "the fixed bank: vectors, bank switching, the far-call trampoline",
+      "role": "the fixed bank: vectors, bank switching, the far-call trampoline, the inline-argument helpers",
       "window": 49152,
       "evidence": "UxROM wires the last bank to $C000-$FFFF permanently, and this is the last of the eight. Confirmed rather than assumed: the three interrupt vectors in this bank's own tail point at $DC75, $FEDE and $DCF3, and all three addresses decode as sensible handlers when this bank's bytes are placed at $C000. The seven fixed-address bank-switch routines at $D714-$D76E and the generic one at $D705 are also here, as they must be - code that switches the $8000 window cannot be running in the $8000 window. The boot-time bank check at $FF23-$FF43 selects each of the other seven banks in turn and confirms it answers with its own number, so the reset path itself asserts that this bank stays put while the others move."
     }
   ],
   "open_threads": [
-    "Every bank opens with a table of JMP instructions. Per the playbook that table IS the complete inventory of cross-bank entries, so resolving all of them and checking the count closes is the next structural step. Counted by scanning for consecutive $4C from $8000: 9, 5, 12, 10, 1, 20, 7 entries in banks 0-6, and 124 in bank 7 from $C000. The bank 7 figure is a raw count of consecutive $4C bytes and is NOT established as the table's real length - a run of JMPs can end by running into code that happens to start with one.",
-    "The far-call convention is at $D76F: it pops the return address, reads three inline bytes after the JSR (the first of which it stores in $04, the live-bank shadow), calls through, and restores the bank on the way back. Nothing has been resolved through it yet. Per the playbook a far call is the one reference no grep for an operand will ever surface, so this has to be done before any claim that a block is unreferenced.",
-    "$04 is the live-bank shadow byte: every one of the eight switch routines writes the bank number to it. Its readers have not been enumerated.",
-    "The boot-time bank check at $FF23-$FF43 is resolved and annotated, but the routine it calls on failure, $DED2, and the byte it stores at $0180 are not. Until those are read, what the seven failure codes at $FF3A mean is open.",
-    "CHR is RAM, so no tile exists in this file as a tile. No uploader has been found yet and no graphics region has been claimed.",
-    "The trailing $FF runs at the end of each bank (37, 48, 16, 40, 14, 13, 46 bytes in banks 0-6 and 14 bytes at $FFE4 in bank 7) look like fill but are not claimed as regions yet, because nothing has been checked about them beyond their byte value.",
-    "No RAM map exists yet. $04, $10-$13, $26, $2B, $30, $FC and $FE are already named by the code read so far and have nowhere to be written down."
+    "THE BIGGEST ONE: where an inline PPU-string block ends. $D576 and $D53F read a run of items through their own return address and resume after it, so every one of their 20 call sites is a path the trace simply stops at. The item length is settled - (first byte & $7F) + 3 below $C0, 9 at or above - but the loop's termination comes from $D6C0, which adds the length to $21 and tests against $31 and $51, both runtime values. Either the termination really is runtime-dependent, which cannot be true of data that determines a return address, or the reading of $D6C0 is wrong. Settling it resumes two dozen traced paths and gives up the game's text at the same time.",
+    "The three inline jump tables are read at one entry each, and that entry is never statically known, so in practice none is read at all: $9F2F and $A1C1 in bank 5 and $E6F0 in bank 7 all arrive with the index in A at runtime. Resolving them by hand into dispatch.json and seeding every entry is the next unlock after the strings. At $E6F0 ten plausible addresses follow the call, all $E7xx/$E8xx - but ten is where they stop at that one site and is not a claim about the others.",
+    "Bank 4 is reached at 20 bytes of 16,384. Its opening JMP table has a single entry, no far call in the ROM targets it, and no bank switch to 4 has been reached. Per playbook section 12, a bank that stalls this hard is one unenumerated mechanism, not a thousand separate problems.",
+    "JMP ($10C0) at bank 2 $8A97 is a jump through a RAM vector - $10C0 mirrors $00C0 in the 2 KB of CPU RAM. Nothing that installs it has been looked for. Playbook section 4 records this exact mechanism hiding a quarter of a bank on another cartridge.",
+    "The trace assumes a JSR returns with the live bank unchanged. 51 reached routines switch the bank in their own bodies and 89 call sites enter one; the list is computed by trace-code.py --risky and is untested rather than wrong, because a routine that switches and switches back is indistinguishable from one that does not without dataflow the tool does not do.",
+    "No latch write outside the nine switch routines is modelled. On UxROM any store into $8000-$FFFF loads the bank register, so a stray STA $8000 would switch banks. The check is an instruction-walk inventory of absolute stores over traced code; a byte scan is useless, as one run here confirmed by returning 1,331 distinct targets, nearly all operand bytes decoded as store opcodes.",
+    "CHR is RAM, so no tile exists in this file as a tile. No uploader has been found yet and no graphics region has been claimed. The cheap first question is not what points at a block but what routines write to $2007.",
+    "No reassembly check exists. Until one does, no claim about a region's extent has been machine-verified beyond its SHA-1 - and a SHA-1 says the bytes are the ones the writer meant, not that the boundaries are right. Build it before believing anything about extents.",
+    "The $FF runs at the end of each bank (37, 48, 16, 40, 14, 13, 46 bytes in banks 0-6 and 14 bytes at $FFE4 in bank 7) look like fill but are not claimed, because nothing has been checked about them beyond their byte value.",
+    "No RAM map exists yet. $04, $05, $10-$19, $21, $26, $2B, $2F, $30, $51, $54, $58-$5B, $76, $A5, $E4, $FC and $FE are all named by code read so far and have nowhere to be written down.",
+    "The routine the boot bank check calls on failure, $DED2, and the byte it stores at $0180, are not read - so what the seven failure codes at $FF3A mean is still open."
   ]
 }

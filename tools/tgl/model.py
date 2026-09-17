@@ -183,6 +183,23 @@ def _check_container(rom: bytes, meta: dict) -> None:
     if meta["prg_bank_size"] != 0x4000:
         raise AnnotationError("UxROM banks PRG in 16 KB units; prg_bank_size is not 0x4000")
 
+    # The three vectors, read out of the file rather than trusted. This check exists
+    # because it was missing and something got through: rom.json carried the NMI vector as
+    # 53877 ($D275) when the bytes at $FFFA say $DC75 - a typo in a hand-entered address,
+    # which is exactly the assertion the playbook says nothing else checks. It survived
+    # because $D275 is a perfectly legal address that disassembles into the middle of a
+    # real routine, and what caught it was the code tracer seeding itself there and
+    # reporting one illegal opcode. A number in an annotation is not checked by anything
+    # unless something checks it.
+    for name, addr in (("nmi", 0xFFFA), ("reset", 0xFFFC), ("irq", 0xFFFE)):
+        off = len(rom) - (0x10000 - addr)
+        actual = rom[off] | (rom[off + 1] << 8)
+        if meta["vectors"][name] != actual:
+            raise AnnotationError(
+                f"annotations record the {name.upper()} vector as "
+                f"${meta['vectors'][name]:04X}, but the bytes at ${addr:04X} say "
+                f"${actual:04X}")
+
 
 def _check_region(region: dict, rom: bytes, meta: dict) -> dict:
     rid = region.get("id")

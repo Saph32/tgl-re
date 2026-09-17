@@ -1,0 +1,116 @@
+{
+  "_comment": "Hand-resolved control flow the static trace cannot follow on its own, fed back into tools/trace-code.py as extra knowledge. An empty 'unresolved' list would be a WEAKER statement than it sounds - it would say every table this file knows about is resolved, not that every table is in the file. A gap whose first bytes are a run of plausible addresses is a table nobody registered.",
+  "_inline_calls_comment": "Routines called with their argument written inline after the JSR. Each pops its own return address and reads forward from it, so the bytes following the call are DATA and a trace that decodes them is guaranteed to produce nonsense that still looks like instructions. This list is the result of enumerating the mechanism class rather than chasing the sites: a scan for PLA/STA $zp/PLA/STA $zp+1 - a routine taking its own return address as a pointer - finds eleven matches in the ROM, of which five are byte-scan false positives inside data and six are real. Registered here with a 'kind' that says how many bytes follow and whether control ever comes back.",
+  "inline_calls": [
+    {
+      "cpu_addr": "$D576",
+      "bank": null,
+      "kind": "stream",
+      "name": "print inline PPU string (A)",
+      "aliases": [
+        "$C06F, entry slot 37 of bank 7"
+      ],
+      "description": "Pops its return address into $16/$17, then loops: $D591 reads the next item's first byte and derives that item's total length - (byte & $7F) + 3 below $C0, and 9 at or above it - $D5A5 copies that many bytes into a staging buffer at $0100,X and advances $16 past them, and the loop repeats while $D591 returns carry set. $D587 then pushes the advanced pointer back and RTSes, so control resumes after the whole inline block. Worked example, bank 3 $8230: 0A 20 88 then the ten characters 'SOUND TEST' - count $0A, a PPU address $2088, thirteen bytes in all, which is $0A + 3 exactly. Decoding those thirteen bytes as instructions is how this trace first walked off the rails, producing 'SRE $4E55 / NOP $20 / NOP $45,X' out of the ASCII 'OUND TEST'. NOT ESTABLISHED, and the reason the kind is 'stream' rather than a length: where the block STOPS. The loop's carry comes from $D6C0, which adds the item length to $21 and tests the sum against $31 and $51 - a runtime condition. Either the termination really is runtime-dependent, which cannot be true of data that determines a return address, or the reading of $D6C0 is wrong. Until that is settled the trace stops at each call site and records a lead rather than inventing a resumption point."
+    },
+    {
+      "cpu_addr": "$D53F",
+      "bank": null,
+      "kind": "stream",
+      "name": "print inline PPU string (B)",
+      "aliases": [
+        "$C171, entry slot 123 of bank 7"
+      ],
+      "description": "Byte-for-byte the same loop as $D576 over the same helpers $D591, $D7C3 and $D587, differing only in where it enters. Worked example, bank 7 $F5CC: 0C 20 59 then 'YOU GOT KEY' - count $0C and a PPU address $2059. NOT ESTABLISHED: what distinguishes it from $D576. Both were found by the same class scan; neither is a guess about the other."
+    },
+    {
+      "cpu_addr": "$D5CC",
+      "bank": null,
+      "kind": "fixed",
+      "length": 4,
+      "name": "four-byte inline argument",
+      "description": "The one member of this class whose inline length is a constant, and therefore the one the trace can step over instead of stopping at. It pops its return address into $16/$17, reads exactly four bytes through ($16),Y with Y running 1 to 4 into $15, $19, $18 and $14, calls $D5F8, then adds 4 to $16 and reaches $D58A, which pushes the advanced pointer and RTSes. Four is read off the ADC #$04 at $D5EC and confirmed by the four LDA ($16),Y reads before it - two independent statements of the same number in the same routine. What the four bytes MEAN is not established; $15, $19, $18 and $14 have no RAM map yet."
+    },
+    {
+      "cpu_addr": "$D6B0",
+      "bank": null,
+      "kind": "jump_table",
+      "name": "inline jump table, indexed by Y",
+      "description": "Not an argument but a dispatch. It pops its return address into $00/$01, does INY twice - Y arrives from the caller and is NOT initialised here, which is what makes it a table rather than a single address - then pushes the bytes at ($00),Y and ($00),Y-1 and RTSes into them. Because JSR pushed return-1 and RTS adds one back, entry k of the table is the two little-endian bytes at ret+2k holding target-1, and the caller selects it by arriving with Y = 2k. Control never comes back to the call site. The trace resolves the target when it knows Y and records a lead when it does not; either way it stops, because there is no resumption point. NOT ESTABLISHED: the entry count at any site. Nothing in the routine bounds Y, so the count has to come from the caller - per playbook section 3, from an index mask or a CPY bound, never from dividing the gap. This is the entry point for a caller that already holds Y = 2 x index; the ASL A / TAY two bytes earlier is the other entry point, registered separately, for a caller holding the index in A.",
+      "index_reg": "Y"
+    },
+    {
+      "cpu_addr": "$9F12",
+      "bank": 5,
+      "kind": "jump_table",
+      "name": "inline jump table, indexed by Y (bank 5 copy)",
+      "description": "Byte-identical to $D6B0 and to the bank 6 copy at $85F6: eleven bytes, PLA/STA $00/PLA/STA $01/INY/INY/LDA ($00),Y/PHA/DEY/LDA ($00),Y/PHA/RTS. Three banks each carrying their own copy of the same helper is the idiom playbook section 5 names - several banks each carry their own decompressor rather than sharing one - and it is worth knowing here because a bank can dispatch this way without ever calling into bank 7. This is the entry point for a caller that already holds Y = 2 x index; the ASL A / TAY two bytes earlier is the other entry point, registered separately, for a caller holding the index in A.",
+      "index_reg": "Y"
+    },
+    {
+      "cpu_addr": "$85F6",
+      "bank": 6,
+      "kind": "jump_table",
+      "name": "inline jump table, indexed by Y (bank 6 copy)",
+      "description": "Byte-identical to $D6B0 and to the bank 5 copy at $9F12. See those entries. This is the entry point for a caller that already holds Y = 2 x index; the ASL A / TAY two bytes earlier is the other entry point, registered separately, for a caller holding the index in A.",
+      "index_reg": "Y"
+    },
+    {
+      "cpu_addr": "$D6AE",
+      "bank": null,
+      "kind": "jump_table",
+      "index_reg": "A",
+      "name": "inline jump table, indexed by A (doubling entry to $D6B0)",
+      "description": "Two bytes - ASL A / TAY - falling straight through into $D6B0. Same mechanism, different calling convention: the caller passes the entry number in A and this doubles it into the byte offset Y that the body wants. Found because the trace derailed at call sites of THIS address while the body two bytes later was already registered, which is the shape playbook section 5 calls a handler that presets one byte and falls into its neighbour: two entries a few bytes apart are one routine, not two. Worked example, bank 7 $E6F0: JSR $D6AE followed by ten little-endian words 06 E7, 20 E7, 32 E7, 5F E7, 89 E7, 9E E7, B5 E7, 5D E8, 80 E8, 92 E8 - all of them $E7xx/$E8xx, i.e. addresses just past the call site, which is what a local dispatch table looks like. NOT ESTABLISHED: the entry count. Ten is where the plausible addresses stop at that one site and is not a claim about any other."
+    },
+    {
+      "cpu_addr": "$9F10",
+      "bank": 5,
+      "kind": "jump_table",
+      "index_reg": "A",
+      "name": "inline jump table, indexed by A (doubling entry to $9F12)",
+      "description": "Two bytes - ASL A / TAY - falling straight through into $9F12. Same mechanism, different calling convention: the caller passes the entry number in A and this doubles it into the byte offset Y that the body wants. Found because the trace derailed at call sites of THIS address while the body two bytes later was already registered, which is the shape playbook section 5 calls a handler that presets one byte and falls into its neighbour: two entries a few bytes apart are one routine, not two. Worked example, bank 7 $E6F0: JSR $D6AE followed by ten little-endian words 06 E7, 20 E7, 32 E7, 5F E7, 89 E7, 9E E7, B5 E7, 5D E8, 80 E8, 92 E8 - all of them $E7xx/$E8xx, i.e. addresses just past the call site, which is what a local dispatch table looks like. NOT ESTABLISHED: the entry count. Ten is where the plausible addresses stop at that one site and is not a claim about any other."
+    },
+    {
+      "cpu_addr": "$85F4",
+      "bank": 6,
+      "kind": "jump_table",
+      "index_reg": "A",
+      "name": "inline jump table, indexed by A (doubling entry to $85F6)",
+      "description": "Two bytes - ASL A / TAY - falling straight through into $85F6. Same mechanism, different calling convention: the caller passes the entry number in A and this doubles it into the byte offset Y that the body wants. Found because the trace derailed at call sites of THIS address while the body two bytes later was already registered, which is the shape playbook section 5 calls a handler that presets one byte and falls into its neighbour: two entries a few bytes apart are one routine, not two. Worked example, bank 7 $E6F0: JSR $D6AE followed by ten little-endian words 06 E7, 20 E7, 32 E7, 5F E7, 89 E7, 9E E7, B5 E7, 5D E8, 80 E8, 92 E8 - all of them $E7xx/$E8xx, i.e. addresses just past the call site, which is what a local dispatch table looks like. NOT ESTABLISHED: the entry count. Ten is where the plausible addresses stop at that one site and is not a claim about any other."
+    }
+  ],
+  "_rejected_comment": "Matches of the PLA/STA $zp/PLA/STA $zp+1 scan that are NOT inline-argument calls, written down so the next reader does not re-derive them. Recording the rejects is what makes the class enumeration a finding rather than a list.",
+  "rejected": [
+    {
+      "cpu_addr": "$8161",
+      "bank": 1,
+      "why": "The bytes decode to PLA/STA $18/PLA/STA $19/BCC $8136/BRK. A BRK two instructions in says this is not an instruction boundary; the match is a byte-scan false positive inside data."
+    },
+    {
+      "cpu_addr": "$810C",
+      "bank": 3,
+      "why": "Real code, but it pops FOUR bytes - two return addresses - into $18/$19 and $14/$15 and then uses them as values, not as a pointer to inline data. Nothing reads through ($18) or ($14) here."
+    },
+    {
+      "cpu_addr": "$8112",
+      "bank": 3,
+      "why": "The second half of the $810C sequence, matched separately by the scan. Not a routine head."
+    },
+    {
+      "cpu_addr": "$A742",
+      "bank": 5,
+      "why": "Pops its return address into $18/$19 and immediately RTSes - so it returns to its caller's caller, having left its own return address in RAM as a value. A 'where was I called from' helper, not an inline-argument call."
+    },
+    {
+      "cpu_addr": "$FAD8",
+      "bank": null,
+      "why": "Pops its return address into $18/$19, then treats the two bytes as a coordinate pair - AND #$F0, LSR, five more LSRs, ORA - and indexes with the result. It reads the address, not the bytes the address points at."
+    }
+  ],
+  "dispatch_tables": [],
+  "unresolved": [
+    "$8A97 in bank 2: JMP ($10C0). $10C0 mirrors to $00C0 in the 2 KB of CPU RAM, so this is a jump through a RAM vector - the mechanism playbook section 4 records as hiding a quarter of a bank on another cartridge. Nothing that installs it has been looked for yet.",
+    "Every call site of the three jump_table helpers: the inline table's entry count is not established at any of them, so none of their targets beyond the one Y selects is reached.",
+    "Bank 4 is reached at 19 bytes of 16,384. Its opening JMP table has a single entry, which is the odd one out among the eight banks, and no far call in the ROM targets it. Whatever reaches bank 4 is a mechanism nothing here has enumerated."
+  ]
+}

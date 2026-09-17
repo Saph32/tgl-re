@@ -9,3 +9,6 @@
 
 __pycache__/
 *.pyc
+
+# Scratch output from tools/trace-code.py --json
+trace.json

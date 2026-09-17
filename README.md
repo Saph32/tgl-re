@@ -29,7 +29,13 @@ python tools/build.py --gaps             # the largest stretches nobody has clai
 python tools/whereis.py FEDE             # what is at this address, and where in the file
 python tools/whereis.py 8000 --bank 5    # an address in the switchable window
 python tools/whereis.py --bytes "4C DE FE"   # which bank really holds these bytes
+python tools/trace-code.py --assumptions # the code trace, and what its answer rests on
+python tools/gen-code-regions.py         # regenerate the traced code regions
 ```
+
+`tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
+including the call sites where "a JSR returns with the live bank unchanged" is doing real
+work. Read it before citing a number from it.
 
 ## What the cartridge is
 
@@ -77,7 +83,17 @@ repository.
 
 ## State of play
 
-Early. The container is documented — the iNES header, the interrupt vectors, the bank
-table and the boot-time bank check — and the infrastructure that checks it exists. Almost
-none of the 131,072 PRG bytes have been claimed. `docs/index.html` prints the real figure;
-it is not typed anywhere.
+Early. The container is documented — the iNES header, the interrupt vectors, the bank table
+and the boot-time bank check — and a seeded code trace, seeded from the three vectors and
+every bank's opening `JMP` table, accounts for most of what is claimed so far.
+`docs/index.html` prints the real figure; it is not typed anywhere.
+
+The signal worth watching is the illegal-opcode count the tracer prints. It is zero across
+11,462 instruction starts, and it got there by finding real mechanisms rather than by
+tuning: an entry-table alias for the far-call trampoline, three inline-argument calling
+conventions, and the fact that two complementary branches back to back are unconditional.
+Each of those was a place the trace was decoding data as code and reporting coverage for
+it. The last one it caught was a typo in this project's own `annotations/rom.json`.
+
+**Zero illegal opcodes says the trace stayed on the rails everywhere it went. It says
+nothing about where it did not go.** Bank 4 is at 20 bytes of 16,384.
