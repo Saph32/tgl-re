@@ -1,0 +1,71 @@
+{
+  "_comment": "The 16-byte iNES header. This is container metadata added by whoever dumped the cartridge - none of it exists on the physical board, and the NES never reads it. It is documented here because it is 16 real bytes of the file, and because every file offset in this project is derived from two of them.",
+  "regions": [
+    {
+      "id": "header.ines",
+      "offset": 0,
+      "size": 16,
+      "kind": "header",
+      "name": "iNES header",
+      "confidence": "confirmed",
+      "sha1": "59560f020e2615a2903146b53e09e4538518b8c7",
+      "description": "The iNES container header. Bytes 8-15 are all zero, so this is a plain iNES file and not NES 2.0 (NES 2.0 puts the value 2 in bits 3-2 of byte 7; byte 7 here is $00). Unlike some dumps, nothing in this header has been found to disagree with the file: byte 4 declares 131072 bytes of PRG, byte 5 declares no CHR, and 16 + 131072 + 0 = 131088 is exactly the size of the file. Bytes 6 and 7 together encode mapper 2. tools/tgl/model.py re-derives the mapper number, the PRG figure and the zero CHR figure from these bytes on every build, so none of the three can drift away from what is written here.",
+      "fields": [
+        {
+          "name": "magic",
+          "offset": 0,
+          "size": 4,
+          "bytes": "4e45531a",
+          "description": "The constant \"NES\" followed by MS-DOS end-of-file ($1A). Identifies the file as iNES."
+        },
+        {
+          "name": "prg_rom_size",
+          "offset": 4,
+          "size": 1,
+          "bytes": "08",
+          "value": 8,
+          "description": "PRG ROM size in 16 KB units: 8 x 16384 = 131072 bytes. The unit is a property of the container rather than of the mapper, but here it happens to match UxROM's own 16 KB PRG banking exactly, so this ROM has 8 banks of 16 KB and the container's units and the mapper's units are the same thing."
+        },
+        {
+          "name": "chr_rom_size",
+          "offset": 5,
+          "size": 1,
+          "bytes": "00",
+          "value": 0,
+          "description": "CHR ROM size in 8 KB units: zero, so there is no CHR ROM in this file and the board carries CHR RAM instead. This is the single most consequential byte in the header for this project. It means no tile data is present in the file as tiles; every tile the PPU ever draws was written into RAM at runtime by code reading PRG, so finding the uploaders is the whole graphics problem here. The file size confirms the zero independently: 16 + 131072 leaves nothing over."
+        },
+        {
+          "name": "flags6",
+          "offset": 6,
+          "size": 1,
+          "bytes": "21",
+          "value": 33,
+          "description": "$21 = 0010_0001. Bit 0 (mirroring) = 1, vertical; bit 1 (battery-backed PRG RAM) = 0; bit 2 (512-byte trainer) = 0, so PRG begins at file offset 16; bit 3 (four-screen VRAM) = 0. Bits 7-4 = 0010 are the low nibble of the mapper number. The mirroring bit is the operative one on this cartridge, unlike on an MMC1 board: mapper 2 has no mirroring register, so the arrangement is wired and cannot change during play."
+        },
+        {
+          "name": "flags7",
+          "offset": 7,
+          "size": 1,
+          "bytes": "00",
+          "value": 0,
+          "description": "$00. Bit 0 (VS Unisystem) = 0; bit 1 (PlayChoice-10) = 0; bits 3-2 = 00, so this is iNES and not NES 2.0. Bits 7-4 = 0000 are the high nibble of the mapper number, giving mapper $02 = 2 = UxROM."
+        },
+        {
+          "name": "prg_ram_size",
+          "offset": 8,
+          "size": 1,
+          "bytes": "00",
+          "value": 0,
+          "description": "PRG RAM size in 8 KB units. Zero, which by the iNES convention is read as 8 KB for compatibility rather than as none - and which flags6 bit 1 says is not battery-backed in any case. Whether this board populates work RAM at $6000-$7FFF has NOT been established from the ROM: no code has yet been traced that reads or writes that range."
+        },
+        {
+          "name": "padding",
+          "offset": 9,
+          "size": 7,
+          "bytes": "00000000000000",
+          "description": "Bytes 9-15, all zero. In the original specification byte 9 is a TV-system flag and bytes 10-15 are reserved; all-zero here means NTSC and nothing else claimed. All seven being zero is also what rules out NES 2.0 and what rules out the handful of dumping tools that wrote their own name into this space."
+        }
+      ]
+    }
+  ]
+}

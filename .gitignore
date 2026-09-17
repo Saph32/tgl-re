@@ -1,0 +1,11 @@
+# The ROM image is copyrighted material and is deliberately not tracked here.
+*.nes
+
+# Emulator and debugger by-products
+*.cdl
+*.fc8
+*.sav
+*.nes.deb
+
+__pycache__/
+*.pyc

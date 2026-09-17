@@ -1,0 +1,528 @@
+{
+  "rom": {
+    "title": "The Guardian Legend",
+    "file": "Guardian Legend, The.nes",
+    "size": 131088,
+    "sha1": "d00d73c7764a4c3513892b97afb939f30e522245",
+    "md5": "5acfc9d45b94f82f97e04c4434adbf36",
+    "format": "iNES",
+    "header_size": 16,
+    "prg_offset": 16,
+    "prg_size": 131072,
+    "prg_bank_size": 16384,
+    "prg_bank_count": 8,
+    "ines_header": {
+      "prg_size_declared": 131072,
+      "chr_size_declared": 0,
+      "note": "Both figures check out against the file. 16 + 131072 = 131088, the size of the file, with nothing left over for CHR - and byte 5 asks for none. Unlike some dumps this header carries no anomaly that has been found so far; bytes 8-15 are all zero, so it is plain iNES rather than NES 2.0."
+    },
+    "chr": {
+      "kind": "CHR RAM",
+      "size": 8192,
+      "evidence": "iNES byte 5 is $00. By the iNES convention that means the cartridge has no CHR ROM and the board carries 8 KB of CHR RAM instead, which the file confirms by its size: header + PRG accounts for every one of the 131,088 bytes. NOT YET ESTABLISHED from the ROM: which code uploads the tiles. Per the playbook that is the whole graphics problem on a CHR RAM cartridge, and no uploader has been traced yet. The 8192 figure is the standard size for the board and is NOT derived from anything in this file."
+    },
+    "mapper": {
+      "number": 2,
+      "name": "UxROM",
+      "description": "Mapper 2. A single write to any address in $8000-$FFFF loads the PRG bank register, which selects which 16 KB bank appears at $8000-$BFFF. The last bank - bank 7 here - is hard-wired at $C000-$FFFF and cannot be switched out, which is why the interrupt vectors and the switching code itself live there. There is no CHR banking, no scanline IRQ and no mapper-controlled mirroring: the board wires mirroring fixed, and iNES byte 6 bit 0 says vertical.",
+      "bus_conflicts": {
+        "handled": true,
+        "description": "UxROM boards put the latch on the same bus as the ROM, so a write to $8000-$FFFF is ANDed with whatever the ROM already holds at that address unless the two agree. This ROM avoids that in the textbook way: it keeps a table of the eight bank values at $FFF2-$FFF9 and switches by reading a byte from the table and writing it straight back to the address it came from, so the written value and the ROM value are the same byte by construction.",
+        "evidence": "$D79F-$D7A2 is LDA $FFF2,Y / STA $FFF2,Y, and $D70B-$D70E is the same pair. Seven more sites do it with a fixed address instead of an index - $D719/$D71C for bank 0, then $D726, $D733, $D740, $D74D, $D75A, $D767 for banks 1 to 6, each preceded by LDA #n / STA $04. A byte scan of the PRG for the three store opcodes based at $FFF2 (8D/9D/99) finds no other site."
+      },
+      "mirroring": {
+        "value": "vertical",
+        "description": "iNES byte 6 bit 0 is 1, which the specification reads as vertical mirroring. Mapper 2 has no mirroring control register, so unlike the MMC1 cartridges this toolchain came from, this cannot change at runtime and the header's bit is the whole answer. NOT CHECKED: whether the game ever relies on that arrangement in a way the ROM would show."
+      }
+    },
+    "vectors": {
+      "nmi": 53877,
+      "reset": 65246,
+      "irq": 56563,
+      "description": "$DC75, $FEDE and $DCF3, all in bank 7 - which is the only place they could usefully be, since bank 7 is the one the CPU can always see. All three were disassembled and all three decode as the code their name implies: RESET is a textbook power-on sequence (SEI/CLD/LDX #$FF/TXS, then three PPUSTATUS polls, then a clear of $0000-$07FF), NMI saves A/X/Y and runs a vblank handler that does OAM DMA from page 2, and IRQ is a real handler rather than a bare RTI - it polls PPUSTATUS bit 6 and reloads DMC_FREQ. See the vectors region for the byte-level argument."
+    },
+    "prg_banks": [
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a 9-entry JMP table at $8000-$801A, then $FF fill. Nothing else in this bank has been traced."
+      },
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a 5-entry JMP table at $8000-$800E. Nothing else in this bank has been traced."
+      },
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a 12-entry JMP table at $8000-$8023. Nothing else in this bank has been traced."
+      },
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a 10-entry JMP table at $8000-$801D. Nothing else in this bank has been traced."
+      },
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a single JMP at $8000-$8002 and then falls into what decodes as code at $8003. The one-entry table is the odd one out among the eight banks and has not been explained."
+      },
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a 20-entry JMP table at $8000-$803B, the largest of the switchable banks. Nothing else in this bank has been traced."
+      },
+      {
+        "role": "not yet established",
+        "window": 32768,
+        "evidence": "Opens with a 7-entry JMP table at $8000-$8014. Nothing else in this bank has been traced."
+      },
+      {
+        "role": "the fixed bank: vectors, bank switching, the far-call trampoline",
+        "window": 49152,
+        "evidence": "UxROM wires the last bank to $C000-$FFFF permanently, and this is the last of the eight. Confirmed rather than assumed: the three interrupt vectors in this bank's own tail point at $DC75, $FEDE and $DCF3, and all three addresses decode as sensible handlers when this bank's bytes are placed at $C000. The seven fixed-address bank-switch routines at $D714-$D76E and the generic one at $D705 are also here, as they must be - code that switches the $8000 window cannot be running in the $8000 window. The boot-time bank check at $FF23-$FF43 selects each of the other seven banks in turn and confirms it answers with its own number, so the reset path itself asserts that this bank stays put while the others move."
+      }
+    ],
+    "open_threads": [
+      "Every bank opens with a table of JMP instructions. Per the playbook that table IS the complete inventory of cross-bank entries, so resolving all of them and checking the count closes is the next structural step. Counted by scanning for consecutive $4C from $8000: 9, 5, 12, 10, 1, 20, 7 entries in banks 0-6, and 124 in bank 7 from $C000. The bank 7 figure is a raw count of consecutive $4C bytes and is NOT established as the table's real length - a run of JMPs can end by running into code that happens to start with one.",
+      "The far-call convention is at $D76F: it pops the return address, reads three inline bytes after the JSR (the first of which it stores in $04, the live-bank shadow), calls through, and restores the bank on the way back. Nothing has been resolved through it yet. Per the playbook a far call is the one reference no grep for an operand will ever surface, so this has to be done before any claim that a block is unreferenced.",
+      "$04 is the live-bank shadow byte: every one of the eight switch routines writes the bank number to it. Its readers have not been enumerated.",
+      "The boot-time bank check at $FF23-$FF43 is resolved and annotated, but the routine it calls on failure, $DED2, and the byte it stores at $0180 are not. Until those are read, what the seven failure codes at $FF3A mean is open.",
+      "CHR is RAM, so no tile exists in this file as a tile. No uploader has been found yet and no graphics region has been claimed.",
+      "The trailing $FF runs at the end of each bank (37, 48, 16, 40, 14, 13, 46 bytes in banks 0-6 and 14 bytes at $FFE4 in bank 7) look like fill but are not claimed as regions yet, because nothing has been checked about them beyond their byte value.",
+      "No RAM map exists yet. $04, $10-$13, $26, $2B, $30, $FC and $FE are already named by the code read so far and have nowhere to be written down."
+    ]
+  },
+  "coverage": {
+    "documented_bytes": 44,
+    "total_bytes": 131088,
+    "percent": 0.0336,
+    "region_count": 11
+  },
+  "regions": [
+    {
+      "id": "header.ines",
+      "offset": 0,
+      "size": 16,
+      "kind": "header",
+      "name": "iNES header",
+      "confidence": "confirmed",
+      "sha1": "59560f020e2615a2903146b53e09e4538518b8c7",
+      "description": "The iNES container header. Bytes 8-15 are all zero, so this is a plain iNES file and not NES 2.0 (NES 2.0 puts the value 2 in bits 3-2 of byte 7; byte 7 here is $00). Unlike some dumps, nothing in this header has been found to disagree with the file: byte 4 declares 131072 bytes of PRG, byte 5 declares no CHR, and 16 + 131072 + 0 = 131088 is exactly the size of the file. Bytes 6 and 7 together encode mapper 2. tools/tgl/model.py re-derives the mapper number, the PRG figure and the zero CHR figure from these bytes on every build, so none of the three can drift away from what is written here.",
+      "fields": [
+        {
+          "name": "magic",
+          "offset": 0,
+          "size": 4,
+          "bytes": "4e45531a",
+          "description": "The constant \"NES\" followed by MS-DOS end-of-file ($1A). Identifies the file as iNES.",
+          "file_offset": 0
+        },
+        {
+          "name": "prg_rom_size",
+          "offset": 4,
+          "size": 1,
+          "bytes": "08",
+          "value": 8,
+          "description": "PRG ROM size in 16 KB units: 8 x 16384 = 131072 bytes. The unit is a property of the container rather than of the mapper, but here it happens to match UxROM's own 16 KB PRG banking exactly, so this ROM has 8 banks of 16 KB and the container's units and the mapper's units are the same thing.",
+          "file_offset": 4
+        },
+        {
+          "name": "chr_rom_size",
+          "offset": 5,
+          "size": 1,
+          "bytes": "00",
+          "value": 0,
+          "description": "CHR ROM size in 8 KB units: zero, so there is no CHR ROM in this file and the board carries CHR RAM instead. This is the single most consequential byte in the header for this project. It means no tile data is present in the file as tiles; every tile the PPU ever draws was written into RAM at runtime by code reading PRG, so finding the uploaders is the whole graphics problem here. The file size confirms the zero independently: 16 + 131072 leaves nothing over.",
+          "file_offset": 5
+        },
+        {
+          "name": "flags6",
+          "offset": 6,
+          "size": 1,
+          "bytes": "21",
+          "value": 33,
+          "description": "$21 = 0010_0001. Bit 0 (mirroring) = 1, vertical; bit 1 (battery-backed PRG RAM) = 0; bit 2 (512-byte trainer) = 0, so PRG begins at file offset 16; bit 3 (four-screen VRAM) = 0. Bits 7-4 = 0010 are the low nibble of the mapper number. The mirroring bit is the operative one on this cartridge, unlike on an MMC1 board: mapper 2 has no mirroring register, so the arrangement is wired and cannot change during play.",
+          "file_offset": 6
+        },
+        {
+          "name": "flags7",
+          "offset": 7,
+          "size": 1,
+          "bytes": "00",
+          "value": 0,
+          "description": "$00. Bit 0 (VS Unisystem) = 0; bit 1 (PlayChoice-10) = 0; bits 3-2 = 00, so this is iNES and not NES 2.0. Bits 7-4 = 0000 are the high nibble of the mapper number, giving mapper $02 = 2 = UxROM.",
+          "file_offset": 7
+        },
+        {
+          "name": "prg_ram_size",
+          "offset": 8,
+          "size": 1,
+          "bytes": "00",
+          "value": 0,
+          "description": "PRG RAM size in 8 KB units. Zero, which by the iNES convention is read as 8 KB for compatibility rather than as none - and which flags6 bit 1 says is not battery-backed in any case. Whether this board populates work RAM at $6000-$7FFF has NOT been established from the ROM: no code has yet been traced that reads or writes that range.",
+          "file_offset": 8
+        },
+        {
+          "name": "padding",
+          "offset": 9,
+          "size": 7,
+          "bytes": "00000000000000",
+          "description": "Bytes 9-15, all zero. In the original specification byte 9 is a TV-system flag and bytes 10-15 are reserved; all-zero here means NTSC and nothing else claimed. All seven being zero is also what rules out NES 2.0 and what rules out the handful of dumping tools that wrote their own name into this space.",
+          "file_offset": 9
+        }
+      ],
+      "source": "00-header.json",
+      "end": 16,
+      "segment": "header",
+      "prg_bank": null,
+      "cpu_addr": null
+    },
+    {
+      "id": "bank0.bank_id_BFFF",
+      "offset": 16399,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 0 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "description": "One byte at $BFFF, the last byte of PRG bank 0, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 16400,
+      "segment": "prg",
+      "prg_bank": 0,
+      "fields": []
+    },
+    {
+      "id": "bank1.bank_id_BFFF",
+      "offset": 32783,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 1 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "bf8b4530d8d246dd74ac53a13471bba17941dff7",
+      "description": "One byte at $BFFF, the last byte of PRG bank 1, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 32784,
+      "segment": "prg",
+      "prg_bank": 1,
+      "fields": []
+    },
+    {
+      "id": "bank2.bank_id_BFFF",
+      "offset": 49167,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 2 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "c4ea21bb365bbeeaf5f2c654883e56d11e43c44e",
+      "description": "One byte at $BFFF, the last byte of PRG bank 2, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 49168,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
+      "id": "bank3.bank_id_BFFF",
+      "offset": 65551,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 3 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "9842926af7ca0a8cca12604f945414f07b01e13d",
+      "description": "One byte at $BFFF, the last byte of PRG bank 3, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 65552,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank4.bank_id_BFFF",
+      "offset": 81935,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 4 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "a42c6cf1de3abfdea9b95f34687cbbe92b9a7383",
+      "description": "One byte at $BFFF, the last byte of PRG bank 4, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 81936,
+      "segment": "prg",
+      "prg_bank": 4,
+      "fields": []
+    },
+    {
+      "id": "bank5.bank_id_BFFF",
+      "offset": 98319,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 5 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "8dc00598417d4eb788a77ac6ccef3cb484905d8b",
+      "description": "One byte at $BFFF, the last byte of PRG bank 5, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 98320,
+      "segment": "prg",
+      "prg_bank": 5,
+      "fields": []
+    },
+    {
+      "id": "bank6.bank_id_BFFF",
+      "offset": 114703,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 6 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "2d0134ed3b9de132c720fe697b532b4c232ff9fe",
+      "description": "One byte at $BFFF, the last byte of PRG bank 6, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.",
+      "source": "02-bank-ids.json",
+      "end": 114704,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank7.bankcheck_codes_FF3A",
+      "offset": 130890,
+      "size": 7,
+      "kind": "data",
+      "name": "Bank-check failure codes",
+      "confidence": "confirmed",
+      "cpu_addr": 65338,
+      "sha1": "5bd4af1d5880b8e29dd107c2d86f30f74d104ce3",
+      "description": "Seven bytes, $0F $01 $06 $14 $0A $31 $28, one per switchable PRG bank. Read by LDA $FF3A,Y at $FF2E, the failure arm of the boot-time bank check described on the bank identity bytes, with Y holding the bank that did not answer correctly. The value is stored to $0180 and $DED2 is called, after which $FF37 spins forever. Both edges of the region are pinned by structure and not argued: the byte before is the last byte of JMP $FF37 at $FF37-$FF39, the byte after is the DEY at $FF41 that the success path branches to, and Y is bounded to 0-6 by the LDY #$06 at $FF23 and the BPL at $FF42 - so the reader accounts for exactly these seven bytes and no others. NOT ESTABLISHED: what the values mean. They are not the bank numbers and they are not consecutive. The obvious lead is that they are tile or character codes for something drawn on screen, which is a question about $DED2 and about $0180, and neither has been traced yet.",
+      "source": "02-bank-ids.json",
+      "end": 130897,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.bank_table_FFF2",
+      "offset": 131074,
+      "size": 8,
+      "kind": "data",
+      "name": "PRG bank table (bus-conflict-free switch values)",
+      "confidence": "confirmed",
+      "cpu_addr": 65522,
+      "sha1": "3e229f17ac9a5a5d69e29c219d0ecabd31463998",
+      "description": "Eight bytes, $80 through $87, one per PRG bank, at $FFF2-$FFF9. This is the standard UxROM answer to bus conflicts. On these boards a write to $8000-$FFFF is ANDed with whatever the ROM is driving at that address, so the only write that is guaranteed to land is one whose value already equals the ROM byte. The game therefore never writes a bank number out of thin air: it reads entry n of this table and writes the byte straight back where it came from, so the two agree by construction. The high bit is set in all eight values and is discarded - UxROM latches only as many low bits as it has banks, and with eight banks that is the low three - which is why $80+n selects bank n. Confirmed by the switching code and not by the shape of the table: $D79F-$D7A2 is LDA $FFF2,Y / STA $FFF2,Y with Y holding the bank number, $D70B-$D70E is the same pair, and seven more routines at $D719, $D726, $D733, $D740, $D74D, $D75A and $D767 do it with the address of one fixed entry. Both edges of the region are pinned by structure rather than argued: $FFF0-$FFF1 are $FF, and the byte after the eighth entry is the low half of the NMI vector. LEAD, not established: the eighth entry ($87, bank 7) exists, so the fixed bank can in principle also be selected into the $8000 window - but the seven fixed-address routines cover banks 0 to 6 only, and no call site has yet been found that hands the generic routine a 7.",
+      "fields": [
+        {
+          "name": "bank0",
+          "offset": 0,
+          "size": 1,
+          "bytes": "80",
+          "value": 128,
+          "description": "Written to $FFF2 to select PRG bank 0 at $8000-$BFFF. Loaded and stored by $D719/$D71C.",
+          "file_offset": 131074,
+          "cpu_addr": 65522
+        },
+        {
+          "name": "bank1",
+          "offset": 1,
+          "size": 1,
+          "bytes": "81",
+          "value": 129,
+          "description": "Written to $FFF3 to select PRG bank 1. Loaded and stored by $D726/$D729.",
+          "file_offset": 131075,
+          "cpu_addr": 65523
+        },
+        {
+          "name": "bank2",
+          "offset": 2,
+          "size": 1,
+          "bytes": "82",
+          "value": 130,
+          "description": "Written to $FFF4 to select PRG bank 2. Loaded and stored by $D733/$D736.",
+          "file_offset": 131076,
+          "cpu_addr": 65524
+        },
+        {
+          "name": "bank3",
+          "offset": 3,
+          "size": 1,
+          "bytes": "83",
+          "value": 131,
+          "description": "Written to $FFF5 to select PRG bank 3. Loaded and stored by $D740/$D743.",
+          "file_offset": 131077,
+          "cpu_addr": 65525
+        },
+        {
+          "name": "bank4",
+          "offset": 4,
+          "size": 1,
+          "bytes": "84",
+          "value": 132,
+          "description": "Written to $FFF6 to select PRG bank 4. Loaded and stored by $D74D/$D750.",
+          "file_offset": 131078,
+          "cpu_addr": 65526
+        },
+        {
+          "name": "bank5",
+          "offset": 5,
+          "size": 1,
+          "bytes": "85",
+          "value": 133,
+          "description": "Written to $FFF7 to select PRG bank 5. Loaded and stored by $D75A/$D75D.",
+          "file_offset": 131079,
+          "cpu_addr": 65527
+        },
+        {
+          "name": "bank6",
+          "offset": 6,
+          "size": 1,
+          "bytes": "86",
+          "value": 134,
+          "description": "Written to $FFF8 to select PRG bank 6. Loaded and stored by $D767/$D76A.",
+          "file_offset": 131080,
+          "cpu_addr": 65528
+        },
+        {
+          "name": "bank7",
+          "offset": 7,
+          "size": 1,
+          "bytes": "87",
+          "value": 135,
+          "description": "Would select PRG bank 7 into the $8000 window. No fixed-address routine uses this entry; it is reachable only through the indexed pair at $D70B/$D70E or $D79F/$D7A2, and no call site passing a 7 has been found yet. Whether the entry is live or vestigial is NOT established.",
+          "file_offset": 131081,
+          "cpu_addr": 65529
+        }
+      ],
+      "source": "01-vectors.json",
+      "end": 131082,
+      "segment": "prg",
+      "prg_bank": 7
+    },
+    {
+      "id": "bank7.vectors_FFFA",
+      "offset": 131082,
+      "size": 6,
+      "kind": "vectors",
+      "name": "6502 interrupt vectors",
+      "confidence": "confirmed",
+      "cpu_addr": 65530,
+      "sha1": "83daf6534b6e7b6d9bf8b0baf1d0351fa84ac0a8",
+      "description": "The three 16-bit little-endian addresses the 6502 fetches on NMI, on reset and on IRQ/BRK. Their position is fixed by the CPU, not chosen: $FFFA, $FFFC and $FFFE are the last six bytes of the address space, which is why they are the last six bytes of the file. All three point into bank 7, which is the only place they could usefully point on a UxROM board - $C000-$FFFF is the one window that is guaranteed to hold the same bytes whatever the bank register says. Each target was disassembled and each decodes as the handler its vector names, which is the check that makes these six bytes a confirmed claim rather than a convention: a wrong pair here would still be a legal address, and only the code at the other end can say it is the right one.",
+      "fields": [
+        {
+          "name": "nmi",
+          "offset": 0,
+          "size": 2,
+          "bytes": "75dc",
+          "value": 56437,
+          "description": "NMI vector = $DC75, taken once per frame at the start of vblank. The target is a vblank handler and decodes as one: PHA / TXA / PHA / TYA / PHA saves the registers, then $FE is masked with #$E7 and written to PPUMASK, a frame counter at $2B is incremented, PPUSTATUS is read into $26, and OAM DMA is kicked off by writing $00 to OAMADDR and $02 to OAMDMA - so sprite memory is staged in CPU page 2. NOT YET ESTABLISHED: whether this handler ever dispatches through a vector held in RAM. The playbook warns that a RAM vector is where a static trace stalls and that it can hide a quarter of a bank, so that question has to be answered before any coverage figure for bank 7 means anything.",
+          "file_offset": 131082,
+          "cpu_addr": 65530
+        },
+        {
+          "name": "reset",
+          "offset": 2,
+          "size": 2,
+          "bytes": "defe",
+          "value": 65246,
+          "description": "RESET vector = $FEDE, taken at power-on and on the console's reset button. The target is a textbook 6502 power-on sequence and decodes as one: SEI / CLD / LDX #$FF / TXS, then $30 to PPUCTRL, then PPUSTATUS polled until bit 7 clears three times over (the standard wait for the PPU to warm up), then $0F to APUSTATUS and $C0 to $4017, then a loop that clears all eight pages of $0000-$07FF with a single X index. The clear covers $0100-$01FF, so the stack is zeroed too - which is worth knowing before reading anything into stack contents in a savestate.",
+          "file_offset": 131084,
+          "cpu_addr": 65532
+        },
+        {
+          "name": "irq",
+          "offset": 4,
+          "size": 2,
+          "bytes": "f3dc",
+          "value": 56563,
+          "description": "IRQ/BRK vector = $DCF3. This one is not a stub, and that is worth saying out loud because on many cartridges it is: mapper 2 has no scanline counter, so the only interrupt source on this board is the APU - the DMC sample-finished IRQ or the frame counter. The handler saves A, writes $0F to APUSTATUS, reads the frame counter at $2B, and then polls PPUSTATUS bit 6 (the sprite 0 hit flag) with BIT/BVS in a short loop before reloading DMC_FREQ from $05 and returning with RTI. So the same handler is doing sample housekeeping and mid-frame timing. NOT ESTABLISHED: which of the two interrupt sources is actually enabled, and when. That is a question about writes to $4010 and $4017 elsewhere in the ROM, and those have not been enumerated.",
+          "file_offset": 131086,
+          "cpu_addr": 65534
+        }
+      ],
+      "source": "01-vectors.json",
+      "end": 131088,
+      "segment": "prg",
+      "prg_bank": 7
+    }
+  ],
+  "gaps": [
+    {
+      "offset": 16,
+      "size": 16383,
+      "end": 16399,
+      "segment": "prg",
+      "prg_bank": 0,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 16400,
+      "size": 16383,
+      "end": 32783,
+      "segment": "prg",
+      "prg_bank": 1,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 32784,
+      "size": 16383,
+      "end": 49167,
+      "segment": "prg",
+      "prg_bank": 2,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 49168,
+      "size": 16383,
+      "end": 65551,
+      "segment": "prg",
+      "prg_bank": 3,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 65552,
+      "size": 16383,
+      "end": 81935,
+      "segment": "prg",
+      "prg_bank": 4,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 81936,
+      "size": 16383,
+      "end": 98319,
+      "segment": "prg",
+      "prg_bank": 5,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 98320,
+      "size": 16383,
+      "end": 114703,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 32768
+    },
+    {
+      "offset": 114704,
+      "size": 16186,
+      "end": 130890,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 49152
+    },
+    {
+      "offset": 130897,
+      "size": 177,
+      "end": 131074,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 65345
+    }
+  ]
+}

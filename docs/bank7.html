@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PRG bank 7 - The Guardian Legend</title><style>
+:root{--bg:#fbfbfd;--fg:#1c2024;--dim:#5b6470;--line:#e2e5ea;--card:#fff;--accent:#2563c9;
+--code:#f3f5f8;--gap:#d8dce3;--navbg:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#e6e9ee;--dim:#9aa3af;
+--line:#282c34;--card:#1b1e24;--accent:#6aa6ff;--code:#22262d;--gap:#343a44;--navbg:#1b1e24}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 24px 96px}
+nav{background:var(--navbg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav .inner{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:2px}
+nav a{display:block;padding:13px 12px;color:var(--dim);text-decoration:none;font-size:14px;
+font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+nav a:hover{color:var(--fg)}
+nav a.on{color:var(--accent);border-bottom-color:var(--accent)}
+nav a.dimmed{opacity:.55}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}
+h2{font-size:20px;margin:48px 0 14px;letter-spacing:-.01em;
+padding-bottom:8px;border-bottom:1px solid var(--line)}
+h3{font-size:16px;margin:0 0 6px}
+h4{font-size:14px;margin:26px 0 6px;color:var(--dim);text-transform:uppercase;
+letter-spacing:.06em}
+.sub{color:var(--dim);margin:0 0 28px}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;
+font-size:12.5px;line-height:1.55;margin:10px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+padding:18px 20px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.stat .k{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stat .v{font-size:19px;font-weight:600;margin-top:3px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:10px 0}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+tbody tr:last-child td{border-bottom:none}
+.scroll{overflow-x:auto}
+.bar{display:flex;height:26px;border-radius:6px;overflow:hidden;border:1px solid var(--line);
+margin:6px 0 4px}
+.bar span{display:block;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
+text-transform:uppercase;letter-spacing:.05em;color:#fff;vertical-align:2px}
+.conf{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
+border:1px solid var(--line);color:var(--dim);vertical-align:2px}
+.conf.confirmed{color:#2f855a;border-color:#2f855a66}
+.conf.lead{color:#b7791f;border-color:#b7791f66}
+.desc{color:var(--fg);margin:8px 0 0}
+.meta{color:var(--dim);font-size:12.5px;margin:2px 0 0}
+.field{border-left:2px solid var(--line);padding:2px 0 2px 14px;margin:14px 0}
+.field .fname{font-weight:600;font-size:13.5px}
+.field .fmeta{color:var(--dim);font-size:12px;margin:1px 0 4px}
+.field .fdesc{font-size:13.5px}
+.note{border-left:3px solid var(--accent);background:var(--card);padding:12px 16px;
+border-radius:0 8px 8px 0;margin:14px 0;font-size:14px}
+.warn{border-left-color:#b7791f}
+a{color:var(--accent)}
+.pagelinks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;
+margin:18px 0}
+.pagelink{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;
+padding:16px 18px;text-decoration:none;color:inherit}
+.pagelink:hover{border-color:var(--accent)}
+.pagelink .t{font-weight:600;font-size:15px;color:var(--accent)}
+.pagelink .d{color:var(--dim);font-size:13px;margin-top:4px}
+.pagelink .n{font-size:12px;color:var(--dim);margin-top:8px;font-family:ui-monospace,monospace}
+.toc{column-width:250px;column-gap:20px;font-size:13px;margin:12px 0}
+.toc a{display:block;text-decoration:none;padding:1px 0}
+.toc a:hover{text-decoration:underline}
+figure{margin:18px 0 26px}
+figure img{max-width:100%;height:auto;image-rendering:pixelated;border:1px solid var(--line);
+border-radius:6px;background:#000;display:block}
+figcaption{color:var(--dim);font-size:13px;margin-top:8px}
+figcaption strong{color:var(--fg)}
+.envs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;
+margin:16px 0}
+.env{margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:10px}
+.envbars{display:flex;align-items:flex-end;gap:2px;height:56px}
+.bar1{flex:1;background:var(--accent);border-radius:1px;min-width:2px;opacity:.85}
+.env figcaption{font-size:11.5px;margin-top:6px}
+.ch{display:inline-block;background:var(--code);border-radius:3px;padding:0 4px;
+font-size:11px;font-family:ui-monospace,monospace;color:var(--dim)}
+.pals{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;
+margin:14px 0}
+.pal{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--card)}
+.palh{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;
+margin-bottom:6px;font-family:ui-monospace,monospace}
+.palrow{display:flex;align-items:center;gap:6px;margin:3px 0}
+.pall{width:74px;font-size:11px;color:var(--dim)}
+.palgrp{display:flex;margin-right:6px;border-radius:3px;overflow:hidden;
+border:1px solid var(--line)}
+.sw{width:30px;height:24px;font:10px/24px ui-monospace,monospace;text-align:center;
+display:block}
+</style></head><body><nav><div class="inner"><a href="index.html" class="">Overview</a><a href="bank0.html" class="">Bank 0</a><a href="bank1.html" class="">Bank 1</a><a href="bank2.html" class="">Bank 2</a><a href="bank3.html" class="">Bank 3</a><a href="bank4.html" class="">Bank 4</a><a href="bank5.html" class="">Bank 5</a><a href="bank6.html" class="">Bank 6</a><a href="bank7.html" class="on">Bank 7</a></div></nav><div class="wrap"><h1>PRG bank 7</h1><p class="sub">the fixed bank: vectors, bank switching, the far-call trampoline &middot; $C000-$FFFF</p><div class="grid"><div class="stat"><div class="k">Documented</div><div class="v">0.13%</div></div><div class="stat"><div class="k">Bytes</div><div class="v">21 / 16,384</div></div><div class="stat"><div class="k">Regions</div><div class="v">3</div></div><div class="stat"><div class="k">File offsets</div><div class="v">0x1C010-0x2000F</div></div></div><div class="card"><h3>Why this bank sits where it does</h3><p class="desc">UxROM wires the last bank to $C000-$FFFF permanently, and this is the last of the eight. Confirmed rather than assumed: the three interrupt vectors in this bank&#x27;s own tail point at $DC75, $FEDE and $DCF3, and all three addresses decode as sensible handlers when this bank&#x27;s bytes are placed at $C000. The seven fixed-address bank-switch routines at $D714-$D76E and the generic one at $D705 are also here, as they must be - code that switches the $8000 window cannot be running in the $8000 window. The boot-time bank check at $FF23-$FF43 selects each of the other seven banks in turn and confirms it answers with its own number, so the reset path itself asserts that this bank stays put while the others move.</p></div><div class="note"><strong>This is the fixed bank.</strong> UxROM wires the last PRG bank to $C000-$FFFF and there is no register that can move it, so these bytes are visible to the CPU at every moment the console is running. That is why the interrupt vectors, the bank-switching routines and the far-call trampoline are all here: none of them could work from a window that is about to be switched out from under them.</div><h2>Layout</h2><div class="bar"><span style="width:98.79150390625%;background:var(--gap)"></span><span style="width:0.042724609375%;background:#9d7cf8" title="bank7.bankcheck_codes_FF3A"></span><span style="width:1.080322265625%;background:var(--gap)"></span><span style="width:0.048828125%;background:#9d7cf8" title="bank7.bank_table_FFF2"></span><span style="width:0.03662109375%;background:#f2704f" title="bank7.vectors_FFFA"></span></div><div class="legend"><span><i style="background:#9d7cf8"></i>data</span><span><i style="background:#f2704f"></i>vectors</span><span><i style="background:var(--gap)"></i>unclaimed</span></div><h2>Unclaimed</h2><div class="scroll"><table><thead><tr><th>File offset</th><th>Bytes</th><th>Where</th></tr></thead><tbody><tr><td class="mono">0x1C010-0x1FF49</td><td class="mono">16,186</td><td class="mono">$C000-$FF39</td></tr><tr><td class="mono">0x1FF51-0x20001</td><td class="mono">177</td><td class="mono">$FF41-$FFF1</td></tr></tbody></table></div><h2>Regions</h2><div class="toc"><a href="#bank7.bankcheck_codes_FF3A">$FF3A Bank-check failure codes</a><a href="#bank7.bank_table_FFF2">$FFF2 PRG bank table (bus-conflict-free switch values)</a><a href="#bank7.vectors_FFFA">$FFFA 6502 interrupt vectors</a></div><div class="card" id="bank7.bankcheck_codes_FF3A"><h3>Bank-check failure codes <span class="tag" style="background:#9d7cf8">data</span> <span class="conf confirmed">confirmed</span></h3><p class="meta"><code>bank7.bankcheck_codes_FF3A</code> &middot; file 0x1FF4A-0x1FF50 &middot; 7 bytes &middot; PRG bank 7 &middot; CPU $FF3A-$FF40</p><p class="desc">Seven bytes, $0F $01 $06 $14 $0A $31 $28, one per switchable PRG bank. Read by LDA $FF3A,Y at $FF2E, the failure arm of the boot-time bank check described on the bank identity bytes, with Y holding the bank that did not answer correctly. The value is stored to $0180 and $DED2 is called, after which $FF37 spins forever. Both edges of the region are pinned by structure and not argued: the byte before is the last byte of JMP $FF37 at $FF37-$FF39, the byte after is the DEY at $FF41 that the success path branches to, and Y is bounded to 0-6 by the LDY #$06 at $FF23 and the BPL at $FF42 - so the reader accounts for exactly these seven bytes and no others. NOT ESTABLISHED: what the values mean. They are not the bank numbers and they are not consecutive. The obvious lead is that they are tile or character codes for something drawn on screen, which is a question about $DED2 and about $0180, and neither has been traced yet.</p><pre>$FF3A  0F 01 06 14 0A 31 28                             |.....1(|</pre></div><div class="card" id="bank7.bank_table_FFF2"><h3>PRG bank table (bus-conflict-free switch values) <span class="tag" style="background:#9d7cf8">data</span> <span class="conf confirmed">confirmed</span></h3><p class="meta"><code>bank7.bank_table_FFF2</code> &middot; file 0x20002-0x20009 &middot; 8 bytes &middot; PRG bank 7 &middot; CPU $FFF2-$FFF9</p><p class="desc">Eight bytes, $80 through $87, one per PRG bank, at $FFF2-$FFF9. This is the standard UxROM answer to bus conflicts. On these boards a write to $8000-$FFFF is ANDed with whatever the ROM is driving at that address, so the only write that is guaranteed to land is one whose value already equals the ROM byte. The game therefore never writes a bank number out of thin air: it reads entry n of this table and writes the byte straight back where it came from, so the two agree by construction. The high bit is set in all eight values and is discarded - UxROM latches only as many low bits as it has banks, and with eight banks that is the low three - which is why $80+n selects bank n. Confirmed by the switching code and not by the shape of the table: $D79F-$D7A2 is LDA $FFF2,Y / STA $FFF2,Y with Y holding the bank number, $D70B-$D70E is the same pair, and seven more routines at $D719, $D726, $D733, $D740, $D74D, $D75A and $D767 do it with the address of one fixed entry. Both edges of the region are pinned by structure rather than argued: $FFF0-$FFF1 are $FF, and the byte after the eighth entry is the low half of the NMI vector. LEAD, not established: the eighth entry ($87, bank 7) exists, so the fixed bank can in principle also be selected into the $8000 window - but the seven fixed-address routines cover banks 0 to 6 only, and no call site has yet been found that hands the generic routine a 7.</p><pre>$FFF2  80 81 82 83 84 85 86 87                          |........|</pre><div class="field"><div class="fname">bank0</div><div class="fmeta"><span class="mono">$FFF2</span> &middot; +0 &middot; 1 byte &middot; <span class="mono">80</span> &middot; = 128</div><div class="fdesc">Written to $FFF2 to select PRG bank 0 at $8000-$BFFF. Loaded and stored by $D719/$D71C.</div></div><div class="field"><div class="fname">bank1</div><div class="fmeta"><span class="mono">$FFF3</span> &middot; +1 &middot; 1 byte &middot; <span class="mono">81</span> &middot; = 129</div><div class="fdesc">Written to $FFF3 to select PRG bank 1. Loaded and stored by $D726/$D729.</div></div><div class="field"><div class="fname">bank2</div><div class="fmeta"><span class="mono">$FFF4</span> &middot; +2 &middot; 1 byte &middot; <span class="mono">82</span> &middot; = 130</div><div class="fdesc">Written to $FFF4 to select PRG bank 2. Loaded and stored by $D733/$D736.</div></div><div class="field"><div class="fname">bank3</div><div class="fmeta"><span class="mono">$FFF5</span> &middot; +3 &middot; 1 byte &middot; <span class="mono">83</span> &middot; = 131</div><div class="fdesc">Written to $FFF5 to select PRG bank 3. Loaded and stored by $D740/$D743.</div></div><div class="field"><div class="fname">bank4</div><div class="fmeta"><span class="mono">$FFF6</span> &middot; +4 &middot; 1 byte &middot; <span class="mono">84</span> &middot; = 132</div><div class="fdesc">Written to $FFF6 to select PRG bank 4. Loaded and stored by $D74D/$D750.</div></div><div class="field"><div class="fname">bank5</div><div class="fmeta"><span class="mono">$FFF7</span> &middot; +5 &middot; 1 byte &middot; <span class="mono">85</span> &middot; = 133</div><div class="fdesc">Written to $FFF7 to select PRG bank 5. Loaded and stored by $D75A/$D75D.</div></div><div class="field"><div class="fname">bank6</div><div class="fmeta"><span class="mono">$FFF8</span> &middot; +6 &middot; 1 byte &middot; <span class="mono">86</span> &middot; = 134</div><div class="fdesc">Written to $FFF8 to select PRG bank 6. Loaded and stored by $D767/$D76A.</div></div><div class="field"><div class="fname">bank7</div><div class="fmeta"><span class="mono">$FFF9</span> &middot; +7 &middot; 1 byte &middot; <span class="mono">87</span> &middot; = 135</div><div class="fdesc">Would select PRG bank 7 into the $8000 window. No fixed-address routine uses this entry; it is reachable only through the indexed pair at $D70B/$D70E or $D79F/$D7A2, and no call site passing a 7 has been found yet. Whether the entry is live or vestigial is NOT established.</div></div></div><div class="card" id="bank7.vectors_FFFA"><h3>6502 interrupt vectors <span class="tag" style="background:#f2704f">vectors</span> <span class="conf confirmed">confirmed</span></h3><p class="meta"><code>bank7.vectors_FFFA</code> &middot; file 0x2000A-0x2000F &middot; 6 bytes &middot; PRG bank 7 &middot; CPU $FFFA-$FFFF</p><p class="desc">The three 16-bit little-endian addresses the 6502 fetches on NMI, on reset and on IRQ/BRK. Their position is fixed by the CPU, not chosen: $FFFA, $FFFC and $FFFE are the last six bytes of the address space, which is why they are the last six bytes of the file. All three point into bank 7, which is the only place they could usefully point on a UxROM board - $C000-$FFFF is the one window that is guaranteed to hold the same bytes whatever the bank register says. Each target was disassembled and each decodes as the handler its vector names, which is the check that makes these six bytes a confirmed claim rather than a convention: a wrong pair here would still be a legal address, and only the code at the other end can say it is the right one.</p><pre>$FFFA  75 DC DE FE F3 DC                                |u.....|</pre><div class="field"><div class="fname">nmi</div><div class="fmeta"><span class="mono">$FFFA</span> &middot; +0 &middot; 2 bytes &middot; <span class="mono">75DC</span> &middot; = 56437</div><div class="fdesc">NMI vector = $DC75, taken once per frame at the start of vblank. The target is a vblank handler and decodes as one: PHA / TXA / PHA / TYA / PHA saves the registers, then $FE is masked with #$E7 and written to PPUMASK, a frame counter at $2B is incremented, PPUSTATUS is read into $26, and OAM DMA is kicked off by writing $00 to OAMADDR and $02 to OAMDMA - so sprite memory is staged in CPU page 2. NOT YET ESTABLISHED: whether this handler ever dispatches through a vector held in RAM. The playbook warns that a RAM vector is where a static trace stalls and that it can hide a quarter of a bank, so that question has to be answered before any coverage figure for bank 7 means anything.</div></div><div class="field"><div class="fname">reset</div><div class="fmeta"><span class="mono">$FFFC</span> &middot; +2 &middot; 2 bytes &middot; <span class="mono">DEFE</span> &middot; = 65246</div><div class="fdesc">RESET vector = $FEDE, taken at power-on and on the console&#x27;s reset button. The target is a textbook 6502 power-on sequence and decodes as one: SEI / CLD / LDX #$FF / TXS, then $30 to PPUCTRL, then PPUSTATUS polled until bit 7 clears three times over (the standard wait for the PPU to warm up), then $0F to APUSTATUS and $C0 to $4017, then a loop that clears all eight pages of $0000-$07FF with a single X index. The clear covers $0100-$01FF, so the stack is zeroed too - which is worth knowing before reading anything into stack contents in a savestate.</div></div><div class="field"><div class="fname">irq</div><div class="fmeta"><span class="mono">$FFFE</span> &middot; +4 &middot; 2 bytes &middot; <span class="mono">F3DC</span> &middot; = 56563</div><div class="fdesc">IRQ/BRK vector = $DCF3. This one is not a stub, and that is worth saying out loud because on many cartridges it is: mapper 2 has no scanline counter, so the only interrupt source on this board is the APU - the DMC sample-finished IRQ or the frame counter. The handler saves A, writes $0F to APUSTATUS, reads the frame counter at $2B, and then polls PPUSTATUS bit 6 (the sprite 0 hit flag) with BIT/BVS in a short loop before reloading DMC_FREQ from $05 and returning with RTI. So the same handler is doing sample housekeeping and mid-frame timing. NOT ESTABLISHED: which of the two interrupt sources is actually enabled, and when. That is a question about writes to $4010 and $4017 elsewhere in the ROM, and those have not been enumerated.</div></div></div></div></body></html>

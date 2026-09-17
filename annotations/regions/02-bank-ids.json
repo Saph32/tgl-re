@@ -1,0 +1,93 @@
+{
+  "_comment": "The seven bank identity bytes and the table of codes the boot-time bank check reports them with. These are one mechanism split across eight banks, so they are annotated together even though the site puts each card on its own bank page.",
+  "regions": [
+    {
+      "id": "bank0.bank_id_BFFF",
+      "offset": 16399,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 0 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "description": "One byte at $BFFF, the last byte of PRG bank 0, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank1.bank_id_BFFF",
+      "offset": 32783,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 1 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "bf8b4530d8d246dd74ac53a13471bba17941dff7",
+      "description": "One byte at $BFFF, the last byte of PRG bank 1, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank2.bank_id_BFFF",
+      "offset": 49167,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 2 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "c4ea21bb365bbeeaf5f2c654883e56d11e43c44e",
+      "description": "One byte at $BFFF, the last byte of PRG bank 2, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank3.bank_id_BFFF",
+      "offset": 65551,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 3 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "9842926af7ca0a8cca12604f945414f07b01e13d",
+      "description": "One byte at $BFFF, the last byte of PRG bank 3, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank4.bank_id_BFFF",
+      "offset": 81935,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 4 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "a42c6cf1de3abfdea9b95f34687cbbe92b9a7383",
+      "description": "One byte at $BFFF, the last byte of PRG bank 4, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank5.bank_id_BFFF",
+      "offset": 98319,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 5 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "8dc00598417d4eb788a77ac6ccef3cb484905d8b",
+      "description": "One byte at $BFFF, the last byte of PRG bank 5, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank6.bank_id_BFFF",
+      "offset": 114703,
+      "size": 1,
+      "kind": "data",
+      "name": "Bank 6 identity byte",
+      "confidence": "confirmed",
+      "cpu_addr": 49151,
+      "sha1": "2d0134ed3b9de132c720fe697b532b4c232ff9fe",
+      "description": "One byte at $BFFF, the last byte of PRG bank 6, holding the bank's own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7's last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs."
+    },
+    {
+      "id": "bank7.bankcheck_codes_FF3A",
+      "offset": 130890,
+      "size": 7,
+      "kind": "data",
+      "name": "Bank-check failure codes",
+      "confidence": "confirmed",
+      "cpu_addr": 65338,
+      "sha1": "5bd4af1d5880b8e29dd107c2d86f30f74d104ce3",
+      "description": "Seven bytes, $0F $01 $06 $14 $0A $31 $28, one per switchable PRG bank. Read by LDA $FF3A,Y at $FF2E, the failure arm of the boot-time bank check described on the bank identity bytes, with Y holding the bank that did not answer correctly. The value is stored to $0180 and $DED2 is called, after which $FF37 spins forever. Both edges of the region are pinned by structure and not argued: the byte before is the last byte of JMP $FF37 at $FF37-$FF39, the byte after is the DEY at $FF41 that the success path branches to, and Y is bounded to 0-6 by the LDY #$06 at $FF23 and the BPL at $FF42 - so the reader accounts for exactly these seven bytes and no others. NOT ESTABLISHED: what the values mean. They are not the bank numbers and they are not consecutive. The obvious lead is that they are tile or character codes for something drawn on screen, which is a question about $DED2 and about $0180, and neither has been traced yet."
+    }
+  ]
+}

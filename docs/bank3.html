@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PRG bank 3 - The Guardian Legend</title><style>
+:root{--bg:#fbfbfd;--fg:#1c2024;--dim:#5b6470;--line:#e2e5ea;--card:#fff;--accent:#2563c9;
+--code:#f3f5f8;--gap:#d8dce3;--navbg:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#e6e9ee;--dim:#9aa3af;
+--line:#282c34;--card:#1b1e24;--accent:#6aa6ff;--code:#22262d;--gap:#343a44;--navbg:#1b1e24}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 24px 96px}
+nav{background:var(--navbg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav .inner{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:2px}
+nav a{display:block;padding:13px 12px;color:var(--dim);text-decoration:none;font-size:14px;
+font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+nav a:hover{color:var(--fg)}
+nav a.on{color:var(--accent);border-bottom-color:var(--accent)}
+nav a.dimmed{opacity:.55}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.02em}
+h2{font-size:20px;margin:48px 0 14px;letter-spacing:-.01em;
+padding-bottom:8px;border-bottom:1px solid var(--line)}
+h3{font-size:16px;margin:0 0 6px}
+h4{font-size:14px;margin:26px 0 6px;color:var(--dim);text-transform:uppercase;
+letter-spacing:.06em}
+.sub{color:var(--dim);margin:0 0 28px}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;
+font-size:12.5px;line-height:1.55;margin:10px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+padding:18px 20px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.stat .k{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.stat .v{font-size:19px;font-weight:600;margin-top:3px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:10px 0}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+tbody tr:last-child td{border-bottom:none}
+.scroll{overflow-x:auto}
+.bar{display:flex;height:26px;border-radius:6px;overflow:hidden;border:1px solid var(--line);
+margin:6px 0 4px}
+.bar span{display:block;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
+text-transform:uppercase;letter-spacing:.05em;color:#fff;vertical-align:2px}
+.conf{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;
+border:1px solid var(--line);color:var(--dim);vertical-align:2px}
+.conf.confirmed{color:#2f855a;border-color:#2f855a66}
+.conf.lead{color:#b7791f;border-color:#b7791f66}
+.desc{color:var(--fg);margin:8px 0 0}
+.meta{color:var(--dim);font-size:12.5px;margin:2px 0 0}
+.field{border-left:2px solid var(--line);padding:2px 0 2px 14px;margin:14px 0}
+.field .fname{font-weight:600;font-size:13.5px}
+.field .fmeta{color:var(--dim);font-size:12px;margin:1px 0 4px}
+.field .fdesc{font-size:13.5px}
+.note{border-left:3px solid var(--accent);background:var(--card);padding:12px 16px;
+border-radius:0 8px 8px 0;margin:14px 0;font-size:14px}
+.warn{border-left-color:#b7791f}
+a{color:var(--accent)}
+.pagelinks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;
+margin:18px 0}
+.pagelink{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;
+padding:16px 18px;text-decoration:none;color:inherit}
+.pagelink:hover{border-color:var(--accent)}
+.pagelink .t{font-weight:600;font-size:15px;color:var(--accent)}
+.pagelink .d{color:var(--dim);font-size:13px;margin-top:4px}
+.pagelink .n{font-size:12px;color:var(--dim);margin-top:8px;font-family:ui-monospace,monospace}
+.toc{column-width:250px;column-gap:20px;font-size:13px;margin:12px 0}
+.toc a{display:block;text-decoration:none;padding:1px 0}
+.toc a:hover{text-decoration:underline}
+figure{margin:18px 0 26px}
+figure img{max-width:100%;height:auto;image-rendering:pixelated;border:1px solid var(--line);
+border-radius:6px;background:#000;display:block}
+figcaption{color:var(--dim);font-size:13px;margin-top:8px}
+figcaption strong{color:var(--fg)}
+.envs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;
+margin:16px 0}
+.env{margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:10px}
+.envbars{display:flex;align-items:flex-end;gap:2px;height:56px}
+.bar1{flex:1;background:var(--accent);border-radius:1px;min-width:2px;opacity:.85}
+.env figcaption{font-size:11.5px;margin-top:6px}
+.ch{display:inline-block;background:var(--code);border-radius:3px;padding:0 4px;
+font-size:11px;font-family:ui-monospace,monospace;color:var(--dim)}
+.pals{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;
+margin:14px 0}
+.pal{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--card)}
+.palh{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;
+margin-bottom:6px;font-family:ui-monospace,monospace}
+.palrow{display:flex;align-items:center;gap:6px;margin:3px 0}
+.pall{width:74px;font-size:11px;color:var(--dim)}
+.palgrp{display:flex;margin-right:6px;border-radius:3px;overflow:hidden;
+border:1px solid var(--line)}
+.sw{width:30px;height:24px;font:10px/24px ui-monospace,monospace;text-align:center;
+display:block}
+</style></head><body><nav><div class="inner"><a href="index.html" class="">Overview</a><a href="bank0.html" class="">Bank 0</a><a href="bank1.html" class="">Bank 1</a><a href="bank2.html" class="">Bank 2</a><a href="bank3.html" class="on">Bank 3</a><a href="bank4.html" class="">Bank 4</a><a href="bank5.html" class="">Bank 5</a><a href="bank6.html" class="">Bank 6</a><a href="bank7.html" class="">Bank 7</a></div></nav><div class="wrap"><h1>PRG bank 3</h1><p class="sub">not yet established &middot; $8000-$BFFF</p><div class="grid"><div class="stat"><div class="k">Documented</div><div class="v">0.01%</div></div><div class="stat"><div class="k">Bytes</div><div class="v">1 / 16,384</div></div><div class="stat"><div class="k">Regions</div><div class="v">1</div></div><div class="stat"><div class="k">File offsets</div><div class="v">0x0C010-0x1000F</div></div></div><div class="card"><h3>Why this bank sits where it does</h3><p class="desc">Opens with a 10-entry JMP table at $8000-$801D. Nothing else in this bank has been traced.</p></div><div class="note warn"><strong>An address on this page does not identify a byte.</strong> $8000-$BFFF is the switchable window, so every address below exists in seven banks at once and only bank 3 has these particular bytes at it. Any address taken from a debugger, a wiki or another disassembly has to carry a bank with it before it means anything &mdash; <code>tools/whereis.py --bytes</code> settles which bank really holds a given sequence.</div><h2>Layout</h2><div class="bar"><span style="width:99.993896484375%;background:var(--gap)"></span><span style="width:0.006103515625%;background:#9d7cf8" title="bank3.bank_id_BFFF"></span></div><div class="legend"><span><i style="background:#9d7cf8"></i>data</span><span><i style="background:var(--gap)"></i>unclaimed</span></div><h2>Unclaimed</h2><div class="scroll"><table><thead><tr><th>File offset</th><th>Bytes</th><th>Where</th></tr></thead><tbody><tr><td class="mono">0x0C010-0x1000E</td><td class="mono">16,383</td><td class="mono">$8000-$BFFE</td></tr></tbody></table></div><h2>Regions</h2><div class="toc"><a href="#bank3.bank_id_BFFF">$BFFF Bank 3 identity byte</a></div><div class="card" id="bank3.bank_id_BFFF"><h3>Bank 3 identity byte <span class="tag" style="background:#9d7cf8">data</span> <span class="conf confirmed">confirmed</span></h3><p class="meta"><code>bank3.bank_id_BFFF</code> &middot; file 0x1000F-0x1000F &middot; 1 bytes &middot; PRG bank 3 &middot; CPU $BFFF-$BFFF</p><p class="desc">One byte at $BFFF, the last byte of PRG bank 3, holding the bank&#x27;s own number. Banks 0 to 6 each carry one; bank 7 does not, because bank 7&#x27;s last byte is at $FFFF and belongs to the IRQ vector. These seven bytes are the ROM half of a boot-time mapper self-test. $FF23-$FF43, reached from the reset handler, is a loop over Y = 6 down to 0: TYA / JSR $D705 selects the bank in Y, CPY $BFFF then compares Y against the byte this region holds, and BEQ $FF41 falls through to DEY only when the two agree. If they do not, LDA $FF3A,Y fetches a per-bank code, stores it at $0180, calls $DED2 and then spins forever at JMP $FF37. So the game refuses to start unless every one of the seven switchable banks can be selected and answers with its own number - which is the check a UxROM board needs, because a bus conflict on the latch fails silently and leaves the wrong bank mapped. Reading the byte at $BFFF works no matter which bank is live precisely because every bank has one at the same address and they all differ. NOT ESTABLISHED: what $DED2 does with $0180, and therefore whether the failure is displayed or merely hangs.</p><pre>$BFFF  03                                               |.|</pre></div></div></body></html>
