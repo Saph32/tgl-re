@@ -167,6 +167,21 @@ Do not re-derive these; do check anything that depends on them.
 - **`BNE x / BEQ y` back to back is unconditional**, so the second branch's fall-through is
   unreachable. There are 38 such pairs, and at bank 5 `$82D7` the bytes being jumped over
   are a table that `$82B9 LDA $82D9,Y` reads.
+- **The PPU write taxonomy is CLOSED, and it is one queue.** 31 `STA $2007` sites and 18
+  `STA $2006` sites in the whole file, all in bank 7, all traced — and a byte scan of the
+  whole ROM finds exactly the same ones, so nothing is hiding in untraced code. Everything
+  goes through a queue staged at `$0100`: `[count][ppu_hi][ppu_lo][data]`, with the count
+  byte's top two bits selecting the type — under `$80` a run with increment 1, `$80-$BF`
+  the same with increment 32, `$C0+` an attribute read-modify-write. 24 producers.
+- **Exactly one confirmed CHR write.** Bank 7 `$E3CC` queues 5 bytes at PPU `$1FF9` — inside
+  tile `$FF` of pattern table 1 — from the mask tables at `$E3F9` and `$E401`. It is a
+  status meter redrawing part of a character tile. **The bulk tile data has not been
+  found**; see `rom.json:ppu_pipeline` for the four searches that came back empty.
+- **Bank 4 is per-area screen data.** 25 pointers at `$8013`, indexed by the area number in
+  `$51` (bounded by `CPY #$15` at `$F2E2`), reached from `$EF9B`. Its entry point returns a
+  pointer instead of running code, which is why a control-flow trace found 19 bytes of it.
+  The blocks are a command stream walked through `($BC)` and dispatched by the 10-entry
+  table at `$E6F3` — resolved, bounded by the table ending where handler 0 begins.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -221,7 +236,10 @@ authoritative, up-to-date version of this list; what follows is what does not li
    dividing the gap.
 2. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
    call anywhere in the ROM targets it.
-3. **Find the `$2007` writers.** This is now overdue: it is the whole graphics problem,
-   and it is also the only thing that can settle a single punctuation glyph. The question is what routines write the port,
-   not what points at a block.
-4. Start a RAM map. The list above is already too long to keep in prose.
+3. **Get a savestate.** The `$2007` writers are enumerated and the taxonomy is closed, and
+   it did not produce the tiles. On a CHR RAM cartridge an FCEUX savestate carries the live
+   8 KB of CHR — the tile data itself — which turns the graphics question from a search into
+   a comparison, and would settle the `$5B`-family glyphs at the same time.
+4. **Read the ten screen-data command handlers** and parse bank 4's blocks. That is 16 KB
+   of the ROM behind one format.
+5. Start a RAM map. The list above is already too long to keep in prose.

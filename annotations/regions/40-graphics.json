@@ -1,0 +1,49 @@
+{
+  "_comment": "Hand-authored. What the graphics hunt established: the per-area screen-data pointer table in bank 4, the command dispatch that walks those blocks, and the one confirmed CHR write in the ROM. The bulk tile data has NOT been found - see annotations/rom.json.",
+  "regions": [
+    {
+      "id": "bank4.tbl_8013",
+      "offset": 65571,
+      "size": 50,
+      "kind": "pointer_table",
+      "name": "Per-area screen-data block pointers",
+      "confidence": "confirmed",
+      "cpu_addr": 32787,
+      "sha1": "fd43e541f771a53b9ffce7046f54a09e87904c25",
+      "description": "25 little-endian pointers, $8013-$8044, each naming a block in this bank. Read by this bank's only entry point: $8000 jumps to $8003, which does CLC / ADC #$02 / ASL A / TAY and then LDA $8013,Y / STA $18 and LDA $8014,Y / STA $19, returning the block address in $18/$19. So entry n sits at $8017 + 2n and the index arrives in A. THE INDEX IS THE AREA NUMBER: bank 7 $EF9B switches to bank 4, $EF9E does LDA $51 and $EFA0 calls $8000. $51 is bounded by CPY #$15 at $F2E2, which is 21 - and 21 areas is what the game has. The table's own 25 entries reach two slots below the index-zero entry and two above index 21, and what those four are for is NOT established. The upper bound on the table is structural: entry 2 points at $8045, the byte immediately after the table, so the table cannot extend past $8044. This is how bank 4 is reached at all - the bank sat at 19 traced bytes of 16,384 because its entry point returns a pointer instead of running code, and nothing static followed the pointer."
+    },
+    {
+      "id": "bank7.tbl_E6F3",
+      "offset": 124675,
+      "size": 20,
+      "kind": "pointer_table",
+      "name": "Screen-data command dispatch",
+      "confidence": "confirmed",
+      "cpu_addr": 59123,
+      "sha1": "a0ea73a58982a7ea9056a4e46573b8c6156f6333",
+      "description": "Ten entries, $E6F3-$E706, each holding a handler address minus one - the inline jump table convention of $D6B0, which pushes the two bytes as a fake return address and lets RTS add the one back. $E6EB reads a command byte through ($BC), the walking pointer into the bank 4 block, and hands it unmasked to $D6AE, so the command set is exactly $00-$09. THE COUNT IS BOUNDED BY STRUCTURE, not by the code: the tenth entry ends at $E706 and handler 0 begins at $E707, so the table stops exactly where its own first target starts. Reading an eleventh entry gives $16A5, which is RAM. Handlers: $E707, $E721, $E733, $E760, $E78A, $E79F, $E7B6, $E85E, $E881, $E893. All ten are now traced. WHAT EACH ONE DOES is not established."
+    },
+    {
+      "id": "bank7.tbl_E3F9",
+      "offset": 123913,
+      "size": 8,
+      "kind": "data",
+      "name": "Meter fill masks",
+      "confidence": "confirmed",
+      "cpu_addr": 58361,
+      "sha1": "ac7b154c4560ce640f5f07c3d35e7479d4f587e5",
+      "description": "Eight bytes, $80 $C0 $E0 $F0 $F8 $FC $FE $FF - a bar filling one pixel at a time from the left. Read by LDA $E3F9,X at $E3DD with X from $16. Bounded at both ends: the reader's operand is this address, and the next table begins at $E401, which is $E3F9 + 8. The values are their own argument - eight successive left-aligned runs is a progress bar and nothing else."
+    },
+    {
+      "id": "bank7.tbl_E401",
+      "offset": 123921,
+      "size": 5,
+      "kind": "data",
+      "name": "Meter row masks",
+      "confidence": "confirmed",
+      "cpu_addr": 58369,
+      "sha1": "bdfe76a7f4fd4797d626c6718b15a24dc8e06cf8",
+      "description": "Five bytes, $EE $FE $FF $FF $EE, ANDed with the fill mask at $E3E6 and written to the queue. Bounded by CPX #$05 at $E3EE - a declared count, which per playbook section 9 beats a boundary argument - and the byte after, $E406, is a traced instruction start. WHAT THIS PAIR DOES, and it is the only confirmed CHR write in the ROM so far: $E3CC builds a queue entry of 5 bytes at PPU $1FF9. That address is inside pattern table 1, in tile $FF, not in a nametable - so this routine redraws part of a CHAR TILE every time the meter moves. It is the per-frame status-meter trick playbook section 9 describes finding from the other direction, as three bytes of a pattern table that differed from a savestate."
+    }
+  ]
+}

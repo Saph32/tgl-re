@@ -84,6 +84,8 @@
       }
     ],
     "open_threads": [
+      "THE GRAPHICS. The PPU write taxonomy is closed - 31 PPUDATA sites, all traced, one write queue - and exactly one of them writes CHR: 5 bytes to PPU $1FF9, a status meter inside one tile. The bulk tile data has NOT been found. See rom.json:ppu_pipeline for what was ruled out. Next: look for a decompressor, because the entropy says the data is compressed, and because a 16 KB bank of 7.3-bit-per-byte data is not tiles as stored.",
+      "Bank 4 is explained but still barely traced. It is 25 per-area screen-data blocks behind a pointer table at $8013, indexed by the area number in $51, and its single entry point returns a pointer rather than running code - which is why a control-flow trace found 19 bytes of it. The blocks are a command stream walked through ($BC) and dispatched by the 10-entry table at $E6F3, now resolved. Parsing the command stream would claim most of the bank; none of the ten handlers has been read yet.",
       "RESOLVED, and stated here because the correction matters more than the finding: the two inline PPU-string routines were carried for a while as variable-length streams whose termination could not be established, on the reading that $D57C-$D584 loops over a run of items. It loops over ONE item, waiting for room - $D7C3 never touches $16/$17, so re-entering re-tests the same bytes. The block length is (first byte & $7F) + 3 for $D576 and two fewer for $D53F, and all 32 blocks the trace now reaches resume on a legal opcode. See annotations/dispatch.json and docs/text.html.",
       "The game's text is decoded in all three of its formats: 32 inline PPU strings in the instruction stream, 20 dialogue messages behind a 21-entry pointer table at bank 5 $960F, and 3 screen scripts read by the renderer at bank 0 $8495. 3,056 bytes. docs/text.html lists all of it. The punctuation glyphs are read from context in every case and NONE can be settled from this ROM: a font would settle them and CHR is RAM, so no byte of the file is a tile until code uploads one.",
       "A wording question raised from outside and settled against the bytes. A longer rendering of the corridor message was put to this project - 'THIS IS A MESSAGE SENT BY THE PREDECESSOR WHO INFILTRATED NAJU BEFORE YOU', 'MY HOME PLANET STAR NAU', 'I ESCAPED FROM NAU'. Its first and last paragraphs match this ROM's message almost verbatim; the middle does not. The words PREDECESSOR, INFILTRAT, ESCAPED, NAU, SEALS, OPERATIONS and MESSAGE SENT do not occur in this file in any case, under any of the 256 additive keys, any of the 256 XOR keys, bit reversal or nibble swapping. The only prose in the ROM is the bank 5 block. So the quoted wording is from a different source or revision, not something this search has failed to find - and that negative is a claim about exactly those searches.",
@@ -100,13 +102,23 @@
       "The $FF runs at the end of each bank (37, 48, 16, 40, 14, 13, 46 bytes in banks 0-6 and 14 bytes at $FFE4 in bank 7) look like fill but are not claimed, because nothing has been checked about them beyond their byte value.",
       "No RAM map exists yet. $04, $05, $10-$19, $21, $26, $2B, $2F, $30, $51, $54, $58-$5B, $76, $A5, $E4, $FC and $FE are all named by code read so far and have nowhere to be written down.",
       "The routine the boot bank check calls on failure, $DED2, and the byte it stores at $0180, are not read - so what the seven failure codes at $FF3A mean is still open."
-    ]
+    ],
+    "ppu_pipeline": {
+      "summary": "Every byte this ROM ever sends to the PPU goes through one write queue staged at $0100 in the stack page, drained in vblank by bank 7. The taxonomy is CLOSED: there are 31 STA $2007 sites and 18 STA $2006 sites in the whole file, all of them in bank 7, all of them traced.",
+      "how_the_taxonomy_closes": "An instruction walk over traced code found 31 PPUDATA writers and 18 PPUADDR writers. A byte scan of the WHOLE ROM for 8D 07 20 and 8D 06 20 found exactly the same 31 and 18 - so there is no PPU write hiding in untraced code. The scan also found one 8E 07 20 (STX $2007) at bank 0 $985C, and that is a false positive: it lies inside a descending 16-bit table, $07FE $078E $0720 $06BA $065A ... , whose differences fall smoothly. Indexed stores were checked too - four exist with a base that could reach $2007 given a large enough index, all based at $1F85 or $1FA9, which are RAM mirrors.",
+      "entry_types": "The queue entry is [count][ppu_hi][ppu_lo][data...]. The dispatcher at $DE15 reads the count byte and branches on its top two bits: below $80 is a run written with the PPU's increment of 1; $80-$BF is the same run with increment 32, set by ORA #$04 into PPUCTRL at $DEA2; $C0-$FF is an attribute-table read-modify-write, which reads VRAM twice and repeats until two reads agree. So the count byte is two fields in one, which is the idiom playbook section 5 names.",
+      "producers": "24 call sites open a queue entry through $D6E0 (published as $C03C). The PPU high byte they write comes from $19 at 16 of them, from $AD, $18 or $03F8,Y at three more, and from an immediate at four: $2D, $27, $20 and $1F.",
+      "chr_writes": "ONE confirmed CHR write, and it is tiny. The immediate $1F above is bank 7 $E3D1: $E3CC builds a 5-byte entry at PPU $1FF9, which is inside tile $FF of pattern table 1, from the mask tables at $E3F9 and $E401. It redraws part of a character tile as a status meter moves. Everything else that has been read writes nametables, attributes or palette.",
+      "not_established": "WHERE THE BULK TILE DATA IS. This is the open question and nothing here answers it. The pipeline can carry CHR - the address comes from the queue entry and nothing restricts it - so a bulk uploader would be a producer that stages tile bytes and sets $19 below $20. None has been found. What has been ruled out and how: rendering bank 1 and bank 6 as 2bpp tiles gives noise; a scan for the 1bpp-font signature, sixteen or more consecutive tiles whose second bit plane is all zero, finds nothing anywhere in the file; and banks 1, 2, 3 and 5 sit at 7.1 to 7.3 bits of entropy per byte, where uncompressed NES tiles usually sit near 5 to 6.5. The likeliest reading, NOT established, is that the tile data is compressed and there is a decompressor nobody has found. No decompressor has been looked for systematically.",
+      "searches_that_came_back_empty": "Written down as claims about the searches, not about the ROM. (1) Rendering bank 1 and bank 6 as 2bpp tiles gives noise - no tile structure at all. (2) A scan for the 1bpp-font signature, sixteen or more consecutive tiles whose second bit plane is all zero, finds NOTHING anywhere in the file; on many cartridges that finds the font immediately. (3) Entropy per byte: banks 1, 2, 3 and 5 sit at 7.09 to 7.28, banks 0, 4, 6 and 7 at 6.49 to 6.93. Uncompressed NES tiles usually sit near 5 to 6.5, so the first four look compressed. (4) NO TRACED ROUTINE WRITES THROUGH A POINTER: there is not one STA (zp),Y among the 12,325 traced instruction starts. A byte scan finds 184 candidates in the whole ROM and none is at a traced instruction start. Since a decompressor almost always writes through a pointer, that puts the whole class in the 77 percent of the ROM the trace has not reached - which is consistent with a decompressor existing and with there being none, and distinguishes neither.",
+      "what_would_settle_it": "An FCEUX savestate. Playbook section 9 rates this the strongest check available because it is the hardware's own answer, and on a CHR RAM cartridge it is worth more than on any other kind: the savestate carries the live 8 KB of CHR RAM, which is the tile data itself. With that in hand the question stops being a search and becomes a comparison - if the tiles appear in the ROM the graphics are stored raw and the uploader can be found from the bytes, and if they do not appear anywhere the data is compressed and that is established rather than inferred from an entropy figure."
+    }
   },
   "coverage": {
-    "documented_bytes": 29341,
+    "documented_bytes": 29844,
     "total_bytes": 131088,
-    "percent": 22.3827,
-    "region_count": 370
+    "percent": 22.7664,
+    "region_count": 374
   },
   "regions": [
     {
@@ -3068,6 +3080,22 @@
       "fields": []
     },
     {
+      "id": "bank4.tbl_8013",
+      "offset": 65571,
+      "size": 50,
+      "kind": "pointer_table",
+      "name": "Per-area screen-data block pointers",
+      "confidence": "confirmed",
+      "cpu_addr": 32787,
+      "sha1": "fd43e541f771a53b9ffce7046f54a09e87904c25",
+      "description": "25 little-endian pointers, $8013-$8044, each naming a block in this bank. Read by this bank's only entry point: $8000 jumps to $8003, which does CLC / ADC #$02 / ASL A / TAY and then LDA $8013,Y / STA $18 and LDA $8014,Y / STA $19, returning the block address in $18/$19. So entry n sits at $8017 + 2n and the index arrives in A. THE INDEX IS THE AREA NUMBER: bank 7 $EF9B switches to bank 4, $EF9E does LDA $51 and $EFA0 calls $8000. $51 is bounded by CPY #$15 at $F2E2, which is 21 - and 21 areas is what the game has. The table's own 25 entries reach two slots below the index-zero entry and two above index 21, and what those four are for is NOT established. The upper bound on the table is structural: entry 2 points at $8045, the byte immediately after the table, so the table cannot extend past $8044. This is how bank 4 is reached at all - the bank sat at 19 traced bytes of 16,384 because its entry point returns a pointer instead of running code, and nothing static followed the pointer.",
+      "source": "40-graphics.json",
+      "end": 65621,
+      "segment": "prg",
+      "prg_bank": 4,
+      "fields": []
+    },
+    {
       "id": "bank4.bank_id_BFFF",
       "offset": 81935,
       "size": 1,
@@ -4924,6 +4952,38 @@
       "fields": []
     },
     {
+      "id": "bank7.tbl_E3F9",
+      "offset": 123913,
+      "size": 8,
+      "kind": "data",
+      "name": "Meter fill masks",
+      "confidence": "confirmed",
+      "cpu_addr": 58361,
+      "sha1": "ac7b154c4560ce640f5f07c3d35e7479d4f587e5",
+      "description": "Eight bytes, $80 $C0 $E0 $F0 $F8 $FC $FE $FF - a bar filling one pixel at a time from the left. Read by LDA $E3F9,X at $E3DD with X from $16. Bounded at both ends: the reader's operand is this address, and the next table begins at $E401, which is $E3F9 + 8. The values are their own argument - eight successive left-aligned runs is a progress bar and nothing else.",
+      "source": "40-graphics.json",
+      "end": 123921,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_E401",
+      "offset": 123921,
+      "size": 5,
+      "kind": "data",
+      "name": "Meter row masks",
+      "confidence": "confirmed",
+      "cpu_addr": 58369,
+      "sha1": "bdfe76a7f4fd4797d626c6718b15a24dc8e06cf8",
+      "description": "Five bytes, $EE $FE $FF $FF $EE, ANDed with the fill mask at $E3E6 and written to the queue. Bounded by CPX #$05 at $E3EE - a declared count, which per playbook section 9 beats a boundary argument - and the byte after, $E406, is a traced instruction start. WHAT THIS PAIR DOES, and it is the only confirmed CHR write in the ROM so far: $E3CC builds a queue entry of 5 bytes at PPU $1FF9. That address is inside pattern table 1, in tile $FF, not in a nametable - so this routine redraws part of a CHAR TILE every time the meter moves. It is the per-frame status-meter trick playbook section 9 describes finding from the other direction, as three bytes of a pattern table that differed from a savestate.",
+      "source": "40-graphics.json",
+      "end": 123926,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
       "id": "bank7.code_E406",
       "offset": 123926,
       "size": 278,
@@ -4956,15 +5016,31 @@
       "fields": []
     },
     {
-      "id": "bank7.code_E8AB",
-      "offset": 125115,
-      "size": 255,
-      "kind": "code",
-      "name": "Traced code at $E8AB",
+      "id": "bank7.tbl_E6F3",
+      "offset": 124675,
+      "size": 20,
+      "kind": "pointer_table",
+      "name": "Screen-data command dispatch",
       "confidence": "confirmed",
-      "cpu_addr": 59563,
-      "sha1": "10f97083421acff51fc35b60d67a37120e8ed398",
-      "description": "A run of 255 bytes the code trace reached by following control flow, in bank 7 at $E8AB-$E9A9. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
+      "cpu_addr": 59123,
+      "sha1": "a0ea73a58982a7ea9056a4e46573b8c6156f6333",
+      "description": "Ten entries, $E6F3-$E706, each holding a handler address minus one - the inline jump table convention of $D6B0, which pushes the two bytes as a fake return address and lets RTS add the one back. $E6EB reads a command byte through ($BC), the walking pointer into the bank 4 block, and hands it unmasked to $D6AE, so the command set is exactly $00-$09. THE COUNT IS BOUNDED BY STRUCTURE, not by the code: the tenth entry ends at $E706 and handler 0 begins at $E707, so the table stops exactly where its own first target starts. Reading an eleventh entry gives $16A5, which is RAM. Handlers: $E707, $E721, $E733, $E760, $E78A, $E79F, $E7B6, $E85E, $E881, $E893. All ten are now traced. WHAT EACH ONE DOES is not established.",
+      "source": "40-graphics.json",
+      "end": 124695,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.code_E707",
+      "offset": 124695,
+      "size": 675,
+      "kind": "code",
+      "name": "Traced code at $E707",
+      "confidence": "confirmed",
+      "cpu_addr": 59143,
+      "sha1": "d2fe42e5cb09a6f545af3704c6df1e9044353249",
+      "description": "A run of 675 bytes the code trace reached by following control flow, in bank 7 at $E707-$E9A9. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 125370,
       "segment": "prg",
@@ -6566,12 +6642,12 @@
       "cpu_addr": 38515
     },
     {
-      "offset": 65571,
-      "size": 16364,
+      "offset": 65621,
+      "size": 16314,
       "end": 81935,
       "segment": "prg",
       "prg_bank": 4,
-      "cpu_addr": 32787
+      "cpu_addr": 32837
     },
     {
       "offset": 81996,
@@ -6870,28 +6946,12 @@
       "cpu_addr": 57357
     },
     {
-      "offset": 123913,
-      "size": 13,
-      "end": 123926,
-      "segment": "prg",
-      "prg_bank": 7,
-      "cpu_addr": 58361
-    },
-    {
       "offset": 124204,
       "size": 6,
       "end": 124210,
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 58652
-    },
-    {
-      "offset": 124675,
-      "size": 440,
-      "end": 125115,
-      "segment": "prg",
-      "prg_bank": 7,
-      "cpu_addr": 59123
     },
     {
       "offset": 125370,

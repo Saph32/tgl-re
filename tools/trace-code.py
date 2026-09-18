@@ -223,6 +223,7 @@ class Trace:
         self.inline_sites: list[dict] = []
         self.inline_data: list[dict] = []
         self.dispatched: list[dict] = []
+        self.dispatch_tables: list[dict] = []
         self.unconditional_pairs: list[dict] = []
         self.nonreturn_sites: list[dict] = []
         self.farcall_targets: set[tuple] = set()
@@ -461,6 +462,23 @@ class Trace:
             live = None if n == self.m.fixed else n
             for k, addr in enumerate(self.entry_table(n)):
                 self.seed(live, addr, f"bank {n} entry table, slot {k}")
+
+        # Hand-resolved dispatch tables. Each entry is a target the trace cannot reach on
+        # its own because the index is a runtime value; registering the table and its entry
+        # count - with the argument for the count in the registry, not here - turns one
+        # unfollowable JSR into as many seeds as it has arms.
+        for tbl in self.registry.get("dispatch_tables", []):
+            addr = int(tbl["cpu_addr"].lstrip("$"), 16)
+            live = tbl.get("bank")
+            self.dispatch_tables.append({"bank": live, "addr": addr,
+                                         "entries": tbl["entries"], "name": tbl["name"]})
+            for k in range(tbl["entries"]):
+                lo = self.m.byte(live, addr + 2 * k)
+                hi = self.m.byte(live, addr + 2 * k + 1)
+                if lo is None or hi is None:
+                    continue
+                self.seed(live, ((lo | (hi << 8)) + 1) & 0xFFFF,
+                          f'{tbl["name"]} (${addr:04X}) entry {k}')
 
         # The ABI routines and the inline-argument helpers themselves. They are recognised
         # at their call sites by target and stepped over rather than entered, so without

@@ -109,16 +109,25 @@
       "why": "Pops its return address into $18/$19, then treats the two bytes as a coordinate pair - AND #$F0, LSR, five more LSRs, ORA - and indexes with the result. It reads the address, not the bytes the address points at."
     }
   ],
-  "dispatch_tables": [],
+  "dispatch_tables": [
+    {
+      "cpu_addr": "$E6F3",
+      "bank": null,
+      "entries": 10,
+      "via": "$E6F0 JSR $D6AE, the inline jump table indexed by A",
+      "name": "screen-data command dispatch",
+      "description": "The command set of the per-area screen data in bank 4. $E6EB reads a byte through ($BC) - the walking pointer into the bank 4 block - and hands it straight to $D6AE, which doubles it into an index over the ten addresses that follow the JSR. The byte is NOT masked, so the command set is exactly $00-$09. ENTRY COUNT, and how it is bounded: the tenth entry ends at $E706 and handler 0 begins at $E707, so the table ends exactly where its own first target starts, with nothing over - the same boundary argument that bounds the dialogue pointer table. Reading an eleventh entry gives $16A5, which is RAM and not a handler. HOW THE BLOCK IS REACHED: bank 7 $EF9B switches to bank 4, $EF9E loads the area number from $51, and $EFA0 calls bank 4's single entry point $8000, which indexes a 25-entry pointer table at $8013 by (A+2)*2 and returns the block address in $18/$19. $E560 then reads a 16-bit header from the block, sets $BC/$BD to the byte after it, and $E5BD runs the interpreter. $51 is bounded by CPY #$15 at $F2E2, which is 21."
+    }
+  ],
   "unresolved": [
     "$8A97 in bank 2: JMP ($10C0). $10C0 mirrors to $00C0 in the 2 KB of CPU RAM, so this is a jump through a RAM vector - the mechanism playbook section 4 records as hiding a quarter of a bank on another cartridge. Nothing that installs it has been looked for yet.",
-    "Bank 4 is reached at 19 bytes of 16,384. Its opening JMP table has a single entry, which is the odd one out among the eight banks, and no far call in the ROM targets it. Whatever reaches bank 4 is a mechanism nothing here has enumerated.",
     "What bit 7 of a PPU-string count byte means. Two sites use it, bank 0 $845F and $8469, both writing to PPU $2286.",
     "What the $C0-and-above form of a PPU-string item is. Two sites use it, bank 5 $86DD and $86EE, and its length is the fixed 9 rather than a character count. Its payload is not ASCII.",
-    "Every call site of the three jump_table helpers: the inline table's entry count is not established at any of them, so none of their targets beyond the one the index selects is reached.",
     "The screen script starting near bank 0 $8600. A script plainly begins there - it is the title screen - but parsing from $8600 with the grammar of the renderer at $8495 runs straight past the $FE at $86E7 and on to $88B6, swallowing the block below it. Either $8600 is not the head or the grammar is incomplete. Nothing is claimed for those 232 bytes.",
     "Seven of the ten pointers built into $16/$17 by traced code go to consumers other than the screen-script renderer - $C04B, $C006, $C07E, $80F5 and $C042 - and none of those formats has been read. The blocks they name are unclaimed.",
-    "What bounds the dialogue pointer table at 21 entries in the CODE. The reader at bank 5 $8476 takes its index from $0620,X, an object field, and no CPY or mask on it has been found. The count rests on the table ending exactly where its own first message begins."
+    "What bounds the dialogue pointer table at 21 entries in the CODE. The reader at bank 5 $8476 takes its index from $0620,X, an object field, and no CPY or mask on it has been found. The count rests on the table ending exactly where its own first message begins.",
+    "The two other inline jump tables, bank 5 $9F2F and $A1C1, are still unresolved - neither index is statically known and neither table has been bounded.",
+    "What each of the ten screen-data commands does. The dispatch is resolved; the handlers are now traced but not read."
   ],
   "_ppu_string_comment": "The PPU write queue these two feed: $0100 is the buffer, $21 its fill level, $20 a count of entries, $25 the length of the entry being added, $24 scratch. $D6E0 opens an entry and returns the write position in A; $D6F7 commits it. $D7C3 drains. None of that is claimed as understood beyond what these two routines need.",
   "character_encoding": {
