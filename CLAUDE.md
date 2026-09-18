@@ -37,6 +37,10 @@ wrong finding away.
 - `tools/reassemble.py` — **the gate.** Writes `disasm/`, assembles it back against one
   shared label table and refuses unless the image is the ROM byte for byte.
   `tools/tgl/asm.py` is the assembler behind it; read its header before citing the check.
+- `tools/savestate.py` — reads an FCEUX `.fcs`, lists its chunks, diffs the live CHR RAM
+  against the ROM (`--chr`) and rebuilds the font through the expander's own arithmetic to
+  check it against hardware (`--font`). **The savestate is not in this repo** — it is the
+  user's file. Point the tool at wherever it lives.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -159,11 +163,9 @@ Do not re-derive these; do check anything that depends on them.
     ends a row and adds `$20` to the PPU address, `$FE` ends the script, and **bit 7 of the
     count repeats one character** (a run-length fill). Three blocks confirmed, each with
     its `LDA #lo / STA $16` call site read by hand.
-  - **The three disagree about punctuation.** The dialogue uses `$3C` for a comma; the
-    bank 0 script uses `$5C`. Both use `$5B` for a full stop. With CHR RAM the tile at an
-    index is whatever was uploaded last, so they need not agree — but which is happening
-    is not established. **Every glyph reading in this project is from context. There is no
-    font in the ROM to check any of them against.**
+  - **The three disagree about punctuation, and the font explains why.** See the font entry
+    below: the tile index a glyph lands on is chosen per screen by an upload record table,
+    so `$5C` really is a comma on the title screen and `$3C` really is one in the dialogue.
 - **`BNE x / BEQ y` back to back is unconditional**, so the second branch's fall-through is
   unreachable. There are 38 such pairs, and at bank 5 `$82D7` the bytes being jumped over
   are a table that `$82B9 LDA $82D9,Y` reads.
@@ -173,10 +175,29 @@ Do not re-derive these; do check anything that depends on them.
   goes through a queue staged at `$0100`: `[count][ppu_hi][ppu_lo][data]`, with the count
   byte's top two bits selecting the type — under `$80` a run with increment 1, `$80-$BF`
   the same with increment 32, `$C0+` an attribute read-modify-write. 24 producers.
-- **Exactly one confirmed CHR write.** Bank 7 `$E3CC` queues 5 bytes at PPU `$1FF9` — inside
-  tile `$FF` of pattern table 1 — from the mask tables at `$E3F9` and `$E401`. It is a
-  status meter redrawing part of a character tile. **The bulk tile data has not been
-  found**; see `rom.json:ppu_pipeline` for the four searches that came back empty.
+- **The font: 45 glyphs, 1bpp, SEVEN bytes each, bank 2 `$8BF8-$8D32`.** 315 = 45 × 7, and
+  the seven is why every tile-shaped test missed it — playbook §7's exact case. The expander
+  is bank 2 `$806C`: seven source bytes into rows 0–6 of the low bit plane, row 7 and the
+  whole high plane zeroed, source += 7, destination += `$10`. Six records at `$80EC` drive
+  it, `[count][dest][src]`, `$FF`-terminated. Glyph order is `0-9 ▼ ; , - . ? @ A-Z ▲ ▦`.
+  - **This is what fixes the encoding, and it is per screen.** The records put 10 glyphs at
+    `$1300` (digits at ASCII `$30`) and 27 at `$1400` (`@` then A-Z at `$40`) — so letters
+    and digits *are* ASCII, stated by the ROM rather than read out of English. The four
+    single-glyph records patch `$5B`, `$5C`, `$5D`, `$5E` individually, which is exactly why
+    screens disagree there.
+  - **Confirmed against hardware**: expanding those 41 glyphs from the ROM and diffing them
+    against the live CHR RAM of a title-screen savestate gives 41 of 41 exact.
+  - **Two corrections.** `$5D` is a **hyphen**, not the `!` this project read from context;
+    `$5E` is a grid block, not a double quote. Both hold for the title screen's record set
+    only — the dialogue loads a different one, proved by `$3C`.
+- **One other confirmed CHR write.** Bank 7 `$E3CC` queues 5 bytes at PPU `$1FF9` — inside
+  tile `$FF` of pattern table 1 — from the mask tables at `$E3F9` and `$E401`: a status
+  meter redrawing part of a character tile.
+- **The bulk tile data is still not found.** A savestate diff puts 1,046 of the 8,192 live
+  CHR bytes in the ROM verbatim across 13 stretches, whose sources march through bank 0
+  `$8CDA-$9195` and bank 2 `$93AE-$950E` at a different rate from their destinations —
+  codec-shaped literal runs, which is a **lead**. No decompressor found; there is not one
+  `STA (zp),Y` among the traced instruction starts.
 - **Bank 4 is per-area screen data.** 25 pointers at `$8013`, indexed by the area number in
   `$51` (bounded by `CPY #$15` at `$F2E2`), reached from `$EF9B`. Its entry point returns a
   pointer instead of running code, which is why a control-flow trace found 19 bytes of it.
@@ -236,10 +257,9 @@ authoritative, up-to-date version of this list; what follows is what does not li
    dividing the gap.
 2. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
    call anywhere in the ROM targets it.
-3. **Get a savestate.** The `$2007` writers are enumerated and the taxonomy is closed, and
-   it did not produce the tiles. On a CHR RAM cartridge an FCEUX savestate carries the live
-   8 KB of CHR — the tile data itself — which turns the graphics question from a search into
-   a comparison, and would settle the `$5B`-family glyphs at the same time.
+3. **Find the decompressor**, and get a second savestate from inside a stage. The same diff
+   run against a different tileset shows whether the raw stretches move. `tools/savestate.py`
+   does the diff; the `.fcs` itself is not in the repo.
 4. **Read the ten screen-data command handlers** and parse bank 4's blocks. That is 16 KB
    of the ROM behind one format.
 5. Start a RAM map. The list above is already too long to keep in prose.

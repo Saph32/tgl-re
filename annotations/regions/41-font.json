@@ -1,0 +1,28 @@
+{
+  "_comment": "The font, found with an FCEUX title-screen savestate. Playbook section 9: a savestate is the hardware's own answer. The 41 glyphs this table uploads were rebuilt from the ROM and compared against the live CHR RAM - 41 of 41 exact.",
+  "regions": [
+    {
+      "id": "bank2.font_8BF8",
+      "offset": 35848,
+      "size": 315,
+      "kind": "graphics",
+      "name": "The font: 45 glyphs, 1bpp, 7 bytes each",
+      "confidence": "confirmed",
+      "cpu_addr": 35832,
+      "sha1": "7823ac343d8f2704df709f93b39b480e91536fae",
+      "description": "315 bytes = 45 x 7, and the seven is the whole point. This block is NOT tile-shaped and no graphics test that assumes 16 bytes per tile can see it - which is why this project's scan for a 1bpp font stored as 2bpp, sixteen consecutive tiles with an all-zero second bit plane, came back empty across the entire ROM. Playbook section 7 names this exact case: when a block will not divide by 16, ask what expands it before deciding it is not graphics. THE EXPANDER is bank 2 $806C. Per glyph it reserves a 19-byte queue entry, writes a count of $10 and the destination, then copies seven source bytes into data bytes 0-6, zeroes byte 7 at $8098, and zeroes bytes 8-15 through STA $010B,X - so the glyph occupies rows 0-6 of the low bit plane, row 7 is blank and the high plane is empty. It then advances the destination by $10 and the source by SEVEN, at $80AB. Every glyph therefore uses colour 1 only. CONFIRMED AGAINST THE HARDWARE: expanding the 41 glyphs this ROM's own record table uploads and comparing them with the live CHR RAM in a title-screen savestate gives 41 matches out of 41, byte for byte. The remaining four glyphs in the block are not uploaded by that table.",
+      "codec": "font_1bpp_7byte"
+    },
+    {
+      "id": "bank2.tbl_80EC",
+      "offset": 33020,
+      "size": 31,
+      "kind": "pointer_table",
+      "name": "Font upload records",
+      "confidence": "confirmed",
+      "cpu_addr": 33004,
+      "sha1": "6bfcccda22f438ab81773d4e83a981b9eec646e2",
+      "description": "Six 5-byte records, [glyph count][dest lo][dest hi][src lo][src hi], terminated by the $FF at $810A. Driven by $80C5, which reads them through $80EC,Y and steps Y by 5 at $80E3, and called in a loop from $80BB - this bank's entry slot 0, which the title-screen path far-calls from bank 0 $8915. The records: 10 glyphs to $1300, 27 to $1400, and one each to $15B0, $15C0, $15D0 and $15E0. THOSE DESTINATIONS ARE THE CHARACTER ENCODING, stated by the ROM rather than inferred from context: $1300 is pattern table 1 tile $30, so ten glyphs there are the digits at ASCII $30-$39; $1400 is tile $40, so 27 glyphs are $40-$5A, an @ followed by A-Z. That is the first evidence for the encoding in this project that does not come from reading English out of a payload. The four single-glyph records are why different screens disagree about punctuation: $5B, $5C, $5D and $5E are each patched individually, so what sits at those tile indices is whatever the last record set put there."
+    }
+  ]
+}

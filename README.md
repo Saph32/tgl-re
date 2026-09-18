@@ -33,6 +33,7 @@ python tools/trace-code.py --assumptions # the code trace, and what its answer r
 python tools/gen-code-regions.py         # regenerate the traced code regions
 python tools/reassemble.py               # rebuild the ROM from the map; write disasm/
 python tools/trace-code.py --inline      # calls with inline argument data
+python tools/savestate.py STATE.fcs --font   # check the font against a savestate
 ```
 
 `tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
@@ -110,6 +111,12 @@ it. The last one it caught was a typo in this project's own `annotations/rom.jso
 
 **Zero illegal opcodes says the trace stayed on the rails everywhere it went. It says
 nothing about where it did not go.** Bank 4 is at 20 bytes of 16,384.
+
+The font is decoded and confirmed against hardware: 45 glyphs, 1bpp at seven bytes each,
+expanded into tiles by bank 2 `$806C`. Rebuilding the 41 glyphs the ROM's own record table
+uploads and diffing them against the live CHR RAM of an FCEUX savestate gives 41 of 41
+exact. `docs/graphics.html` draws them. The bulk tile data is still not found and looks
+compressed.
 
 The game's on-screen text is decoded — 32 strings in six banks, plain ASCII, listed at
 `docs/text.html` with the PPU address each one is written to. None of it is a block of text

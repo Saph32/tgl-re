@@ -331,6 +331,8 @@ def _pages(rm) -> list[tuple[str, str]]:
         out.append((f"bank{n}.html", f"Bank {n}"))
     if any(r["kind"] == "text" for r in rm.regions):
         out.append(("text.html", "Text"))
+    if any(r["kind"] == "graphics" for r in rm.regions):
+        out.append(("graphics.html", "Graphics"))
     return out
 
 
@@ -629,6 +631,63 @@ def _text_page(rm) -> str:
     return "".join(p)
 
 
+def _glyphs(data: bytes, per_row: int = 15) -> str:
+    """Draw a 1bpp 7-byte-per-glyph block as SVG, at the size the PPU would."""
+    n = len(data) // 7
+    cell, gap = 8, 2
+    w = per_row * (cell + gap)
+    h = ((n + per_row - 1) // per_row) * (8 + gap + 7)
+    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" style="max-width:640px;'
+           'image-rendering:pixelated" xmlns="http://www.w3.org/2000/svg">']
+    for g in range(n):
+        gx = (g % per_row) * (cell + gap)
+        gy = (g // per_row) * (8 + gap + 7)
+        for y in range(7):
+            row = data[g * 7 + y]
+            for x in range(8):
+                if (row >> (7 - x)) & 1:
+                    out.append(f'<rect x="{gx + x}" y="{gy + y}" width="1" height="1" '
+                               'fill="currentColor"/>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _graphics_page(rm) -> str:
+    fonts = [r for r in rm.regions if r["kind"] == "graphics"]
+    p = ["<h1>Graphics</h1>",
+         '<p class="sub">This cartridge has CHR RAM, so not one byte of the file is a tile as '
+         "stored. Everything the PPU draws was written there by code, and finding the writers "
+         "is the whole problem.</p>"]
+    p.append('<div class="note"><strong>The PPU write surface is closed and it is one queue.</strong> '
+             "31 <code>STA $2007</code> sites and 18 <code>STA $2006</code> sites in the whole "
+             "file, all in bank 7, all traced &mdash; and a byte scan of the entire ROM finds "
+             "exactly the same ones. An entry is <code>[count][ppu_hi][ppu_lo][data]</code>, and "
+             "the count byte's top two bits pick the type: under <code>$80</code> a run with "
+             "increment 1, <code>$80-$BF</code> the same with increment 32, <code>$C0+</code> an "
+             "attribute read-modify-write.</div>")
+    for r in fonts:
+        body = rm.rom[r["offset"]:r["end"]]
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:{KIND_COLOURS["graphics"]}">graphics</span>'
+                 f' <span class="conf confirmed">confirmed</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank {r["prg_bank"]} '
+                 f'${r["cpu_addr"]:04X}-${r["cpu_addr"] + r["size"] - 1:04X} &middot; '
+                 f'{r["size"]:,} bytes &middot; codec <code>{_h(r.get("codec", "?"))}</code></p>')
+        p.append(f'<div style="margin:16px 0">{_glyphs(bytes(body))}</div>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+    p.append('<div class="note warn"><strong>The rest of the tile data has not been found, and '
+             "the entropy says it is compressed.</strong> Diffing the live CHR RAM of a "
+             "title-screen savestate against the ROM shows 13 stretches, 1,046 of 8,192 bytes, "
+             "present verbatim &mdash; and the sources march forward through bank 0 "
+             "<code>$8CDA-$9195</code> and bank 2 <code>$93AE-$950E</code> at a different rate "
+             "from the destinations, which is what a codec's literal runs look like. No "
+             "decompressor has been found: there is not one <code>STA (zp),Y</code> among the "
+             "traced instruction starts, so that whole class of routine is still in the "
+             "untraced part of the ROM.</div>")
+    return "".join(p)
+
+
 # --------------------------------------------------------------------------- entry point
 
 def build_site(rm, out: Path) -> list[str]:
@@ -639,17 +698,21 @@ def build_site(rm, out: Path) -> list[str]:
         pages[f"bank{n}.html"] = _bank_page(rm, n)
     if any(r["kind"] == "text" for r in rm.regions):
         pages["text.html"] = _text_page(rm)
+    if any(r["kind"] == "graphics" for r in rm.regions):
+        pages["graphics.html"] = _graphics_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
     for r in rm.regions:
-        target = f'bank{r["prg_bank"]}.html' if r["segment"] == "prg" else "index.html"
+        target = ("graphics.html" if r["kind"] == "graphics"
+                  else f'bank{r["prg_bank"]}.html' if r["segment"] == "prg" else "index.html")
         if f'id="{r["id"]}"' not in pages[target]:
             raise AnnotationError(f'{r["id"]} has no card on {target}')
 
     for name, body in pages.items():
         title = (rm.meta["title"] if name == "index.html"
                  else f'Text - {rm.meta["title"]}' if name == "text.html"
+                 else f'Graphics - {rm.meta["title"]}' if name == "graphics.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)
