@@ -36,6 +36,8 @@ python tools/trace-code.py --inline      # calls with inline argument data
 python tools/savestate.py STATE.fcs --font   # check the font against a savestate
 python tools/decompress-gfx.py               # the tile blocks, decoded
 python tools/decompress-gfx.py --verify STATE.fcs   # against a savestate's live CHR
+python tools/parse-sound.py --dump           # every song, track by track
+python tools/parse-sound.py --song 7         # one song, decoded event by event
 ```
 
 `tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
@@ -135,6 +137,22 @@ reproduces **398 of the 512 tiles** of an in-game savestate's live CHR RAM, byte
 What that leaves: the *title screen* is only 18 of 512 tiles explained, so bank 0 holds a
 tileset whose pointer table has not been found; the second header byte is not understood;
 and the decompressor itself is still missing.
+
+**The sound driver is decoded.** Bank 0 is the sound bank: seven soft channels compete for
+the four hardware ones through a busy mask, and the winner's registers go into a 16-byte APU
+shadow that the NMI flushes. 72 songs sit behind a pointer table, 132 tracks, 4,639 notes.
+A track is notes and durations with 21 commands mixed in, and it ends either by stopping the
+channel or by jumping back to its loop point — 83 of the 132 do the latter and never reach a
+stop command at all. `docs/sound.html` has the format, the command table and every song.
+
+Two ranges of stream byte would break the driver if they occurred: one indexes past the
+21-entry command table, the other advances the stream pointer by zero. Walking all 132
+tracks meets 810 command bytes and **none** of them is in either range, which is the check
+that the format is right rather than merely plausible.
+
+**There is no sampled audio.** The DMC is set up once, pointed at a 17-byte "sample" whose
+bytes are all zero. It is a timer: the IRQ it raises polls sprite 0 and re-tunes its own
+rate to land a mid-frame raster split.
 
 The game's on-screen text is decoded — 32 strings in six banks, plain ASCII, listed at
 `docs/text.html` with the PPU address each one is written to. None of it is a block of text

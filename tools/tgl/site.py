@@ -807,6 +807,124 @@ def _graphics_page(rm) -> str:
 
 # --------------------------------------------------------------------------- entry point
 
+def _sound_page(rm) -> str:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import sound
+
+    b0 = rm.prg_bank(0)
+    p = ["<h1>Sound</h1>",
+         '<p class="sub">Bank 0 is the sound bank. Three of its nine entry slots are audio, '
+         "and one of them runs every frame from the NMI handler.</p>"]
+
+    p.append('<div class="note"><strong>Seven soft channels compete for four hardware '
+             "ones.</strong> Per-channel state is a structure of arrays in page 3: field "
+             "<em>f</em> of channel <em>c</em> lives at <code>$0319 + 7f + c</code>, so the "
+             "stride is 7 and the channel index is the offset. <code>$97E4</code> copies "
+             "nine of those fields straight out of a song header; fields 7 and 8 are the "
+             "track's stream pointer. Field 6 says which of the four hardware channels the "
+             "voice wants, and <code>$0306</code> is the busy mask over them &mdash; that is "
+             "the whole allocator. Output goes to a 16-byte APU shadow at "
+             "<code>$0308-$0317</code>, flushed by <code>LDA $0308,X / STA $4000,X</code>; a "
+             "shadow byte of <code>$FF</code> means do not write that register this "
+             "frame.</div>")
+
+    p.append("<h2>The stream format</h2>")
+    p.append("<table><thead><tr><th>Byte</th><th>Meaning</th></tr></thead><tbody>"
+             "<tr><td><code>$00-$7F</code></td><td>A note. A duration byte may follow.</td></tr>"
+             "<tr><td><code>$80-$94</code></td><td>One of 21 commands &mdash; the table "
+             "below.</td></tr>"
+             "<tr><td><code>$95-$AF</code></td><td><em>Hole.</em> Would index past the "
+             "21-entry dispatch table.</td></tr>"
+             "<tr><td><code>$B0-$DF</code></td><td><em>Hole.</em> Would advance the stream "
+             "pointer by zero &mdash; an infinite loop.</td></tr>"
+             "<tr><td><code>$E0-$FF</code></td><td>Repeat the previous note with this "
+             "duration. <code>$E0</code> takes a literal byte; the rest index the duration "
+             "table.</td></tr></tbody></table>")
+
+    census: dict[int, int] = {}
+    tracks = notes = loops = 0
+    for i, addr in enumerate(sound.song_pointers(b0, 72)):
+        h = sound.parse_header(b0, addr)
+        if h["kind"] == "code":
+            continue
+        for tr in h["tracks"]:
+            if tr["stream"] is None:
+                continue
+            w = sound.walk_track(b0, tr["stream"])
+            tracks += 1
+            notes += w["notes"]
+            loops += bool(w.get("loops"))
+            for k, v in w["census"].items():
+                census[k] = census.get(k, 0) + v
+
+    p.append('<div class="note"><strong>The holes are counted, not assumed.</strong> '
+             f"Walking all {tracks} tracks in the ROM byte by byte meets "
+             f"{sum(census.values()):,} command bytes, and "
+             f"<strong>{sum(v for k, v in census.items() if not 0x80 <= k <= 0x94)}</strong> "
+             "of them fall in either hole. Every one of those tracks reaches an "
+             f"unconditional terminator, {loops} of them a jump back to a loop point, for "
+             f"{notes:,} notes in total. A single wrong operand length would desynchronise a "
+             "walk and send it off into the next track's bytes, so this is a check and not a "
+             "restatement.</div>")
+
+    p.append("<h2>Commands</h2>")
+    p.append("<table><thead><tr><th>Byte</th><th>Name</th><th>Operands</th><th>Seen</th>"
+             "<th>Handler</th></tr></thead><tbody>")
+    for b in sorted(sound.COMMANDS):
+        name, ops, desc = sound.COMMANDS[b]
+        p.append(f"<tr><td><code>${b:02X}</code></td><td>{_h(name)}</td><td>{ops}</td>"
+                 f'<td>{census.get(b, 0)}</td><td class="mono">{_h(desc)}</td></tr>')
+    p.append("</tbody></table>")
+
+    p.append("<h2>The DMC is a timer, not a voice</h2>")
+    p.append('<div class="note"><strong>There is no sampled audio in this ROM.</strong> '
+             "The DMC registers are written once, at bank 6 <code>$802A</code>: "
+             "<code>$4010 = $81</code> (IRQ enabled, rate 1), <code>$4011 = $00</code>, "
+             "<code>$4012 = $FF</code> and <code>$4013 = $01</code> &mdash; a 17-byte sample "
+             "at <code>$FFC0</code>. <strong>Those 17 bytes are all zero</strong>, so the "
+             "channel emits nothing. What it does instead is fire an IRQ: the handler at "
+             "<code>$DCF3</code> acknowledges it with <code>$4015 = $0F</code>, polls sprite "
+             "0 through <code>BIT $2002</code> against the frame counter in <code>$2B</code>, "
+             "and restarts the timer from <code>$05</code> &mdash; nudging that rate index up "
+             "and down between <code>$81</code> and <code>$89</code> to converge on the "
+             "split. It is a self-calibrating mid-frame raster interrupt wearing the DMC's "
+             "clothes.</div>")
+
+    p.append("<h2>Songs</h2>")
+    p.append("<table><thead><tr><th>Id</th><th>Header</th><th>Tracks</th><th>Notes</th>"
+             "<th>Channels</th></tr></thead><tbody>")
+    for i, addr in enumerate(sound.song_pointers(b0, 72)):
+        h = sound.parse_header(b0, addr)
+        if h["kind"] == "code":
+            p.append(f'<tr><td>{i}</td><td><code>${addr:04X}</code></td>'
+                     f'<td colspan="3"><em>a code entry, not a song &mdash; $97E4 RTSes to '
+                     f'${h["target"]:04X}</em></td></tr>')
+            continue
+        ws = [(tr, sound.walk_track(b0, tr["stream"])) for tr in h["tracks"]
+              if tr["stream"] is not None]
+        chans = ", ".join(f'ch{tr["channel"]}&rarr;hw{tr["hw"]}' for tr, _ in ws)
+        p.append(f'<tr><td>{i}</td><td><code>${addr:04X}</code></td><td>{len(ws)}</td>'
+                 f'<td>{sum(w["notes"] for _, w in ws):,}</td><td>{chans}</td></tr>')
+    p.append("</tbody></table>")
+
+    p.append("<h2>Regions</h2>")
+    for r in [x for x in rm.regions if x["kind"] == "music"
+              or (x["prg_bank"] == 0 and x["cpu_addr"] is not None
+                  and 0x932C <= x["cpu_addr"] <= 0x9B93
+                  and x["kind"] in ("pointer_table", "data"))]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:'
+                 f'{KIND_COLOURS.get(r["kind"], DEFAULT_COLOUR)}">{_h(r["kind"])}</span> '
+                 f'<span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank '
+                 f'{r["prg_bank"]} ${r["cpu_addr"]:04X}-'
+                 f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+    return "".join(p)
+
+
 def build_site(rm, out: Path) -> list[str]:
     written: list[str] = []
 
@@ -817,11 +935,14 @@ def build_site(rm, out: Path) -> list[str]:
         pages["text.html"] = _text_page(rm)
     if any(r["kind"] == "graphics" for r in rm.regions):
         pages["graphics.html"] = _graphics_page(rm)
+    if any(r["kind"] == "music" for r in rm.regions):
+        pages["sound.html"] = _sound_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
     for r in rm.regions:
         target = ("graphics.html" if r["kind"] == "graphics"
+                  else "sound.html" if r["kind"] == "music"
                   else f'bank{r["prg_bank"]}.html' if r["segment"] == "prg" else "index.html")
         if f'id="{r["id"]}"' not in pages[target]:
             raise AnnotationError(f'{r["id"]} has no card on {target}')
@@ -830,6 +951,7 @@ def build_site(rm, out: Path) -> list[str]:
         title = (rm.meta["title"] if name == "index.html"
                  else f'Text - {rm.meta["title"]}' if name == "text.html"
                  else f'Graphics - {rm.meta["title"]}' if name == "graphics.html"
+                 else f'Sound - {rm.meta["title"]}' if name == "sound.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

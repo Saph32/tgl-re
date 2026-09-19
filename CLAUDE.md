@@ -46,6 +46,10 @@ wrong finding away.
   and, in its header, the three checks behind it. **Read that header before citing any
   figure from this tool.** `tools/gen-gfx-regions.py` turns the block chain into
   `annotations/regions/45-gfx-blocks.json`; that file is generated, like `20-traced.json`.
+- `tools/parse-sound.py` — walks every music and sound-effect track into
+  `annotations/regions/50-sound.json`. `--dump` lists the songs, `--song N` decodes one
+  event by event. Generated; do not hand-edit. `tools/tgl/sound.py` holds the format, the
+  command table and what is NOT established.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -229,6 +233,36 @@ Do not re-derive these; do check anything that depends on them.
   unconfirmable candidates around `$8BBB`. The code that runs the codec has not been found
   either: the output must reach the `$0100` queue, but no reader of these tables has turned
   up, and an absolute-indexed load from the table addresses finds nothing outside bank 4.
+- **Bank 0 is the sound bank, and seven soft channels compete for four hardware ones.**
+  Entry slots `$8000` -> `$97A0` (init), `$8006` -> `$97CC` (play sound A) and `$8009` ->
+  `$917C` (the per-frame tick the NMI calls). Per-channel state is a structure of arrays:
+  field *f* of channel *c* is at `$0319 + 7f + c`. `$97E4` copies nine fields out of a song
+  header; fields 7/8 are the stream pointer, field 6 is the hardware channel wanted, and
+  `$0306` is the busy mask over the four, driven by the mask tables at `$9771`/`$9775`.
+  Channels 5→0 run per frame unless channel 6 is active, which then runs *instead*. Output
+  is a 16-byte APU shadow at `$0308-$0317`, flushed by `LDA $0308,X / STA $4000,X`; `$FF`
+  in a shadow byte means "skip this register".
+  - **Stream format.** `$00-$7F` note (optional duration byte); `$80-$94` one of 21
+    commands via the table at `$932C` (handler address minus one, registered in
+    `dispatch.json`); `$E0-$FF` repeat the previous note with that duration, `$E0` taking a
+    literal byte and `$E1-$FF` indexing the duration table. **A track ends at `$82`/`$84`
+    or at `$80`, an unconditional jump — 83 of the 132 tracks end on a loop jump and never
+    reach an `$82` at all.**
+  - **Tables.** Songs `$9B04` (72), commands `$932C` (21), periods `$985A-$9931` (108,
+    base `$9840`), durations `$9942-$995F` (30), pitch envelopes `$9961`→`$9969-$99AC`,
+    volume envelopes `$99AD`→`$99C5-`. Three of those are bounded by the same argument as
+    `$E6F3`: the table ends exactly where its own first target begins.
+  - **Three checks.** All 132 tracks reach an unconditional terminator (a wrong operand
+    length desynchronises and runs into the next track). The command holes are **counted**:
+    `$95-$AF` would index past the table, `$B0-$DF` would advance the pointer by zero, and
+    **zero bytes of either occur**. The duration census gives exactly `$E1-$FE` = indices
+    1-30, and the table has exactly 30 entries.
+- **The DMC is a timer, not a voice — there is no sampled audio in this ROM.** Bank 6
+  `$802A` writes `$4010 = $81`, `$4011 = $00`, `$4012 = $FF`, `$4013 = $01`: a 17-byte
+  sample at `$FFC0` whose bytes are **all zero**. The IRQ is the point. `$DCF3`
+  acknowledges with `$4015 = $0F`, polls sprite 0 via `BIT $2002` against the frame counter
+  `$2B`, and restarts the timer from `$05`, walking that rate index between `$81` and `$89`
+  to converge on the split. That is what `$05` is for.
 - **Bank 4 is per-area screen data.** 25 pointers at `$8013`, indexed by the area number in
   `$51` (bounded by `CPY #$15` at `$F2E2`), reached from `$EF9B`. Its entry point returns a
   pointer instead of running code, which is why a control-flow trace found 19 bytes of it.
@@ -242,8 +276,8 @@ Do not re-derive these; do check anything that depends on them.
 ## Named so far, and nowhere to write it down
 
 There is no RAM map yet. These came out of the code read so far and should go into one as
-soon as it exists: `$04` (live PRG bank), `$05` (reloaded into `DMC_FREQ` by the IRQ
-handler), `$10`/`$11` (saved A/Y across a far call), `$12`/`$13` (the far-call inline
+soon as it exists: `$04` (live PRG bank), `$05` (the DMC timer's rate index, reloaded into `DMC_FREQ` by the IRQ
+handler and tuned between `$81` and `$89` to land the raster split), `$10`/`$11` (saved A/Y across a far call), `$12`/`$13` (the far-call inline
 pointer), `$26` (`PPUSTATUS` snapshot taken in NMI), `$2B` (frame counter, incremented in
 NMI and read by the IRQ handler), `$2F` (branched on at `$FF53` in the boot path), `$30`
 (bit 4 tested in NMI), `$FC` (added to `$0200` in NMI), `$FE` (`PPUMASK` shadow).
@@ -286,15 +320,19 @@ authoritative, up-to-date version of this list; what follows is what does not li
 1. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained, so a whole
    tileset is unaccounted for and bank 0 is where it is. The partition test is the tool: a
    real table makes every block's decoded length land on the next pointer. Do not accept a
-   candidate that only produces plausible-looking tiles.
-2. **Find the decompressor.** It has to write into the `$0100` queue, and no scan so far has
-   found a reader of the three pointer tables. Worth trying from the other end: a savestate
-   taken *during* a load would have the block pointer live in zero page.
-3. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
-   entry count must come from each caller — an index mask, a `CPY` bound — never from
-   dividing a gap.
-4. **Read the ten screen-data command handlers** and parse bank 4's blocks. Bank 4 is still
-   0.4% documented, and that is 16 KB behind one format.
-5. Explain the second header byte of a tile block, and the three bank 1 blocks whose output
+   candidate that only produces plausible-looking tiles. Bank 0 is now 79% documented, so
+   the search space is much smaller than it was.
+2. **Find the graphics decompressor.** It has to write into the `$0100` queue, and no scan
+   so far has found a reader of the three tile pointer tables. Worth trying from the other
+   end: a savestate taken *during* a load would have the block pointer live in zero page.
+3. **Read the ten screen-data command handlers** and parse bank 4's blocks. Bank 4 is still
+   0.4% documented, and that is 16 KB behind one format — the largest single unknown left.
+4. **Resolve the remaining inline jump tables** (bank 5 `$9F2F`, `$A1C1`) into
+   `dispatch.json`. The entry count must come from each caller, never from dividing a gap.
+5. Identify what each of the 21 sound commands actually does, and which song id is which
+   piece of music. The names in `tools/tgl/sound.py` are read off the handlers' stores.
+6. Explain the second header byte of a tile block, and the three bank 1 blocks whose output
    is exactly 3 bytes over a whole number of tiles (`$89E4`, `$9A89`, `$A60C`).
-6. Start a RAM map. The list above is already too long to keep in prose.
+7. Start a RAM map. Page 3 is now almost entirely sound state and should go in first:
+   `$0300-$0307` driver globals, `$0308-$0317` the APU shadow, `$0319+7f+c` the channel
+   fields.

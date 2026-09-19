@@ -117,6 +117,14 @@
       "via": "$E6F0 JSR $D6AE, the inline jump table indexed by A",
       "name": "screen-data command dispatch",
       "description": "The command set of the per-area screen data in bank 4. $E6EB reads a byte through ($BC) - the walking pointer into the bank 4 block - and hands it straight to $D6AE, which doubles it into an index over the ten addresses that follow the JSR. The byte is NOT masked, so the command set is exactly $00-$09. ENTRY COUNT, and how it is bounded: the tenth entry ends at $E706 and handler 0 begins at $E707, so the table ends exactly where its own first target starts, with nothing over - the same boundary argument that bounds the dialogue pointer table. Reading an eleventh entry gives $16A5, which is RAM and not a handler. HOW THE BLOCK IS REACHED: bank 7 $EF9B switches to bank 4, $EF9E loads the area number from $51, and $EFA0 calls bank 4's single entry point $8000, which indexes a 25-entry pointer table at $8013 by (A+2)*2 and returns the block address in $18/$19. $E560 then reads a 16-bit header from the block, sets $BC/$BD to the byte after it, and $E5BD runs the interpreter. $51 is bounded by CPY #$15 at $F2E2, which is 21."
+    },
+    {
+      "cpu_addr": "$932C",
+      "bank": 0,
+      "entries": 21,
+      "via": "$9315 ASL A / TAX, pushing $932D,X then $932C,X as a fake return address",
+      "name": "sound driver command dispatch",
+      "description": "The command set of the music and sound-effect streams in bank 0. $9307 reads a byte from the channel's stream through ($1C),Y. Below $80 it is a note; $B0 and above it is a duration for the PREVIOUS note ($94C2 reloads $036D,X instead of consuming a note byte); $80-$AF reaches $9315, which does ASL A / TAX and pushes $932D,X then $932C,X - each entry is the handler address MINUS ONE, the same convention as $D6B0 and $E6F3. It also pushes $9302 first, so a handler RTSes back into the stream loop at $9303. THE INDEX IS NOT MASKED. ENTRY COUNT, and how it is bounded: entry 20 ends at $9355 and handler 0 - the target of entry 0 - begins at $9356, so the table ends exactly where its own first target starts. That is the same boundary argument that bounds $E6F3, and it is the only one available here because the caller applies no mask and no CPY. COMMANDS $95-$AF ARE THEREFORE A HOLE, not a set of handlers: the compare at $930E is CMP #$B0 / BCC, so a stream byte in $95-$AF would index past the table into handler code and jump somewhere arbitrary. Reading entry 21 gives $C8AB, which is not in this bank at all. The claim that those bytes never occur is checked, not assumed - tools/parse-sound.py walks every stream in the ROM and counts the command bytes it meets; see its output for what was actually found."
     }
   ],
   "unresolved": [
