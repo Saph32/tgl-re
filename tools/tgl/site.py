@@ -329,10 +329,34 @@ def _pages(rm) -> list[tuple[str, str]]:
     out = [("index.html", "Overview")]
     for n in range(rm.meta["prg_bank_count"]):
         out.append((f"bank{n}.html", f"Bank {n}"))
-    if any(r["kind"] == "text" for r in rm.regions):
-        out.append(("text.html", "Text"))
-    if any(r["kind"] == "graphics" for r in rm.regions):
-        out.append(("graphics.html", "Graphics"))
+    out += [(f, label) for f, label, _, _ in _topic_pages(rm)]
+    return out
+
+
+# The topic pages, and the one place that decides which of them exist. The nav, the index
+# grid and build_site() all read this, because they drifted apart once: sound.html was
+# generated for a whole commit while appearing in neither the nav nor the index, so the
+# only way to reach it was to type the filename.
+TOPICS = [
+    ("text.html", "Text", "text",
+     "Three formats that do not share a character map: inline PPU strings, the dialogue "
+     "script and the screen scripts."),
+    ("graphics.html", "Graphics", "graphics",
+     "CHR RAM, so no byte of the file is a tile until code uploads it. The tile codec, "
+     "every decoded tile, and the font."),
+    ("sound.html", "Sound", "music",
+     "Seven soft channels competing for four hardware ones, 72 songs, and a DMC channel "
+     "that plays nothing at all."),
+]
+
+
+def _topic_pages(rm):
+    """(filename, nav label, blurb, region count) for each topic page that has regions."""
+    out = []
+    for fname, label, kind, blurb in TOPICS:
+        n = sum(1 for r in rm.regions if r["kind"] == kind)
+        if n:
+            out.append((fname, label, blurb, n))
     return out
 
 
@@ -437,6 +461,17 @@ def _index(rm) -> str:
             f'<div class="n">{got:,} / {meta["prg_bank_size"]:,} bytes '
             f'&middot; {100 * got / meta["prg_bank_size"]:.2f}% documented</div></a>')
     p.append(f'<div class="pagelinks">{"".join(links)}</div>')
+
+    topics = _topic_pages(rm)
+    if topics:
+        p.append("<h2>By subject</h2>")
+        tl = []
+        for fname, label, blurb, n in topics:
+            tl.append(f'<a class="pagelink" href="{fname}">'
+                      f'<div class="t">{_h(label)}</div>'
+                      f'<div class="d">{_h(blurb)}</div>'
+                      f'<div class="n">{n:,} regions</div></a>')
+        p.append(f'<div class="pagelinks">{"".join(tl)}</div>')
 
     p.append("<h2>What is documented so far</h2>")
     p.append(_kind_table(rm.regions))
@@ -807,7 +842,60 @@ def _graphics_page(rm) -> str:
 
 # --------------------------------------------------------------------------- entry point
 
+CHAN_COLOURS = ("#4fb0f2", "#ed64a6", "#38c172", "#ecc94b", "#f2704f", "#9d7cf8", "#38b2ac")
+
+
+def _roll_svg(tracks, height=150):
+    """A piano roll: x is the track's own clock in frames, y is pitch."""
+    notes = [(ci, t, n, l) for ci, rows in tracks for t, n, l in rows]
+    if not notes:
+        return ""
+    span = max(t + l for _, t, _, l in notes)
+    lo = min(n for _, _, n, _ in notes)
+    hi = max(n for _, _, n, _ in notes)
+    rng = max(hi - lo + 1, 8)
+    w = 900
+    rh = max(2.0, min(6.0, height / rng))
+    h = rng * rh
+    out = [f'<svg viewBox="0 0 {w} {h:.0f}" width="100%" '
+           f'style="max-width:100%;height:auto;display:block" '
+           'xmlns="http://www.w3.org/2000/svg">']
+    for ci, tt, n, l in notes:
+        x = w * tt / span
+        ww = max(1.2, w * l / span - 0.5)
+        y = (hi - n) * rh
+        out.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{ww:.1f}" height="{rh:.1f}" '
+                   f'rx="0.6" fill="{CHAN_COLOURS[ci % len(CHAN_COLOURS)]}" opacity="0.85"/>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _env_svg(values, signed=False):
+    """One envelope as a bar chart. Signed envelopes are drawn about a centre line."""
+    body = values[:-1] if values and values[-1] & 0x80 else values
+    if not body:
+        return ""
+    if signed:
+        vals = [v - 256 if v > 127 else v for v in body]
+        peak = max(1, max(abs(v) for v in vals))
+        bars = []
+        for v in vals:
+            up = v > 0
+            frac = abs(v) / peak
+            bars.append(f'<div style="flex:1;min-width:2px;display:flex;'
+                        f'flex-direction:column;justify-content:center;height:100%">'
+                        f'<div style="height:{50 * (frac if up else 0):.0f}%"></div>'
+                        f'<div class="bar1" style="height:{50 * frac:.0f}%;'
+                        f'align-self:stretch"></div>'
+                        f'<div style="height:{50 * (0 if up else frac):.0f}%"></div></div>')
+        return f'<div class="envbars">{"".join(bars)}</div>'
+    bars = "".join(f'<div class="bar1" style="height:{100 * v / 15:.0f}%"></div>'
+                   for v in body)
+    return f'<div class="envbars">{bars}</div>'
+
+
 def _sound_page(rm) -> str:
+    import math
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from tgl import sound
@@ -831,7 +919,9 @@ def _sound_page(rm) -> str:
 
     p.append("<h2>The stream format</h2>")
     p.append("<table><thead><tr><th>Byte</th><th>Meaning</th></tr></thead><tbody>"
-             "<tr><td><code>$00-$7F</code></td><td>A note. A duration byte may follow.</td></tr>"
+             "<tr><td><code>$00-$7F</code></td><td>A note. A duration byte may follow. "
+             "<code>$00</code> is a rest &mdash; it advances the clock and sounds "
+             "nothing.</td></tr>"
              "<tr><td><code>$80-$94</code></td><td>One of 21 commands &mdash; the table "
              "below.</td></tr>"
              "<tr><td><code>$95-$AF</code></td><td><em>Hole.</em> Would index past the "
@@ -843,21 +933,25 @@ def _sound_page(rm) -> str:
              "table.</td></tr></tbody></table>")
 
     census: dict[int, int] = {}
-    tracks = notes = loops = 0
+    songs = []
     for i, addr in enumerate(sound.song_pointers(b0, 72)):
         h = sound.parse_header(b0, addr)
         if h["kind"] == "code":
+            songs.append((i, addr, h, []))
             continue
+        rows = []
         for tr in h["tracks"]:
             if tr["stream"] is None:
                 continue
             w = sound.walk_track(b0, tr["stream"])
-            tracks += 1
-            notes += w["notes"]
-            loops += bool(w.get("loops"))
             for k, v in w["census"].items():
                 census[k] = census.get(k, 0) + v
+            rows.append((tr, w, sound.roll(b0, tr["stream"])))
+        songs.append((i, addr, h, rows))
 
+    tracks = sum(len(r) for _, _, _, r in songs)
+    notes = sum(w["notes"] for _, _, _, r in songs for _, w, _ in r)
+    loops = sum(1 for _, _, _, r in songs for _, w, _ in r if w.get("loops"))
     p.append('<div class="note"><strong>The holes are counted, not assumed.</strong> '
              f"Walking all {tracks} tracks in the ROM byte by byte meets "
              f"{sum(census.values()):,} command bytes, and "
@@ -868,6 +962,40 @@ def _sound_page(rm) -> str:
              "walk and send it off into the next track's bytes, so this is a check and not a "
              "restatement.</div>")
 
+    # ---------------------------------------------------------------- period table
+    per = sound.periods(b0)
+    hz = [sound.period_hz(x) for x in per]
+    ratios = [hz[i + 12] / hz[i] for i in range(0, len(hz) - 12, 12)]
+    neigh = [hz[i + 1] / hz[i] for i in range(60)]
+    mean = sum(neigh) / len(neigh)
+    p.append("<h2>The period table is equal-tempered, and that is checkable</h2>")
+    p.append('<div class="note"><strong>The note names below are not a guess about what '
+             "sounds right &mdash; they are read off the frequencies the table actually "
+             "produces.</strong> A pulse channel runs at "
+             "<code>1789773 / (16 &times; (period + 1))</code> Hz. Taking the 108 entries at "
+             f"<code>$985A</code> and doing that arithmetic: the ratio between neighbours "
+             f"averages <strong>{mean:.5f}</strong> against 2<sup>1/12</sup> = "
+             f"{2 ** (1 / 12):.5f}, and the frequency doubles every twelve entries "
+             + ", ".join(f"{r:.4f}" for r in ratios[:6])
+             + ". So the table is one entry per semitone. Entry 0 is "
+             f"<strong>{hz[0]:.2f} Hz</strong>, which is A1, and that fixes the whole "
+             "scale. The read is based at <code>$9840</code> with index "
+             "<code>(note + transpose) &times; 2</code>, so a note plus transpose of 13 "
+             "selects entry 0.</div>")
+    p.append("<table><thead><tr><th>Entry</th><th>note+transpose</th><th>Period</th>"
+             "<th>Frequency</th><th>Note</th></tr></thead><tbody>")
+    for i in list(range(0, 13)) + [24, 36, 48, 60, 72, 84, 96, 107]:
+        p.append(f"<tr><td>{i}</td><td>{i + sound.FIRST_INDEX}</td>"
+                 f"<td><code>${per[i]:03X}</code></td><td>{hz[i]:,.1f} Hz</td>"
+                 f"<td><strong>{sound.note_name(i + sound.FIRST_INDEX)}</strong></td></tr>")
+    p.append("</tbody></table>")
+    p.append('<div class="note warn"><strong>One loose end.</strong> Note bytes as low as '
+             "<code>$01</code> occur, and at transpose 0 those index below the table into "
+             "bytes that are not periods. So a track using them must carry a positive "
+             "transpose &mdash; <code>$86</code> values of <code>+1</code> to <code>+12</code> "
+             "do occur. That the two always line up is <em>not</em> checked here.</div>")
+
+    # ---------------------------------------------------------------- commands
     p.append("<h2>Commands</h2>")
     p.append("<table><thead><tr><th>Byte</th><th>Name</th><th>Operands</th><th>Seen</th>"
              "<th>Handler</th></tr></thead><tbody>")
@@ -876,7 +1004,35 @@ def _sound_page(rm) -> str:
         p.append(f"<tr><td><code>${b:02X}</code></td><td>{_h(name)}</td><td>{ops}</td>"
                  f'<td>{census.get(b, 0)}</td><td class="mono">{_h(desc)}</td></tr>')
     p.append("</tbody></table>")
+    p.append('<div class="note warn"><strong>The names in that table are inferred from what '
+             "each handler stores, not confirmed by listening.</strong> "
+             "<code>$8C</code> writes the fields a vibrato would and is called vibrato here; "
+             "that is an argument, not a measurement. The operand counts are the solid part "
+             "&mdash; those are forced by the walk.</div>")
 
+    # ---------------------------------------------------------------- envelopes
+    p.append("<h2>Envelopes</h2>")
+    p.append('<p class="sub">Per-frame shapes the driver steps through under each note. '
+             "Both kinds end at the first byte with bit 7 set; what that byte's low bits "
+             "mean is not established.</p>")
+    p.append("<h4>Volume &mdash; 12 of them, pointers at <code>$99AD</code></h4>")
+    p.append('<div class="envs">')
+    for k, a in enumerate(sound.envelope_pointers(b0, sound.VOL_ENVELOPES, 12), start=1):
+        e = sound.envelope(b0, a)
+        p.append(f'<figure class="env">{_env_svg(e)}'
+                 f'<figcaption><strong>{k}</strong> <code>${a:04X}</code> &middot; '
+                 f"{len(e)} steps</figcaption></figure>")
+    p.append("</div>")
+    p.append("<h4>Pitch &mdash; 4 of them, pointers at <code>$9961</code></h4>")
+    p.append('<div class="envs">')
+    for k, a in enumerate(sound.envelope_pointers(b0, sound.PITCH_ENVELOPES, 4), start=1):
+        e = sound.envelope(b0, a)
+        p.append(f'<figure class="env">{_env_svg(e, signed=True)}'
+                 f'<figcaption><strong>{k}</strong> <code>${a:04X}</code> &middot; '
+                 f"{len(e)} steps</figcaption></figure>")
+    p.append("</div>")
+
+    # ---------------------------------------------------------------- DMC
     p.append("<h2>The DMC is a timer, not a voice</h2>")
     p.append('<div class="note"><strong>There is no sampled audio in this ROM.</strong> '
              "The DMC registers are written once, at bank 6 <code>$802A</code>: "
@@ -891,23 +1047,37 @@ def _sound_page(rm) -> str:
              "split. It is a self-calibrating mid-frame raster interrupt wearing the DMC's "
              "clothes.</div>")
 
+    # ---------------------------------------------------------------- songs
     p.append("<h2>Songs</h2>")
-    p.append("<table><thead><tr><th>Id</th><th>Header</th><th>Tracks</th><th>Notes</th>"
-             "<th>Channels</th></tr></thead><tbody>")
-    for i, addr in enumerate(sound.song_pointers(b0, 72)):
-        h = sound.parse_header(b0, addr)
+    p.append('<p class="sub">Every song in the ROM, drawn from its own bytes. In each roll '
+             "the horizontal axis is the track&rsquo;s clock in frames and the vertical axis "
+             "is pitch; colour is the soft channel. These are the notes as stored &mdash; "
+             "the driver divides the clock again per channel, so the width is relative and "
+             "not seconds.</p>")
+    for i, addr, h, rows in songs:
         if h["kind"] == "code":
-            p.append(f'<tr><td>{i}</td><td><code>${addr:04X}</code></td>'
-                     f'<td colspan="3"><em>a code entry, not a song &mdash; $97E4 RTSes to '
-                     f'${h["target"]:04X}</em></td></tr>')
+            p.append(f'<div class="card"><h3>Song {i} '
+                     f'<span class="conf lead">code, not a song</span></h3>'
+                     f'<p class="meta"><code>${addr:04X}</code> begins with a zero byte, so '
+                     f"$97E4 pushes the pointer and RTSes to ${h['target']:04X} instead of "
+                     f"reading a header. What that code does is not established.</p></div>")
             continue
-        ws = [(tr, sound.walk_track(b0, tr["stream"])) for tr in h["tracks"]
-              if tr["stream"] is not None]
-        chans = ", ".join(f'ch{tr["channel"]}&rarr;hw{tr["hw"]}' for tr, _ in ws)
-        p.append(f'<tr><td>{i}</td><td><code>${addr:04X}</code></td><td>{len(ws)}</td>'
-                 f'<td>{sum(w["notes"] for _, w in ws):,}</td><td>{chans}</td></tr>')
-    p.append("</tbody></table>")
+        if not rows:
+            continue
+        n = sum(w["notes"] for _, w, _ in rows)
+        span = max((r[-1][0] + r[-1][2]) for _, _, r in rows if r) if any(r for _, _, r in rows) else 0
+        p.append(f'<div class="card"><h3>Song {i}</h3>')
+        p.append(f'<p class="meta"><code>${addr:04X}</code> &middot; {len(rows)} tracks '
+                 f"&middot; {n:,} notes &middot; {span:,} frames long</p>")
+        p.append(_roll_svg([(tr["channel"], r) for tr, _, r in rows]))
+        legend = " ".join(
+            f'<span class="ch" style="color:{CHAN_COLOURS[tr["channel"] % 7]}">'
+            f'ch{tr["channel"]}&rarr;hw{tr["hw"]} '
+            f'${tr["stream"]:04X} {w["notes"]}n{" loop" if w.get("loops") else ""}</span>'
+            for tr, w, _ in rows)
+        p.append(f'<p class="meta" style="margin-top:8px">{legend}</p></div>')
 
+    # ---------------------------------------------------------------- regions
     p.append("<h2>Regions</h2>")
     for r in [x for x in rm.regions if x["kind"] == "music"
               or (x["prg_bank"] == 0 and x["cpu_addr"] is not None
@@ -946,6 +1116,12 @@ def build_site(rm, out: Path) -> list[str]:
                   else f'bank{r["prg_bank"]}.html' if r["segment"] == "prg" else "index.html")
         if f'id="{r["id"]}"' not in pages[target]:
             raise AnnotationError(f'{r["id"]} has no card on {target}')
+
+    # Guard: every page must be reachable from the overview. A generated page that nothing
+    # links to is a page nobody will ever open, and until this check existed one shipped.
+    for name in pages:
+        if name != "index.html" and f'href="{name}"' not in pages["index.html"]:
+            raise AnnotationError(f"{name} is not linked from index.html")
 
     for name, body in pages.items():
         title = (rm.meta["title"] if name == "index.html"

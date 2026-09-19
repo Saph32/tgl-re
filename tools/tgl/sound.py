@@ -201,3 +201,134 @@ def walk_track(bank0: bytes, start: int, limit: int = 0x4000) -> dict:
         i += 1 + COMMANDS[b][1]
     return {"start": start, "end": 0x8000 + i, "size": i - o, "notes": notes,
             "census": census, "ok": False, "bad": None, "at": 0x8000 + i}
+
+
+# --------------------------------------------------------------------- musical reading
+
+CPU_HZ = 1789773.0          # NTSC 2A03
+PERIODS = 0x985A            # the first entry the table's own index range reaches
+PERIOD_COUNT = 108
+FIRST_INDEX = 13            # note + transpose that selects PERIODS, because the read is
+                            # based at $9840 and $9840 + 2*13 = $985A
+NAMES = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+
+
+def periods(bank0: bytes) -> list[int]:
+    o = PERIODS - 0x8000
+    return [bank0[o + 2 * i] | (bank0[o + 2 * i + 1] << 8) for i in range(PERIOD_COUNT)]
+
+
+def period_hz(period: int) -> float:
+    """A pulse channel's frequency for a given period register value."""
+    return CPU_HZ / (16 * (period + 1))
+
+
+def note_name(value: int) -> str:
+    """Name for a stream note byte at transpose 0.
+
+    Entry 0 of the period table is 54.65 Hz, which is A1, and the table runs one entry per
+    semitone - the ratio between neighbours is 2^(1/12) to five places and the period halves
+    exactly every twelve entries. So the naming is not a guess about what sounds right; it
+    is read off the frequencies the table actually produces.
+    """
+    idx = value - FIRST_INDEX
+    midi = 33 + idx                     # A1 is MIDI 33
+    return f"{NAMES[midi % 12]}{midi // 12 - 1}"
+
+
+def events(bank0: bytes, start: int):
+    """Yield (addr, kind, a, b) for one track. kind is 'note', 'hold' or 'cmd'."""
+    o = start - 0x8000
+    if not 0 <= o < len(bank0):
+        return
+    while o + 3 < len(bank0):
+        b = bank0[o]
+        if b < 0x80:
+            nxt = bank0[o + 1]
+            dur = nxt if nxt >= 0xE0 else None
+            n = (3 if nxt == 0xE0 else 2) if nxt >= 0xE0 else 1
+            yield (0x8000 + o, "note", b, dur)
+        elif b >= 0xE0:
+            n = 2 if b == 0xE0 else 1
+            yield (0x8000 + o, "hold", None, b)
+        else:
+            if b not in COMMANDS:
+                return
+            n = 1 + COMMANDS[b][1]
+            yield (0x8000 + o, "cmd", b, bytes(bank0[o + 1:o + 1 + n - 1]))
+            if b in TERMINATORS:
+                return
+        o += n
+
+
+def durations(bank0: bytes) -> list[int]:
+    o = DURATION_TABLE + 1 - 0x8000
+    return list(bank0[o:o + 30])
+
+
+def duration_of(bank0: bytes, byte: int | None, literal: int | None = None) -> int:
+    """Frames for a duration byte, or 0 when the stream reuses the previous one."""
+    if byte is None:
+        return 0
+    if byte == 0xE0:
+        return literal or 0
+    return durations(bank0)[byte - 0xE1]
+
+
+def envelope(bank0: bytes, addr: int, limit: int = 64) -> list[int]:
+    """One envelope: bytes up to and including the first with bit 7 set."""
+    o = addr - 0x8000
+    out = []
+    while o < len(bank0) and len(out) < limit:
+        v = bank0[o]
+        out.append(v)
+        if v & 0x80:
+            break
+        o += 1
+    return out
+
+
+def envelope_pointers(bank0: bytes, base: int, count: int, first: int = 1) -> list[int]:
+    return [bank0[base - 0x8000 + 2 * i] | (bank0[base - 0x8000 + 2 * i + 1] << 8)
+            for i in range(first, first + count)]
+
+
+def roll(bank0: bytes, start: int, max_events: int = 4000):
+    """A track as (time, note, length) in frames, for drawing.
+
+    Time is the running sum of note lengths, so it is the track's own clock and not
+    wall-clock: the driver divides it again per channel through $033C,X. Rests (note $00)
+    advance the clock without producing a note.
+    """
+    dur_table = durations(bank0)
+    o = start - 0x8000
+    if not 0 <= o < len(bank0):
+        return []
+    t = 0
+    cur = 1
+    out = []
+    while o + 3 < len(bank0) and len(out) < max_events:
+        b = bank0[o]
+        if b < 0x80 or b >= 0xE0:
+            if b < 0x80:
+                note, dur_byte, n = b, bank0[o + 1], 1
+                if dur_byte >= 0xE0:
+                    n = 3 if dur_byte == 0xE0 else 2
+                else:
+                    dur_byte = None
+            else:
+                note, dur_byte = None, b
+                n = 2 if b == 0xE0 else 1
+            if dur_byte is not None:
+                cur = bank0[o + 2] if dur_byte == 0xE0 else dur_table[dur_byte - 0xE1]
+            if note:
+                out.append((t, note, cur))
+            t += cur
+            o += n
+            continue
+        if b not in COMMANDS:
+            break
+        o += 1 + COMMANDS[b][1]
+        if b in TERMINATORS:
+            break
+    return out
