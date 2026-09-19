@@ -652,23 +652,25 @@ def _glyphs(data: bytes, per_row: int = 15) -> str:
     return "".join(out)
 
 
-def _tiles_svg(tiles: bytes, per_row: int = 16, limit: int = 128) -> str:
-    """Render 2bpp NES tiles. Colour 0 is left transparent so the page theme shows through."""
-    n = min(len(tiles) // 16, limit)
+def _tiles_svg(tiles: bytes, per_row: int = 32, px: int = 22) -> str:
+    """Render every 2bpp tile in a block. Colour 0 is transparent, so the page theme shows.
+
+    One ``<path>`` per shade, not one ``<rect>`` per pixel. That matters: this page carries
+    all 2,485 tiles in the ROM, and a rect per pixel makes it about 30 MB. Horizontal runs
+    of one colour are merged into a single subpath, which brings it under a megabyte.
+    """
+    n = len(tiles) // 16
     if not n:
         return ""
+    per_row = min(per_row, n)
     rows = (n + per_row - 1) // per_row
     w, h = per_row * 9 - 1, rows * 9 - 1
-    shades = {1: 0.34, 2: 0.67, 3: 1.0}
-    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" style="max-width:600px;'
-           'image-rendering:pixelated" xmlns="http://www.w3.org/2000/svg">']
+    paths: dict[int, list[str]] = {1: [], 2: [], 3: []}
     for i in range(n):
         ox, oy = (i % per_row) * 9, (i // per_row) * 9
         lo = tiles[16 * i:16 * i + 8]
         hi = tiles[16 * i + 8:16 * i + 16]
         for y in range(8):
-            # Coalesce horizontal runs of one colour into a single rect. A rect per pixel
-            # makes this page several megabytes; a rect per run makes it a few hundred KB.
             x = 0
             while x < 8:
                 v = ((lo[y] >> (7 - x)) & 1) | (((hi[y] >> (7 - x)) & 1) << 1)
@@ -677,9 +679,14 @@ def _tiles_svg(tiles: bytes, per_row: int = 16, limit: int = 128) -> str:
                                        | (((hi[y] >> (7 - x - run)) & 1) << 1)) == v:
                     run += 1
                 if v:
-                    out.append(f'<rect x="{ox + x}" y="{oy + y}" width="{run}" height="1" '
-                               f'fill="currentColor" opacity="{shades[v]}"/>')
+                    paths[v].append(f"M{ox + x} {oy + y}h{run}v1h-{run}z")
                 x += run
+    out = [f'<svg viewBox="0 0 {w} {h}" width="{min(w * px // 9, 780)}" '
+           f'style="max-width:100%;height:auto;image-rendering:pixelated" '
+           'xmlns="http://www.w3.org/2000/svg">']
+    for v, op in ((1, "0.34"), (2, "0.67"), (3, "1")):
+        if paths[v]:
+            out.append(f'<path fill="currentColor" opacity="{op}" d="{"".join(paths[v])}"/>')
     out.append("</svg>")
     return "".join(out)
 
@@ -767,7 +774,7 @@ def _graphics_page(rm) -> str:
                      f"{n:,} &middot; {n / b['size']:.2f}x &middot; "
                      + ("named by the table" if b["in_table"] else "chained, not in a table")
                      + "</p>")
-            p.append(f'<div style="margin:12px 0">{_tiles_svg(b["tiles"], limit=8)}</div>')
+            p.append(f'<div style="margin:12px 0">{_tiles_svg(b["tiles"])}</div>')
             if reg:
                 p.append(f'<p class="desc">{_h(reg["description"])}</p>')
             p.append("</div>")
