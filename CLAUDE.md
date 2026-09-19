@@ -50,6 +50,9 @@ wrong finding away.
   `annotations/regions/50-sound.json`. `--dump` lists the songs, `--song N` decodes one
   event by event. Generated; do not hand-edit. `tools/tgl/sound.py` holds the format, the
   command table and what is NOT established.
+- `tools/password.py` — decodes a password the way bank 3 does, and explains the TGL back
+  door. `--selftest` round-trips its own encoder against its own decoder, which is
+  self-consistency and **not** hardware; the header says so.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -268,6 +271,25 @@ Do not re-derive these; do check anything that depends on them.
   pointer instead of running code, which is why a control-flow trace found 19 bytes of it.
   The blocks are a command stream walked through `($BC)` and dispatched by the 10-entry
   table at `$E6F3` — resolved, bounded by the table ending where handler 0 begins.
+- **The password system, and the TGL back door.** Bank 3 runs the password screen (the
+  savestate's latch reads `$83`). The field is 32 characters at `$0411-$0430`, each stored
+  as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and the grid is A-Z then 0-9,
+  so A is 0, T is 19, `0` is 26. The savestate's nametable confirms that layout row by row.
+  - **Decode** (`$8516`): a seed from the last two characters, `($0430 << 2) | ($042F >> 4)
+    + $1D`; then four characters at a time masked `AND #$3F` and shifted into three bytes;
+    each output byte XORed with the seed, which decrements per byte. Eight groups give 24
+    bytes at `$011E-$0135` — the PPU queue's staging area, borrowed. Index `$17` is exempt
+    from the XOR and **why is not established**.
+  - **Checksum** (`$859B`): `$011E-$0133` plus `$0135` compared with `$0134`. Mismatch →
+    `$8578 SEC / RTS`, rejected. Match → copied to `$0438`, carry clear.
+  - **The back door** (`$857A`, *before* the checksum): the first three characters against
+    the three bytes at bank 3 `$8513` = `13 06 0B` = **T, G, L**, then every character from
+    index 3 to `$1F` must be zero. On a match it sets `$2F = 0`, `$30 = 2` and returns carry
+    clear, **skipping the checksum**. Bank 0 `$8BA3` is a screen script reading
+    **"PASSWORD TGL"**, right after "PRODUCED BY / IREM / CORPORATION".
+  - **A blank and the letter A are the same byte** — A's grid index is 0 and an untouched
+    field is all `$00` in the savestate — so "TGL" plus any number of A's is byte-identical
+    to "TGL" plus blanks. Stated from the code; not tried on hardware.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -279,8 +301,8 @@ There is no RAM map yet. These came out of the code read so far and should go in
 soon as it exists: `$04` (live PRG bank), `$05` (the DMC timer's rate index, reloaded into `DMC_FREQ` by the IRQ
 handler and tuned between `$81` and `$89` to land the raster split), `$10`/`$11` (saved A/Y across a far call), `$12`/`$13` (the far-call inline
 pointer), `$26` (`PPUSTATUS` snapshot taken in NMI), `$2B` (frame counter, incremented in
-NMI and read by the IRQ handler), `$2F` (branched on at `$FF53` in the boot path), `$30`
-(bit 4 tested in NMI), `$FC` (added to `$0200` in NMI), `$FE` (`PPUMASK` shadow).
+NMI and read by the IRQ handler), `$2F` (branched on at `$FF53` in the boot path; set to 0 by the TGL back door), `$30`
+(the game-mode byte — bit 4 tested in NMI, set to 2 by the TGL back door), `$FC` (added to `$0200` in NMI), `$FE` (`PPUMASK` shadow).
 
 ## Known limits of the searches run so far
 

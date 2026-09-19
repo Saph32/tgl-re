@@ -124,13 +124,21 @@
       "checks": "Three. (1) EVERY TRACK ENDS: all 132 were walked byte by byte from their header pointers to an unconditional terminator, and a single wrong operand length desynchronises a walk and sends it off into the next track's bytes. (2) THE COMMAND HOLES ARE COUNTED: $95-$AF would index past the 21-entry table and $B0-$DF would advance the stream pointer by zero, an infinite loop; the walk censuses every command byte it meets and ZERO fall in either range. (3) THE DURATION TABLE IS BOUNDED BY THE DATA: censusing every duration byte in the ROM gives exactly $E1-$FE, indices 1 to 30, and the table has exactly 30 entries.",
       "dmc_is_a_timer": "THERE IS NO SAMPLED AUDIO IN THIS ROM. The DMC registers are written once, at bank 6 $802A: $4010 = $81 (IRQ enabled, rate 1), $4011 = $00, $4012 = $FF and $4013 = $01, which is a 17-byte sample at $FFC0. Those 17 bytes are ALL ZERO, so the channel emits nothing. The IRQ is the point: $DCF3 acknowledges it with $4015 = $0F, polls sprite 0 through BIT $2002 against the frame counter in $2B, and restarts the timer from $05, nudging that rate index between $81 and $89 to converge on the split. A self-calibrating mid-frame raster interrupt using the DMC as its clock. This also explains $05, which the RAM-map notes already listed as 'reloaded into DMC_FREQ by the IRQ handler' without knowing why.",
       "not_established": "What most of the 21 commands do beyond the field they write - the names in tools/tgl/sound.py are read off the handler's stores, not confirmed by listening. The meaning of an envelope terminator's low bits (a loop point is the obvious guess). Which song id is which piece of music. The five song-table entries that are code rather than data ($993E twice, $9ADF, $9932, $9939) are identified as code but not read. And the period table's base is $9840 while its first valid entry is at $985A, so what occupies the 26 entries below it is unexplained."
+    },
+    "password": {
+      "summary": "Bank 3 runs the password screen - the savestate's mapper latch reads $83, confirming it. The entry field is 32 characters at $0411-$0430 and a character is stored as its GRID INDEX, not ASCII: $88F2 does LDX $17 / LDA $16 / STA $0411,X, and the grid is A-Z then 0-9 read left to right and top to bottom, so A is 0, T is 19, '0' is 26 and '9' is 35. The on-screen grid in the savestate's nametable confirms that layout row by row: A B C D E F G H I J / K L M N O P Q R S T / U V W X Y Z 0 1 2 3 / 4 5 6 7 / 8 9 FR BA END.",
+      "decode": "$8516. (1) A seed comes out of the LAST TWO characters: ($0430 << 2) | ($042F >> 4), plus $1D, kept in $19. (2) $85BB takes four characters at a time, masks each with AND #$3F - six bits, exactly enough for the 36-character set - and shifts them together into three bytes. (3) Each output byte is XORed with the seed and the seed is decremented, so every byte uses a different key; index $17 is exempt, via CPX #$17 / BEQ at $854B, and WHY is not established. (4) Eight groups give 24 bytes at $011E-$0135 - which is the PPU write queue's staging area, borrowed while the password screen is up.",
+      "checksum": "$859B adds $011E-$0133 and $0135 and compares the total with $0134. A mismatch takes $8578, SEC / RTS, and the password is rejected. A match copies the buffer to $0438 and returns carry clear. There is also a short-circuit: $8552 counts how many decoded bytes already differ from $0439,X into $18, and if none do, $8576 returns carry clear without recopying.",
+      "tgl_back_door": "$857A runs BEFORE the checksum and compares the first three characters against the three bytes at bank 3 $8513, which are $13 $06 $0B = grid indices 19, 6, 11 = T, G, L. $8589 then requires every character from index 3 to $1F to be zero. On a match $8592 sets $2F = 0 and $30 = 2 and returns carry clear, SKIPPING THE CHECKSUM ENTIRELY. $30 is the game-mode byte. Bank 0 $8BA3 holds a screen script reading 'PASSWORD TGL', immediately after one reading 'PRODUCED BY / IREM / CORPORATION' - so the back door leads to a developer screen rather than to an in-game state a normal password could express.",
+      "a_consequence": "A blank and the letter A are the same byte. A's grid index is 0, and the savestate shows an untouched entry field is all $00. So 'TGL' followed by any number of A's is the same 32 bytes as 'TGL' followed by blanks, and the check at $8589 cannot tell them apart. Stated because the code says so; it was not tried on hardware.",
+      "not_established": "What $30 = 2 makes the game actually do. The meaning of the 24 decoded bytes - which are area, weapons, chips. Why byte index $17 is exempt from the XOR. And whether a real in-game password round-trips: tools/password.py --selftest only shows its own encoder and decoder agree with each other, which is self-consistency and not hardware."
     }
   },
   "coverage": {
-    "documented_bytes": 77104,
+    "documented_bytes": 77157,
     "total_bytes": 131088,
-    "percent": 58.8185,
-    "region_count": 516
+    "percent": 58.8589,
+    "region_count": 519
   },
   "regions": [
     {
@@ -991,6 +999,38 @@
       "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 2 items over 2 row breaks, 23 bytes, ending at $8A0F on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. **Nothing in the ROM names this address as an operand.** It is reached through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at $891F-$892F, which is the idiom playbook section 5 warns about: a search for the address would report the block unreferenced. It was found by walking traced code and tracking immediates. The printable bytes read as: \"MISSIONCOMPLETE.\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one.",
       "source": "30-text.json",
       "end": 2592,
+      "segment": "prg",
+      "prg_bank": 0,
+      "fields": []
+    },
+    {
+      "id": "bank0.text_8B80",
+      "offset": 2960,
+      "size": 35,
+      "kind": "text",
+      "name": "Credits screen script",
+      "confidence": "confirmed",
+      "cpu_addr": 35712,
+      "sha1": "8814172d475652687ea591aad61a2eca47c12fe9",
+      "description": "A screen script in the format already established at bank 0 $8495 - [col][count][chars], $FF ends a row, $FE ends the script. It parses cleanly end to end as col 2 'PRODUCED BY', row, col 3 'IREM', row, col 5 'CORPORATION', with $FE at $8BA2 and the next script starting at $8BA3. That it parses at all is a free confirmation of the screen-script format on a block that was not used to derive it.",
+      "source": "55-password.json",
+      "end": 2995,
+      "segment": "prg",
+      "prg_bank": 0,
+      "fields": []
+    },
+    {
+      "id": "bank0.text_8BA3",
+      "offset": 2995,
+      "size": 15,
+      "kind": "text",
+      "name": "\"PASSWORD TGL\" screen script",
+      "confidence": "confirmed",
+      "cpu_addr": 35747,
+      "sha1": "031ac3f873a220578693203a6b35a0675dad4b20",
+      "description": "Fifteen bytes: col 2, count 12, 'PASSWORD TGL', then $FE. THIS IS THE BACK DOOR'S OWN SCREEN. The password routine in bank 3 has a special case for the three characters T, G and L (see bank3.data_8513), and this is the text that names it, sitting immediately after the IREM credits script. WHAT THE SCREEN DOES is not established - only that the ROM contains a script that says this.",
+      "source": "55-password.json",
+      "end": 3010,
       "segment": "prg",
       "prg_bank": 0,
       "fields": []
@@ -4115,6 +4155,22 @@
       "description": "A run of 38 bytes the code trace reached by following control flow, in bank 3 at $844D-$8472. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 50307,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.data_8513",
+      "offset": 50467,
+      "size": 3,
+      "kind": "data",
+      "name": "The TGL password constant",
+      "confidence": "confirmed",
+      "cpu_addr": 34067,
+      "sha1": "c5e17ba80acb421ce55723d94536f3d4aff2959b",
+      "description": "Three bytes, $13 $06 $0B. Those are grid indices, not ASCII: the password entry grid is A-Z then 0-9 read left to right and top to bottom, $88F2 stores a character as its grid index with LDA $16 / STA $0411,X, so A is 0 - and 19, 6, 11 is T, G, L. The on-screen grid in a password-screen savestate confirms the layout row by row. READ BY $857C: LDA $8513,Y / CMP $0411,Y for Y = 0,1,2, after which $8589 requires every character from index 3 to $1F to be zero. On a match $8592 sets $2F = 0 and $30 = 2 and returns with carry clear, SKIPPING THE CHECKSUM at $859B entirely. $30 is the game-mode byte. Bounded by its reader's operand and by the code either side: $8512 is an RTS and $8516 is a traced instruction start, so these three bytes are exactly the gap between. A CONSEQUENCE OF THE ENCODING, stated because the code says so and not because it was tried: a blank and the letter A are both the byte 0 - the savestate shows an untouched field is all $00 - so 'TGL' followed by any number of A's is the same 32 bytes as 'TGL' followed by blanks, and this check cannot tell them apart.",
+      "source": "55-password.json",
+      "end": 50470,
       "segment": "prg",
       "prg_bank": 3,
       "fields": []
@@ -8709,11 +8765,19 @@
     },
     {
       "offset": 2592,
-      "size": 1900,
-      "end": 4492,
+      "size": 368,
+      "end": 2960,
       "segment": "prg",
       "prg_bank": 0,
       "cpu_addr": 35344
+    },
+    {
+      "offset": 3010,
+      "size": 1482,
+      "end": 4492,
+      "segment": "prg",
+      "prg_bank": 0,
+      "cpu_addr": 35762
     },
     {
       "offset": 5641,
@@ -9133,8 +9197,8 @@
     },
     {
       "offset": 50307,
-      "size": 163,
-      "end": 50470,
+      "size": 160,
+      "end": 50467,
       "segment": "prg",
       "prg_bank": 3,
       "cpu_addr": 33907

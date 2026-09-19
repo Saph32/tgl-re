@@ -38,6 +38,7 @@ python tools/decompress-gfx.py               # the tile blocks, decoded
 python tools/decompress-gfx.py --verify STATE.fcs   # against a savestate's live CHR
 python tools/parse-sound.py --dump           # every song, track by track
 python tools/parse-sound.py --song 7         # one song, decoded event by event
+python tools/password.py TGL                 # the password system, and its back door
 ```
 
 `tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
@@ -153,6 +154,15 @@ that the format is right rather than merely plausible.
 **There is no sampled audio.** The DMC is set up once, pointed at a 17-byte "sample" whose
 bytes are all zero. It is a timer: the IRQ it raises polls sprite 0 and re-tunes its own
 rate to land a mid-frame raster split.
+
+**There is a back door in the password screen.** A password is 32 characters, each stored
+as its position in the on-screen A-Z-0-9 grid; four characters carry three bytes, every byte
+is XORed with a running key seeded from the last two characters, and a checksum decides
+whether the game accepts it. Before any of that runs, bank 3 compares the first three
+characters against three bytes in the ROM — `13 06 0B`, which in grid positions is **T, G,
+L** — and if the rest of the field is empty it skips the checksum entirely and sets the
+game-mode byte to 2. Elsewhere in the ROM sits a screen that reads "PASSWORD TGL", directly
+after the one that reads "PRODUCED BY IREM CORPORATION". `tools/password.py` decodes.
 
 The game's on-screen text is decoded — 32 strings in six banks, plain ASCII, listed at
 `docs/text.html` with the PPU address each one is written to. None of it is a block of text
