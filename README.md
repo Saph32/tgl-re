@@ -34,6 +34,8 @@ python tools/gen-code-regions.py         # regenerate the traced code regions
 python tools/reassemble.py               # rebuild the ROM from the map; write disasm/
 python tools/trace-code.py --inline      # calls with inline argument data
 python tools/savestate.py STATE.fcs --font   # check the font against a savestate
+python tools/decompress-gfx.py               # the tile blocks, decoded
+python tools/decompress-gfx.py --verify STATE.fcs   # against a savestate's live CHR
 ```
 
 `tools/trace-code.py --assumptions` prints what the trace's coverage figure depends on,
@@ -48,9 +50,9 @@ at `$8000-$BFFF` and wires the last one, bank 7, permanently at `$C000-$FFFF`. S
 - **An address in `$8000-$BFFF` does not identify a byte.** It exists in seven banks at
   once. Every tool here carries the bank alongside the address, and `whereis.py --bytes` is
   what settles the bank when an outside report gives you only an address.
-- **There is no tile data in this file.** iNES byte 5 is zero, so the board carries CHR
-  RAM and every tile the PPU draws was uploaded from PRG by code. Finding those uploaders
-  is the whole graphics problem, and none has been found yet.
+- **There is no tile data in this file, as stored.** iNES byte 5 is zero, so the board
+  carries CHR RAM and every tile the PPU draws was uploaded from PRG by code. The tile
+  codec is decoded (see below); the code that runs it has still not been found.
 - **Bank switching is bus-conflict-free.** The eight values `$80`-`$87` sit at
   `$FFF2-$FFF9` and the switch routines read a byte from that table and write it straight
   back to the address it came from, so the value written and the value the ROM drives are
@@ -115,8 +117,24 @@ nothing about where it did not go.** Bank 4 is at 20 bytes of 16,384.
 The font is decoded and confirmed against hardware: 45 glyphs, 1bpp at seven bytes each,
 expanded into tiles by bank 2 `$806C`. Rebuilding the 41 glyphs the ROM's own record table
 uploads and diffing them against the live CHR RAM of an FCEUX savestate gives 41 of 41
-exact. `docs/graphics.html` draws them. The bulk tile data is still not found and looks
-compressed.
+exact. `docs/graphics.html` draws them.
+
+**The tile codec is decoded too.** A block is `[escape][unknown]` followed by a stream that
+toggles between two modes: literal bytes, and run sections of `[value][count]` pairs. The
+escape is the toggle, and two escape bytes in a row — an empty section — end the block. The
+compressor picks a byte that does not occur in the block's own literal data, so the escape
+differs per block. 101 blocks in banks 1, 2 and 3 turn 36,961 ROM bytes into 2,485 tiles.
+
+Three things check it, and they are independent. Each block's decoded length ends *exactly*
+on the next pointer in its bank's table, for 100 of the 101 blocks — the terminator rule was
+worked out on four of them and then predicted the rest. Brute-forcing all 256 possible
+escape values against that test leaves exactly one survivor for 14 of bank 1's blocks, and
+it is the block's own first byte every time. And decoding these blocks out of the ROM
+reproduces **398 of the 512 tiles** of an in-game savestate's live CHR RAM, byte for byte.
+
+What that leaves: the *title screen* is only 18 of 512 tiles explained, so bank 0 holds a
+tileset whose pointer table has not been found; the second header byte is not understood;
+and the decompressor itself is still missing.
 
 The game's on-screen text is decoded — 32 strings in six banks, plain ASCII, listed at
 `docs/text.html` with the PPU address each one is written to. None of it is a block of text

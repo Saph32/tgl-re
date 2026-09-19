@@ -652,20 +652,128 @@ def _glyphs(data: bytes, per_row: int = 15) -> str:
     return "".join(out)
 
 
+def _tiles_svg(tiles: bytes, per_row: int = 16, limit: int = 128) -> str:
+    """Render 2bpp NES tiles. Colour 0 is left transparent so the page theme shows through."""
+    n = min(len(tiles) // 16, limit)
+    if not n:
+        return ""
+    rows = (n + per_row - 1) // per_row
+    w, h = per_row * 9 - 1, rows * 9 - 1
+    shades = {1: 0.34, 2: 0.67, 3: 1.0}
+    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" style="max-width:600px;'
+           'image-rendering:pixelated" xmlns="http://www.w3.org/2000/svg">']
+    for i in range(n):
+        ox, oy = (i % per_row) * 9, (i // per_row) * 9
+        lo = tiles[16 * i:16 * i + 8]
+        hi = tiles[16 * i + 8:16 * i + 16]
+        for y in range(8):
+            # Coalesce horizontal runs of one colour into a single rect. A rect per pixel
+            # makes this page several megabytes; a rect per run makes it a few hundred KB.
+            x = 0
+            while x < 8:
+                v = ((lo[y] >> (7 - x)) & 1) | (((hi[y] >> (7 - x)) & 1) << 1)
+                run = 1
+                while x + run < 8 and (((lo[y] >> (7 - x - run)) & 1)
+                                       | (((hi[y] >> (7 - x - run)) & 1) << 1)) == v:
+                    run += 1
+                if v:
+                    out.append(f'<rect x="{ox + x}" y="{oy + y}" width="{run}" height="1" '
+                               f'fill="currentColor" opacity="{shades[v]}"/>')
+                x += run
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _graphics_page(rm) -> str:
-    fonts = [r for r in rm.regions if r["kind"] == "graphics"]
+    from . import gfx
+
     p = ["<h1>Graphics</h1>",
          '<p class="sub">This cartridge has CHR RAM, so not one byte of the file is a tile as '
          "stored. Everything the PPU draws was written there by code, and finding the writers "
          "is the whole problem.</p>"]
-    p.append('<div class="note"><strong>The PPU write surface is closed and it is one queue.</strong> '
-             "31 <code>STA $2007</code> sites and 18 <code>STA $2006</code> sites in the whole "
-             "file, all in bank 7, all traced &mdash; and a byte scan of the entire ROM finds "
-             "exactly the same ones. An entry is <code>[count][ppu_hi][ppu_lo][data]</code>, and "
-             "the count byte's top two bits pick the type: under <code>$80</code> a run with "
-             "increment 1, <code>$80-$BF</code> the same with increment 32, <code>$C0+</code> an "
-             "attribute read-modify-write.</div>")
-    for r in fonts:
+    p.append('<div class="note"><strong>The PPU write surface is closed and it is one '
+             "queue.</strong> 31 <code>STA $2007</code> sites and 18 <code>STA $2006</code> "
+             "sites in the whole file, all in bank 7, all traced &mdash; and a byte scan of the "
+             "entire ROM finds exactly the same ones. An entry is "
+             "<code>[count][ppu_hi][ppu_lo][data]</code>, and the count byte's top two bits pick "
+             "the type: under <code>$80</code> a run with increment 1, <code>$80-$BF</code> the "
+             "same with increment 32, <code>$C0+</code> an attribute read-modify-write.</div>")
+
+    p.append("<h2>The tile codec</h2>")
+    p.append('<div class="note"><strong>A block is a stream that toggles between two modes, and '
+             "the toggle is a byte the block chooses for itself.</strong> A block begins "
+             "<code>[escape][unknown]</code>. Decoding starts in <em>literal</em> mode, where "
+             "every byte that is not the escape is one output byte. The escape switches into a "
+             "<em>run</em> section, which is a sequence of <code>[value][count]</code> pairs; the "
+             "escape switches back. <strong>Two escape bytes in a row &mdash; an empty section, "
+             "in either mode &mdash; end the block.</strong> The compressor picks a byte that "
+             "does not occur in the block's literal data, which is why the escape differs per "
+             "block and why values like <code>$A4</code> and <code>$FD</code> turn up alongside "
+             "<code>$01</code>. The second header byte is always greater than the escape and is "
+             "<em>not</em> understood; nothing in the decode uses it.</div>")
+    p.append('<div class="note"><strong>Worked example</strong> &mdash; bank 1 '
+             "<code>$B76D</code>, inside the block at <code>$B664</code> whose escape is "
+             "<code>$0A</code>:<pre><code>0A  FF 04  1F 01  00 03  0A\n"
+             " |   \\___/  \\___/  \\___/   |\n"
+             " |   FF x4  1F x1  00 x3   back to literal mode\n"
+             " into run mode</code></pre>Eight source bytes become the eight output bytes "
+             "<code>FF FF FF FF 1F 00 00 00</code>.</div>")
+
+    by_id = {r["id"]: r for r in rm.regions}
+    counts = {}
+    for bank in sorted(gfx.TABLES):
+        bl = gfx.blocks(rm.prg_bank(bank), bank)
+        counts[bank] = (len(bl), sum(b["size"] for b in bl),
+                        sum(len(b["tiles"]) for b in bl))
+    ti = sum(v[1] for v in counts.values())
+    to = sum(v[2] for v in counts.values())
+    p.append("<table><thead><tr><th>Bank</th><th>Blocks</th><th>ROM bytes</th>"
+             "<th>Tile bytes</th><th>Tiles</th><th>Ratio</th></tr></thead><tbody>")
+    for bank, (n, bi, bo) in counts.items():
+        p.append(f'<tr><td><a href="bank{bank}.html">bank {bank}</a></td><td>{n}</td>'
+                 f"<td>{bi:,}</td><td>{bo:,}</td><td>{bo // 16:,}</td>"
+                 f"<td>{bo / bi:.2f}x</td></tr>")
+    p.append(f"<tr><th>total</th><th>{sum(v[0] for v in counts.values())}</th>"
+             f"<th>{ti:,}</th><th>{to:,}</th><th>{to // 16:,}</th>"
+             f"<th>{to / ti:.2f}x</th></tr></tbody></table>")
+
+    p.append('<div class="note"><strong>Three things check this, and they are '
+             "independent.</strong> <em>The partition:</em> every block's decoded length ends "
+             "exactly on the next pointer in its bank's table &mdash; 21 of 22 in bank 1, 29 of "
+             "29 in bank 2, 50 of 50 in bank 3. The terminator rule was worked out on four "
+             "blocks and then predicted the other ninety-seven. <em>The escape is forced:</em> "
+             "brute-forcing all 256 possible escape values against that test leaves exactly one "
+             "survivor for 14 of bank 1's blocks, and it is header byte 1 every time. "
+             "<em>Hardware:</em> decoding these blocks out of the ROM reproduces "
+             "<strong>398 of the 512 tiles</strong> of an in-game savestate's live CHR RAM, byte "
+             "for byte, with 16 more blank.</div>")
+
+    for bank in sorted(gfx.TABLES):
+        data = rm.prg_bank(bank)
+        p.append(f'<h3 id="gfx-bank{bank}">Bank {bank} &mdash; {counts[bank][0]} blocks</h3>')
+        for b in gfx.blocks(data, bank):
+            rid = f"bank{bank}.gfx_{b['addr']:04X}"
+            reg = by_id.get(rid)
+            n = len(b["tiles"])
+            conf = reg["confidence"] if reg else "lead"
+            p.append(f'<div class="card" id="{_h(rid)}">')
+            p.append(f'<h4><code>${b["addr"]:04X}</code> &mdash; {n // 16} tiles'
+                     + (f" + {n % 16} B" if n % 16 else "")
+                     + f' <span class="tag" style="background:{KIND_COLOURS["graphics"]}">'
+                     f'graphics</span> <span class="conf {conf}">{conf}</span></h4>')
+            p.append(f'<p class="meta"><code>{_h(rid)}</code> &middot; escape '
+                     f'<code>${b["esc"]:02X}</code> &middot; header byte 2 '
+                     f'<code>${b["hdr2"]:02X}</code> &middot; {b["size"]:,} ROM bytes &rarr; '
+                     f"{n:,} &middot; {n / b['size']:.2f}x &middot; "
+                     + ("named by the table" if b["in_table"] else "chained, not in a table")
+                     + "</p>")
+            p.append(f'<div style="margin:12px 0">{_tiles_svg(b["tiles"], limit=8)}</div>')
+            if reg:
+                p.append(f'<p class="desc">{_h(reg["description"])}</p>')
+            p.append("</div>")
+
+    p.append("<h2>The font</h2>")
+    for r in [x for x in rm.regions if x.get("codec") == "font_1bpp_7byte"]:
         body = rm.rom[r["offset"]:r["end"]]
         p.append(f'<div class="card" id="{_h(r["id"])}">')
         p.append(f'<h3>{_h(r["name"])} '
@@ -676,15 +784,17 @@ def _graphics_page(rm) -> str:
                  f'{r["size"]:,} bytes &middot; codec <code>{_h(r.get("codec", "?"))}</code></p>')
         p.append(f'<div style="margin:16px 0">{_glyphs(bytes(body))}</div>')
         p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
-    p.append('<div class="note warn"><strong>The rest of the tile data has not been found, and '
-             "the entropy says it is compressed.</strong> Diffing the live CHR RAM of a "
-             "title-screen savestate against the ROM shows 13 stretches, 1,046 of 8,192 bytes, "
-             "present verbatim &mdash; and the sources march forward through bank 0 "
-             "<code>$8CDA-$9195</code> and bank 2 <code>$93AE-$950E</code> at a different rate "
-             "from the destinations, which is what a codec's literal runs look like. No "
-             "decompressor has been found: there is not one <code>STA (zp),Y</code> among the "
-             "traced instruction starts, so that whole class of routine is still in the "
-             "untraced part of the ROM.</div>")
+
+    p.append('<div class="note warn"><strong>The title screen is not explained by any of this, '
+             "and bank 0 has no table.</strong> The same hardware check against a "
+             "<em>title-screen</em> savestate reproduces only 18 of 512 tiles. Those tiles live "
+             "in bank 0, which holds tile-shaped data and no pointer table that passes the "
+             "partition test &mdash; scanning every offset in bank 0 produced runaway decodes "
+             "and a few unconfirmable candidates around <code>$8BBB</code>, nothing more. "
+             "<strong>The code that runs the codec has also not been found.</strong> The "
+             "decompressed bytes have to reach the <code>$0100</code> queue, but no reader of "
+             "these pointer tables has turned up in any scan run so far, and an absolute-indexed "
+             "load from the table addresses finds nothing outside bank 4.</div>")
     return "".join(p)
 
 

@@ -41,6 +41,11 @@ wrong finding away.
   against the ROM (`--chr`) and rebuilds the font through the expander's own arithmetic to
   check it against hardware (`--font`). **The savestate is not in this repo** — it is the
   user's file. Point the tool at wherever it lives.
+- `tools/decompress-gfx.py` — decodes the tile blocks and checks them against a
+  savestate's live CHR (`--verify`). `tools/tgl/gfx.py` holds the codec, the pointer tables
+  and, in its header, the three checks behind it. **Read that header before citing any
+  figure from this tool.** `tools/gen-gfx-regions.py` turns the block chain into
+  `annotations/regions/45-gfx-blocks.json`; that file is generated, like `20-traced.json`.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -193,11 +198,37 @@ Do not re-derive these; do check anything that depends on them.
 - **One other confirmed CHR write.** Bank 7 `$E3CC` queues 5 bytes at PPU `$1FF9` — inside
   tile `$FF` of pattern table 1 — from the mask tables at `$E3F9` and `$E401`: a status
   meter redrawing part of a character tile.
-- **The bulk tile data is still not found.** A savestate diff puts 1,046 of the 8,192 live
-  CHR bytes in the ROM verbatim across 13 stretches, whose sources march through bank 0
-  `$8CDA-$9195` and bank 2 `$93AE-$950E` at a different rate from their destinations —
-  codec-shaped literal runs, which is a **lead**. No decompressor found; there is not one
-  `STA (zp),Y` among the traced instruction starts.
+- **The tile codec is FOUND. A block toggles between two modes and picks its own toggle
+  byte.** A block is `[escape][unknown]`, decoding starts in literal mode, the escape
+  switches into a run section of `[value][count]` pairs, the escape switches back, and
+  **two escape bytes in a row — an empty section, in either mode — end the block.** That one
+  rule covers both shapes in the data: `literals ESC ESC` and `ESC pairs… ESC ESC`. The
+  compressor picks a byte absent from the block's literal data, so the escape is per block
+  (`$01` and `$02` are common; `$A4`, `$ED` and `$FD` also occur). Compression is 1.08x —
+  a run packer, not an LZ. 101 blocks in banks 1, 2 and 3: 36,961 ROM bytes → 39,753 bytes
+  = 2,485 tiles. Pointer tables: bank 1 `$8010` (22), bank 2 `$8024` + `$8042` (13 + 21),
+  bank 3 `$8022` + `$8040` (6 + 47); `$FFFF` and `$0000` words separate the groups.
+  - **Three independent checks, and none of them was tuned.** *The partition:* a block's
+    decoded length ends exactly on the next pointer — 21/22 in bank 1, 29/29 in bank 2,
+    50/50 in bank 3. The terminator rule came from four blocks and then predicted the other
+    ninety-seven. *The escape is forced:* brute-forcing all 256 values against that test
+    leaves exactly ONE survivor for 14 of bank 1's blocks, and it is header byte 1 every
+    time. *Hardware:* decoding out of the ROM reproduces **398 of the 512 tiles** of an
+    in-game savestate's live CHR, byte for byte, 16 more being blank.
+  - **The second header byte is NOT understood.** Always greater than the escape, often by
+    one; nothing in the decode uses it.
+  - **CORRECTION to the earlier lead.** This file said 1,046 of 8,192 live CHR bytes were in
+    the ROM verbatim with sources in bank 0 `$8CDA-$9195`. The shape was right and the size
+    was badly wrong: a verbatim byte search can only ever find a block's *literal* sections,
+    never a run section. The bank 0 attribution is also unreliable — `savestate.py --chr`
+    reports the first occurrence of a window anywhere in the file, not the producing block.
+- **Bank 0's tiles are still not found, and neither is the decompressor.** The same hardware
+  check against a *title-screen* savestate reproduces only 18 of 512 tiles, so the title
+  tiles are elsewhere — bank 0 holds tile-shaped data and **no pointer table in it passes the
+  partition test**; a scan of every offset in bank 0 gave runaway decodes and a few
+  unconfirmable candidates around `$8BBB`. The code that runs the codec has not been found
+  either: the output must reach the `$0100` queue, but no reader of these tables has turned
+  up, and an absolute-indexed load from the table addresses finds nothing outside bank 4.
 - **Bank 4 is per-area screen data.** 25 pointers at `$8013`, indexed by the area number in
   `$51` (bounded by `CPY #$15` at `$F2E2`), reached from `$EF9B`. Its entry point returns a
   pointer instead of running code, which is why a control-flow trace found 19 bytes of it.
@@ -252,14 +283,18 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
-   entry count must come from each caller — an index mask, a `CPY` bound — and never from
-   dividing the gap.
-2. **Find what reaches bank 4.** 20 bytes of 16,384, a one-entry `JMP` table, and no far
-   call anywhere in the ROM targets it.
-3. **Find the decompressor**, and get a second savestate from inside a stage. The same diff
-   run against a different tileset shows whether the raw stretches move. `tools/savestate.py`
-   does the diff; the `.fcs` itself is not in the repo.
-4. **Read the ten screen-data command handlers** and parse bank 4's blocks. That is 16 KB
-   of the ROM behind one format.
-5. Start a RAM map. The list above is already too long to keep in prose.
+1. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained, so a whole
+   tileset is unaccounted for and bank 0 is where it is. The partition test is the tool: a
+   real table makes every block's decoded length land on the next pointer. Do not accept a
+   candidate that only produces plausible-looking tiles.
+2. **Find the decompressor.** It has to write into the `$0100` queue, and no scan so far has
+   found a reader of the three pointer tables. Worth trying from the other end: a savestate
+   taken *during* a load would have the block pointer live in zero page.
+3. **Resolve the three inline jump tables** into `dispatch.json` and seed every entry. The
+   entry count must come from each caller — an index mask, a `CPY` bound — never from
+   dividing a gap.
+4. **Read the ten screen-data command handlers** and parse bank 4's blocks. Bank 4 is still
+   0.4% documented, and that is 16 KB behind one format.
+5. Explain the second header byte of a tile block, and the three bank 1 blocks whose output
+   is exactly 3 bytes over a whole number of tiles (`$89E4`, `$9A89`, `$A60C`).
+6. Start a RAM map. The list above is already too long to keep in prose.

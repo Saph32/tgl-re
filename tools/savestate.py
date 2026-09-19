@@ -19,12 +19,19 @@ compares them with the live CHR: 41 of 41 exact. That is the whole of the eviden
 font's codec and for the character encoding, and it is hardware agreeing with the ROM
 rather than this project agreeing with itself.
 
-`--chr` is the part that did NOT settle. It reports the stretches of live CHR that appear
-verbatim in the ROM - 1,046 of 8,192 bytes over 13 stretches on the title screen - and the
-sources march forward through bank 0 and bank 2 at a different rate from the destinations.
-That is what a codec's literal runs look like. It is a LEAD. A second state from inside a
-stage would say whether the raw stretches move, and that is worth more than any further
-static search.
+`--chr` reports the stretches of live CHR that appear verbatim in the ROM. On a title-screen
+state that was 1,046 of 8,192 bytes over 13 stretches, and this file called it a lead: a
+codec's literal runs. **That lead was right, and a second state from inside a stage settled
+it** - the codec is in `tools/tgl/gfx.py` and `tools/decompress-gfx.py` decodes it, which
+is now the tool to reach for. Two corrections to what was written here before:
+
+* The sources reported by `--chr` are **the first occurrence of the window anywhere in the
+  file**, not the block that produced it. The bank 0 attribution in that earlier report
+  cannot be relied on, and this is a property of `rom.find` below, not of the ROM.
+* "A fraction of CHR appears verbatim" understated the case badly. A verbatim byte search
+  cannot see a run section at all, so it can only ever find a block's literal sections.
+  Decoding instead of searching takes the in-game state from 1,046 bytes to 398 of its 512
+  tiles reproduced exactly.
 
 Format note: an FCEUX .fcs is a 16-byte header - "FCSX", the uncompressed size, the emulator
 version, the compressed size - and then zlib. Inside, a section is a 1-byte id and a 4-byte
