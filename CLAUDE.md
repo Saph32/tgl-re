@@ -53,6 +53,9 @@ wrong finding away.
 - `tools/password.py` — decodes a password the way bank 3 does, and explains the TGL back
   door. `--selftest` round-trips its own encoder against its own decoder, which is
   self-consistency and **not** hardware; the header says so.
+- `tools/parse-screen.py` — walks bank 4's per-area screen data into
+  `annotations/regions/60-screen.json`. `--block N` prints one entry block record by
+  record. Generated; do not hand-edit. `tools/tgl/screen.py` holds the format.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -266,11 +269,27 @@ Do not re-derive these; do check anything that depends on them.
   acknowledges with `$4015 = $0F`, polls sprite 0 via `BIT $2002` against the frame counter
   `$2B`, and restarts the timer from `$05`, walking that rate index between `$81` and `$89`
   to converge on the split. That is what `$05` is for.
-- **Bank 4 is per-area screen data.** 25 pointers at `$8013`, indexed by the area number in
-  `$51` (bounded by `CPY #$15` at `$F2E2`), reached from `$EF9B`. Its entry point returns a
-  pointer instead of running code, which is why a control-flow trace found 19 bytes of it.
-  The blocks are a command stream walked through `($BC)` and dispatched by the 10-entry
-  table at `$E6F3` — resolved, bounded by the table ending where handler 0 begins.
+- **Bank 4 is per-area screen data, and it is now 99.6% claimed.** 25 pointers at `$8013`,
+  indexed by the area number in `$51` (bounded by `CPY #$15` at `$F2E2`), reached from
+  `$EF9B`. Its entry point returns a pointer instead of running code, which is why a
+  control-flow trace found 19 bytes of it.
+  - **A record is `[command][operands][next trigger lo][next trigger hi]`**, run by `$E5BD`
+    and dispatched through `$E6F3`. **The trigger is a scroll position** — `$E6CE` compares
+    it against the running counter `$B0`/`$B1` and fires the record only on a match. So a
+    block is an event list keyed to how far the screen has scrolled.
+  - **It is a graph, not a list.** Command 3 jumps unconditionally and command 9 does the
+    same conditionally on `$70`, so a linear read stops at the first command 3 with live
+    bytes ahead. Following the jumps finds **52 block starts** where the table names 25.
+  - **Command 5 takes one operand in area 21 and none elsewhere** — `$E79F` compares `$51`
+    with `#$15` and the miss path does a bare `DEY`. Runtime state deciding a byte count;
+    parseable only because each block's area is known. Command 8 occurs **zero** times.
+  - **Three checks.** The walk meets no byte that is not one of the ten commands. **Triggers
+    never decrease** within a block — 476 transitions across 25 blocks, and one wrong
+    operand length would break it. And the terminator falls out of the data: triggers split
+    into 209 values at or below `$0791` and exactly four above (`$1100`, `$270F`, `$3700`,
+    `$3800`), a gap of 2,415, each sitting where an unguarded walk runs off.
+  - **The pool is a lead.** 7,639 bytes the stream points at rather than reads, with 212
+    pointers in from commands 1, 2, 4, 6 and 7. Extent claimed, contents not.
 - **The password system, and the TGL back door.** Bank 3 runs the password screen (the
   savestate's latch reads `$83`). The field is 32 characters at `$0411-$0430`, each stored
   as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and the grid is A-Z then 0-9,
@@ -349,22 +368,20 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained, so a whole
-   tileset is unaccounted for and bank 0 is where it is. The partition test is the tool: a
-   real table makes every block's decoded length land on the next pointer. Do not accept a
-   candidate that only produces plausible-looking tiles. Bank 0 is now 79% documented, so
-   the search space is much smaller than it was.
-2. **Find the graphics decompressor.** It has to write into the `$0100` queue, and no scan
-   so far has found a reader of the three tile pointer tables. Worth trying from the other
-   end: a savestate taken *during* a load would have the block pointer live in zero page.
-3. **Read the ten screen-data command handlers** and parse bank 4's blocks. Bank 4 is still
-   0.4% documented, and that is 16 KB behind one format — the largest single unknown left.
-4. **Resolve the remaining inline jump tables** (bank 5 `$9F2F`, `$A1C1`) into
-   `dispatch.json`. The entry count must come from each caller, never from dividing a gap.
-5. Identify what each of the 21 sound commands actually does, and which song id is which
-   piece of music. The names in `tools/tgl/sound.py` are read off the handlers' stores.
-6. Explain the second header byte of a tile block, and the three bank 1 blocks whose output
-   is exactly 3 bytes over a whole number of tiles (`$89E4`, `$9A89`, `$A60C`).
-7. Start a RAM map. Page 3 is now almost entirely sound state and should go in first:
-   `$0300-$0307` driver globals, `$0308-$0317` the APU shadow, `$0319+7f+c` the channel
-   fields.
+1. **Bank 6 is the largest unknown left** — 13,328 unclaimed bytes at `$8BEF-$BFFE`, 5.4%
+   documented. Nothing is known about what is in it.
+2. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained. The
+   partition test is the tool: a real table makes every block's decoded length land on the
+   next pointer. Do not accept a candidate that only produces plausible-looking tiles.
+3. **Bound bank 4's referenced pool.** 7,639 bytes with 212 pointers into them, extent
+   claimed and contents not. Command 6's pointers go through `$E82B` and command 4's to
+   `$D92D`; reading either turns the pool into real regions.
+4. **Find the graphics decompressor.** It has to write into the `$0100` queue, and no scan
+   has found a reader of the three tile pointer tables. A savestate taken *during* a load
+   would have the block pointer live in zero page.
+5. **Resolve the remaining inline jump tables** (bank 5 `$9F2F`, `$A1C1`) into
+   `dispatch.json`. Bank 5 is 36% documented with four gaps over 1 KB.
+6. Identify what the 21 sound commands and the 10 screen commands actually do, and which
+   song id is which piece of music. Both name lists are read off the handlers' stores.
+7. Start a RAM map. Page 3 is almost entirely sound state; `$B0-$BD` is the screen-data
+   interpreter's; `$0411-$0430` is the password field.
