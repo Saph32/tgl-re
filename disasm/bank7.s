@@ -3172,7 +3172,7 @@ L7_E3E4:
 ; Meter row masks
         .byte   $EE,$FE,$FF,$FF,$EE
 
-; ---- bank7.code_E406 (code) $E406-$E51B, 278 bytes
+; ---- bank7.code_E406 (code) $E406-$E6F2, 749 bytes
 L7_E406:
         and     #$FF
         beq     L7_E422
@@ -3292,6 +3292,7 @@ L7_E4BE:
         beq     L7_E4BE
         cmp     #$20
         beq     L7_E4EE
+L7_E4CB:
         lda     #$47
         jsr     L7_D852
         ldy     #$1E
@@ -3336,11 +3337,9 @@ L7_E503:
         jsr     L6_8000
         pla
         jsr     L7_D705
-
-; ---- UNCLAIMED (gap) $E51C-$E521, 6 bytes
-        .byte   $68,$85,$30,$4C,$CB,$E4
-
-; ---- bank7.code_E522 (code) $E522-$E6F2, 465 bytes
+        pla
+        sta     $30
+        jmp     L7_E4CB
 L7_E522:
         lda     $A0
         pha

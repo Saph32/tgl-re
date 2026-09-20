@@ -319,6 +319,21 @@ Do not re-derive these; do check anything that depends on them.
     seed exists at all.
   - `docs/password.html` carries the grid, a bit-packing diagram and a decoder transcribed
     into the page, which self-checks against vectors from `tgl/password.py` on load.
+- **Bank 6 is object behaviour, behind a SPLIT dispatch table.** `$8210` reads the object
+  type from `$0500,X`, `$8213` filters type 0, `$8215` masks `AND #$7F` for 128 slots, and
+  `$821E` does `LDA $815D,Y / PHA / LDA $80DE,Y / PHA / RTS` — target minus one.
+  - **Low bytes at `$80DE`, high bytes at `$815D`, 128 each.** Not the interleaved shape
+    every other table here uses, which is why a 16-bit pointer scan read it as nonsense
+    ($9B9A, $9C9C — those were pairs of adjacent *high* bytes).
+  - **The halves overlap by one byte on purpose.** `$80DE + 127 = $815D`, both `low[127]`
+    and `high[0]`; `high[0]` is never read because type 0 is filtered two instructions
+    earlier.
+  - **Checks:** all 120 in-bank targets start on a documented opcode, the seven others
+    point at `$C048` in the fixed bank (legal, not garbage), and seeding all 127 readable
+    entries took bank 6 from **5.4% to 82.5% traced with the illegal-opcode count still
+    zero**.
+  - A byte scan for this idiom across the whole ROM finds **exactly one** site. That closes
+    the class for tables spelled this way and nothing else.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -368,8 +383,10 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Bank 6 is the largest unknown left** — 13,328 unclaimed bytes at `$8BEF-$BFFE`, 5.4%
-   documented. Nothing is known about what is in it.
+1. **Bank 5 is the largest unknown left** — 36% documented, with four gaps over 1 KB
+   (`$B30A` 3,317 B, `$8A6E` 2,977 B, `$AD91` 1,363 B, `$A7A7` 1,282 B). Bank 6 yielded to
+   one dispatch table; bank 5 may too. Its two unresolved inline jump tables (`$9F2F`,
+   `$A1C1`) are the obvious place to start.
 2. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained. The
    partition test is the tool: a real table makes every block's decoded length land on the
    next pointer. Do not accept a candidate that only produces plausible-looking tiles.

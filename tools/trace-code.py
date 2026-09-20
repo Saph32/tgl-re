@@ -472,13 +472,24 @@ class Trace:
             live = tbl.get("bank")
             self.dispatch_tables.append({"bank": live, "addr": addr,
                                          "entries": tbl["entries"], "name": tbl["name"]})
+            # A table is either interleaved - lo, hi, lo, hi - or SPLIT into a run of low
+            # bytes and a separate run of high bytes, which is what bank 6's object
+            # dispatch does. `hi_addr` names the second run when it is split.
+            hi_addr = tbl.get("hi_addr")
+            hi_base = int(hi_addr.lstrip("$"), 16) if hi_addr else None
             for k in range(tbl["entries"]):
-                lo = self.m.byte(live, addr + 2 * k)
-                hi = self.m.byte(live, addr + 2 * k + 1)
+                if hi_base is None:
+                    lo = self.m.byte(live, addr + 2 * k)
+                    hi = self.m.byte(live, addr + 2 * k + 1)
+                else:
+                    lo = self.m.byte(live, addr + k)
+                    hi = self.m.byte(live, hi_base + k)
                 if lo is None or hi is None:
                     continue
-                self.seed(live, ((lo | (hi << 8)) + 1) & 0xFFFF,
-                          f'{tbl["name"]} (${addr:04X}) entry {k}')
+                target = ((lo | (hi << 8)) + 1) & 0xFFFF
+                if tbl.get("skip_first") and k == 0:
+                    continue
+                self.seed(live, target, f'{tbl["name"]} (${addr:04X}) entry {k}')
 
         # The ABI routines and the inline-argument helpers themselves. They are recognised
         # at their call sites by target and stepped over rather than entered, so without
