@@ -40,10 +40,10 @@
       "size": 70,
       "kind": "pointer_table",
       "name": "Structure pointers (35 entries)",
-      "confidence": "lead",
+      "confidence": "confirmed",
       "cpu_addr": 42928,
       "sha1": "7976c4dc26b51cde5f6cc98c5509e0f35b9ae313",
-      "description": "Thirty-five little-endian pointers, read by $A792/$A797 through the offset table above, and overlapped by a second view at $A7CA that $A79C reads with X fixed at $16. Bounded structurally: the lowest target above the table's own start is $A7F6, and a thirty-sixth entry would reach it. 21 distinct targets. WHAT THEY POINT AT is a self-describing record: [length][?][width][height][tiles]. 13 OF THE 21 TARGETS SATISFY length = 4 + width x height exactly - $A7F6 is 5 bytes for 1x1, $A7FB is 16 for 3x4, $A897 is 8 for 2x2 - which is what a metatile or structure definition looks like. THE OTHER EIGHT DO NOT, and they are contiguous ($A8A6 through $A938): records there begin with a length byte of 6 whose payload holds pointers instead of tiles. So the pool is length-prefixed records of more than one kind, and only one kind is read. **THIS IS A LEAD.** Chaining on the length byte alone runs from $A7F6 to $ADC3 but only 5 of the 21 targets land on a record start, so the chain drifts and the pool is NOT partitioned."
+      "description": "Thirty-five little-endian pointers, read by $A792/$A797 through the offset table above, and overlapped by a second view at $A7CA that $A79C reads with X fixed at $16. Bounded structurally: the lowest target above the table's own start is $A7F6, and a thirty-sixth entry would reach it. 21 distinct targets. THEY POINT AT STRUCTURE RECORDS - [next][dest][width][height][tiles] - which bank 5 $8155 blits into the 16 by 12 tile buffer at $0740, chaining through byte 0. 13 of the 21 targets start a chain; 48 links and 801 bytes come out of them, disjoint and colliding with nothing, and they are claimed one region per record by tools/parse-structs.py. CORRECTION to what this region said when it was first written: it said 'the pool is NOT partitioned' on the strength of chaining through byte 0 alone, which drifts. The rule that works is the record's own two size claims agreeing, next == 4 + width * height, and with it the chains stop on their own exactly where the pool ends. STILL NOT ESTABLISHED: the other eight targets, contiguous at $A8A6-$A938, whose first record fails that test. They are selected by table entries the area path never reaches - only offsets $16 and $18 occur there - so whatever reads them has not been found."
     }
   ]
 }

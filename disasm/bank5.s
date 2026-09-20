@@ -2808,83 +2808,262 @@ L5_A792:
         .byte   $A6,$A8,$16,$A9,$FE,$A8,$18,$A9,$0C,$A9,$32,$A9,$26,$A9,$18,$A9
         .byte   $18,$A9,$26,$A9,$38,$A9
 
-; ---- UNCLAIMED (gap) $A7F6-$ACA8, 1203 bytes
-        .byte   $05,$00,$01,$01,$70,$10,$00,$03,$04,$C1,$C1,$CA,$B7,$CB,$C2,$B8
-        .byte   $B9,$C3,$BA,$BB,$C4,$10,$0D,$03,$04,$CC,$C1,$C1,$C9,$CD,$B7,$C8
-        .byte   $B8,$B9,$C5,$BA,$BB,$0A,$A0,$03,$02,$D1,$D2,$C6,$C1,$C1,$D3,$0A
-        .byte   $AD,$03,$02,$C7,$CE,$D1,$D0,$C1,$C1,$28,$02,$0C,$03,$A8,$B7,$A9
-        .byte   $B7,$A9,$B7,$A9,$B7,$A9,$B7,$A9,$AA,$C2,$B8,$B9,$B8,$B9,$B8,$B9
-        .byte   $B8,$B9,$B8,$B9,$C9,$C3,$BA,$BB,$BA,$BB,$BA,$BB,$BA,$BB,$BA,$BB
-        .byte   $C8,$18,$10,$02,$0A,$CF,$AF,$B3,$B0,$C1,$C0,$B3,$B0,$C1,$C0,$B3
-        .byte   $B0,$C1,$C0,$B3,$B0,$C1,$C0,$B1,$B2,$18,$1E,$02,$0A,$BD,$CF,$BE
-        .byte   $B3,$BF,$C1,$B5,$B3,$B6,$C1,$B5,$B3,$B6,$C1,$B5,$B3,$B6,$C1,$B4
-        .byte   $B1,$10,$B2,$0C,$01,$AC,$BC,$AD,$BC,$AD,$BC,$AD,$BC,$AD,$BC,$AD
-        .byte   $AE,$08,$00,$02,$02,$77,$78,$75,$76,$00,$05,$00,$01,$01,$6F,$00
-        .byte   $06,$00,$10,$83,$BE,$A8,$06,$B0,$10,$81,$CE,$A8,$06,$30,$02,$88
-        .byte   $EE,$A8,$06,$3E,$02,$88,$EE,$A8,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7
-        .byte   $A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4
-        .byte   $A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6
-        .byte   $A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7
-        .byte   $A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7,$44,$A9,$48,$A9,$4C,$A9,$55,$A9
-        .byte   $5E,$A9,$69,$A9,$00,$00,$44,$A9,$48,$A9,$4C,$A9,$55,$A9,$5E,$A9
-        .byte   $00,$00,$44,$A9,$70,$A9,$74,$A9,$81,$A9,$8E,$A9,$92,$A9,$00,$00
-        .byte   $99,$A9,$A8,$A9,$B7,$A9,$BC,$A9,$C1,$A9,$00,$00,$99,$A9,$A8,$A9
-        .byte   $00,$00,$99,$A9,$A8,$A9,$D8,$A9,$DD,$A9,$C1,$A9,$00,$00,$44,$88
-        .byte   $05,$0D,$44,$88,$01,$72,$43,$01,$06,$71,$74,$74,$74,$74,$63,$4C
-        .byte   $01,$06,$73,$7B,$7B,$7B,$7B,$64,$94,$08,$01,$62,$7C,$7C,$7C,$7C
-        .byte   $7C,$7C,$62,$54,$02,$02,$A0,$A2,$A1,$A3,$34,$88,$01,$6C,$42,$02
-        .byte   $05,$6F,$68,$6A,$0D,$6A,$0D,$6A,$0D,$6F,$66,$4C,$02,$05,$67,$6F
-        .byte   $0D,$69,$0D,$69,$0D,$69,$65,$6F,$94,$88,$01,$6B,$44,$02,$02,$A0
-        .byte   $A2,$A1,$A3,$15,$06,$02,$F1,$F2,$F2,$F2,$F2,$F3,$FD,$FE,$FE,$FE
-        .byte   $FE,$FF,$47,$02,$06,$82,$83,$84,$85,$86,$86,$87,$87,$82,$83,$84
-        .byte   $85,$45,$02,$86,$CC,$A9,$49,$02,$86,$CC,$A9,$66,$04,$02,$86,$0D
-        .byte   $0D,$86,$87,$0D,$0D,$87,$60,$61,$80,$81,$00,$00,$00,$00,$60,$61
-        .byte   $80,$81,$45,$02,$86,$E2,$A9,$49,$02,$86,$E2,$A9,$82,$83,$84,$85
-        .byte   $00,$00,$00,$00,$82,$83,$84,$85,$10,$00,$03,$04,$F0,$F0,$EF,$F8
-        .byte   $F8,$ED,$F2,$F2,$F3,$F5,$F5,$F6,$10,$0D,$03,$04,$EE,$F0,$F0,$EB
-        .byte   $F8,$F8,$F1,$F2,$F2,$F4,$F5,$F5,$0A,$A0,$03,$02,$F7,$F7,$EA,$F0
-        .byte   $F0,$EF,$0A,$AD,$03,$02,$E8,$F7,$F7,$EE,$F0,$F0,$28,$02,$0C,$03
-        .byte   $F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$00,$F2,$F2,$F2
-        .byte   $F2,$F2,$F2,$F2,$F2,$F2,$F2,$00,$00,$F5,$F5,$F5,$F5,$F5,$F5,$F5
-        .byte   $F5,$F5,$F5,$00,$18,$10,$02,$0A,$F0,$F0,$F0,$EF,$F0,$EF,$F0,$EF
-        .byte   $F0,$EF,$F0,$EF,$F0,$EF,$F0,$EF,$F0,$EF,$F0,$F0,$18,$1E,$02,$0A
-        .byte   $F0,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0
-        .byte   $EE,$F0,$F0,$F0,$10,$B2,$0C,$01,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7
-        .byte   $F7,$F7,$F7,$F7,$05,$00,$01,$01,$4F,$05,$37,$83,$01,$7F,$05,$A7
-        .byte   $83,$01,$87,$12,$45,$07,$02,$4F,$6D,$6C,$4F,$4F,$6C,$4F,$6D,$4F
-        .byte   $89,$89,$6D,$4F,$6C,$28,$64,$09,$04,$7D,$6C,$89,$89,$89,$89,$6D
-        .byte   $4F,$7E,$7D,$4F,$6C,$89,$89,$6D,$6C,$4F,$7E,$4F,$6C,$6D,$6C,$6D
-        .byte   $89,$6C,$6D,$4F,$4F,$4F,$6C,$4F,$4F,$6C,$6D,$4F,$4F,$05,$00,$01
-        .byte   $01,$4F,$00,$10,$00,$03,$04,$C5,$C4,$C1,$C4,$C5,$C3,$C6,$C7,$C9
-        .byte   $C8,$C9,$00,$10,$0D,$03,$04,$C0,$C5,$C4,$C2,$C4,$C5,$C8,$C6,$C7
-        .byte   $00,$C8,$C9,$06,$B0,$02,$01,$C0,$C1,$06,$BE,$02,$01,$C0,$C1,$28
-        .byte   $02,$0C,$03,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C7
-        .byte   $C6,$C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C9,$C8,$C9,$C8,$C9
-        .byte   $C8,$C9,$C8,$C9,$C8,$C9,$C8,$18,$20,$02,$0A,$C5,$C7,$C4,$C1,$C5
-        .byte   $C3,$C4,$C1,$C5,$C3,$C4,$C1,$C5,$C3,$C4,$C1,$C5,$C3,$C4,$C1,$18
-        .byte   $2E,$02,$0A,$C6,$C4,$C0,$C5,$C2,$C4,$C0,$C5,$C2,$C4,$C0,$C5,$C2
-        .byte   $C4,$C0,$C5,$C2,$C4,$C0,$C5,$10,$B2,$0C,$01,$C0,$C1,$C0,$C1,$C0
-        .byte   $C1,$C0,$C1,$C0,$C1,$C0,$C1,$05,$00,$01,$01,$40,$00,$10,$00,$03
-        .byte   $04,$C1,$C1,$C7,$C1,$C7,$CE,$D5,$CE,$CD,$CE,$CD,$00,$10,$0D,$03
-        .byte   $04,$C5,$C1,$C1,$CE,$C5,$C1,$CC,$CE,$D4,$00,$CC,$CE,$0D,$90,$03
-        .byte   $03,$C8,$00,$00,$C1,$C4,$00,$29,$C1,$C4,$0D,$9D,$03,$03,$00,$00
-        .byte   $C9,$00,$C2,$C1,$C2,$C1,$29,$22,$03,$0A,$03,$C2,$D6,$D6,$D6,$D6
-        .byte   $D6,$D6,$D6,$D6,$C4,$C5,$D7,$D7,$D7,$D7,$D7,$D7,$D7,$D7,$C7,$CE
-        .byte   $CE,$CE,$CE,$CE,$CE,$CE,$CE,$CE,$CE,$12,$30,$02,$07,$C3,$C8,$D2
-        .byte   $D3,$D2,$D3,$D2,$D3,$D2,$D3,$C1,$CB,$00,$CD,$12,$3E,$02,$07,$C9
-        .byte   $C3,$D0,$D1,$D0,$D1,$D0,$D1,$D0,$D1,$CA,$C1,$CC,$00,$0E,$B3,$0A
-        .byte   $01,$C2,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$C4,$05,$00,$01,$01,$86
-        .byte   $00,$05,$00,$01,$01,$56,$00,$10,$00,$03,$04,$CC,$CC,$CB,$C8,$C8
-        .byte   $C9,$C0,$C0,$C1,$C1,$C1,$00,$10,$0D,$03,$04,$CA,$CC,$CC,$C7,$C8
-        .byte   $C8,$C1,$C0,$C0,$00,$C1,$C1,$0A,$A0,$03,$02,$C5,$C5,$C6,$CC,$CC
-        .byte   $CB,$0A,$AD,$03,$02,$C4,$C5,$C5,$CA,$CC,$CC,$28,$02,$0C,$03,$CC
-        .byte   $C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$CC,$00,$C0,$C0,$C0,$C0
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$00,$00,$C1,$C1,$C1,$C1,$C1,$C1,$C1,$C1
-        .byte   $C1,$C1,$00,$18,$10,$02,$0A,$CC,$CC,$CC,$CB,$CC,$CB,$CC,$CB,$CC
-        .byte   $CB,$CC,$CB,$CC,$CB,$CC,$CB,$CC,$CB,$CC,$CC,$18,$1E,$02,$0A,$CC
-        .byte   $CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA
-        .byte   $CC,$CC,$CC,$10,$B2,$0C,$01,$CC,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5
-        .byte   $C5,$C5,$CC
+; ---- bank5.struct_A7F6 (level) $A7F6-$A7FA, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$70
+
+; ---- bank5.struct_A7FB (level) $A7FB-$A80A, 16 bytes
+; Structure 3x4 to +$00
+        .byte   $10,$00,$03,$04,$C1,$C1,$CA,$B7,$CB,$C2,$B8,$B9,$C3,$BA,$BB,$C4
+
+; ---- bank5.struct_A80B (level) $A80B-$A81A, 16 bytes
+; Structure 3x4 to +$0D
+        .byte   $10,$0D,$03,$04,$CC,$C1,$C1,$C9,$CD,$B7,$C8,$B8,$B9,$C5,$BA,$BB
+
+; ---- bank5.struct_A81B (level) $A81B-$A824, 10 bytes
+; Structure 3x2 to +$A0
+        .byte   $0A,$A0,$03,$02,$D1,$D2,$C6,$C1,$C1,$D3
+
+; ---- bank5.struct_A825 (level) $A825-$A82E, 10 bytes
+; Structure 3x2 to +$AD
+        .byte   $0A,$AD,$03,$02,$C7,$CE,$D1,$D0,$C1,$C1
+
+; ---- bank5.struct_A82F (level) $A82F-$A856, 40 bytes
+; Structure 12x3 to +$02
+        .byte   $28,$02,$0C,$03,$A8,$B7,$A9,$B7,$A9,$B7,$A9,$B7,$A9,$B7,$A9,$AA
+        .byte   $C2,$B8,$B9,$B8,$B9,$B8,$B9,$B8,$B9,$B8,$B9,$C9,$C3,$BA,$BB,$BA
+        .byte   $BB,$BA,$BB,$BA,$BB,$BA,$BB,$C8
+
+; ---- bank5.struct_A857 (level) $A857-$A86E, 24 bytes
+; Structure 2x10 to +$10
+        .byte   $18,$10,$02,$0A,$CF,$AF,$B3,$B0,$C1,$C0,$B3,$B0,$C1,$C0,$B3,$B0
+        .byte   $C1,$C0,$B3,$B0,$C1,$C0,$B1,$B2
+
+; ---- bank5.struct_A86F (level) $A86F-$A886, 24 bytes
+; Structure 2x10 to +$1E
+        .byte   $18,$1E,$02,$0A,$BD,$CF,$BE,$B3,$BF,$C1,$B5,$B3,$B6,$C1,$B5,$B3
+        .byte   $B6,$C1,$B5,$B3,$B6,$C1,$B4,$B1
+
+; ---- bank5.struct_A887 (level) $A887-$A896, 16 bytes
+; Structure 12x1 to +$B2
+        .byte   $10,$B2,$0C,$01,$AC,$BC,$AD,$BC,$AD,$BC,$AD,$BC,$AD,$BC,$AD,$AE
+
+; ---- bank5.struct_A897 (level) $A897-$A89E, 8 bytes
+; Structure 2x2 to +$00
+        .byte   $08,$00,$02,$02,$77,$78,$75,$76
+
+; ---- UNCLAIMED (gap) $A89F-$A89F, 1 bytes
+        .byte   $00
+
+; ---- bank5.struct_A8A0 (level) $A8A0-$A8A4, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$6F
+
+; ---- UNCLAIMED (gap) $A8A5-$A9ED, 329 bytes
+        .byte   $00,$06,$00,$10,$83,$BE,$A8,$06,$B0,$10,$81,$CE,$A8,$06,$30,$02
+        .byte   $88,$EE,$A8,$06,$3E,$02,$88,$EE,$A8,$A6,$A7,$A6,$A7,$A6,$A7,$A6
+        .byte   $A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A5,$A4,$A5,$A4,$A5,$A4,$A5
+        .byte   $A4,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A7,$A6,$A7,$A6,$A7,$A6,$A7
+        .byte   $A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A4,$A5,$A6,$A7,$A4,$A5,$A6
+        .byte   $A7,$A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7,$44,$A9,$48,$A9,$4C,$A9,$55
+        .byte   $A9,$5E,$A9,$69,$A9,$00,$00,$44,$A9,$48,$A9,$4C,$A9,$55,$A9,$5E
+        .byte   $A9,$00,$00,$44,$A9,$70,$A9,$74,$A9,$81,$A9,$8E,$A9,$92,$A9,$00
+        .byte   $00,$99,$A9,$A8,$A9,$B7,$A9,$BC,$A9,$C1,$A9,$00,$00,$99,$A9,$A8
+        .byte   $A9,$00,$00,$99,$A9,$A8,$A9,$D8,$A9,$DD,$A9,$C1,$A9,$00,$00,$44
+        .byte   $88,$05,$0D,$44,$88,$01,$72,$43,$01,$06,$71,$74,$74,$74,$74,$63
+        .byte   $4C,$01,$06,$73,$7B,$7B,$7B,$7B,$64,$94,$08,$01,$62,$7C,$7C,$7C
+        .byte   $7C,$7C,$7C,$62,$54,$02,$02,$A0,$A2,$A1,$A3,$34,$88,$01,$6C,$42
+        .byte   $02,$05,$6F,$68,$6A,$0D,$6A,$0D,$6A,$0D,$6F,$66,$4C,$02,$05,$67
+        .byte   $6F,$0D,$69,$0D,$69,$0D,$69,$65,$6F,$94,$88,$01,$6B,$44,$02,$02
+        .byte   $A0,$A2,$A1,$A3,$15,$06,$02,$F1,$F2,$F2,$F2,$F2,$F3,$FD,$FE,$FE
+        .byte   $FE,$FE,$FF,$47,$02,$06,$82,$83,$84,$85,$86,$86,$87,$87,$82,$83
+        .byte   $84,$85,$45,$02,$86,$CC,$A9,$49,$02,$86,$CC,$A9,$66,$04,$02,$86
+        .byte   $0D,$0D,$86,$87,$0D,$0D,$87,$60,$61,$80,$81,$00,$00,$00,$00,$60
+        .byte   $61,$80,$81,$45,$02,$86,$E2,$A9,$49,$02,$86,$E2,$A9,$82,$83,$84
+        .byte   $85,$00,$00,$00,$00,$82,$83,$84,$85
+
+; ---- bank5.struct_A9EE (level) $A9EE-$A9FD, 16 bytes
+; Structure 3x4 to +$00
+        .byte   $10,$00,$03,$04,$F0,$F0,$EF,$F8,$F8,$ED,$F2,$F2,$F3,$F5,$F5,$F6
+
+; ---- bank5.struct_A9FE (level) $A9FE-$AA0D, 16 bytes
+; Structure 3x4 to +$0D
+        .byte   $10,$0D,$03,$04,$EE,$F0,$F0,$EB,$F8,$F8,$F1,$F2,$F2,$F4,$F5,$F5
+
+; ---- bank5.struct_AA0E (level) $AA0E-$AA17, 10 bytes
+; Structure 3x2 to +$A0
+        .byte   $0A,$A0,$03,$02,$F7,$F7,$EA,$F0,$F0,$EF
+
+; ---- bank5.struct_AA18 (level) $AA18-$AA21, 10 bytes
+; Structure 3x2 to +$AD
+        .byte   $0A,$AD,$03,$02,$E8,$F7,$F7,$EE,$F0,$F0
+
+; ---- bank5.struct_AA22 (level) $AA22-$AA49, 40 bytes
+; Structure 12x3 to +$02
+        .byte   $28,$02,$0C,$03,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8
+        .byte   $00,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$00,$00,$F5,$F5,$F5
+        .byte   $F5,$F5,$F5,$F5,$F5,$F5,$F5,$00
+
+; ---- bank5.struct_AA4A (level) $AA4A-$AA61, 24 bytes
+; Structure 2x10 to +$10
+        .byte   $18,$10,$02,$0A,$F0,$F0,$F0,$EF,$F0,$EF,$F0,$EF,$F0,$EF,$F0,$EF
+        .byte   $F0,$EF,$F0,$EF,$F0,$EF,$F0,$F0
+
+; ---- bank5.struct_AA62 (level) $AA62-$AA79, 24 bytes
+; Structure 2x10 to +$1E
+        .byte   $18,$1E,$02,$0A,$F0,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0
+        .byte   $EE,$F0,$EE,$F0,$EE,$F0,$F0,$F0
+
+; ---- bank5.struct_AA7A (level) $AA7A-$AA89, 16 bytes
+; Structure 12x1 to +$B2
+        .byte   $10,$B2,$0C,$01,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7
+
+; ---- bank5.struct_AA8A (level) $AA8A-$AA8E, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$4F
+
+; ---- UNCLAIMED (gap) $AA8F-$AAD2, 68 bytes
+        .byte   $05,$37,$83,$01,$7F,$05,$A7,$83,$01,$87,$12,$45,$07,$02,$4F,$6D
+        .byte   $6C,$4F,$4F,$6C,$4F,$6D,$4F,$89,$89,$6D,$4F,$6C,$28,$64,$09,$04
+        .byte   $7D,$6C,$89,$89,$89,$89,$6D,$4F,$7E,$7D,$4F,$6C,$89,$89,$6D,$6C
+        .byte   $4F,$7E,$4F,$6C,$6D,$6C,$6D,$89,$6C,$6D,$4F,$4F,$4F,$6C,$4F,$4F
+        .byte   $6C,$6D,$4F,$4F
+
+; ---- bank5.struct_AAD3 (level) $AAD3-$AAD7, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$4F
+
+; ---- UNCLAIMED (gap) $AAD8-$AAD8, 1 bytes
+        .byte   $00
+
+; ---- bank5.struct_AAD9 (level) $AAD9-$AAE8, 16 bytes
+; Structure 3x4 to +$00
+        .byte   $10,$00,$03,$04,$C5,$C4,$C1,$C4,$C5,$C3,$C6,$C7,$C9,$C8,$C9,$00
+
+; ---- bank5.struct_AAE9 (level) $AAE9-$AAF8, 16 bytes
+; Structure 3x4 to +$0D
+        .byte   $10,$0D,$03,$04,$C0,$C5,$C4,$C2,$C4,$C5,$C8,$C6,$C7,$00,$C8,$C9
+
+; ---- bank5.struct_AAF9 (level) $AAF9-$AAFE, 6 bytes
+; Structure 2x1 to +$B0
+        .byte   $06,$B0,$02,$01,$C0,$C1
+
+; ---- bank5.struct_AAFF (level) $AAFF-$AB04, 6 bytes
+; Structure 2x1 to +$BE
+        .byte   $06,$BE,$02,$01,$C0,$C1
+
+; ---- bank5.struct_AB05 (level) $AB05-$AB2C, 40 bytes
+; Structure 12x3 to +$02
+        .byte   $28,$02,$0C,$03,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4
+        .byte   $C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C9,$C8,$C9,$C8
+        .byte   $C9,$C8,$C9,$C8,$C9,$C8,$C9,$C8
+
+; ---- bank5.struct_AB2D (level) $AB2D-$AB44, 24 bytes
+; Structure 2x10 to +$20
+        .byte   $18,$20,$02,$0A,$C5,$C7,$C4,$C1,$C5,$C3,$C4,$C1,$C5,$C3,$C4,$C1
+        .byte   $C5,$C3,$C4,$C1,$C5,$C3,$C4,$C1
+
+; ---- bank5.struct_AB45 (level) $AB45-$AB5C, 24 bytes
+; Structure 2x10 to +$2E
+        .byte   $18,$2E,$02,$0A,$C6,$C4,$C0,$C5,$C2,$C4,$C0,$C5,$C2,$C4,$C0,$C5
+        .byte   $C2,$C4,$C0,$C5,$C2,$C4,$C0,$C5
+
+; ---- bank5.struct_AB5D (level) $AB5D-$AB6C, 16 bytes
+; Structure 12x1 to +$B2
+        .byte   $10,$B2,$0C,$01,$C0,$C1,$C0,$C1,$C0,$C1,$C0,$C1,$C0,$C1,$C0,$C1
+
+; ---- bank5.struct_AB6D (level) $AB6D-$AB71, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$40
+
+; ---- UNCLAIMED (gap) $AB72-$AB72, 1 bytes
+        .byte   $00
+
+; ---- bank5.struct_AB73 (level) $AB73-$AB82, 16 bytes
+; Structure 3x4 to +$00
+        .byte   $10,$00,$03,$04,$C1,$C1,$C7,$C1,$C7,$CE,$D5,$CE,$CD,$CE,$CD,$00
+
+; ---- bank5.struct_AB83 (level) $AB83-$AB92, 16 bytes
+; Structure 3x4 to +$0D
+        .byte   $10,$0D,$03,$04,$C5,$C1,$C1,$CE,$C5,$C1,$CC,$CE,$D4,$00,$CC,$CE
+
+; ---- bank5.struct_AB93 (level) $AB93-$AB9F, 13 bytes
+; Structure 3x3 to +$90
+        .byte   $0D,$90,$03,$03,$C8,$00,$00,$C1,$C4,$00,$29,$C1,$C4
+
+; ---- bank5.struct_ABA0 (level) $ABA0-$ABAC, 13 bytes
+; Structure 3x3 to +$9D
+        .byte   $0D,$9D,$03,$03,$00,$00,$C9,$00,$C2,$C1,$C2,$C1,$29
+
+; ---- bank5.struct_ABAD (level) $ABAD-$ABCE, 34 bytes
+; Structure 10x3 to +$03
+        .byte   $22,$03,$0A,$03,$C2,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$C4,$C5,$D7
+        .byte   $D7,$D7,$D7,$D7,$D7,$D7,$D7,$C7,$CE,$CE,$CE,$CE,$CE,$CE,$CE,$CE
+        .byte   $CE,$CE
+
+; ---- bank5.struct_ABCF (level) $ABCF-$ABE0, 18 bytes
+; Structure 2x7 to +$30
+        .byte   $12,$30,$02,$07,$C3,$C8,$D2,$D3,$D2,$D3,$D2,$D3,$D2,$D3,$C1,$CB
+        .byte   $00,$CD
+
+; ---- bank5.struct_ABE1 (level) $ABE1-$ABF2, 18 bytes
+; Structure 2x7 to +$3E
+        .byte   $12,$3E,$02,$07,$C9,$C3,$D0,$D1,$D0,$D1,$D0,$D1,$D0,$D1,$CA,$C1
+        .byte   $CC,$00
+
+; ---- bank5.struct_ABF3 (level) $ABF3-$AC00, 14 bytes
+; Structure 10x1 to +$B3
+        .byte   $0E,$B3,$0A,$01,$C2,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$C4
+
+; ---- bank5.struct_AC01 (level) $AC01-$AC05, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$86
+
+; ---- UNCLAIMED (gap) $AC06-$AC06, 1 bytes
+        .byte   $00
+
+; ---- bank5.struct_AC07 (level) $AC07-$AC0B, 5 bytes
+; Structure 1x1 to +$00
+        .byte   $05,$00,$01,$01,$56
+
+; ---- UNCLAIMED (gap) $AC0C-$AC0C, 1 bytes
+        .byte   $00
+
+; ---- bank5.struct_AC0D (level) $AC0D-$AC1C, 16 bytes
+; Structure 3x4 to +$00
+        .byte   $10,$00,$03,$04,$CC,$CC,$CB,$C8,$C8,$C9,$C0,$C0,$C1,$C1,$C1,$00
+
+; ---- bank5.struct_AC1D (level) $AC1D-$AC2C, 16 bytes
+; Structure 3x4 to +$0D
+        .byte   $10,$0D,$03,$04,$CA,$CC,$CC,$C7,$C8,$C8,$C1,$C0,$C0,$00,$C1,$C1
+
+; ---- bank5.struct_AC2D (level) $AC2D-$AC36, 10 bytes
+; Structure 3x2 to +$A0
+        .byte   $0A,$A0,$03,$02,$C5,$C5,$C6,$CC,$CC,$CB
+
+; ---- bank5.struct_AC37 (level) $AC37-$AC40, 10 bytes
+; Structure 3x2 to +$AD
+        .byte   $0A,$AD,$03,$02,$C4,$C5,$C5,$CA,$CC,$CC
+
+; ---- bank5.struct_AC41 (level) $AC41-$AC68, 40 bytes
+; Structure 12x3 to +$02
+        .byte   $28,$02,$0C,$03,$CC,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$CC
+        .byte   $00,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$00,$00,$C1,$C1,$C1
+        .byte   $C1,$C1,$C1,$C1,$C1,$C1,$C1,$00
+
+; ---- bank5.struct_AC69 (level) $AC69-$AC80, 24 bytes
+; Structure 2x10 to +$10
+        .byte   $18,$10,$02,$0A,$CC,$CC,$CC,$CB,$CC,$CB,$CC,$CB,$CC,$CB,$CC,$CB
+        .byte   $CC,$CB,$CC,$CB,$CC,$CB,$CC,$CC
+
+; ---- bank5.struct_AC81 (level) $AC81-$AC98, 24 bytes
+; Structure 2x10 to +$1E
+        .byte   $18,$1E,$02,$0A,$CC,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC
+        .byte   $CA,$CC,$CA,$CC,$CA,$CC,$CC,$CC
+
+; ---- bank5.struct_AC99 (level) $AC99-$ACA8, 16 bytes
+; Structure 12x1 to +$B2
+        .byte   $10,$B2,$0C,$01,$CC,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$CC
 
 ; ---- bank5.code_ACA9 (code) $ACA9-$AD90, 232 bytes
 L5_ACA9:

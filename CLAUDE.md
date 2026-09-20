@@ -348,14 +348,25 @@ Do not re-derive these; do check anything that depends on them.
   - **And then the trace confirmed both independently.** After seeding them, `gen-code-regions`
     leaves gaps of **exactly 18 and 20 bytes** where the tables sit — 9×2 and 10×2 — with
     traced code on both sides and the illegal-opcode count still zero.
-- **Bank 5 has an area-indexed structure pool, and it is a lead.** `$A78E` reads `$A7A7,Y`
-  with Y = `$51` to get a byte *offset*, then `$A792`/`$A797` read a pointer at `$A7B0` +
-  that offset. The pool's records are self-describing — `[length][?][width][height][tiles]`
-  — and **13 of the 21 distinct targets satisfy `length = 4 + width × height` exactly**
-  ($A7F6 is 5 for 1×1, $A7FB is 16 for 3×4). The other eight are contiguous
-  (`$A8A6`-`$A938`) and carry pointers instead of tiles, so the pool holds more than one
-  record kind. Chaining on the length byte alone drifts: only 5 of 21 targets land on a
-  record start, so **the pool is not partitioned** and only the two tables are claimed.
+- **Bank 5's structure records are decoded.** A record is `[next][dest][width][height]
+  [tiles]` and the consumer is bank 5 `$8155`: it blits `width × height` tiles into a
+  **16-wide, 192-byte buffer at `$0740`** (wrapping on `TXA / AND #$0F`, ending on
+  `CPX #$C0`, so 16 × 12), then `$81A4` reads byte 0 as an offset and calls `$8379` when the
+  byte there is non-zero. So byte 0 chains, and **a screen is several structures blitted
+  over each other**.
+  - Reached by `$A78E` reading `$A7A7,Y` with Y = `$51` for a byte *offset*, then
+    `$A792`/`$A797` reading a pointer at `$A7B0` + that offset.
+  - **The terminator is the record's own two size claims agreeing**, `next == 4 + w×h`.
+    That is not a preference: chaining through byte 0 alone walks `$AC0D`'s chain past
+    `$AC99` (12×1, sixteen bytes, ending exactly at `$ACA8`) straight into `$ACA9`, which
+    is *traced code*, and reads it as a 10×101 record. The self-consistency rule stops
+    there by itself.
+  - 13 of the 21 distinct targets start a chain: **48 links, 801 bytes, disjoint, colliding
+    with nothing**. **CORRECTION** to what the previous commit said — it recorded "the pool
+    is not partitioned", which was true only of the byte-0-alone rule.
+  - **Still open:** the other eight targets, contiguous at `$A8A6-$A938`, fail the test.
+    They are selected by table entries the area path never reaches (only offsets `$16` and
+    `$18` occur), so whatever reads them has not been found.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -405,11 +416,10 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Bank 5's structure pool.** 1,282 bytes at `$A7A7` plus the larger gaps at `$B30A`
-   (3,317 B), `$8A6E` (2,977 B) and `$AD91` (1,363 B). The record format is half known —
-   `[length][?][width][height][tiles]` fits 13 of 21 targets — and what breaks it is the
-   contiguous run `$A8A6`-`$A938`, whose records are length 6 and hold pointers. Read the
-   consumer of those and the pool should partition.
+1. **Bank 5's three big gaps remain**: `$B30A` (3,317 B), `$8A6E` (2,977 B), `$AD91`
+   (1,363 B). `$B30A` opens with three-byte records (`30 16 0F / 30 27 06 / 30 21 0F`) and
+   `$03` occurs 502 times in it — worth a look. Also the eight `$A8A6-$A938` targets whose
+   reader has not been found.
 2. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained. The
    partition test is the tool: a real table makes every block's decoded length land on the
    next pointer.
