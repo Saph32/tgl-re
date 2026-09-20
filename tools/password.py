@@ -62,71 +62,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from tgl.model import load
+from tgl.password import (ALPHABET, BUFFER, FIELD, FIELD_LEN,
+                          TGL_CONST, XOR_EXEMPT, decode, encode, to_indices)
 
 ROOT = Path(__file__).resolve().parent.parent
-
-TGL_CONST = 0x8513        # bank 3; the three bytes 13 06 0B
-FIELD = 0x0411            # 32 characters
-FIELD_LEN = 0x20
-BUFFER = 0x011E           # 24 decoded bytes, $011E-$0135
-XOR_EXEMPT = 0x17         # the one index $854D does not XOR
-
-# A-Z then 0-9, which is the on-screen grid read left to right, top to bottom.
-ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-
-def to_indices(text: str) -> list[int]:
-    out = []
-    for c in text.upper():
-        if c in " _":
-            out.append(0)
-            continue
-        if c not in ALPHABET:
-            raise SystemExit(f"{c!r} is not on the password grid ({ALPHABET})")
-        out.append(ALPHABET.index(c))
-    return out + [0] * (FIELD_LEN - len(out))
-
-
-def decode(chars: list[int]) -> tuple[list[int], bool]:
-    """The ROM's own arithmetic. Returns (24 bytes, checksum ok)."""
-    seed = ((chars[0x1F] << 2) | (chars[0x1E] >> 4)) + 0x1D
-    seed &= 0xFF
-    out: list[int] = []
-    for g in range(8):
-        a, b, c, d = (chars[4 * g + i] & 0x3F for i in range(4))
-        # $85CF onward: four six-bit values shifted together into three bytes.
-        bits = (a << 18) | (b << 12) | (c << 6) | d
-        trio = [(bits >> 16) & 0xFF, (bits >> 8) & 0xFF, bits & 0xFF]
-        for k, v in enumerate(trio):
-            idx = 3 * g + k
-            if idx != XOR_EXEMPT:
-                v ^= seed
-                seed = (seed - 1) & 0xFF
-            out.append(v & 0xFF)
-    total = 0
-    for i in range(0x16):                       # $011E-$0133
-        total = (total + out[i]) & 0xFF
-    total = (total + out[0x17]) & 0xFF          # + $0135
-    return out, total == out[0x16]              # == $0134
-
-
-def encode(payload: list[int], seed_chars: tuple[int, int] = (0, 0)) -> str:
-    """The inverse, for --selftest only. The real game chooses the last two characters."""
-    seed = ((seed_chars[1] << 2) | (seed_chars[0] >> 4)) + 0x1D
-    seed &= 0xFF
-    enc = []
-    for idx, v in enumerate(payload):
-        if idx != XOR_EXEMPT:
-            v ^= seed
-            seed = (seed - 1) & 0xFF
-        enc.append(v & 0xFF)
-    chars = []
-    for g in range(8):
-        x, y, z = enc[3 * g:3 * g + 3]
-        bits = (x << 16) | (y << 8) | z
-        chars += [(bits >> 18) & 0x3F, (bits >> 12) & 0x3F,
-                  (bits >> 6) & 0x3F, bits & 0x3F]
-    return "".join(ALPHABET[c] if c < len(ALPHABET) else "?" for c in chars)
 
 
 def main() -> int:
@@ -148,19 +87,23 @@ def main() -> int:
     if args.selftest:
         import random
         random.seed(7)
-        bad = 0
-        for _ in range(500):
-            payload = [random.randrange(256) for _ in range(24)]
-            # make the checksum consistent so the decoder reports ok
-            payload[0x16] = (sum(payload[:0x16]) + payload[0x17]) & 0xFF
-            text = encode(payload)
-            if "?" in text:                    # a six-bit value above 35 has no key
-                continue
-            back, ok = decode(to_indices(text))
-            bad += (back != payload) or not ok
-        print(f"\nround trip over 500 random payloads: {bad} disagreements")
-        print("This is the encoder and decoder here agreeing with each other. It is NOT "
-              "hardware, and it is not a real password from a real save.")
+        bad = tested = 0
+        for _ in range(2000):
+            # Driven from the CHARACTER side, which is always expressible. Driving it from
+            # the payload side tests nothing: six-bit fields run 0-63, the grid has 36
+            # characters, and a random payload almost never encodes. An earlier version of
+            # this check did exactly that and skipped all 500 of its cases while reporting
+            # "0 disagreements" - the number was true and meaningless.
+            text = "".join(random.choice(ALPHABET) for _ in range(FIELD_LEN))
+            chars = to_indices(text)
+            payload, _ = decode(chars)
+            again = encode(payload, (chars[FIELD_LEN - 2], chars[FIELD_LEN - 1]))
+            tested += 1
+            bad += again != text
+        print(f"\nround trip over {tested} random passwords: {bad} disagreements")
+        print("decode then encode returns the original characters. This is the two "
+              "directions here agreeing with each other - self-consistency, NOT hardware, "
+              "and not a password a real save produced.")
         return 0
 
     if not args.password:

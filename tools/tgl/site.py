@@ -337,24 +337,36 @@ def _pages(rm) -> list[tuple[str, str]]:
 # grid and build_site() all read this, because they drifted apart once: sound.html was
 # generated for a whole commit while appearing in neither the nav nor the index, so the
 # only way to reach it was to type the filename.
+# A topic's `select` picks the regions it is about. Most of them are one region kind, but
+# not all: the password system is two text regions in bank 0 and a data region in bank 3,
+# which is a subject rather than a kind, so the selector takes the regions and decides.
 TOPICS = [
-    ("text.html", "Text", "text",
+    ("text.html", "Text",
+     lambda rs: [r for r in rs if r["kind"] == "text"],
      "Three formats that do not share a character map: inline PPU strings, the dialogue "
      "script and the screen scripts."),
-    ("graphics.html", "Graphics", "graphics",
+    ("graphics.html", "Graphics",
+     lambda rs: [r for r in rs if r["kind"] == "graphics"],
      "CHR RAM, so no byte of the file is a tile until code uploads it. The tile codec, "
      "every decoded tile, and the font."),
-    ("sound.html", "Sound", "music",
+    ("sound.html", "Sound",
+     lambda rs: [r for r in rs if r["kind"] == "music"],
      "Seven soft channels competing for four hardware ones, 72 songs, and a DMC channel "
      "that plays nothing at all."),
+    ("password.html", "Password",
+     lambda rs: [r for r in rs if r["id"] in PASSWORD_REGIONS],
+     "32 characters, six bits each, a running XOR key and a checksum \u2014 and a back door "
+     "that skips all of it."),
 ]
+
+PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.text_8B80")
 
 
 def _topic_pages(rm):
     """(filename, nav label, blurb, region count) for each topic page that has regions."""
     out = []
-    for fname, label, kind, blurb in TOPICS:
-        n = sum(1 for r in rm.regions if r["kind"] == kind)
+    for fname, label, select, blurb in TOPICS:
+        n = len(select(rm.regions))
         if n:
             out.append((fname, label, blurb, n))
     return out
@@ -1095,6 +1107,257 @@ def _sound_page(rm) -> str:
     return "".join(p)
 
 
+# The on-screen grid, as the password savestate's nametable shows it: five columns, a gap,
+# five more, and the three controls on the last row. Row and column here are the layout, and
+# the index is what $88F2 stores.
+GRID_ROWS = ("ABCDE FGHIJ", "KLMNO PQRST", "UVWXY Z0123", "  456 789")
+CONTROLS = ("FR", "BA", "END")
+
+
+def _grid_table(alphabet):
+    out = ['<table style="width:auto;text-align:center"><tbody>']
+    i = 0
+    for row in GRID_ROWS:
+        cells = []
+        for c in row:
+            if c == " ":
+                cells.append('<td style="border:none;padding:4px 10px"></td>')
+                continue
+            cells.append(
+                '<td style="border:none;padding:4px 10px">'
+                f'<div style="font-weight:600;font-size:16px">{c}</div>'
+                f'<div style="color:var(--dim);font-size:11px;font-family:ui-monospace,'
+                f'monospace">{alphabet.index(c)}</div></td>')
+            i += 1
+        out.append("<tr>" + "".join(cells) + "</tr>")
+    out.append('<tr><td colspan="11" style="border:none;padding:8px 10px 0;'
+               'color:var(--dim);font-size:12px">'
+               + " &middot; ".join(f"<code>{c}</code>" for c in CONTROLS)
+               + " &mdash; forward, back, end. Not characters.</td></tr>")
+    out.append("</tbody></table>")
+    return "".join(out)
+
+
+def _packing_svg():
+    """Four six-bit characters shifted into three bytes, drawn to scale."""
+    w, bit = 760, 30
+    h = 150
+    cols = ("#4fb0f2", "#ed64a6", "#38c172", "#ecc94b")
+    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" style="max-width:100%;height:auto" '
+           'xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">']
+    ox = 20
+    out.append(f'<text x="0" y="22" font-size="12" fill="currentColor" opacity=".65">'
+               '4 characters, 6 bits each</text>')
+    for k in range(4):
+        x = ox + k * 6 * bit
+        out.append(f'<rect x="{x}" y="32" width="{6 * bit - 4}" height="34" rx="4" '
+                   f'fill="{cols[k]}" opacity="0.8"/>')
+        out.append(f'<text x="{x + 3 * bit - 2}" y="54" font-size="13" text-anchor="middle" '
+                   f'fill="#fff">char {k} &#183; 6 bits</text>')
+    out.append(f'<text x="0" y="98" font-size="12" fill="currentColor" opacity=".65">'
+               '3 bytes, 8 bits each</text>')
+    for k in range(3):
+        x = ox + k * 8 * bit
+        out.append(f'<rect x="{x}" y="108" width="{8 * bit - 4}" height="34" rx="4" '
+                   'fill="none" stroke="currentColor" stroke-opacity=".45"/>')
+        out.append(f'<text x="{x + 4 * bit - 2}" y="130" font-size="13" text-anchor="middle" '
+                   'fill="currentColor">byte ' + str(k) + '</text>')
+    # the boundaries that do not line up are the point of the picture
+    for b in (6, 12, 18):
+        x = ox + b * bit - 2
+        out.append(f'<line x1="{x}" y1="66" x2="{x}" y2="108" stroke="currentColor" '
+                   'stroke-dasharray="3 3" stroke-opacity=".5"/>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _password_page(rm):
+    import random
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import password as pw
+
+    b3 = rm.prg_bank(3)
+    tgl = list(b3[pw.TGL_CONST - 0x8000:pw.TGL_CONST - 0x8000 + 3])
+    word = "".join(pw.ALPHABET[x] for x in tgl)
+
+    p = ["<h1>Password</h1>",
+         '<p class="sub">Thirty-two characters, six bits each, a running XOR key and a '
+         "checksum &mdash; and a back door that skips all of it.</p>"]
+
+    p.append('<div class="note"><strong>A character is stored as its position on the grid, '
+             "not as a letter.</strong> <code>$88F2</code> is <code>LDX $17 / LDA $16 / "
+             "STA $0411,X</code>, and <code>$16</code> holds the cursor's grid index. So "
+             "<strong>A is 0</strong>, T is 19, Z is 25, <code>0</code> is 26 and "
+             "<code>9</code> is 35 &mdash; 36 values, which is why six bits is exactly "
+             "enough. The layout below is read off the nametable of a savestate taken on "
+             "the password screen, row by row.</div>")
+    p.append(_grid_table(pw.ALPHABET))
+
+    p.append('<div class="note warn"><strong>A blank and the letter A are the same '
+             "byte.</strong> A's grid index is 0, and the savestate shows an untouched "
+             "entry field is all <code>$00</code>. Nothing in the field distinguishes "
+             '"not typed" from "typed an A". That matters below. <em>This is what the code '
+             "says; it was not tried on hardware.</em></div>")
+
+    p.append("<h2>How a password decodes</h2>")
+    p.append('<p class="sub">All of this is read off <code>$8516</code> in bank 3, which is '
+             "the bank the password screen runs with live &mdash; the savestate's mapper "
+             "latch reads <code>$83</code>.</p>")
+
+    p.append("<h3>1. The seed comes out of the last two characters</h3>")
+    p.append("<pre><code>seed = ((char[31] &lt;&lt; 2) | (char[30] &gt;&gt; 4)) + $1D"
+             "      ; $8519, kept in $19</code></pre>")
+    p.append('<p class="desc">So the two characters that look like the tail of the password '
+             "are really its key. Change either one and every decoded byte changes.</p>")
+
+    p.append("<h3>2. Four characters become three bytes</h3>")
+    p.append('<p class="desc"><code>$85BB</code> copies four characters to <code>$0403</code>,'
+             " masks each with <code>AND #$3F</code> and shifts them together. Six bits times "
+             "four is twenty-four, which is three bytes exactly &mdash; and the character "
+             "boundaries deliberately do not line up with the byte boundaries:</p>")
+    p.append(_packing_svg())
+
+    p.append("<h3>3. Every byte gets a different key</h3>")
+    p.append("<pre><code>$854D:  EOR $19        ; XOR with the seed\n"
+             "        DEC $19        ; and the seed counts down\n\n"
+             "$854B:  CPX #$17 / BEQ ; ...except byte index $17, which is exempt</code></pre>")
+    p.append('<p class="desc">Eight groups of four characters give <strong>24 bytes</strong> '
+             "at <code>$011E-$0135</code>. That buffer is the PPU write queue's staging "
+             "area, borrowed while the password screen is up. Why index <code>$17</code> "
+             "is exempt is <strong>not established</strong>.</p>")
+
+    p.append("<h3>4. The checksum decides</h3>")
+    p.append("<pre><code>$859B:  sum of $011E..$0133, plus $0135\n"
+             "        CMP $0134\n"
+             "        BNE $8578      ; SEC / RTS  -> rejected\n"
+             "        ...            ; copy to $0438, CLC / RTS -> accepted</code></pre>")
+    p.append('<p class="desc">There is also a short circuit: <code>$8552</code> counts how '
+             "many decoded bytes already differ from <code>$0439,X</code> into "
+             "<code>$18</code>, and if none do, <code>$8576</code> returns carry clear "
+             "without copying anything.</p>")
+
+    p.append("<h2>The back door</h2>")
+    p.append('<div class="note"><strong>Three bytes at bank 3 <code>$8513</code> read '
+             f'<code>{" ".join(f"${x:02X}" for x in tgl)}</code>, which as grid indices is '
+             f'<strong>{word}</strong>.</strong> <code>$857C</code> compares them against '
+             "the first three characters, and <code>$8589</code> then requires every "
+             "character from index 3 to <code>$1F</code> to be zero. On a match "
+             "<code>$8592</code> sets <code>$2F = 0</code> and <code>$30 = 2</code> and "
+             "returns carry clear &mdash; <strong>the checksum at <code>$859B</code> never "
+             "runs</strong>. <code>$30</code> is the game-mode byte.</div>")
+    p.append("<pre><code>$857A:  LDY #$00\n"
+             "$857C:  LDA $8513,Y      ; 13 06 0B\n"
+             "        CMP $0411,Y      ; the entry field\n"
+             "        BNE $859B        ; ...otherwise fall through to the checksum\n"
+             "        INY / CPY #$03 / BNE $857C\n"
+             "$8589:  LDA $0411,Y      ; and everything after must be blank\n"
+             "        BNE $859B\n"
+             "        INY / CPY #$20 / BNE $8589\n"
+             "        STA $2F          ; A is 0 here\n"
+             "        LDA #$02 / STA $30\n"
+             "        CLC / RTS        ; accepted</code></pre>")
+    p.append('<div class="note"><strong>And the ROM names it.</strong> Bank 0 '
+             "<code>$8BA3</code> is a screen script reading "
+             f'<strong>&ldquo;PASSWORD {word}&rdquo;</strong>, sitting immediately after one '
+             "reading &ldquo;PRODUCED BY / IREM / CORPORATION&rdquo;. Both parse cleanly "
+             "under the screen-script format derived elsewhere in this project, on blocks "
+             "that were not used to derive it. <strong>What the mode actually does is not "
+             "established</strong> &mdash; only that the ROM contains a screen that says "
+             "this.</div>")
+    p.append('<div class="note warn">Because a blank and an A are the same byte, '
+             f'<strong>&ldquo;{word}&rdquo; followed by any number of A&rsquo;s is '
+             "byte-identical</strong> to it followed by blanks, and <code>$8589</code> "
+             "cannot tell them apart.</div>")
+
+    # ---------------------------------------------------------------- live decoder
+    # Vectors are generated from random CHARACTERS, never from random payloads: a six-bit
+    # field runs 0-63 and the grid has 36 characters, so most payloads are not typeable and
+    # a payload-driven loop here would never terminate.
+    random.seed(11)
+    vectors = []
+    for _ in range(5):
+        text = "".join(random.choice(pw.ALPHABET) for _ in range(pw.FIELD_LEN))
+        payload, _ = pw.decode(pw.to_indices(text))
+        vectors.append((text, "".join(f"{x:02X}" for x in payload)))
+    import json as _json
+    p.append("<h2>Try it</h2>")
+    p.append('<p class="sub">The same arithmetic, transcribed into the page. Type a '
+             "password and it decodes exactly as bank 3 would &mdash; including the back "
+             "door, which is checked first here just as it is there.</p>")
+    p.append('<div class="card">'
+             '<input id="pw" maxlength="32" placeholder="TGL" '
+             'style="width:100%;font:16px ui-monospace,monospace;padding:10px 12px;'
+             'border:1px solid var(--line);border-radius:8px;background:var(--code);'
+             'color:var(--fg);text-transform:uppercase" />'
+             '<div id="out" style="margin-top:14px"></div>'
+             '<p class="meta" id="selfcheck" style="margin-top:12px"></p></div>')
+    p.append("<script>" + f"""
+const AB={_json.dumps(pw.ALPHABET)}, TGL={_json.dumps(tgl)}, EXEMPT={pw.XOR_EXEMPT};
+const VEC={_json.dumps(vectors)};
+function idx(s){{const o=[];for(const c of s.toUpperCase()){{
+  if(c===" "||c==="_"){{o.push(0);continue;}} const i=AB.indexOf(c); if(i<0) return null; o.push(i);}}
+  while(o.length<32) o.push(0); return o.slice(0,32);}}
+function decode(ch){{
+  let seed=(((ch[31]<<2)|(ch[30]>>4))+0x1D)&0xFF, out=[];
+  for(let g=0;g<8;g++){{
+    const a=ch[4*g]&63,b=ch[4*g+1]&63,c=ch[4*g+2]&63,d=ch[4*g+3]&63;
+    const bits=(a*262144)+(b*4096)+(c*64)+d;
+    const trio=[(bits>>16)&255,(bits>>8)&255,bits&255];
+    for(let k=0;k<3;k++){{let v=trio[k];
+      if(3*g+k!==EXEMPT){{v^=seed; seed=(seed-1)&255;}}
+      out.push(v&255);}}}}
+  let s=0; for(let i=0;i<0x16;i++) s=(s+out[i])&255; s=(s+out[0x17])&255;
+  return [out,s===out[0x16]];}}
+function hex(n){{return n.toString(16).toUpperCase().padStart(2,"0");}}
+const el=document.getElementById("pw"), out=document.getElementById("out");
+function render(){{
+  const t=el.value, ch=idx(t);
+  if(!t){{out.innerHTML='<span class="meta">Nothing entered.</span>';return;}}
+  if(!ch){{out.innerHTML='<span class="meta">Only the 36 characters on the grid.</span>';return;}}
+  if(ch[0]===TGL[0]&&ch[1]===TGL[1]&&ch[2]===TGL[2]&&ch.slice(3).every(x=>x===0)){{
+    out.innerHTML='<strong>The back door.</strong> $857A matches, $8589 finds the rest '+
+      'blank, and $8592 sets $2F = 0 and $30 = 2 and returns carry clear. The checksum '+
+      'never runs.';return;}}
+  const [b,ok]=decode(ch); let h="";
+  for(let r=0;r<24;r+=8) h+="$"+(0x011E+r).toString(16).toUpperCase().padStart(4,"0")+
+    ": "+b.slice(r,r+8).map(hex).join(" ")+"\\n";
+  let s=0; for(let i=0;i<0x16;i++) s=(s+b[i])&255; s=(s+b[0x17])&255;
+  out.innerHTML="<pre><code>"+h+"</code></pre>"+
+    "<p class=\\"meta\\">checksum byte $0134 = $"+hex(b[0x16])+", computed $"+hex(s)+
+    " &rarr; <strong>"+(ok?"accepted (CLC / RTS, copied to $0438)":
+    "rejected ($8578: SEC / RTS)")+"</strong></p>";}}
+el.addEventListener("input",render); render();
+let bad=0; for(const [txt,want] of VEC){{
+  const [b]=decode(idx(txt)); if(b.map(hex).join("")!==want) bad++;}}
+document.getElementById("selfcheck").innerHTML = bad
+  ? "<strong>Self-check FAILED on "+bad+" of "+VEC.length+" vectors.</strong> This page's "+
+    "decoder disagrees with the one in tools/tgl/password.py."
+  : "Self-check: "+VEC.length+" vectors from tools/tgl/password.py decode identically here. "+
+    "That is two transcriptions of the ROM agreeing, not hardware.";
+""" + "</script>")
+
+    p.append("<h2>Regions</h2>")
+    for r in [x for x in rm.regions if x["id"] in PASSWORD_REGIONS]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:'
+                 f'{KIND_COLOURS.get(r["kind"], DEFAULT_COLOUR)}">{_h(r["kind"])}</span> '
+                 f'<span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank '
+                 f'{r["prg_bank"]} ${r["cpu_addr"]:04X}-'
+                 f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+
+    p.append('<div class="note warn"><strong>Not established.</strong> What '
+             "<code>$30 = 2</code> makes the game do. What the 24 decoded bytes mean "
+             "&mdash; which are area, which are weapons, which are chips. Why byte index "
+             "<code>$17</code> is exempt from the XOR. And whether a real in-game password "
+             "round-trips: everything here is the ROM's arithmetic transcribed, checked "
+             "against itself, never against a password a real save produced.</div>")
+    return "".join(p)
+
+
 def build_site(rm, out: Path) -> list[str]:
     written: list[str] = []
 
@@ -1107,6 +1370,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["graphics.html"] = _graphics_page(rm)
     if any(r["kind"] == "music" for r in rm.regions):
         pages["sound.html"] = _sound_page(rm)
+    if any(r["id"] in PASSWORD_REGIONS for r in rm.regions):
+        pages["password.html"] = _password_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
@@ -1128,6 +1393,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Text - {rm.meta["title"]}' if name == "text.html"
                  else f'Graphics - {rm.meta["title"]}' if name == "graphics.html"
                  else f'Sound - {rm.meta["title"]}' if name == "sound.html"
+                 else f'Password - {rm.meta["title"]}' if name == "password.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

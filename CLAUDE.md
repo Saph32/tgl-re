@@ -290,6 +290,16 @@ Do not re-derive these; do check anything that depends on them.
   - **A blank and the letter A are the same byte** — A's grid index is 0 and an untouched
     field is all `$00` in the savestate — so "TGL" plus any number of A's is byte-identical
     to "TGL" plus blanks. Stated from the code; not tried on hardware.
+  - **Not every payload is typeable, and that broke a check.** A six-bit field runs 0-63
+    and the grid has 36 characters, so most 24-byte payloads have no password.
+    `password.py --selftest` originally round-tripped from the *payload* side, skipped all
+    500 cases on its "?" guard, and reported "0 disagreements" — true and meaningless. It
+    now runs from the character side: 2000 random passwords decode and re-encode to
+    themselves. **A lead:** the seed comes from the last two characters, so the encoder gets
+    to choose it, and searching seeds until every field lands under 36 would explain why the
+    seed exists at all.
+  - `docs/password.html` carries the grid, a bit-packing diagram and a decoder transcribed
+    into the page, which self-checks against vectors from `tgl/password.py` on load.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
