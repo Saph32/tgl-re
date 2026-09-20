@@ -270,8 +270,11 @@ Do not re-derive these; do check anything that depends on them.
   `$2B`, and restarts the timer from `$05`, walking that rate index between `$81` and `$89`
   to converge on the split. That is what `$05` is for.
 - **Bank 4 is per-area screen data, and it is now 99.6% claimed.** 25 pointers at `$8013`,
-  indexed by the area number in `$51` (bounded by `CPY #$15` at `$F2E2`), reached from
-  `$EF9B`. Its entry point returns a pointer instead of running code, which is why a
+  indexed by the area number in `$51`, reached from `$EF9B`. **CORRECTION:** this file used
+  to say `$51` is "bounded by `CPY #$15` at `$F2E2`". It is not — that instruction is
+  `CPY #$15 / BNE`, an *equality test for area 21*, the same test bank 4's command 5 handler
+  makes. It bounds nothing. The table's count rests on the structural argument alone: entry
+  2 points at `$8045`, the byte immediately after the table. Its entry point returns a pointer instead of running code, which is why a
   control-flow trace found 19 bytes of it.
   - **A record is `[command][operands][next trigger lo][next trigger hi]`**, run by `$E5BD`
     and dispatched through `$E6F3`. **The trigger is a scroll position** — `$E6CE` compares
@@ -334,6 +337,25 @@ Do not re-derive these; do check anything that depends on them.
     zero**.
   - A byte scan for this idiom across the whole ROM finds **exactly one** site. That closes
     the class for tables spelled this way and nothing else.
+- **Bank 5's two inline jump tables are resolved**, and the way they were bounded is worth
+  copying. Both are `JSR $9F10` with the table inline after it.
+  - **`$A1C4`, 10 entries — the caller says so.** `$A1A2` does `LDA ($E4),Y / AND #$7F /
+    SEC / SBC #$01 / STA $15 / CMP #$0A / BCC`, so the index is 0-9 and can be nothing else.
+  - **`$9F32`, 9 entries — the caller says nothing.** `$51` reaches `$9F10` with no mask and
+    no compare. The count is structural: entry 8 targets `$9F44`, which a tenth entry would
+    reach. That method was *checked* on `$A1C4`, where the structural answer (10) and the
+    code answer (10) agree.
+  - **And then the trace confirmed both independently.** After seeding them, `gen-code-regions`
+    leaves gaps of **exactly 18 and 20 bytes** where the tables sit — 9×2 and 10×2 — with
+    traced code on both sides and the illegal-opcode count still zero.
+- **Bank 5 has an area-indexed structure pool, and it is a lead.** `$A78E` reads `$A7A7,Y`
+  with Y = `$51` to get a byte *offset*, then `$A792`/`$A797` read a pointer at `$A7B0` +
+  that offset. The pool's records are self-describing — `[length][?][width][height][tiles]`
+  — and **13 of the 21 distinct targets satisfy `length = 4 + width × height` exactly**
+  ($A7F6 is 5 for 1×1, $A7FB is 16 for 3×4). The other eight are contiguous
+  (`$A8A6`-`$A938`) and carry pointers instead of tiles, so the pool holds more than one
+  record kind. Chaining on the length byte alone drifts: only 5 of 21 targets land on a
+  record start, so **the pool is not partitioned** and only the two tables are claimed.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -383,22 +405,23 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Bank 5 is the largest unknown left** — 36% documented, with four gaps over 1 KB
-   (`$B30A` 3,317 B, `$8A6E` 2,977 B, `$AD91` 1,363 B, `$A7A7` 1,282 B). Bank 6 yielded to
-   one dispatch table; bank 5 may too. Its two unresolved inline jump tables (`$9F2F`,
-   `$A1C1`) are the obvious place to start.
+1. **Bank 5's structure pool.** 1,282 bytes at `$A7A7` plus the larger gaps at `$B30A`
+   (3,317 B), `$8A6E` (2,977 B) and `$AD91` (1,363 B). The record format is half known —
+   `[length][?][width][height][tiles]` fits 13 of 21 targets — and what breaks it is the
+   contiguous run `$A8A6`-`$A938`, whose records are length 6 and hold pointers. Read the
+   consumer of those and the pool should partition.
 2. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained. The
    partition test is the tool: a real table makes every block's decoded length land on the
-   next pointer. Do not accept a candidate that only produces plausible-looking tiles.
+   next pointer.
 3. **Bound bank 4's referenced pool.** 7,639 bytes with 212 pointers into them, extent
    claimed and contents not. Command 6's pointers go through `$E82B` and command 4's to
-   `$D92D`; reading either turns the pool into real regions.
-4. **Find the graphics decompressor.** It has to write into the `$0100` queue, and no scan
-   has found a reader of the three tile pointer tables. A savestate taken *during* a load
-   would have the block pointer live in zero page.
-5. **Resolve the remaining inline jump tables** (bank 5 `$9F2F`, `$A1C1`) into
-   `dispatch.json`. Bank 5 is 36% documented with four gaps over 1 KB.
+   `$D92D`.
+4. **Find the graphics decompressor.** A savestate taken *during* a load would have the
+   block pointer live in zero page.
+5. **Bank 7 still has 2,676 unclaimed bytes at `$C174`**, right after the entry JMP table —
+   the largest single gap in the fixed bank.
 6. Identify what the 21 sound commands and the 10 screen commands actually do, and which
    song id is which piece of music. Both name lists are read off the handlers' stores.
 7. Start a RAM map. Page 3 is almost entirely sound state; `$B0-$BD` is the screen-data
-   interpreter's; `$0411-$0430` is the password field.
+   interpreter's; `$0411-$0430` is the password field; `$0500,X` is the object type that
+   bank 6 dispatches on.

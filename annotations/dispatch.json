@@ -135,6 +135,22 @@
       "via": "$821E: LDA $815D,Y / PHA / LDA $80DE,Y / PHA / RTS, with Y = object type AND $7F",
       "name": "object behaviour dispatch",
       "description": "Bank 6's object update. $8210 reads the object type from $0500,X, and $8213 BEQs out when it is zero, so type 0 is never dispatched. $8215 masks with AND #$7F, giving 128 slots. The table is SPLIT, not interleaved: low bytes at $80DE and high bytes at $815D, each 128 long, and the address pushed is the target MINUS ONE - $8218 first pushes $8226 as a return address, then the high byte, then the low byte, and RTS jumps. THE TWO HALVES OVERLAP BY ONE BYTE ON PURPOSE: $80DE + 127 is $815D, which is both low[127] and high[0]. high[0] is never read because type 0 is filtered out two instructions earlier, so the overlap costs nothing - and `skip_first` records that entry 0 is not a real target ($50C1, which is RAM). WHAT CHECKS THE COUNT: all 120 in-bank targets start on a documented opcode, and the seven that are not in bank 6 all point at $C048 in the fixed bank, which is a legal cross-bank target rather than garbage. A wrong entry count would put junk addresses at the end of the table and the trace would meet illegal opcodes; it does not."
+    },
+    {
+      "cpu_addr": "$9F32",
+      "bank": 5,
+      "entries": 9,
+      "via": "$9F2F JSR $9F10, the per-bank copy of $D6AE - ASL A / TAY then the inline table",
+      "name": "bank 5 inline jump table A",
+      "description": "Nine entries, each a target minus one, inline after the JSR at $9F2F. The index is A, loaded from $51 two instructions earlier with NO mask and NO compare, so the caller gives no bound at all. THE COUNT IS STRUCTURAL: entry 8 targets $9F44, and the table would reach $9F44 at entry 9, so it cannot be longer without containing its own target. That is the same argument that bounds $E6F3 and the volume-envelope table, and it is CHECKED here against a case where the code also gives an answer - the sibling table at $A1C4 is bounded structurally at 10 and by its caller's CMP #$0A at 10, and the two agree. Entry 9 would be $8821, which is a plausible address rather than obvious garbage, so this bound rests on the structural argument alone. CORRECTION to a claim this project made earlier: $51 was recorded as 'bounded by CPY #$15 at $F2E2'. It is not. That instruction is CPY #$15 / BNE - an equality test for area 21, the same test bank 4's command 5 handler makes - and it bounds nothing."
+    },
+    {
+      "cpu_addr": "$A1C4",
+      "bank": 5,
+      "entries": 10,
+      "via": "$A1C1 JSR $9F10, with A from $15",
+      "name": "bank 5 inline jump table B",
+      "description": "Ten entries, each a target minus one, inline after the JSR at $A1C1. THE COUNT COMES FROM THE CALLER, which is what this project asks for: $A1A2 does LDA ($E4),Y / AND #$7F / SEC / SBC #$01 / STA $15 / CMP #$0A / BCC $A1B7, and the failing side goes to an error path at $A1AA that sets $0787,X and returns through $C048. So the index reaching $9F10 is 0 to 9 and cannot be anything else. The structural bound agrees independently: entry 2 targets $A1D8, which is exactly where the tenth entry ends. Two bounds, arrived at differently, same answer."
     }
   ],
   "unresolved": [
@@ -144,8 +160,8 @@
     "The screen script starting near bank 0 $8600. A script plainly begins there - it is the title screen - but parsing from $8600 with the grammar of the renderer at $8495 runs straight past the $FE at $86E7 and on to $88B6, swallowing the block below it. Either $8600 is not the head or the grammar is incomplete. Nothing is claimed for those 232 bytes.",
     "Seven of the ten pointers built into $16/$17 by traced code go to consumers other than the screen-script renderer - $C04B, $C006, $C07E, $80F5 and $C042 - and none of those formats has been read. The blocks they name are unclaimed.",
     "What bounds the dialogue pointer table at 21 entries in the CODE. The reader at bank 5 $8476 takes its index from $0620,X, an object field, and no CPY or mask on it has been found. The count rests on the table ending exactly where its own first message begins.",
-    "The two other inline jump tables, bank 5 $9F2F and $A1C1, are still unresolved - neither index is statically known and neither table has been bounded.",
-    "What each of the ten screen-data commands does. The dispatch is resolved; the handlers are now traced but not read."
+    "What each of the ten screen-data commands does. The dispatch is resolved; the handlers are now traced but not read.",
+    "Bank 5 inline jump table A at $9F32 is bounded structurally at 9 entries and NOT by its caller - $51 reaches $9F10 with no mask and no compare. If some area number above 8 ever reaches $9F2F, it indexes past the table. Nothing has been read that rules that out."
   ],
   "_ppu_string_comment": "The PPU write queue these two feed: $0100 is the buffer, $21 its fill level, $20 a count of entries, $25 the length of the entry being added, $24 scratch. $D6E0 opens an entry and returns the write position in A; $D6F7 commits it. $D7C3 drains. None of that is claimed as understood beyond what these two routines need.",
   "character_encoding": {

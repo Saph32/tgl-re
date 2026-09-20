@@ -1,0 +1,49 @@
+{
+  "_comment": "Hand-authored. Bank 5: the two inline jump tables, resolved at last, and the area-indexed structure pointer tables. See annotations/dispatch.json for the jump tables' registry entries.",
+  "regions": [
+    {
+      "id": "bank5.tbl_9F32",
+      "offset": 89922,
+      "size": 18,
+      "kind": "pointer_table",
+      "name": "Inline jump table A (9 entries)",
+      "confidence": "confirmed",
+      "cpu_addr": 40754,
+      "sha1": "127db397da72a00419fcfedf042750b7a6c6a98b",
+      "description": "Nine entries, each a handler address minus one, inline after the JSR at $9F2F - the $D6B0 convention, here through this bank's own copy at $9F10. The index is A, loaded from $51 two instructions earlier with NO mask and NO compare, so the caller gives no bound. THREE THINGS AGREE ON NINE. (1) Structural: entry 8 targets $9F44, and a tenth entry would reach $9F44, so the table cannot be longer without containing its own target. (2) The method is checked against a case where the code also answers: the sibling table at $A1C4 is bounded structurally at 10 and by its caller's CMP #$0A at 10, and they agree. (3) THE TRACE: seeding all nine and re-walking leaves this region as an unclaimed gap of exactly 18 bytes - 9 x 2 - with traced code on both sides and zero illegal opcodes. Entry 9 would be $8821, a plausible address rather than obvious garbage, so nothing here rules out a tenth entry that is simply never indexed."
+    },
+    {
+      "id": "bank5.tbl_A1C4",
+      "offset": 90580,
+      "size": 20,
+      "kind": "pointer_table",
+      "name": "Inline jump table B (10 entries)",
+      "confidence": "confirmed",
+      "cpu_addr": 41412,
+      "sha1": "032d778ea9a5c03de4025242ce5fd0db964e057e",
+      "description": "Ten entries, each a handler address minus one, inline after the JSR at $A1C1. THE COUNT COMES FROM THE CALLER, which is what this project prefers: $A1A2 does LDA ($E4),Y / AND #$7F / SEC / SBC #$01 / STA $15 / CMP #$0A / BCC $A1B7, and the failing side takes an error path at $A1AA. So the index is 0 to 9 and can be nothing else. Two independent checks agree: entry 2 targets $A1D8, exactly where a tenth entry ends, and after seeding all ten the trace leaves this region as an unclaimed gap of exactly 20 bytes."
+    },
+    {
+      "id": "bank5.tbl_A7A7",
+      "offset": 92087,
+      "size": 9,
+      "kind": "data",
+      "name": "Area to structure-set offset",
+      "confidence": "confirmed",
+      "cpu_addr": 42919,
+      "sha1": "e0f19936fe3dba6f0775e2fd293ee5b209ad31eb",
+      "description": "Nine bytes, values $16 and $18, read by $A78E as LDA $A7A7,Y with Y = $51, the area number. The value is used directly as a byte offset into the pointer table at $A7B0 ($A791 does TAY, then $A792 reads $A7B0,Y and $A7B1,Y), so it selects a pointer, not an index. Bounded structurally: $A7A7 + 9 is $A7B0, where the pointer table begins. NOT ESTABLISHED, and it matters: the game has more than nine areas, and nothing found so far stops $51 exceeding 8 on this path, which would read into the pointer table as if it were an offset. Only offsets $16 and $18 occur, and both select the same pointer, $AA8A."
+    },
+    {
+      "id": "bank5.tbl_A7B0",
+      "offset": 92096,
+      "size": 70,
+      "kind": "pointer_table",
+      "name": "Structure pointers (35 entries)",
+      "confidence": "lead",
+      "cpu_addr": 42928,
+      "sha1": "7976c4dc26b51cde5f6cc98c5509e0f35b9ae313",
+      "description": "Thirty-five little-endian pointers, read by $A792/$A797 through the offset table above, and overlapped by a second view at $A7CA that $A79C reads with X fixed at $16. Bounded structurally: the lowest target above the table's own start is $A7F6, and a thirty-sixth entry would reach it. 21 distinct targets. WHAT THEY POINT AT is a self-describing record: [length][?][width][height][tiles]. 13 OF THE 21 TARGETS SATISFY length = 4 + width x height exactly - $A7F6 is 5 bytes for 1x1, $A7FB is 16 for 3x4, $A897 is 8 for 2x2 - which is what a metatile or structure definition looks like. THE OTHER EIGHT DO NOT, and they are contiguous ($A8A6 through $A938): records there begin with a length byte of 6 whose payload holds pointers instead of tiles. So the pool is length-prefixed records of more than one kind, and only one kind is read. **THIS IS A LEAD.** Chaining on the length byte alone runs from $A7F6 to $ADC3 but only 5 of the 21 targets land on a record start, so the chain drifts and the pool is NOT partitioned."
+    }
+  ]
+}
