@@ -56,6 +56,11 @@ wrong finding away.
 - `tools/parse-screen.py` — walks bank 4's per-area screen data into
   `annotations/regions/60-screen.json`. `--block N` prints one entry block record by
   record. Generated; do not hand-edit. `tools/tgl/screen.py` holds the format.
+- `tools/parse-metasprites.py` — walks the metasprite table into
+  `annotations/regions/70-metasprites.json`. `--id N` draws one as a grid, `--dump` lists
+  all 140 entries. Generated; `tools/tgl/metasprite.py` holds the format.
+- `tools/parse-structs.py` — walks bank 5's structure records into
+  `annotations/regions/66-structs.json`. Generated.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -367,6 +372,24 @@ Do not re-derive these; do check anything that depends on them.
   - **Still open:** the other eight targets, contiguous at `$A8A6-$A938`, fail the test.
     They are selected by table entries the area path never reaches (only offsets `$16` and
     `$18` occur), so whatever reads them has not been found.
+- **Metasprites: objects are assembled from many sprite tiles, and the table is SPLIT.**
+  Low bytes `$C28D`, high bytes `$C319`, 140 entries, indexed by an object's `$0548,X`.
+  `$CC2F` reads it, `$CC46` draws. **This is the second split table in the ROM** — the first
+  is bank 6's object dispatch — so when a 16-bit pointer scan returns nonsense here, try the
+  split reading before dismissing the bytes.
+  - A record is `[count][offsets lo][offsets hi][tiles…][attributes…]`; bytes 1-2 name a
+    shared table of (x, y) pairs. `$CDD7` emits one hardware sprite per pass into `$0200`.
+  - **Three compressions.** Bit 7 of the count = *draw twice, mirrored* (`$CC4A` flips
+    attribute bit 6), so a symmetric enemy costs half the data. Tile numbers are **relative**
+    — `$CE03` adds the object's base tile in `$87`, and `$FF` skips. The attribute array is
+    **run-length coded**: `$CE23` advances only when bit 3 is clear, which is why **a
+    record's length does not follow from its count** and must be simulated.
+  - **Flipping is positional too**: `$CDFB` negates x and biases by 7, `$CE33` does y with
+    15 — the sprite's own width and height minus one.
+  - **The count is bounded by the data, not the code.** `$CC80` has no limit. Counts run
+    1-25 then jump to 112/116/124, a gap of 87; those four are the only ones whose bytes
+    collide with a claimed region, and one is entry 0, which `BEQ $CC44` proves is never
+    read. **140 entries → 114 real metasprites, 2,102 bytes.**
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and

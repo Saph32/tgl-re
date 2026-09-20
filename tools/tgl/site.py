@@ -738,6 +738,33 @@ def _tiles_svg(tiles: bytes, per_row: int = 32, px: int = 22) -> str:
     return "".join(out)
 
 
+def _metasprite_svg(sp, cell=16):
+    """One metasprite's arrangement: a box per hardware sprite at its real offset."""
+    if not sp:
+        return ""
+    xs = [s[0] for s in sp]
+    ys = [s[1] for s in sp]
+    x0, y0 = min(xs), min(ys)
+    w = (max(xs) + 8 - x0) * cell // 8
+    h = (max(ys) + 8 - y0) * cell // 8
+    out = [f'<svg viewBox="0 0 {w} {h}" width="{min(w * 2, 260)}" '
+           'style="max-width:100%;height:auto;overflow:visible" '
+           'xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">']
+    for x, y, tile, attr in sp:
+        if tile == 0xFF:
+            continue
+        px, py = (x - x0) * cell // 8, (y - y0) * cell // 8
+        flip = attr & 0x40
+        out.append(f'<rect x="{px}" y="{py}" width="{cell}" height="{cell}" rx="2" '
+                   f'fill="currentColor" fill-opacity="{0.20 if flip else 0.10}" '
+                   'stroke="currentColor" stroke-opacity="0.55" stroke-width="0.7"/>')
+        out.append(f'<text x="{px + cell / 2:.0f}" y="{py + cell / 2 + 3:.0f}" '
+                   f'font-size="7" text-anchor="middle" fill="currentColor" '
+                   f'opacity="0.9">{tile:02X}{"&#9666;" if flip else ""}</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _graphics_page(rm) -> str:
     from . import gfx
 
@@ -837,6 +864,76 @@ def _graphics_page(rm) -> str:
                  f'${r["cpu_addr"]:04X}-${r["cpu_addr"] + r["size"] - 1:04X} &middot; '
                  f'{r["size"]:,} bytes &middot; codec <code>{_h(r.get("codec", "?"))}</code></p>')
         p.append(f'<div style="margin:16px 0">{_glyphs(bytes(body))}</div>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+
+    # ------------------------------------------------------------------ metasprites
+    from tgl import metasprite as msp
+    b7 = rm.prg_bank(7)
+    ptrs = msp.pointers(b7)
+    good = [(i, msp.parse(b7, q)) for i, q in enumerate(ptrs)]
+    good = [(i, m) for i, m in good if m]
+    seen, uniq = set(), []
+    for i, m in good:
+        if m["addr"] not in seen:
+            seen.add(m["addr"])
+            uniq.append((i, m))
+    tabs = {m["offsets"] for _, m in uniq if m["pairs"]}
+    mirrored = sum(1 for _, m in uniq if m["mirror"])
+
+    p.append("<h2>Metasprites</h2>")
+    p.append('<p class="sub">A tile is 8 by 8 pixels, so anything bigger than that is '
+             "several hardware sprites placed together. This is the table that says "
+             "which.</p>")
+    p.append('<div class="note"><strong>A split pointer table at <code>$C28D</code> (low) '
+             "and <code>$C319</code> (high), 140 entries, indexed by an object's "
+             "<code>$0548,X</code>.</strong> A record is "
+             "<code>[count][offsets lo][offsets hi][tiles&hellip;][attributes&hellip;]</code>, "
+             "drawn by <code>$CC46</code>. Three things make it compact:"
+             "<ul><li><strong>Bit 7 of the count means draw it twice, mirrored.</strong> "
+             "<code>$CC4A</code> flips bit 6 of the attribute, draws, flips back and draws "
+             f"again &mdash; so a symmetrical enemy costs half the data. {mirrored} records "
+             "use it.</li>"
+             "<li><strong>Tile numbers are relative.</strong> <code>$CE03</code> adds the "
+             "object's own base tile in <code>$87</code>, so one record is a shape that any "
+             "number of objects can wear. <code>$FF</code> skips a sprite.</li>"
+             "<li><strong>The attribute array is run-length coded.</strong> "
+             "<code>$CE23</code> advances it only when bit 3 of the byte is clear, so one "
+             "byte can cover several sprites &mdash; which is why a record's length does "
+             "not follow from its count.</li></ul>"
+             f"The (x, y) offset tables are shared: {len(uniq)} metasprites use only "
+             f"{len(tabs)} of them.</div>")
+    p.append('<div class="note warn"><strong>Nothing in the code bounds the sprite count '
+             "&mdash; the data does.</strong> <code>$CC80</code> is "
+             "<code>JSR $CDD7 / DEC $8F / BNE</code> with no limit. Across the records the "
+             "counts run <strong>1 to 25</strong> and then jump straight to 112, 116 and "
+             "124, a gap of 87. Those four are the only ones whose bytes collide with an "
+             "already-claimed region, and one of them is entry 0, which "
+             "<code>BEQ $CC44</code> proves is never read. So they are not metasprites, and "
+             f"{len(ptrs)} table entries give {len(uniq)} real ones.</div>")
+
+    p.append("<h4>A few of them, drawn at their real offsets</h4>")
+    p.append('<div class="envs" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">')
+    for i, m in sorted(uniq, key=lambda x: -x[1]["count"])[:12]:
+        sp = msp.sprites(m)
+        p.append(f'<figure class="env">{_metasprite_svg(sp)}'
+                 f'<figcaption><strong>{i}</strong> <code>${m["addr"]:04X}</code> &middot; '
+                 f'{m["count"]} sprites{" &middot; mirrored" if m["mirror"] else ""}'
+                 "</figcaption></figure>")
+    p.append("</div>")
+    p.append('<p class="meta">Each box is one hardware sprite; the number is its tile '
+             "offset from the object's base tile, and &#9666; marks one drawn horizontally "
+             "flipped. These are arrangements, not pictures &mdash; the actual tiles depend "
+             "on whatever the object's base tile is at the time.</p>")
+
+    for r in [x for x in rm.regions if x.get("codec") == "metasprite"]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:{KIND_COLOURS["graphics"]}">'
+                 f'graphics</span> <span class="conf {r["confidence"]}">'
+                 f'{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank '
+                 f'{r["prg_bank"]} ${r["cpu_addr"]:04X}-'
+                 f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
         p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
 
     p.append('<div class="note warn"><strong>The title screen is not explained by any of this, '
