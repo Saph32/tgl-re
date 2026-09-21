@@ -925,6 +925,71 @@ def _graphics_page(rm) -> str:
              "flipped. These are arrangements, not pictures &mdash; the actual tiles depend "
              "on whatever the object's base tile is at the time.</p>")
 
+    # ---- which object wears which
+    b6 = rm.prg_bank(6)
+    rows = msp.object_map(b6, b7)
+    valid = {i for i, q in enumerate(ptrs) if msp.parse(b7, q)}
+    reached6 = set()
+    for r in rows:
+        reached6 |= r["ids"]
+        for v in r["tables"].values():
+            reached6 |= set(v)
+    # writers outside bank 6, found by byte scan for STA $0548 preceded by LDA
+    extra = set()
+    rom = rm.rom
+    prgo, bsz = rm.meta["prg_offset"], rm.meta["prg_bank_size"]
+    for i in range(len(rom) - 2):
+        if rom[i] in (0x9D, 0x99, 0x8D) and rom[i + 1] == 0x48 and rom[i + 2] == 0x05:
+            bk = (i - prgo) // bsz
+            if bk == 6:
+                continue
+            if rom[i - 2] == 0xA9:
+                extra.add(rom[i - 1])
+            elif rom[i - 3] in (0xB9, 0xBD):
+                tab = rom[i - 2] | (rom[i - 1] << 8)
+                d = rm.prg_bank(bk)
+                o = tab - (0xC000 if bk == 7 else 0x8000)
+                n = 0
+                while 0 <= o + n < len(d) and d[o + n] in valid and n < 32:
+                    n += 1
+                extra |= set(d[o:o + n])
+    allr = (reached6 | extra) & valid
+    hit = sum(1 for r in rows if r["ids"] or r["tables"])
+
+    p.append("<h2>Which object wears which</h2>")
+    p.append('<div class="note"><strong>An object&rsquo;s metasprite is whatever its '
+             "behaviour handler puts in <code>$0548,X</code>.</strong> Bank 6 dispatches on "
+             "the object type, so walking each of the 127 handlers and collecting its "
+             f"stores gives the map. <strong>{hit} of 127 types</strong> resolve to at "
+             "least one metasprite. Most do it through an <em>animation table</em> &mdash; "
+             "<code>LDA table,Y / STA $0548,X</code> &mdash; so a type owns a cycle of "
+             "shapes rather than one.</div>")
+    p.append('<div class="note warn"><strong>Two limits worth stating.</strong> An '
+             "animation table is bounded only by the first byte that is not a valid "
+             "metasprite id, which is <em>weak</em>: valid ids cover most byte values, so a "
+             "long run may have walked past the table&rsquo;s end. And handlers share "
+             "subroutines, so a store reached from several handlers is attributed to all of "
+             "them &mdash; which is right, but it is not evidence that each one uses it."
+             f" Counting bank 6 and the writers in banks 1, 2, 3 and 7 together, "
+             f"<strong>{len(allr)} of {len(valid)}</strong> table entries are reached by "
+             f"some writer and <strong>{len(valid) - len(allr)}</strong> are not.</div>")
+    p.append('<div class="scroll"><table><thead><tr><th>Type</th><th>Handler</th>'
+             "<th>Metasprites</th></tr></thead><tbody>")
+    for r in rows:
+        if not r["ids"] and not r["tables"]:
+            continue
+        cells = []
+        if r["ids"]:
+            cells.append("fixed " + ", ".join(str(i) for i in sorted(r["ids"])))
+        for a, v in sorted(r["tables"].items()):
+            cells.append(f'anim <code>${a:04X}</code> '
+                         + ("&rarr; " + " ".join(str(x) for x in v) if v
+                            else "<em>(empty &mdash; first byte is not an id)</em>"))
+        p.append(f'<tr><td><code>${r["type"]:02X}</code></td>'
+                 f'<td><code>${r["handler"]:04X}</code></td>'
+                 f'<td>{" &middot; ".join(cells)}</td></tr>')
+    p.append("</tbody></table></div>")
+
     for r in [x for x in rm.regions if x.get("codec") == "metasprite"]:
         p.append(f'<div class="card" id="{_h(r["id"])}">')
         p.append(f'<h3>{_h(r["name"])} '

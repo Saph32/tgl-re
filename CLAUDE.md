@@ -389,7 +389,22 @@ Do not re-derive these; do check anything that depends on them.
   - **The count is bounded by the data, not the code.** `$CC80` has no limit. Counts run
     1-25 then jump to 112/116/124, a gap of 87; those four are the only ones whose bytes
     collide with a claimed region, and one is entry 0, which `BEQ $CC44` proves is never
-    read. **140 entries → 114 real metasprites, 2,102 bytes.**
+    read.
+  - **141 entries, not 140 — CORRECTION.** The halves overlap by one byte: `$C28D + 140` is
+    `$C319`, both `low[140]` and `high[0]`, and `high[0]` is never read. **That is the same
+    trick bank 6 uses**, written up two entries above, and still missed here first time.
+    Id 140 is a real eight-sprite record at `$CBDC`; id 141 gives an offset table in RAM.
+    **141 entries → 115 distinct records, 2,114 bytes.**
+  - **Which object wears which:** an object's id comes from its handler's `STA $0548,X`, and
+    bank 6 dispatches on type, so walking the 127 handlers gives the map — **103 of 127
+    resolve**. Most go through an *animation table* (`LDA table,Y`), so a type owns a cycle:
+    type `$01` is 37, 38, 40, 38, 37, 37, 37, 23. With the 21 writers in banks 1, 2, 3 and 7
+    added, **84 of 132 valid entries are reached**, 34 distinct records by nothing.
+    `parse-metasprites.py --objects` prints it.
+  - **Two limits on that map.** An animation table is bounded only by the first byte that is
+    not a valid id — **weak**, because valid ids cover most byte values. And handlers share
+    subroutines, so a store reached from several is attributed to all of them: correct as
+    reachability, not evidence that each type uses it.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and

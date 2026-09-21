@@ -13,13 +13,14 @@ The format and what bounds it are in `tools/tgl/metasprite.py`.
 What this checks
 ----------------
 1. **Records and offset tables collide with nothing already claimed.** That is the test
-   that caught the four table entries which are not metasprites at all - their absurd
-   sprite counts (112, 116, 124) run their offset tables straight through traced code.
-2. **The count separates cleanly.** Real records use 1 to 25 sprites; the four bad ones use
-   112 or more, a gap of 87 with nothing in between.
-3. Records and offset tables are allowed to SHARE bytes and do - 118 metasprites use 57
-   offset tables - so regions are emitted per contiguous run of covered bytes rather than
-   per record, the same way the screen-data streams are.
+   that caught the table entries which are not metasprites at all - their absurd sprite
+   counts (112, 116, 124) run their offset tables straight through traced code.
+2. **The count separates cleanly.** Real records use 1 to 25 sprites; the bad ones use 112
+   or more, a gap of 87 with nothing in between.
+3. Records and offset tables are allowed to SHARE bytes and do - far fewer offset tables
+   than metasprites - so regions are emitted per contiguous run of covered bytes rather
+   than per record, the same way the screen-data streams are. No counts are typed in this
+   docstring; run the tool for them.
 """
 
 from __future__ import annotations
@@ -45,6 +46,8 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--dump", action="store_true")
     ap.add_argument("--id", type=int)
+    ap.add_argument("--objects", action="store_true",
+                    help="which object type wears which metasprite")
     args = ap.parse_args()
 
     rm = load(ROOT, exclude={OUT.name})
@@ -85,6 +88,34 @@ def main() -> int:
                     else "  .. "
             print(f"   {yy:+4d}" + row)
         print("   ('<' marks a sprite drawn horizontally flipped)")
+        return 0
+
+    if args.objects:
+        b6 = rm.prg_bank(BANK6 := 6)
+        rows = ms.object_map(b6, b7)
+        valid = {i for i, q in enumerate(ptrs) if ms.parse(b7, q)}
+        reached = set()
+        for r in rows:
+            reached |= r["ids"]
+            for v in r["tables"].values():
+                reached |= set(v)
+        hit = sum(1 for r in rows if r["ids"] or r["tables"])
+        for r in rows:
+            if not r["ids"] and not r["tables"]:
+                continue
+            line = f"  type ${r['type']:02X}  handler ${r['handler']:04X}  "
+            if r["ids"]:
+                line += "ids " + ",".join(str(i) for i in sorted(r["ids"]))
+            for a, v in sorted(r["tables"].items()):
+                line += f"  anim ${a:04X}[" + ",".join(str(x) for x in v) + "]"
+            print(line)
+        print(f"\n{hit} of {len(rows)} object types resolve to a metasprite")
+        print(f"{len(reached & valid)} of {len(valid)} valid table entries are reached from "
+              "bank 6 alone; writers in banks 1, 2, 3 and 7 reach more - see the Sprites "
+              "section of docs/graphics.html for the combined figure")
+        print("An id set from a frame table is bounded ONLY by the first byte that is not a "
+              "valid id, which is weak: valid ids cover most byte values, so a long run may "
+              "have walked past the table's end.")
         return 0
 
     cov = set()

@@ -290,8 +290,8 @@ L7_C171:
         .fill   21,$C9
         .byte   $CA,$CA,$CA,$CA,$CA,$CA,$CA,$CA,$CB,$CB,$CB,$CB,$CB,$CB
 
-; ---- bank7.sprite_C3A6 (graphics) $C3A6-$CBDB, 2102 bytes
-; Metasprites: 114 records, 53 offset tables
+; ---- bank7.sprite_C3A6 (graphics) $C3A6-$CBE7, 2114 bytes
+; Metasprites: 115 records, 53 offset tables
         .byte   $E8,$F0,$F0,$F0,$F8,$F0,$00,$F0,$08,$F0,$10,$F0,$E8,$00,$F0,$00
         .byte   $F8,$00,$00,$00,$08,$00,$10,$00,$E8,$10,$F0,$10,$F8,$10,$00,$10
         .byte   $08,$10,$10,$10,$F0,$F0,$F8,$F0,$00,$F0,$08,$F0,$F0,$00,$F8,$00
@@ -423,10 +423,8 @@ L7_C171:
         .byte   $40,$00,$00,$40,$40,$F0,$E8,$F8,$E8,$00,$E8,$08,$E8,$E8,$F8,$F0
         .byte   $F8,$F8,$F8,$00,$F8,$E8,$08,$F0,$08,$F8,$08,$0B,$AB,$CB,$2C,$2E
         .byte   $30,$32,$34,$36,$38,$3A,$3C,$3E,$40,$08,$08,$CA,$C3,$00,$04,$06
-        .byte   $FF,$02,$FF,$FF,$FF,$08
-
-; ---- UNCLAIMED (gap) $CBDC-$CBE7, 12 bytes
-        .byte   $08,$CA,$C3,$00,$02,$04,$06,$08,$0A,$0C,$0E,$08
+        .byte   $FF,$02,$FF,$FF,$FF,$08,$08,$CA,$C3,$00,$02,$04,$06,$08,$0A,$0C
+        .byte   $0E,$08
 
 ; ---- bank7.code_CBE8 (code) $CBE8-$CF2A, 835 bytes
 L7_CBE8:

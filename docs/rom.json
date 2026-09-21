@@ -146,12 +146,20 @@
       "the_table_is_split": "Low bytes at $80DE, high bytes at $815D, 128 entries each - not the interleaved lo/hi/lo/hi shape every other table in this ROM uses, which is why a scan for 16-bit pointer runs read it as nonsense values like $9B9A and $9C9C. Those were pairs of adjacent HIGH bytes. THE TWO HALVES OVERLAP BY ONE BYTE ON PURPOSE: $80DE + 127 is $815D, so that byte is both low[127] and high[0], and high[0] is never read because type 0 is filtered two instructions earlier. A one-byte saving, and it is the reason the table's extent looks wrong until you notice the filter.",
       "what_checks_it": "All 120 in-bank targets start on a documented opcode. The seven that are not in bank 6 all point at $C048 in the fixed bank, which is a legal cross-bank target rather than garbage, and the one remaining is entry 0 ($50C1, RAM), which is never dispatched. Then the trace itself: seeding all 127 readable entries added 12,478 bytes of bank 6 and the illegal-opcode count stayed at ZERO. A wrong entry count would have put junk addresses at the end of the table and the walk would have met illegal opcodes immediately.",
       "scan_for_others": "A byte scan of the whole ROM for this idiom - LDA abs,Y / PHA / LDA abs,Y / PHA / RTS, and the X-indexed form - finds exactly ONE site, this one. That closes the class for tables spelled this way and for nothing else: a split table read with the two loads in the other order, or with an instruction between them, would not match."
+    },
+    "metasprites": {
+      "summary": "Yes - objects are assembled from several hardware sprites by a table in bank 7. A SPLIT pointer table, low bytes at $C28D and high bytes at $C319, 140 entries, indexed by an object's $0548,X. $CC2F reads it and $CC46 draws through it. This is the second split table in the ROM after bank 6's object dispatch, and like that one a scan for 16-bit pointer runs reads it as nonsense.",
+      "record": "[count][offsets lo][offsets hi][tiles...][attributes...]. Bytes 1-2 point at a separate table of (x, y) offset pairs, two bytes per sprite. $CDD7 emits one hardware sprite per pass into the OAM staging page at $0200: tile to $0201,X, attribute merged with the object's own by AND #$E3 / EOR to $0202,X, x offset added to $85 into $0203,X, y offset added to $84 into $0200,X.",
+      "three_compressions": "(1) BIT 7 OF THE COUNT MEANS DRAW IT TWICE, MIRRORED - $CC4A flips bit 6 of the attribute, draws, flips back and draws again, so a symmetrical enemy costs half the data. 5 of the 114 records use it. (2) TILE NUMBERS ARE RELATIVE - $CE03 adds the object's base tile from $87, so one record is a shape any number of objects can wear, and $FF skips a sprite. (3) THE ATTRIBUTE ARRAY IS RUN-LENGTH CODED - $CE23 advances it only when bit 3 of the byte is clear, so one byte can cover several sprites. That last one is why a record's length does not follow from its count, and it has to be simulated to find where a record ends. Offset tables are shared too: 114 metasprites use 53 of them.",
+      "flipping_is_positional": "Under a horizontal flip $CDFB negates the x offset and biases it by 7, and $CE33 does the same to y with 15. Flipping a metasprite has to flip each tile's POSITION as well as the tile, and the biases are the sprite's width and height minus one.",
+      "what_bounds_the_count": "Nothing in the code: $CC80 is JSR $CDD7 / DEC $8F / BNE with no limit. THE DATA BOUNDS IT. Across the 118 distinct records the counts run 1 to 25 and then jump straight to 112, 116 and 124 - a gap of 87 with nothing in between. The four records with those counts are the only ones whose bytes collide with an already-claimed region (their offset tables run through traced code), and one of them is entry 0, which BEQ $CC44 proves is never read. So 140 table entries give 114 real metasprites, and 2,102 bytes of bank 7's largest gap are now claimed.",
+      "not_established": "Which metasprite belongs to which enemy; what the object's base tile in $87 is set from; and the eight table entries other than entry 0 that do not point at a metasprite - they may be unused slots or a second format."
     }
   },
   "coverage": {
-    "documented_bytes": 109668,
+    "documented_bytes": 109680,
     "total_bytes": 131088,
-    "percent": 83.6598,
+    "percent": 83.669,
     "region_count": 700
   },
   "regions": [
@@ -10034,16 +10042,16 @@
     {
       "id": "bank7.sprite_C3A6",
       "offset": 115638,
-      "size": 2102,
+      "size": 2114,
       "kind": "graphics",
-      "name": "Metasprites: 114 records, 53 offset tables",
+      "name": "Metasprites: 115 records, 53 offset tables",
       "confidence": "confirmed",
       "cpu_addr": 50086,
-      "sha1": "c8cda3a3fa36fb4fed76ff93ba473776b0c42585",
+      "sha1": "ae02a461472293d4b4f707b368d2327f3f06045e",
       "codec": "metasprite",
-      "description": "$C3A6-$CBDB. 114 metasprite records and 53 (x, y) offset tables, interleaved. A record is [count][offsets lo][offsets hi][tiles][attributes], named by the split pointer table at $C28D (low) and $C319 (high) and drawn by $CC46. Bit 7 of the count means draw the whole thing twice with bit 6 of the attribute flipped - a free mirror image. Tile numbers are RELATIVE, added to the object's own base tile at $87, and $FF skips a sprite. The attribute array is run-length coded: $CE23 advances it only when bit 3 of the byte is clear, which is why a record's length does not follow from its count. Offset tables are shared - 118 metasprites use 57 of them - so records and tables interleave and this region is a contiguous run of covered bytes rather than one record. Generated by tools/parse-metasprites.py; the format is in tools/tgl/metasprite.py.",
+      "description": "$C3A6-$CBE7. 115 metasprite records and 53 (x, y) offset tables, interleaved. A record is [count][offsets lo][offsets hi][tiles][attributes], named by the split pointer table at $C28D (low) and $C319 (high) and drawn by $CC46. Bit 7 of the count means draw the whole thing twice with bit 6 of the attribute flipped - a free mirror image. Tile numbers are RELATIVE, added to the object's own base tile at $87, and $FF skips a sprite. The attribute array is run-length coded: $CE23 advances it only when bit 3 of the byte is clear, which is why a record's length does not follow from its count. Offset tables are shared - 118 metasprites use 57 of them - so records and tables interleave and this region is a contiguous run of covered bytes rather than one record. Generated by tools/parse-metasprites.py; the format is in tools/tgl/metasprite.py.",
       "source": "70-metasprites.json",
-      "end": 117740,
+      "end": 117752,
       "segment": "prg",
       "prg_bank": 7,
       "fields": []
@@ -12945,14 +12953,6 @@
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 49524
-    },
-    {
-      "offset": 117740,
-      "size": 12,
-      "end": 117752,
-      "segment": "prg",
-      "prg_bank": 7,
-      "cpu_addr": 52188
     },
     {
       "offset": 118587,
