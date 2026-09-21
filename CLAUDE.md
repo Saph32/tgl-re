@@ -426,6 +426,24 @@ Do not re-derive these; do check anything that depends on them.
   - **The extent lands on a record boundary:** every byte is a legal NES colour for exactly
     111 bytes — 37 × 3 with nothing over — and the next byte is `$93`. `docs/graphics.html`
     draws them all.
+- **Bank 5 `$8A6E-$960E` is a variable-length record stream, and finding it needed a
+  different search.** No traced code references it and **no pointer table anywhere in the
+  ROM points into it** — a scan for runs of four or more consecutive in-range 16-bit values
+  returned 34 runs, every one a false positive inside an unrelated table. What found it was
+  scanning for code that **builds the address as immediates**: `$808F` does
+  `LDA #$6E / STA $16 / LDA #$8A / STA $17` and calls `$80F5`; `$882D` builds the same
+  address into `$1A`/`$1B`. **Add that to the toolkit — a pointer that is never stored in a
+  table is invisible to every table scan.**
+  - **A record is `(first byte AND $0F) + 1` bytes.** `$8103` is
+    `LDA ($16),Y / AND #$0F / SEC / ADC $16` — the `SEC` is the plus one.
+  - `$80F5` is a **seek**: `$15` counts columns to `CMP #$18` then rolls into a row counter
+    `$14`, so the stream is **24 records per row**, and it stops when (`$14`,`$15`) reaches
+    the (`$18`,`$19`) the caller wants.
+  - **The extent is proved by where it lands:** 807 records from `$8A6E` end *exactly* on
+    `$960F`, the first byte of the dialogue pointer table. A wrong length rule would
+    overshoot or stop short somewhere in 2,977 bytes.
+  - **Not established:** what a record means. The length is the low nibble, so the high
+    nibble is a type or value that nothing here reads. 807 is not a multiple of 24.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -475,19 +493,16 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Bank 5 `$8A6E`, 2,977 bytes with ZERO references from traced code.** The largest gap
-   left and nothing points into it. Either its reader is untraced, or it is reached through
-   a pointer this project has not followed.
-2. **Bank 5 `$B379`'s six block pointers** — the table is bounded (it ends where its first
-   target begins) but no reader has been found, and its targets look like 2×2 tile groups
-   with a palette index: four bytes then `$03`, repeating. Reading one would open
-   `$B393-$BFFE`, about 3,100 bytes.
+1. **Read the high nibble of a bank 5 map record.** The stream at `$8A6E` is bounded and
+   walked; only the low nibble (the length) is understood. `$882D` sets up a second walk of
+   the same data with different parameters — reading that would say what a record is.
+2. **Bank 5 `$B379`'s six block pointers.** Bounded (the table ends where its first target
+   begins) but no reader found; targets look like 2×2 tile groups with a palette index —
+   four bytes then `$03`, repeating. Would open `$B393-$BFFE`, about 3,100 bytes.
 3. **Bank 0 `$8BB2`, 1,482 bytes**, read by a single `LDA $8BB2,Y` at `$8959`.
-4. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained.
-5. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent claimed and
-   contents not. Command 6's pointers go through `$E82B`, command 4's to `$D92D`.
-6. **Find the graphics decompressor.** A savestate taken *during* a load would have the
-   block pointer live in zero page.
+4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`. None read.
+5. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained.
+6. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent only.
 7. Start a RAM map. Page 3 is sound state; `$B0-$BD` the screen-data interpreter;
-   `$0180-$0183` the palette staging area; `$0200` OAM; `$0500,X` object type;
-   `$0548,X` metasprite id.
+   `$0180-$0183` palette staging; `$0200` OAM; `$0500,X` object type; `$0548,X` metasprite
+   id; `$14`/`$15` the map walker's row and column.

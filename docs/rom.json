@@ -157,13 +157,22 @@
       "entry_count_correction": "CORRECTION: this was first recorded as 140 entries. It is 141. The halves OVERLAP BY ONE BYTE - $C28D + 140 is $C319, which is both low[140] and high[0] - and high[0] is never read because id 0 is filtered by BEQ $CC44 two instructions before the lookup. That is the same trick bank 6's object dispatch uses at $80DE/$815D, and it was missed here the first time even after being written up there. Id 140 resolves to $CBDC, a real eight-sprite metasprite; id 141 gives $E8C4 with an offset table in RAM, so 141 is the end.",
       "which_object_wears_which": "An object's metasprite is whatever its behaviour handler stores in $0548,X, and bank 6 dispatches on the object type, so walking each of the 127 handlers and collecting its stores gives the map. 103 of 127 types resolve to at least one metasprite. MOST DO IT THROUGH AN ANIMATION TABLE - LDA table,Y / STA $0548,X - so a type owns a cycle of shapes rather than one: type $01's table at $8488 is 37, 38, 40, 38, 37, 37, 37, 23. Counting bank 6 together with the 21 writers in banks 1, 2, 3 and 7, 84 of the 132 valid table entries are reached and 48 are not; 11 of those 48 point at a record some other entry does reach, so 34 distinct records are reached by nothing found so far.",
       "limits_of_the_map": "TWO, and they are why this is a map rather than a proof. (1) An animation table is bounded only by the first byte that is not a valid metasprite id, which is weak: valid ids cover most byte values, so a long run may have walked past the table's end - $9915 reads as 23 entries and probably is not. (2) Handlers share subroutines, so a store reached from several handlers is attributed to all of them. That is correct as reachability and is not evidence that every one of those types uses it. Also not established: what the 34 unreached records are for, and the 24 object types whose handler stores nothing - they may take their id from a caller."
+    },
+    "tables_bounded_by_their_readers": {
+      "the_rule": "When one routine reads two tables with the same index register, THE DISTANCE BETWEEN THEIR BASE ADDRESSES IS THE LENGTH OF THE EARLIER ONE. Bank 7 $CFAB-$CFBD is the clearest case: four LDA abs,Y six bytes apart reading $D02C, $D0AB, $D12A and $D1A9, so the first three are 127 entries each - stated by the code, needing no argument about the bytes at all. tools/find-tables.py applies it and claims 85 tables, 1,596 bytes.",
+      "the_rule_has_a_catch": "'Same routine' is the whole rule, and dropping it makes the answer worthless. Two bases read by unrelated code bound nothing. A first version of the scan took the nearest base anywhere in the bank and 'bounded' bank 5 $B30C at 3,315 bytes, which is simply the rest of the gap. The reads now have to be within 24 bytes of each other in the instruction stream. A second catch: a candidate whose bytes contain another candidate's base is too long and is clipped there - two tables eight bytes apart are parallel fields of an eight-entry record, not a 36-byte table with one inside it.",
+      "what_it_does_not_do": "It claims extents, not meanings. Of the 85, only two have an established meaning (the metasprite pointer halves); the rest say 'this many bytes, read by that instruction' and stop. It also cannot bound the LAST table in a group, because nothing follows it, so those are left unclaimed."
+    },
+    "palettes": {
+      "summary": "Bank 5 $B30A: THIRTY-SEVEN PALETTES OF THREE COLOURS. $B2E4 states the layout rather than leaving it to be inferred - ASL A / ADC $11 / TAX makes X = A * 3, then LDA $B30A,X / $B30B,X / $B30C,X go to $0181,Y / $0182,Y / $0183,Y with Y = the destination index * 3. $0181 is the palette staging area the NMI uploads through $DEF3. Colour 0 is not in the record: it comes from $0180, the shared backdrop, which is why a record is three bytes and not four.",
+      "the_extent_lands_on_a_record_boundary": "Every byte from $B30A is a legal NES colour ($3F or below) for exactly 111 bytes - 37 records of three with NOTHING left over - and the first byte past it is $93. A limit that falls on a record edge by accident is a one-in-three coincidence. The values read as palettes too: $30 $16 $0F is white, red, black. WHICH palette is used where is not established."
     }
   },
   "coverage": {
-    "documented_bytes": 111413,
+    "documented_bytes": 114390,
     "total_bytes": 131088,
-    "percent": 84.991,
-    "region_count": 787
+    "percent": 87.262,
+    "region_count": 788
   },
   "regions": [
     {
@@ -7515,6 +7524,22 @@
       "fields": []
     },
     {
+      "id": "bank5.map_8A6E",
+      "offset": 84606,
+      "size": 2977,
+      "kind": "level",
+      "name": "Record stream: 807 records, 24 per row",
+      "confidence": "confirmed",
+      "cpu_addr": 35438,
+      "sha1": "cae8cecd888157272f0905a4403b576ff356f382",
+      "description": "807 variable-length records, $8A6E-$960E. A RECORD IS (first byte AND $0F) + 1 BYTES LONG, and the reader states it: $8103 does LDA ($16),Y / AND #$0F / SEC / ADC $16 - the SEC making it plus one - and adds the result to the walking pointer. $80F5 is a SEEK: it counts columns in $15 up to CMP #$18 and then rolls into a row counter in $14, so the stream is TWENTY-FOUR RECORDS PER ROW, and it stops when ($14,$15) reaches the ($18,$19) the caller asked for. HOW THE EXTENT IS PROVED: walking from $8A6E with that rule consumes 807 records and lands on $960F EXACTLY - the first byte of the dialogue pointer table, the next claimed region. Nothing was tuned to make that happen; a wrong length rule would almost certainly overshoot or stop short somewhere in 2,977 bytes. HOW IT WAS FOUND, because the usual methods all failed: no traced code references this range, and no pointer table anywhere in the ROM points into it - a scan for runs of four or more consecutive 16-bit values in range returned 34 runs, all false positives in unrelated tables. What found it was scanning for code that BUILDS the address as immediates: bank 5 $808F does LDA #$6E / STA $16 / LDA #$8A / STA $17 and then calls $80F5, and $882D builds the same address into $1A/$1B. NOT ESTABLISHED: what a record means. The length nibble is the low four bits of the first byte, so the high four bits are a type or a value and nothing here reads them. 807 is not a multiple of 24, so the stream is 33 full rows and 15 records over, and whether that tail is a partial row or something else is unknown.",
+      "source": "77-bank5-map.json",
+      "end": 87583,
+      "segment": "prg",
+      "prg_bank": 5,
+      "fields": []
+    },
+    {
       "id": "bank5.msgtable_960F",
       "offset": 87583,
       "size": 42,
@@ -13780,14 +13805,6 @@
       "segment": "prg",
       "prg_bank": 5,
       "cpu_addr": 34788
-    },
-    {
-      "offset": 84606,
-      "size": 2977,
-      "end": 87583,
-      "segment": "prg",
-      "prg_bank": 5,
-      "cpu_addr": 35438
     },
     {
       "offset": 90206,

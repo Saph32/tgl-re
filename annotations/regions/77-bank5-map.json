@@ -1,0 +1,16 @@
+{
+  "_comment": "Hand-authored. The variable-length record stream in bank 5 that $80F5 walks. Verified by walking it: see the description.",
+  "regions": [
+    {
+      "id": "bank5.map_8A6E",
+      "offset": 84606,
+      "size": 2977,
+      "kind": "level",
+      "name": "Record stream: 807 records, 24 per row",
+      "confidence": "confirmed",
+      "cpu_addr": 35438,
+      "sha1": "cae8cecd888157272f0905a4403b576ff356f382",
+      "description": "807 variable-length records, $8A6E-$960E. A RECORD IS (first byte AND $0F) + 1 BYTES LONG, and the reader states it: $8103 does LDA ($16),Y / AND #$0F / SEC / ADC $16 - the SEC making it plus one - and adds the result to the walking pointer. $80F5 is a SEEK: it counts columns in $15 up to CMP #$18 and then rolls into a row counter in $14, so the stream is TWENTY-FOUR RECORDS PER ROW, and it stops when ($14,$15) reaches the ($18,$19) the caller asked for. HOW THE EXTENT IS PROVED: walking from $8A6E with that rule consumes 807 records and lands on $960F EXACTLY - the first byte of the dialogue pointer table, the next claimed region. Nothing was tuned to make that happen; a wrong length rule would almost certainly overshoot or stop short somewhere in 2,977 bytes. HOW IT WAS FOUND, because the usual methods all failed: no traced code references this range, and no pointer table anywhere in the ROM points into it - a scan for runs of four or more consecutive 16-bit values in range returned 34 runs, all false positives in unrelated tables. What found it was scanning for code that BUILDS the address as immediates: bank 5 $808F does LDA #$6E / STA $16 / LDA #$8A / STA $17 and then calls $80F5, and $882D builds the same address into $1A/$1B. NOT ESTABLISHED: what a record means. The length nibble is the low four bits of the first byte, so the high four bits are a type or a value and nothing here reads them. 807 is not a multiple of 24, so the stream is 33 full rows and 15 records over, and whether that tail is a partial row or something else is unknown."
+    }
+  ]
+}
