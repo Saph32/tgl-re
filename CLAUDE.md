@@ -56,6 +56,10 @@ wrong finding away.
 - `tools/parse-screen.py` — walks bank 4's per-area screen data into
   `annotations/regions/60-screen.json`. `--block N` prints one entry block record by
   record. Generated; do not hand-edit. `tools/tgl/screen.py` holds the format.
+- `tools/find-tables.py` — claims byte tables whose extent their own readers fix, into
+  `annotations/regions/75-tables.json`. `--list` shows every candidate. Generated. **Read
+  its header before trusting a number from it** — the rule only holds for reads in the same
+  routine.
 - `tools/parse-metasprites.py` — walks the metasprite table into
   `annotations/regions/70-metasprites.json`. `--id N` draws one as a grid, `--dump` lists
   all 140 entries. Generated; `tools/tgl/metasprite.py` holds the format.
@@ -405,6 +409,23 @@ Do not re-derive these; do check anything that depends on them.
     not a valid id — **weak**, because valid ids cover most byte values. And handlers share
     subroutines, so a store reached from several is attributed to all of them: correct as
     reachability, not evidence that each type uses it.
+- **A table's length is often stated by its reader.** When one routine reads two tables
+  with the same index register, **the distance between their bases is the length of the
+  earlier one**. Bank 7 `$CFAB-$CFBD` is four `LDA abs,Y` six bytes apart reading `$D02C`,
+  `$D0AB`, `$D12A`, `$D1A9` — so the first three are 127 entries each, with no argument
+  about the bytes needed. `tools/find-tables.py` applies this and claims 85 tables.
+  - **"Same routine" is the whole rule.** Two bases read by unrelated code bound nothing.
+    A first version took the nearest base anywhere in the bank and "bounded" bank 5
+    `$B30C` at 3,315 bytes — the rest of the gap. Reads must now be within 24 bytes of
+    each other, and a candidate containing another candidate's base is clipped there.
+  - It claims **extents, not meanings**, and it cannot bound the last table in a group.
+- **Bank 5 `$B30A` is 37 palettes of three colours.** `$B2E4` states the layout: `ASL A /
+  ADC $11 / TAX` makes `X = A × 3`, then `$B30A,X`/`$B30B,X`/`$B30C,X` go to `$0181,Y`
+  upward — the palette staging area the NMI uploads. **Colour 0 is not in the record**; it
+  comes from `$0180`, the shared backdrop, which is why a record is three bytes.
+  - **The extent lands on a record boundary:** every byte is a legal NES colour for exactly
+    111 bytes — 37 × 3 with nothing over — and the next byte is `$93`. `docs/graphics.html`
+    draws them all.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -454,22 +475,19 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Bank 5's three big gaps remain**: `$B30A` (3,317 B), `$8A6E` (2,977 B), `$AD91`
-   (1,363 B). `$B30A` opens with three-byte records (`30 16 0F / 30 27 06 / 30 21 0F`) and
-   `$03` occurs 502 times in it — worth a look. Also the eight `$A8A6-$A938` targets whose
-   reader has not been found.
-2. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained. The
-   partition test is the tool: a real table makes every block's decoded length land on the
-   next pointer.
-3. **Bound bank 4's referenced pool.** 7,639 bytes with 212 pointers into them, extent
-   claimed and contents not. Command 6's pointers go through `$E82B` and command 4's to
-   `$D92D`.
-4. **Find the graphics decompressor.** A savestate taken *during* a load would have the
+1. **Bank 5 `$8A6E`, 2,977 bytes with ZERO references from traced code.** The largest gap
+   left and nothing points into it. Either its reader is untraced, or it is reached through
+   a pointer this project has not followed.
+2. **Bank 5 `$B379`'s six block pointers** — the table is bounded (it ends where its first
+   target begins) but no reader has been found, and its targets look like 2×2 tile groups
+   with a palette index: four bytes then `$03`, repeating. Reading one would open
+   `$B393-$BFFE`, about 3,100 bytes.
+3. **Bank 0 `$8BB2`, 1,482 bytes**, read by a single `LDA $8BB2,Y` at `$8959`.
+4. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained.
+5. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent claimed and
+   contents not. Command 6's pointers go through `$E82B`, command 4's to `$D92D`.
+6. **Find the graphics decompressor.** A savestate taken *during* a load would have the
    block pointer live in zero page.
-5. **Bank 7 still has 2,676 unclaimed bytes at `$C174`**, right after the entry JMP table —
-   the largest single gap in the fixed bank.
-6. Identify what the 21 sound commands and the 10 screen commands actually do, and which
-   song id is which piece of music. Both name lists are read off the handlers' stores.
-7. Start a RAM map. Page 3 is almost entirely sound state; `$B0-$BD` is the screen-data
-   interpreter's; `$0411-$0430` is the password field; `$0500,X` is the object type that
-   bank 6 dispatches on.
+7. Start a RAM map. Page 3 is sound state; `$B0-$BD` the screen-data interpreter;
+   `$0180-$0183` the palette staging area; `$0200` OAM; `$0500,X` object type;
+   `$0548,X` metasprite id.

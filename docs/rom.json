@@ -153,14 +153,17 @@
       "three_compressions": "(1) BIT 7 OF THE COUNT MEANS DRAW IT TWICE, MIRRORED - $CC4A flips bit 6 of the attribute, draws, flips back and draws again, so a symmetrical enemy costs half the data. 5 of the 114 records use it. (2) TILE NUMBERS ARE RELATIVE - $CE03 adds the object's base tile from $87, so one record is a shape any number of objects can wear, and $FF skips a sprite. (3) THE ATTRIBUTE ARRAY IS RUN-LENGTH CODED - $CE23 advances it only when bit 3 of the byte is clear, so one byte can cover several sprites. That last one is why a record's length does not follow from its count, and it has to be simulated to find where a record ends. Offset tables are shared too: 114 metasprites use 53 of them.",
       "flipping_is_positional": "Under a horizontal flip $CDFB negates the x offset and biases it by 7, and $CE33 does the same to y with 15. Flipping a metasprite has to flip each tile's POSITION as well as the tile, and the biases are the sprite's width and height minus one.",
       "what_bounds_the_count": "Nothing in the code: $CC80 is JSR $CDD7 / DEC $8F / BNE with no limit. THE DATA BOUNDS IT. Across the 118 distinct records the counts run 1 to 25 and then jump straight to 112, 116 and 124 - a gap of 87 with nothing in between. The four records with those counts are the only ones whose bytes collide with an already-claimed region (their offset tables run through traced code), and one of them is entry 0, which BEQ $CC44 proves is never read. So 140 table entries give 114 real metasprites, and 2,102 bytes of bank 7's largest gap are now claimed.",
-      "not_established": "Which metasprite belongs to which enemy; what the object's base tile in $87 is set from; and the eight table entries other than entry 0 that do not point at a metasprite - they may be unused slots or a second format."
+      "not_established": "Which metasprite belongs to which enemy; what the object's base tile in $87 is set from; and the eight table entries other than entry 0 that do not point at a metasprite - they may be unused slots or a second format.",
+      "entry_count_correction": "CORRECTION: this was first recorded as 140 entries. It is 141. The halves OVERLAP BY ONE BYTE - $C28D + 140 is $C319, which is both low[140] and high[0] - and high[0] is never read because id 0 is filtered by BEQ $CC44 two instructions before the lookup. That is the same trick bank 6's object dispatch uses at $80DE/$815D, and it was missed here the first time even after being written up there. Id 140 resolves to $CBDC, a real eight-sprite metasprite; id 141 gives $E8C4 with an offset table in RAM, so 141 is the end.",
+      "which_object_wears_which": "An object's metasprite is whatever its behaviour handler stores in $0548,X, and bank 6 dispatches on the object type, so walking each of the 127 handlers and collecting its stores gives the map. 103 of 127 types resolve to at least one metasprite. MOST DO IT THROUGH AN ANIMATION TABLE - LDA table,Y / STA $0548,X - so a type owns a cycle of shapes rather than one: type $01's table at $8488 is 37, 38, 40, 38, 37, 37, 37, 23. Counting bank 6 together with the 21 writers in banks 1, 2, 3 and 7, 84 of the 132 valid table entries are reached and 48 are not; 11 of those 48 point at a record some other entry does reach, so 34 distinct records are reached by nothing found so far.",
+      "limits_of_the_map": "TWO, and they are why this is a map rather than a proof. (1) An animation table is bounded only by the first byte that is not a valid metasprite id, which is weak: valid ids cover most byte values, so a long run may have walked past the table's end - $9915 reads as 23 entries and probably is not. (2) Handlers share subroutines, so a store reached from several handlers is attributed to all of them. That is correct as reachability and is not evidence that every one of those types uses it. Also not established: what the 34 unreached records are for, and the 24 object types whose handler stores nothing - they may take their id from a caller."
     }
   },
   "coverage": {
-    "documented_bytes": 109680,
+    "documented_bytes": 111413,
     "total_bytes": 131088,
-    "percent": 83.669,
-    "region_count": 700
+    "percent": 84.991,
+    "region_count": 787
   },
   "regions": [
     {
@@ -1842,6 +1845,38 @@
       "fields": []
     },
     {
+      "id": "bank1.tbl_8219",
+      "offset": 16937,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33305,
+      "sha1": "74966ca682e5b3290f9fe5b2c7d4103c6a3ce9e5",
+      "description": "A table of 8 bytes at $8219, read by CMP aby at $8184. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8221 from $81E6, 98 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 16945,
+      "segment": "prg",
+      "prg_bank": 1,
+      "fields": []
+    },
+    {
+      "id": "bank1.tbl_8221",
+      "offset": 16945,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33313,
+      "sha1": "52ba5a7687c30c989f0fced55350d6274b30f939",
+      "description": "A table of 8 bytes at $8221, read by LDA aby at $81E6. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8229 from $81F2, 12 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 16953,
+      "segment": "prg",
+      "prg_bank": 1,
+      "fields": []
+    },
+    {
       "id": "bank1.code_82B5",
       "offset": 17093,
       "size": 379,
@@ -2360,6 +2395,38 @@
       "fields": []
     },
     {
+      "id": "bank2.tbl_82A1",
+      "offset": 33457,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33441,
+      "sha1": "8139c448506768ae3624e0a3a074fbe0404a2226",
+      "description": "A table of 8 bytes at $82A1, read by LDA aby at $83D6. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $82A9 from $83DB, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 33465,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
+      "id": "bank2.tbl_82B1",
+      "offset": 33473,
+      "size": 7,
+      "kind": "data",
+      "name": "Table, 7 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33457,
+      "sha1": "f8d46594ca71780cdb01ba66a724efa6f5151381",
+      "description": "A table of 7 bytes at $82B1, read by LDA aby at $8391. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $82B8 from $8396, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 33480,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
       "id": "bank2.code_82C0",
       "offset": 33488,
       "size": 133,
@@ -2440,6 +2507,22 @@
       "fields": []
     },
     {
+      "id": "bank2.tbl_841D",
+      "offset": 33837,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33821,
+      "sha1": "7e48a6b87ca7d587749a73554ef6c52ec7e5a7e1",
+      "description": "A table of 6 bytes at $841D, read by CMP aby at $842B. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8423 from $8430, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 33843,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
       "id": "bank2.code_8429",
       "offset": 33849,
       "size": 351,
@@ -2499,6 +2582,22 @@
       "description": "A run of 341 bytes the code trace reached by following control flow, in bank 2 at $8666-$87BA. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 34763,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
+      "id": "bank2.tbl_87CE",
+      "offset": 34782,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 34766,
+      "sha1": "51e6816a086c34dfb4653232a18f4a7c4969642e",
+      "description": "A table of 6 bytes at $87CE, read by LDA aby at $8830. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $87D4 from $8824, 12 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 34788,
       "segment": "prg",
       "prg_bank": 2,
       "fields": []
@@ -3000,6 +3099,22 @@
       "fields": []
     },
     {
+      "id": "bank2.tbl_8B87",
+      "offset": 35735,
+      "size": 88,
+      "kind": "data",
+      "name": "Table, 88 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 35719,
+      "sha1": "9bcb6b084a4cac0774943dd98e64ba9153455576",
+      "description": "A table of 88 bytes at $8B87, read by LDA aby at $8ADF. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8BDF from $8AEC, 13 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 35823,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
       "id": "bank2.font_8BF8",
       "offset": 35848,
       "size": 315,
@@ -3012,6 +3127,22 @@
       "codec": "font_1bpp_7byte",
       "source": "41-font.json",
       "end": 36163,
+      "segment": "prg",
+      "prg_bank": 2,
+      "fields": []
+    },
+    {
+      "id": "bank2.tbl_928C",
+      "offset": 37532,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37516,
+      "sha1": "ef7648a68e400b80adc402f4de61a00329e1d531",
+      "description": "A table of 8 bytes at $928C, read by LDA aby at $8242. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9294 from $8256, 20 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 37540,
       "segment": "prg",
       "prg_bank": 2,
       "fields": []
@@ -4454,6 +4585,22 @@
       "fields": []
     },
     {
+      "id": "bank3.tbl_8D44",
+      "offset": 52564,
+      "size": 12,
+      "kind": "data",
+      "name": "Table, 12 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 36164,
+      "sha1": "f3dd3a3bd12e6527673cdb69a4cf0dfcbb16c8ca",
+      "description": "A table of 12 bytes at $8D44, read by LDA aby at $8D35. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8D50 from $8D3B, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 52576,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
       "id": "bank3.code_8D5C",
       "offset": 52588,
       "size": 380,
@@ -4470,6 +4617,70 @@
       "fields": []
     },
     {
+      "id": "bank3.tbl_8ED8",
+      "offset": 52968,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 36568,
+      "sha1": "645f449bc92856e6ddeec202b6930b0624f7516d",
+      "description": "A table of 4 bytes at $8ED8, read by LDA aby at $8EAE. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8EDC from $8EC4, 22 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 52972,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_8EF4",
+      "offset": 52996,
+      "size": 9,
+      "kind": "data",
+      "name": "Table, 9 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 36596,
+      "sha1": "6dc16f306ff01bdcd6f76e6635eec03658e00ba9",
+      "description": "A table of 9 bytes at $8EF4, read by LDA aby at $8D18. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8EFD from $8D8E, 118 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53005,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_8EFD",
+      "offset": 53005,
+      "size": 11,
+      "kind": "data",
+      "name": "Table, 11 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 36605,
+      "sha1": "397d90ef327fc880eb7529bf18118235674c956b",
+      "description": "A table of 11 bytes at $8EFD, read by LDA aby at $8D8E. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8F08 from $8D94, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53016,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_8F13",
+      "offset": 53027,
+      "size": 32,
+      "kind": "data",
+      "name": "Table, 32 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 36627,
+      "sha1": "452abb9dc60994cb14f1872428ddff13a9482578",
+      "description": "A table of 32 bytes at $8F13, read by LDA aby at $8F98. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8F33 from $8FA3, 11 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53059,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
       "id": "bank3.code_8F53",
       "offset": 53091,
       "size": 34,
@@ -4481,6 +4692,22 @@
       "description": "A run of 34 bytes the code trace reached by following control flow, in bank 3 at $8F53-$8F74. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 53125,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_8F75",
+      "offset": 53125,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 36725,
+      "sha1": "7b593a2d5b4b19c286b0c074e1e8418a11427fd6",
+      "description": "A table of 8 bytes at $8F75, read by LDA aby at $8F63. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8F7D from $8F69, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53133,
       "segment": "prg",
       "prg_bank": 3,
       "fields": []
@@ -4529,6 +4756,54 @@
       "description": "A run of 354 bytes the code trace reached by following control flow, in bank 3 at $8FBF-$9120. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 53553,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_9121",
+      "offset": 53553,
+      "size": 7,
+      "kind": "data",
+      "name": "Table, 7 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37153,
+      "sha1": "e2719617ed5623c81f12e534b0a89687319dc8e8",
+      "description": "A table of 7 bytes at $9121, read by ADC aby at $90FB. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9128 from $9104, 9 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53560,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_9128",
+      "offset": 53560,
+      "size": 7,
+      "kind": "data",
+      "name": "Table, 7 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37160,
+      "sha1": "00a632df865fffde1fbf9310e0377757dabf5f49",
+      "description": "A table of 7 bytes at $9128, read by ADC aby at $9104. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $912F from $9114, 16 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53567,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_913A",
+      "offset": 53578,
+      "size": 23,
+      "kind": "data",
+      "name": "Table, 23 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37178,
+      "sha1": "8ee7405ba534eddbe9e6367cab8c41ff29c7352e",
+      "description": "A table of 23 bytes at $913A, read by LDA aby at $91BA. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9151 from $91C3, 9 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 53601,
       "segment": "prg",
       "prg_bank": 3,
       "fields": []
@@ -4641,6 +4916,22 @@
       "description": "A run of 277 bytes the code trace reached by following control flow, in bank 3 at $93FA-$950E. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 54559,
+      "segment": "prg",
+      "prg_bank": 3,
+      "fields": []
+    },
+    {
+      "id": "bank3.tbl_9512",
+      "offset": 54562,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 38162,
+      "sha1": "f465708bd6a8a94c7d8f09f4b45b33c8b554da4a",
+      "description": "A table of 8 bytes at $9512, read by LDA aby at $94DD. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $951A from $94E3, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 54570,
       "segment": "prg",
       "prg_bank": 3,
       "fields": []
@@ -6392,6 +6683,22 @@
       "fields": []
     },
     {
+      "id": "bank5.tbl_8067",
+      "offset": 82039,
+      "size": 5,
+      "kind": "data",
+      "name": "Table, 5 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 32871,
+      "sha1": "b786bdf23772a69aabaf2f7c3c2219ca05eafd7b",
+      "description": "A table of 5 bytes at $8067, read by ADC aby at $8078. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $806C from $8082, 10 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 82044,
+      "segment": "prg",
+      "prg_bank": 5,
+      "fields": []
+    },
+    {
       "id": "bank5.code_8071",
       "offset": 82049,
       "size": 616,
@@ -6435,6 +6742,22 @@
       "description": "A run of 182 bytes the code trace reached by following control flow, in bank 5 at $83B3-$8468. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 83065,
+      "segment": "prg",
+      "prg_bank": 5,
+      "fields": []
+    },
+    {
+      "id": "bank5.tbl_8469",
+      "offset": 83065,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33897,
+      "sha1": "f0c111162514509101dd5007098a47857addd386",
+      "description": "A table of 4 bytes at $8469, read by AND aby at $8445. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $846D from $844A, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 83069,
       "segment": "prg",
       "prg_bank": 5,
       "fields": []
@@ -8648,6 +8971,38 @@
       "fields": []
     },
     {
+      "id": "bank5.pal_B30A",
+      "offset": 95002,
+      "size": 111,
+      "kind": "palette",
+      "name": "Palettes: 37 x 3 colours",
+      "confidence": "confirmed",
+      "cpu_addr": 45834,
+      "sha1": "4f060ca99e5d11bb4a38bc180f212d2e89fc2c56",
+      "description": "Thirty-seven palettes of three colours. $B2E4 is the reader and it states the layout exactly: ASL A / ADC $11 / TAX makes X = A * 3, then LDA $B30A,X / LDA $B30B,X / LDA $B30C,X go to $0181,Y / $0182,Y / $0183,Y with Y = the destination index * 3. $0181 is the palette staging area the NMI uploads - $DEF3 walks it in groups reading $0180 for the shared backdrop and $0181,Y upward for the rest - so three bytes here are colours 1, 2 and 3 of a palette and colour 0 comes from $0180. THE EXTENT IS BOUNDED BY THE DATA AND LANDS ON A RECORD BOUNDARY: every byte from $B30A is a legal NES colour ($3F or below) for exactly 111 bytes, which is 37 records of three with NOTHING left over, and the first byte past it is $93. A boundary that falls on a record edge by accident is a coincidence worth one in three. The values read as palettes too: $30 $16 $0F is white, red, black and $30 $27 $06 is white, orange, dark red. WHICH palette is used where is NOT established.",
+      "source": "76-palettes.json",
+      "end": 95113,
+      "segment": "prg",
+      "prg_bank": 5,
+      "fields": []
+    },
+    {
+      "id": "bank5.tbl_B379",
+      "offset": 95113,
+      "size": 26,
+      "kind": "pointer_table",
+      "name": "Six block pointers with ids",
+      "confidence": "lead",
+      "cpu_addr": 45945,
+      "sha1": "764d241647402328869ad3944175d4f60f115349",
+      "description": "Six four-byte records [pointer][word] - ($B393,$0012), ($B3C5,$0013), ($B465,$0014), ($B505,$0015), ($B5A5,$0016), ($B582,$0007) - then two more bytes, $D2 $B5, which read as a seventh pointer $B5D2 with no word after it. Bounded the way $E6F3 is: the records end at $B392 and the first pointer's target is $B393, the very next byte, so the table cannot be longer. **A LEAD.** No reader has been found. A byte scan turned up LDY $B385,X at bank 7 $E8A4, and that is a FALSE POSITIVE - the bytes are B1 BC 85 B3, LDA ($BC),Y followed by STA $B3, with the scan reading an operand as an opcode. Exactly the class the playbook warns about. What the targets hold is also unread, though $B3C5 onward is visibly four bytes then $03, repeating, which looks like 2x2 tile groups with a palette index.",
+      "source": "76-palettes.json",
+      "end": 95139,
+      "segment": "prg",
+      "prg_bank": 5,
+      "fields": []
+    },
+    {
       "id": "bank5.bank_id_BFFF",
       "offset": 98319,
       "size": 1,
@@ -8707,6 +9062,22 @@
       "description": "A run of 181 bytes the code trace reached by following control flow, in bank 6 at $802A-$80DE. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 98543,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_815D",
+      "offset": 98669,
+      "size": 128,
+      "kind": "pointer_table",
+      "name": "Object dispatch, high bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33117,
+      "sha1": "9bd27b7e56cae788449c4221c2bccbde7c9b9a86",
+      "description": "The high half of bank 6's object behaviour table. $821E pushes this byte, then $80DE,Y, then RTSes - so the entries are targets minus one. Extent: 128 bytes, bounded by the base at $81DD read from $820A.",
+      "source": "75-tables.json",
+      "end": 98797,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -8840,6 +9211,22 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_8480",
+      "offset": 99472,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33920,
+      "sha1": "aa3d990108802702275ffc989e815f1df45d4a39",
+      "description": "A table of 8 bytes at $8480, read by LDA aby at $84D5. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8488 from $84DB, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 99480,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_8490",
       "offset": 99488,
       "size": 131,
@@ -8888,6 +9275,86 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_86F5",
+      "offset": 100101,
+      "size": 33,
+      "kind": "data",
+      "name": "Table, 33 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 34549,
+      "sha1": "854a8ec6b747b47e4fb2f189084079e5531d4eb7",
+      "description": "A table of 33 bytes at $86F5, read by LDA aby at $86C1. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8716 from $86C9, 8 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 100134,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_8716",
+      "offset": 100134,
+      "size": 33,
+      "kind": "data",
+      "name": "Table, 33 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 34582,
+      "sha1": "9b8db6640107dc063a54fc1890cbbd4565ecd681",
+      "description": "A table of 33 bytes at $8716, read by LDA aby at $86C9. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8737 from $86D6, 13 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 100167,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_8737",
+      "offset": 100167,
+      "size": 33,
+      "kind": "data",
+      "name": "Table, 33 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 34615,
+      "sha1": "9a502215ab4a0f25974c93bfe3ce9cbfcd0ff29b",
+      "description": "A table of 33 bytes at $8737, read by LDA aby at $86D6. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8758 from $86DC, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 100200,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_8784",
+      "offset": 100244,
+      "size": 11,
+      "kind": "data",
+      "name": "Table, 11 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 34692,
+      "sha1": "80ed3cd8cd6f7fdf769efba8dca86ef1e9275bd0",
+      "description": "A table of 11 bytes at $8784, read by LDA aby at $86A9. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $878F from $86A3, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 100255,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_878F",
+      "offset": 100255,
+      "size": 11,
+      "kind": "data",
+      "name": "Table, 11 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 34703,
+      "sha1": "f09618a5626159bdc697545df8db60f3ac7ac0b5",
+      "description": "A table of 11 bytes at $878F, read by LDA aby at $86A3. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $879A from $8690, 19 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 100266,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_8B8F",
       "offset": 101279,
       "size": 16,
@@ -8915,6 +9382,38 @@
       "description": "A run of 156 bytes the code trace reached by following control flow, in bank 6 at $8BCE-$8C69. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 101498,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_8C6A",
+      "offset": 101498,
+      "size": 7,
+      "kind": "data",
+      "name": "Table, 7 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 35946,
+      "sha1": "18c3cef28e88cbdc74208b36e94ca04c848a1f8b",
+      "description": "A table of 7 bytes at $8C6A, read by LDA aby at $8C61. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8C71 from $8C57, 10 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 101505,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_8C71",
+      "offset": 101505,
+      "size": 7,
+      "kind": "data",
+      "name": "Table, 7 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 35953,
+      "sha1": "6a672480043f9368ade51ea80747e1dec65f69d2",
+      "description": "A table of 7 bytes at $8C71, read by LDA aby at $8C57. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $8C78 from $8C5C, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 101512,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9048,6 +9547,22 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_9171",
+      "offset": 102785,
+      "size": 5,
+      "kind": "data",
+      "name": "Table, 5 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37233,
+      "sha1": "e901fef9d7c5620485ef6bf46b9789df3139f75f",
+      "description": "A table of 5 bytes at $9171, read by LDA aby at $9165. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9176 from $916A, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 102790,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_9188",
       "offset": 102808,
       "size": 373,
@@ -9059,6 +9574,54 @@
       "description": "A run of 373 bytes the code trace reached by following control flow, in bank 6 at $9188-$92FC. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 103181,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_92FD",
+      "offset": 103181,
+      "size": 9,
+      "kind": "data",
+      "name": "Table, 9 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37629,
+      "sha1": "55539111ddd14db577cfdffb8ba61b2b9870b03e",
+      "description": "A table of 9 bytes at $92FD, read by LDA aby at $925E. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9306 from $926D, 15 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 103190,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9306",
+      "offset": 103190,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37638,
+      "sha1": "7c2fa0782abb9184672202760781d018cf85a4a0",
+      "description": "A table of 8 bytes at $9306, read by LDA aby at $926D. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $930E from $9271, 4 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 103198,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9312",
+      "offset": 103202,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 37650,
+      "sha1": "471ea68ffb38719ba16c36ad8ce9a432b57a3867",
+      "description": "A table of 4 bytes at $9312, read by LDA aby at $92CB. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9316 from $92DC, 17 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 103206,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9144,6 +9707,38 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_96C4",
+      "offset": 104148,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 38596,
+      "sha1": "7054c90682f14f29924c6000aa4b24ee290b4771",
+      "description": "A table of 4 bytes at $96C4, read by LDA aby at $96B1. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $96C8 from $96B7, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104152,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_96C8",
+      "offset": 104152,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 38600,
+      "sha1": "fa46e85ae69a1cea5351e7fad70ebf48521f75fc",
+      "description": "A table of 4 bytes at $96C8, read by LDA aby at $96B7. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $96CC from $96BD, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104156,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_96D0",
       "offset": 104160,
       "size": 222,
@@ -9192,6 +9787,38 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_98CB",
+      "offset": 104667,
+      "size": 22,
+      "kind": "data",
+      "name": "Table, 22 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39115,
+      "sha1": "a16a0c7201ac9009bf45f77d24d89d5f4348fc06",
+      "description": "A table of 22 bytes at $98CB, read by SBC aby at $97E8. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $98E1 from $97FE, 22 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104689,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_98E1",
+      "offset": 104689,
+      "size": 22,
+      "kind": "data",
+      "name": "Table, 22 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39137,
+      "sha1": "aafbec78b1fc58fa21a09fa7801092686542829d",
+      "description": "A table of 22 bytes at $98E1, read by LDA aby at $97FE. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $98F7 from $980D, 15 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104711,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_991F",
       "offset": 104751,
       "size": 170,
@@ -9203,6 +9830,54 @@
       "description": "A run of 170 bytes the code trace reached by following control flow, in bank 6 at $991F-$99C8. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 104921,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_99C9",
+      "offset": 104921,
+      "size": 16,
+      "kind": "data",
+      "name": "Table, 16 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39369,
+      "sha1": "ddebb1aa0a94cfd111118e825d32fd0d78f185ce",
+      "description": "A table of 16 bytes at $99C9, read by LDA aby at $9991. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $99D9 from $9997, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104937,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_99D9",
+      "offset": 104937,
+      "size": 16,
+      "kind": "data",
+      "name": "Table, 16 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39385,
+      "sha1": "28729dc0e6e7ff0b3d0517a5085b2591313a10a0",
+      "description": "A table of 16 bytes at $99D9, read by LDA aby at $9997. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $99E9 from $99AB, 20 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104953,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_99E9",
+      "offset": 104953,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39401,
+      "sha1": "8f621ec132ffb1b6474448b9dd265fae81252fbb",
+      "description": "A table of 4 bytes at $99E9, read by LDA aby at $99AB. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $99ED from $99B4, 9 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 104957,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9320,6 +9995,70 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_9ADB",
+      "offset": 105195,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39643,
+      "sha1": "2c712d817a14b15ca3c9aee9499727f1b78a734b",
+      "description": "A table of 6 bytes at $9ADB, read by LDA aby at $9A84. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9AE1 from $9A8A, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 105201,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9AE1",
+      "offset": 105201,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39649,
+      "sha1": "9d1273e4507f85a21bf14e65cfae8ad7ae6643db",
+      "description": "A table of 6 bytes at $9AE1, read by LDA aby at $9A8A. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9AE7 from $9A90, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 105207,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9AE7",
+      "offset": 105207,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39655,
+      "sha1": "b4d48bacebeda6c90fce8da2a184f76749beca21",
+      "description": "A table of 6 bytes at $9AE7, read by LDA aby at $9A90. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9AED from $9A96, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 105213,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9AED",
+      "offset": 105213,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39661,
+      "sha1": "a22857908065d122d1dc5ead44a9cde90cd50e47",
+      "description": "A table of 6 bytes at $9AED, read by LDA aby at $9A96. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9AF3 from $9B91, 251 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 105219,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_9AF9",
       "offset": 105225,
       "size": 276,
@@ -9331,6 +10070,22 @@
       "description": "A run of 276 bytes the code trace reached by following control flow, in bank 6 at $9AF9-$9C0C. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 105501,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9C0D",
+      "offset": 105501,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 39949,
+      "sha1": "6931776f707d5f2b55c03e2465db0306b7e37bdd",
+      "description": "A table of 6 bytes at $9C0D, read by LDA aby at $9B7C. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9C13 from $9B82, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 105507,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9384,6 +10139,22 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_9E82",
+      "offset": 106130,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 40578,
+      "sha1": "0057de4d081767a41796965da8416de7545a4ffb",
+      "description": "A table of 4 bytes at $9E82, read by LDA aby at $9E6D. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9E86 from $9E72, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 106134,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_9E8A",
       "offset": 106138,
       "size": 85,
@@ -9432,6 +10203,38 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_9FEF",
+      "offset": 106495,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 40943,
+      "sha1": "e2f0f76779a6a074d4a88d670233843998f89921",
+      "description": "A table of 4 bytes at $9FEF, read by LDA aby at $9FE6. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9FF3 from $9FDC, 10 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 106499,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_9FF3",
+      "offset": 106499,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 40947,
+      "sha1": "70f0b473f0803a357e828738e4bdb98d5b6e15ff",
+      "description": "A table of 4 bytes at $9FF3, read by LDA aby at $9FDC. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $9FF7 from $9FE1, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 106503,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_9FFB",
       "offset": 106507,
       "size": 151,
@@ -9443,6 +10246,38 @@
       "description": "A run of 151 bytes the code trace reached by following control flow, in bank 6 at $9FFB-$A091. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 106658,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A09A",
+      "offset": 106666,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41114,
+      "sha1": "c6ba899e093f7f7fce46ebf503b206c1625f886f",
+      "description": "A table of 4 bytes at $A09A, read by LDA aby at $A030. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A09E from $A026, 10 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 106670,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A09E",
+      "offset": 106670,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41118,
+      "sha1": "70f0b473f0803a357e828738e4bdb98d5b6e15ff",
+      "description": "A table of 4 bytes at $A09E, read by LDA aby at $A026. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A0A2 from $A02B, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 106674,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9464,6 +10299,182 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_A1EF",
+      "offset": 107007,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41455,
+      "sha1": "d21b19399836503760feda2895dde0b560194830",
+      "description": "A table of 8 bytes at $A1EF, read by LDA aby at $A0DA. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A1F7 from $A0E0, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107015,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A1F7",
+      "offset": 107015,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41463,
+      "sha1": "758b15df75f2dcb4c121ab62ea377aba95f9698a",
+      "description": "A table of 8 bytes at $A1F7, read by LDA aby at $A0E0. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A1FF from $A0E6, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107023,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A1FF",
+      "offset": 107023,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41471,
+      "sha1": "3bd47752b6542eb3be453f6275f2a1fe913b6e0e",
+      "description": "A table of 8 bytes at $A1FF, read by LDA aby at $A0E6. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A207 from $A0EC, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107031,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A207",
+      "offset": 107031,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41479,
+      "sha1": "ba001a38fd7d9c50bc02752c8fd5d3992bbbaa6f",
+      "description": "A table of 8 bytes at $A207, read by LDA aby at $A0EC. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A20F from $A0FE, 18 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107039,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A20F",
+      "offset": 107039,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41487,
+      "sha1": "babe02bca80bdf6b752e0bca80dfe40dd75950b9",
+      "description": "A table of 8 bytes at $A20F, read by LDA aby at $A0FE. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A217 from $A104, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107047,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A217",
+      "offset": 107047,
+      "size": 16,
+      "kind": "data",
+      "name": "Table, 16 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41495,
+      "sha1": "ca1d091dfe3296e4d937b62dd4628087e50a9e99",
+      "description": "A table of 16 bytes at $A217, read by LDA aby at $A104. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A227 from $A0F2, 18 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107063,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A227",
+      "offset": 107063,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41511,
+      "sha1": "1eb9eed7cf743a58dd36f334b05d406d8f4cddc8",
+      "description": "A table of 8 bytes at $A227, read by LDA aby at $A0F2. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A22F from $A0F8, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107071,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A237",
+      "offset": 107079,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41527,
+      "sha1": "eca96b089f22799a6da8864782e0a3e0d2b944ad",
+      "description": "A table of 8 bytes at $A237, read by LDA aby at $A14E. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A23F from $A159, 11 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107087,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A243",
+      "offset": 107091,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41539,
+      "sha1": "f717b9d834cff6e4f62b720836f35c1fae370136",
+      "description": "A table of 4 bytes at $A243, read by LDA aby at $A195. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A247 from $A19F, 10 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107095,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A24F",
+      "offset": 107103,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41551,
+      "sha1": "48aa1b26a3d90e39e08d3028a443fde03677d934",
+      "description": "A table of 8 bytes at $A24F, read by LDA aby at $A1CB. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A257 from $A1D0, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107111,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A257",
+      "offset": 107111,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41559,
+      "sha1": "5dc6fa72c94f2510ab22d2a8c90ba5c89b89cb4f",
+      "description": "A table of 8 bytes at $A257, read by LDA aby at $A1D0. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A25F from $A1D5, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107119,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_A26B",
       "offset": 107131,
       "size": 89,
@@ -9475,6 +10486,22 @@
       "description": "A run of 89 bytes the code trace reached by following control flow, in bank 6 at $A26B-$A2C3. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 107220,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A2C6",
+      "offset": 107222,
+      "size": 5,
+      "kind": "data",
+      "name": "Table, 5 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 41670,
+      "sha1": "78895949d1cde39fde7f211dd43bf40f0cea1518",
+      "description": "A table of 5 bytes at $A2C6, read by LDA aby at $A2B0. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A2CB from $A2BB, 11 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107227,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9523,6 +10550,22 @@
       "description": "A run of 270 bytes the code trace reached by following control flow, in bank 6 at $A3EA-$A4F7. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 107784,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_A4FB",
+      "offset": 107787,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 42235,
+      "sha1": "b81c358f0b866157166a5a319c8ef01d59cbc1d2",
+      "description": "A table of 6 bytes at $A4FB, read by LDA aby at $A457. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $A501 from $A45D, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 107793,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9624,6 +10667,38 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_AA7C",
+      "offset": 109196,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 43644,
+      "sha1": "d0676b5df048e9042e9d575226aae197d6b239e6",
+      "description": "A table of 8 bytes at $AA7C, read by LDA aby at $AA3F. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $AA84 from $AA61, 34 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 109204,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_AA84",
+      "offset": 109204,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 43652,
+      "sha1": "2271fe8c17086989f8a4ef4b05ef436cc0fcd64b",
+      "description": "A table of 8 bytes at $AA84, read by LDA aby at $AA61. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $AA8C from $AA4F, 18 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 109212,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_AA94",
       "offset": 109220,
       "size": 142,
@@ -9640,6 +10715,22 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_AB22",
+      "offset": 109362,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 43810,
+      "sha1": "4714fb23c4a7155f68c0d2d813609a87269c2ae8",
+      "description": "A table of 8 bytes at $AB22, read by LDA aby at $AB12. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $AB2A from $AB17, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 109370,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_AB32",
       "offset": 109378,
       "size": 238,
@@ -9651,6 +10742,38 @@
       "description": "A run of 238 bytes the code trace reached by following control flow, in bank 6 at $AB32-$AC1F. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 109616,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_AC20",
+      "offset": 109616,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 44064,
+      "sha1": "c36b831dedfc63410d6a62da13b4f2b9e8f51af9",
+      "description": "A table of 4 bytes at $AC20, read by LDA aby at $ABFF. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $AC24 from $AC04, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 109620,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_AC24",
+      "offset": 109620,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 44068,
+      "sha1": "4ea1b3f4f253385cd5ddc0aa987ecca5675ac7b8",
+      "description": "A table of 4 bytes at $AC24, read by LDA aby at $AC04. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $AC28 from $AC09, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 109624,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9699,6 +10822,22 @@
       "description": "A run of 192 bytes the code trace reached by following control flow, in bank 6 at $ACCA-$AD89. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 109978,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_AD8D",
+      "offset": 109981,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 44429,
+      "sha1": "69441b798e95059608e24683c976783c759e5709",
+      "description": "A table of 4 bytes at $AD8D, read by LDA aby at $AD16. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $AD91 from $AD21, 11 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 109985,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -9816,6 +10955,22 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_B11B",
+      "offset": 110891,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 45339,
+      "sha1": "6783f1d21e8e617d6896a622ee3e7bff0bc67c8d",
+      "description": "A table of 4 bytes at $B11B, read by LDA aby at $B10C. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $B11F from $B112, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 110895,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_B123",
       "offset": 110899,
       "size": 271,
@@ -9896,6 +11051,22 @@
       "fields": []
     },
     {
+      "id": "bank6.tbl_B839",
+      "offset": 112713,
+      "size": 6,
+      "kind": "data",
+      "name": "Table, 6 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 47161,
+      "sha1": "4186fdfa562b373ee2b51d023eb8eac493bef584",
+      "description": "A table of 6 bytes at $B839, read by LDA abx at $B81A. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $B83F from $B820, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 112719,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
       "id": "bank6.code_B851",
       "offset": 112737,
       "size": 177,
@@ -9923,6 +11094,38 @@
       "description": "A run of 94 bytes the code trace reached by following control flow, in bank 6 at $B904-$B961. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 113010,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_B962",
+      "offset": 113010,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 47458,
+      "sha1": "302a31753acecf44e1e4e0e4ab55950e8b76087a",
+      "description": "A table of 4 bytes at $B962, read by LDA aby at $B935. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $B966 from $B93A, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 113014,
+      "segment": "prg",
+      "prg_bank": 6,
+      "fields": []
+    },
+    {
+      "id": "bank6.tbl_B966",
+      "offset": 113014,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 47462,
+      "sha1": "4ea1b3f4f253385cd5ddc0aa987ecca5675ac7b8",
+      "description": "A table of 4 bytes at $B966, read by LDA aby at $B93A. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $B96A from $B93F, 5 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 113018,
       "segment": "prg",
       "prg_bank": 6,
       "fields": []
@@ -10040,6 +11243,38 @@
       "fields": []
     },
     {
+      "id": "bank7.tbl_C174",
+      "offset": 115076,
+      "size": 141,
+      "kind": "data",
+      "name": "Table, 141 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 49524,
+      "sha1": "6cfb8bf4dceda2edb4b32aa0ad452337489dc79a",
+      "description": "A table of 141 bytes at $C174, read by ADC aby at $D24D. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $C201 from $D23F, 14 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 115217,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_C28D",
+      "offset": 115357,
+      "size": 140,
+      "kind": "pointer_table",
+      "name": "Metasprite pointers, low bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 49805,
+      "sha1": "478570bc0e3ebbfd66d0178760847dda96846056",
+      "description": "The low half of the split pointer table an object's $0548,X indexes. The high half begins at $C319, which is why this half measures 140 - and the halves OVERLAP by that one byte, because $C28D + 140 is $C319 and high[0] is never read. See tools/tgl/metasprite.py. Extent: 140 bytes, bounded by the base at $C319 read from $CC3C.",
+      "source": "75-tables.json",
+      "end": 115497,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
       "id": "bank7.sprite_C3A6",
       "offset": 115638,
       "size": 2114,
@@ -10089,6 +11324,54 @@
       "fields": []
     },
     {
+      "id": "bank7.tbl_D02C",
+      "offset": 118844,
+      "size": 127,
+      "kind": "data",
+      "name": "Table, 127 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 53292,
+      "sha1": "c654ddd8da8d3d4c0453ad657f1d35e6bc324e73",
+      "description": "A table of 127 bytes at $D02C, read by LDA aby at $CFAB. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $D0AB from $CFB1, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 118971,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_D0AB",
+      "offset": 118971,
+      "size": 127,
+      "kind": "data",
+      "name": "Table, 127 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 53419,
+      "sha1": "4e943ead1ca50aa3d055de1f2a10c0be077fe1be",
+      "description": "A table of 127 bytes at $D0AB, read by LDA aby at $CFB1. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $D12A from $CFB7, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 119098,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_D12A",
+      "offset": 119098,
+      "size": 127,
+      "kind": "data",
+      "name": "Table, 127 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 53546,
+      "sha1": "425745ac14a18d183f8beb864e545212f3cabb2d",
+      "description": "A table of 127 bytes at $D12A, read by LDA aby at $CFB7. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $D1A9 from $CFBD, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 119225,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
       "id": "bank7.code_D229",
       "offset": 119353,
       "size": 536,
@@ -10132,6 +11415,22 @@
       "description": "A run of 371 bytes the code trace reached by following control flow, in bank 7 at $D6AE-$D820. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 120881,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_D842",
+      "offset": 120914,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 55362,
+      "sha1": "46657aa8a9cf0ce764e4ecf661018a391bc662eb",
+      "description": "A table of 8 bytes at $D842, read by ADC aby at $D807. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $D84A from $D80B, 4 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 120922,
       "segment": "prg",
       "prg_bank": 7,
       "fields": []
@@ -10196,6 +11495,22 @@
       "description": "A run of 485 bytes the code trace reached by following control flow, in bank 7 at $D93D-$DB21. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 121650,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_DB22",
+      "offset": 121650,
+      "size": 16,
+      "kind": "data",
+      "name": "Table, 16 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 56098,
+      "sha1": "fa06e8a1b09c04b1f3ebebbcb4dc28a62f3c4986",
+      "description": "A table of 16 bytes at $DB22, read by LDA aby at $DB1C. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $DB32 from $DB06, 22 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 121666,
       "segment": "prg",
       "prg_bank": 7,
       "fields": []
@@ -10420,6 +11735,22 @@
       "description": "A run of 122 bytes the code trace reached by following control flow, in bank 7 at $EA68-$EAE1. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 125682,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_EB00",
+      "offset": 125712,
+      "size": 4,
+      "kind": "data",
+      "name": "Table, 4 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 60160,
+      "sha1": "f0c111162514509101dd5007098a47857addd386",
+      "description": "A table of 4 bytes at $EB00, read by LDA aby at $D8CE. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $EB04 from $D8D4, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 125716,
       "segment": "prg",
       "prg_bank": 7,
       "fields": []
@@ -11081,6 +12412,22 @@
       "fields": []
     },
     {
+      "id": "bank7.tbl_F47B",
+      "offset": 128139,
+      "size": 12,
+      "kind": "data",
+      "name": "Table, 12 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 62587,
+      "sha1": "f3dd3a3bd12e6527673cdb69a4cf0dfcbb16c8ca",
+      "description": "A table of 12 bytes at $F47B, read by LDA aby at $F379. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $F487 from $F373, 6 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 128151,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
       "id": "bank7.code_F493",
       "offset": 128163,
       "size": 211,
@@ -11273,6 +12620,38 @@
       "fields": []
     },
     {
+      "id": "bank7.tbl_F772",
+      "offset": 128898,
+      "size": 13,
+      "kind": "data",
+      "name": "Table, 13 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 63346,
+      "sha1": "26d8d27f82cd807406258f8bf410028c7ca4c5b1",
+      "description": "A table of 13 bytes at $F772, read by LDA aby at $F74C. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $F77F from $F730, 28 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 128911,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_F77F",
+      "offset": 128911,
+      "size": 12,
+      "kind": "data",
+      "name": "Table, 12 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 63359,
+      "sha1": "dc41724119cdb96ca19292720faf95664253e766",
+      "description": "A table of 12 bytes at $F77F, read by LDA aby at $F730. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $F78B from $F747, 23 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 128923,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
       "id": "bank7.code_F78F",
       "offset": 128927,
       "size": 5,
@@ -11316,6 +12695,22 @@
       "description": "A run of 8 bytes the code trace reached by following control flow, in bank 7 at $F97E-$F985. **This region claims the extent and nothing else.** What the code does has not been established; the evidence is that every byte here is part of an instruction on some path the trace could follow from the interrupt vectors and the banks' entry tables, and that the trace met no illegal opcode anywhere. Generated by tools/gen-code-regions.py from tools/trace-code.py - see that tool's --assumptions for what the reachability rests on. To say more about any part of this stretch, claim it in a hand-authored region file; the generator subtracts what is already claimed before it emits, so the hand-written region wins.",
       "source": "20-traced.json",
       "end": 129430,
+      "segment": "prg",
+      "prg_bank": 7,
+      "fields": []
+    },
+    {
+      "id": "bank7.tbl_F986",
+      "offset": 129430,
+      "size": 8,
+      "kind": "data",
+      "name": "Table, 8 bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 63878,
+      "sha1": "8ef23cfd1af6288fb227cbdca768ae96149e9831",
+      "description": "A table of 8 bytes at $F986, read by LDA aby at $F8DA. THE EXTENT COMES FROM THE CODE, not from the data: the same routine reads another table based at $F98E from $F982, 168 bytes away in the instruction stream, so this table runs exactly up to that base. Two bases read by unrelated code would bound nothing, which is why the reads have to be neighbours. **WHAT THE BYTES MEAN IS NOT ESTABLISHED** - this region claims the extent and the reader and stops there. Generated by tools/find-tables.py.",
+      "source": "75-tables.json",
+      "end": 129438,
       "segment": "prg",
       "prg_bank": 7,
       "fields": []
@@ -11939,12 +13334,12 @@
       "cpu_addr": 33130
     },
     {
-      "offset": 16937,
-      "size": 156,
+      "offset": 16953,
+      "size": 140,
       "end": 17093,
       "segment": "prg",
       "prg_bank": 1,
-      "cpu_addr": 33305
+      "cpu_addr": 33321
     },
     {
       "offset": 17472,
@@ -11980,19 +13375,35 @@
     },
     {
       "offset": 33442,
-      "size": 46,
-      "end": 33488,
+      "size": 15,
+      "end": 33457,
       "segment": "prg",
       "prg_bank": 2,
       "cpu_addr": 33426
     },
     {
-      "offset": 33837,
-      "size": 12,
+      "offset": 33465,
+      "size": 8,
+      "end": 33473,
+      "segment": "prg",
+      "prg_bank": 2,
+      "cpu_addr": 33449
+    },
+    {
+      "offset": 33480,
+      "size": 8,
+      "end": 33488,
+      "segment": "prg",
+      "prg_bank": 2,
+      "cpu_addr": 33464
+    },
+    {
+      "offset": 33843,
+      "size": 6,
       "end": 33849,
       "segment": "prg",
       "prg_bank": 2,
-      "cpu_addr": 33821
+      "cpu_addr": 33827
     },
     {
       "offset": 34200,
@@ -12004,11 +13415,19 @@
     },
     {
       "offset": 34763,
-      "size": 81,
-      "end": 34844,
+      "size": 19,
+      "end": 34782,
       "segment": "prg",
       "prg_bank": 2,
       "cpu_addr": 34747
+    },
+    {
+      "offset": 34788,
+      "size": 56,
+      "end": 34844,
+      "segment": "prg",
+      "prg_bank": 2,
+      "cpu_addr": 34772
     },
     {
       "offset": 34998,
@@ -12020,19 +13439,35 @@
     },
     {
       "offset": 35605,
-      "size": 243,
-      "end": 35848,
+      "size": 130,
+      "end": 35735,
       "segment": "prg",
       "prg_bank": 2,
       "cpu_addr": 35589
     },
     {
+      "offset": 35823,
+      "size": 25,
+      "end": 35848,
+      "segment": "prg",
+      "prg_bank": 2,
+      "cpu_addr": 35807
+    },
+    {
       "offset": 36163,
-      "size": 1657,
-      "end": 37820,
+      "size": 1369,
+      "end": 37532,
       "segment": "prg",
       "prg_bank": 2,
       "cpu_addr": 36147
+    },
+    {
+      "offset": 37540,
+      "size": 280,
+      "end": 37820,
+      "segment": "prg",
+      "prg_bank": 2,
+      "cpu_addr": 37524
     },
     {
       "offset": 49151,
@@ -12163,36 +13598,60 @@
       "cpu_addr": 35691
     },
     {
-      "offset": 52564,
-      "size": 24,
+      "offset": 52576,
+      "size": 12,
       "end": 52588,
       "segment": "prg",
       "prg_bank": 3,
-      "cpu_addr": 36164
+      "cpu_addr": 36176
     },
     {
-      "offset": 52968,
-      "size": 123,
+      "offset": 52972,
+      "size": 24,
+      "end": 52996,
+      "segment": "prg",
+      "prg_bank": 3,
+      "cpu_addr": 36572
+    },
+    {
+      "offset": 53016,
+      "size": 11,
+      "end": 53027,
+      "segment": "prg",
+      "prg_bank": 3,
+      "cpu_addr": 36616
+    },
+    {
+      "offset": 53059,
+      "size": 32,
       "end": 53091,
       "segment": "prg",
       "prg_bank": 3,
-      "cpu_addr": 36568
+      "cpu_addr": 36659
     },
     {
-      "offset": 53125,
-      "size": 16,
+      "offset": 53133,
+      "size": 8,
       "end": 53141,
       "segment": "prg",
       "prg_bank": 3,
-      "cpu_addr": 36725
+      "cpu_addr": 36733
     },
     {
-      "offset": 53553,
-      "size": 94,
+      "offset": 53567,
+      "size": 11,
+      "end": 53578,
+      "segment": "prg",
+      "prg_bank": 3,
+      "cpu_addr": 37167
+    },
+    {
+      "offset": 53601,
+      "size": 46,
       "end": 53647,
       "segment": "prg",
       "prg_bank": 3,
-      "cpu_addr": 37153
+      "cpu_addr": 37201
     },
     {
       "offset": 53963,
@@ -12212,11 +13671,19 @@
     },
     {
       "offset": 54559,
-      "size": 31,
-      "end": 54590,
+      "size": 3,
+      "end": 54562,
       "segment": "prg",
       "prg_bank": 3,
       "cpu_addr": 38159
+    },
+    {
+      "offset": 54570,
+      "size": 20,
+      "end": 54590,
+      "segment": "prg",
+      "prg_bank": 3,
+      "cpu_addr": 38170
     },
     {
       "offset": 54915,
@@ -12251,12 +13718,12 @@
       "cpu_addr": 32828
     },
     {
-      "offset": 82039,
-      "size": 10,
+      "offset": 82044,
+      "size": 5,
       "end": 82049,
       "segment": "prg",
       "prg_bank": 5,
-      "cpu_addr": 32871
+      "cpu_addr": 32876
     },
     {
       "offset": 82665,
@@ -12275,12 +13742,12 @@
       "cpu_addr": 33701
     },
     {
-      "offset": 83065,
-      "size": 8,
+      "offset": 83069,
+      "size": 4,
       "end": 83073,
       "segment": "prg",
       "prg_bank": 5,
-      "cpu_addr": 33897
+      "cpu_addr": 33901
     },
     {
       "offset": 83155,
@@ -12443,20 +13910,28 @@
       "cpu_addr": 44433
     },
     {
-      "offset": 95002,
-      "size": 3317,
+      "offset": 95139,
+      "size": 3180,
       "end": 98319,
       "segment": "prg",
       "prg_bank": 5,
-      "cpu_addr": 45834
+      "cpu_addr": 45971
     },
     {
       "offset": 98543,
-      "size": 278,
-      "end": 98821,
+      "size": 126,
+      "end": 98669,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 32991
+    },
+    {
+      "offset": 98797,
+      "size": 24,
+      "end": 98821,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 33245
     },
     {
       "offset": 99381,
@@ -12468,11 +13943,19 @@
     },
     {
       "offset": 99468,
-      "size": 20,
-      "end": 99488,
+      "size": 4,
+      "end": 99472,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 33916
+    },
+    {
+      "offset": 99480,
+      "size": 8,
+      "end": 99488,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 33928
     },
     {
       "offset": 99619,
@@ -12492,11 +13975,27 @@
     },
     {
       "offset": 100087,
-      "size": 1192,
-      "end": 101279,
+      "size": 14,
+      "end": 100101,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 34535
+    },
+    {
+      "offset": 100200,
+      "size": 44,
+      "end": 100244,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 34648
+    },
+    {
+      "offset": 100266,
+      "size": 1013,
+      "end": 101279,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 34714
     },
     {
       "offset": 101295,
@@ -12507,12 +14006,12 @@
       "cpu_addr": 35743
     },
     {
-      "offset": 101498,
-      "size": 21,
+      "offset": 101512,
+      "size": 7,
       "end": 101519,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 35946
+      "cpu_addr": 35960
     },
     {
       "offset": 101752,
@@ -12539,20 +14038,28 @@
       "cpu_addr": 36913
     },
     {
-      "offset": 102785,
-      "size": 23,
+      "offset": 102790,
+      "size": 18,
       "end": 102808,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 37233
+      "cpu_addr": 37238
     },
     {
-      "offset": 103181,
-      "size": 29,
+      "offset": 103198,
+      "size": 4,
+      "end": 103202,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 37646
+    },
+    {
+      "offset": 103206,
+      "size": 4,
       "end": 103210,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 37629
+      "cpu_addr": 37654
     },
     {
       "offset": 103395,
@@ -12571,44 +14078,44 @@
       "cpu_addr": 38339
     },
     {
-      "offset": 104148,
-      "size": 12,
+      "offset": 104156,
+      "size": 4,
       "end": 104160,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 38596
+      "cpu_addr": 38604
     },
     {
-      "offset": 104667,
-      "size": 84,
+      "offset": 104711,
+      "size": 40,
       "end": 104751,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 39115
+      "cpu_addr": 39159
     },
     {
-      "offset": 104921,
-      "size": 40,
+      "offset": 104957,
+      "size": 4,
       "end": 104961,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 39369
+      "cpu_addr": 39405
     },
     {
-      "offset": 105195,
-      "size": 30,
+      "offset": 105219,
+      "size": 6,
       "end": 105225,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 39643
+      "cpu_addr": 39667
     },
     {
-      "offset": 105501,
-      "size": 16,
+      "offset": 105507,
+      "size": 10,
       "end": 105517,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 39949
+      "cpu_addr": 39955
     },
     {
       "offset": 105726,
@@ -12627,12 +14134,12 @@
       "cpu_addr": 40434
     },
     {
-      "offset": 106130,
-      "size": 8,
+      "offset": 106134,
+      "size": 4,
       "end": 106138,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 40578
+      "cpu_addr": 40582
     },
     {
       "offset": 106223,
@@ -12651,36 +14158,76 @@
       "cpu_addr": 40884
     },
     {
-      "offset": 106495,
-      "size": 12,
+      "offset": 106503,
+      "size": 4,
       "end": 106507,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 40943
+      "cpu_addr": 40951
     },
     {
       "offset": 106658,
-      "size": 20,
-      "end": 106678,
+      "size": 8,
+      "end": 106666,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 41106
     },
     {
-      "offset": 107007,
-      "size": 124,
+      "offset": 106674,
+      "size": 4,
+      "end": 106678,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 41122
+    },
+    {
+      "offset": 107071,
+      "size": 8,
+      "end": 107079,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 41519
+    },
+    {
+      "offset": 107087,
+      "size": 4,
+      "end": 107091,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 41535
+    },
+    {
+      "offset": 107095,
+      "size": 8,
+      "end": 107103,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 41543
+    },
+    {
+      "offset": 107119,
+      "size": 12,
       "end": 107131,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 41455
+      "cpu_addr": 41567
     },
     {
       "offset": 107220,
-      "size": 12,
-      "end": 107232,
+      "size": 2,
+      "end": 107222,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 41668
+    },
+    {
+      "offset": 107227,
+      "size": 5,
+      "end": 107232,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 41675
     },
     {
       "offset": 107295,
@@ -12700,11 +14247,19 @@
     },
     {
       "offset": 107784,
-      "size": 15,
-      "end": 107799,
+      "size": 3,
+      "end": 107787,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 42232
+    },
+    {
+      "offset": 107793,
+      "size": 6,
+      "end": 107799,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 42241
     },
     {
       "offset": 107952,
@@ -12747,28 +14302,28 @@
       "cpu_addr": 43448
     },
     {
-      "offset": 109196,
-      "size": 24,
+      "offset": 109212,
+      "size": 8,
       "end": 109220,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 43644
+      "cpu_addr": 43660
     },
     {
-      "offset": 109362,
-      "size": 16,
+      "offset": 109370,
+      "size": 8,
       "end": 109378,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 43810
+      "cpu_addr": 43818
     },
     {
-      "offset": 109616,
-      "size": 12,
+      "offset": 109624,
+      "size": 4,
       "end": 109628,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 44064
+      "cpu_addr": 44072
     },
     {
       "offset": 109727,
@@ -12788,11 +14343,19 @@
     },
     {
       "offset": 109978,
-      "size": 16,
-      "end": 109994,
+      "size": 3,
+      "end": 109981,
       "segment": "prg",
       "prg_bank": 6,
       "cpu_addr": 44426
+    },
+    {
+      "offset": 109985,
+      "size": 9,
+      "end": 109994,
+      "segment": "prg",
+      "prg_bank": 6,
+      "cpu_addr": 44433
     },
     {
       "offset": 110165,
@@ -12843,12 +14406,12 @@
       "cpu_addr": 45269
     },
     {
-      "offset": 110891,
-      "size": 8,
+      "offset": 110895,
+      "size": 4,
       "end": 110899,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 45339
+      "cpu_addr": 45343
     },
     {
       "offset": 111170,
@@ -12883,12 +14446,12 @@
       "cpu_addr": 47005
     },
     {
-      "offset": 112713,
-      "size": 24,
+      "offset": 112719,
+      "size": 18,
       "end": 112737,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 47161
+      "cpu_addr": 47167
     },
     {
       "offset": 112914,
@@ -12899,12 +14462,12 @@
       "cpu_addr": 47362
     },
     {
-      "offset": 113010,
-      "size": 12,
+      "offset": 113018,
+      "size": 4,
       "end": 113022,
       "segment": "prg",
       "prg_bank": 6,
-      "cpu_addr": 47458
+      "cpu_addr": 47466
     },
     {
       "offset": 113163,
@@ -12947,12 +14510,20 @@
       "cpu_addr": 49105
     },
     {
-      "offset": 115076,
-      "size": 562,
+      "offset": 115217,
+      "size": 140,
+      "end": 115357,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 49665
+    },
+    {
+      "offset": 115497,
+      "size": 141,
       "end": 115638,
       "segment": "prg",
       "prg_bank": 7,
-      "cpu_addr": 49524
+      "cpu_addr": 49945
     },
     {
       "offset": 118587,
@@ -12964,11 +14535,19 @@
     },
     {
       "offset": 118740,
-      "size": 613,
-      "end": 119353,
+      "size": 104,
+      "end": 118844,
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 53188
+    },
+    {
+      "offset": 119225,
+      "size": 128,
+      "end": 119353,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 53673
     },
     {
       "offset": 119889,
@@ -12988,11 +14567,19 @@
     },
     {
       "offset": 120881,
-      "size": 49,
-      "end": 120930,
+      "size": 33,
+      "end": 120914,
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 55329
+    },
+    {
+      "offset": 120922,
+      "size": 8,
+      "end": 120930,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 55370
     },
     {
       "offset": 121073,
@@ -13003,12 +14590,12 @@
       "cpu_addr": 55521
     },
     {
-      "offset": 121650,
-      "size": 48,
+      "offset": 121666,
+      "size": 32,
       "end": 121698,
       "segment": "prg",
       "prg_bank": 7,
-      "cpu_addr": 56098
+      "cpu_addr": 56114
     },
     {
       "offset": 121706,
@@ -13044,11 +14631,19 @@
     },
     {
       "offset": 125682,
-      "size": 38,
-      "end": 125720,
+      "size": 30,
+      "end": 125712,
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 60130
+    },
+    {
+      "offset": 125716,
+      "size": 4,
+      "end": 125720,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 60164
     },
     {
       "offset": 126232,
@@ -13100,11 +14695,19 @@
     },
     {
       "offset": 128127,
-      "size": 36,
-      "end": 128163,
+      "size": 12,
+      "end": 128139,
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 62575
+    },
+    {
+      "offset": 128151,
+      "size": 12,
+      "end": 128163,
+      "segment": "prg",
+      "prg_bank": 7,
+      "cpu_addr": 62599
     },
     {
       "offset": 128747,
@@ -13115,12 +14718,12 @@
       "cpu_addr": 63195
     },
     {
-      "offset": 128898,
-      "size": 29,
+      "offset": 128923,
+      "size": 4,
       "end": 128927,
       "segment": "prg",
       "prg_bank": 7,
-      "cpu_addr": 63346
+      "cpu_addr": 63371
     },
     {
       "offset": 128932,
@@ -13139,12 +14742,12 @@
       "cpu_addr": 63835
     },
     {
-      "offset": 129430,
-      "size": 40,
+      "offset": 129438,
+      "size": 32,
       "end": 129470,
       "segment": "prg",
       "prg_bank": 7,
-      "cpu_addr": 63878
+      "cpu_addr": 63886
     },
     {
       "offset": 130395,

@@ -956,6 +956,49 @@ def _graphics_page(rm) -> str:
     allr = (reached6 | extra) & valid
     hit = sum(1 for r in rows if r["ids"] or r["tables"])
 
+    pal = [x for x in rm.regions if x["kind"] == "palette"]
+    if pal:
+        p.append("<h2>Palettes</h2>")
+        r = pal[0]
+        body = rm.rom[r["offset"]:r["end"]]
+        p.append('<div class="note"><strong>Thirty-seven palettes of three colours, and the '
+                 "reader states the layout rather than leaving it to be inferred.</strong> "
+                 "<code>$B2E4</code> does <code>ASL A / ADC $11 / TAX</code> to make "
+                 "<code>X = A &times; 3</code>, then reads <code>$B30A,X</code>, "
+                 "<code>$B30B,X</code> and <code>$B30C,X</code> into the palette staging "
+                 "area at <code>$0181</code>. Colour 0 is not here: it comes from "
+                 "<code>$0180</code>, the shared backdrop, which is why a record is three "
+                 "bytes and not four.</div>")
+        p.append('<div class="note warn"><strong>The extent lands on a record '
+                 "boundary.</strong> Every byte from <code>$B30A</code> is a legal NES "
+                 "colour for exactly 111 bytes &mdash; <strong>37 records of three with "
+                 "nothing left over</strong> &mdash; and the first byte past it is "
+                 "<code>$93</code>. A limit that falls on a record edge by accident is a "
+                 "one-in-three coincidence. <em>Which palette is used where is not "
+                 "established.</em></div>")
+        p.append('<div class="pals">')
+        for k in range(len(body) // 3):
+            trio = body[3 * k:3 * k + 3]
+            sw = "".join(
+                f'<span class="sw" style="background:rgb{NES_RGB[c & 0x3F]};'
+                f'color:{"#000" if sum(NES_RGB[c & 0x3F]) > 340 else "#fff"}">{c:02X}</span>'
+                for c in trio)
+            p.append(f'<div class="pal"><div class="palh">{k} &middot; '
+                     f'${r["cpu_addr"] + 3 * k:04X}</div>'
+                     f'<div class="palrow"><span class="palgrp">'
+                     f'<span class="sw" style="background:repeating-linear-gradient('
+                     f'45deg,#8884,#8884 3px,#0000 3px,#0000 6px);font-size:9px">bg</span>'
+                     f'{sw}</span></div></div>')
+        p.append("</div>")
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} <span class="tag" '
+                 f'style="background:{KIND_COLOURS["palette"]}">palette</span> '
+                 f'<span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank '
+                 f'{r["prg_bank"]} ${r["cpu_addr"]:04X}-'
+                 f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+
     p.append("<h2>Which object wears which</h2>")
     p.append('<div class="note"><strong>An object&rsquo;s metasprite is whatever its '
              "behaviour handler puts in <code>$0548,X</code>.</strong> Bank 6 dispatches on "
