@@ -56,6 +56,9 @@ wrong finding away.
 - `tools/parse-screen.py` — walks bank 4's per-area screen data into
   `annotations/regions/60-screen.json`. `--block N` prints one entry block record by
   record. Generated; do not hand-edit. `tools/tgl/screen.py` holds the format.
+- `tools/parse-map.py` — walks bank 5's world map into
+  `annotations/regions/77-bank5-map.json`. `--grid` draws it, `--areas` lists the 21
+  entrances. Generated.
 - `tools/find-tables.py` — claims byte tables whose extent their own readers fix, into
   `annotations/regions/75-tables.json`. `--list` shows every candidate. Generated. **Read
   its header before trusting a number from it** — the rule only holds for reads in the same
@@ -426,8 +429,7 @@ Do not re-derive these; do check anything that depends on them.
   - **The extent lands on a record boundary:** every byte is a legal NES colour for exactly
     111 bytes — 37 × 3 with nothing over — and the next byte is `$93`. `docs/graphics.html`
     draws them all.
-- **Bank 5 `$8A6E-$960E` is a variable-length record stream, and finding it needed a
-  different search.** No traced code references it and **no pointer table anywhere in the
+- **Bank 5 `$8A6E-$960E` is the WORLD MAP**, and finding it needed a different search. No traced code references it and **no pointer table anywhere in the
   ROM points into it** — a scan for runs of four or more consecutive in-range 16-bit values
   returned 34 runs, every one a false positive inside an unrelated table. What found it was
   scanning for code that **builds the address as immediates**: `$808F` does
@@ -442,8 +444,21 @@ Do not re-derive these; do check anything that depends on them.
   - **The extent is proved by where it lands:** 807 records from `$8A6E` end *exactly* on
     `$960F`, the first byte of the dialogue pointer table. A wrong length rule would
     overshoot or stop short somewhere in 2,977 bytes.
-  - **Not established:** what a record means. The length is the low nibble, so the high
-    nibble is a type or value that nothing here reads. 807 is not a multiple of 24.
+  - **`$8853` is the map screen.** Each qualifying cell becomes one hardware sprite at
+    `column × 4 + $10` across and `row × 4 + $3B` down, tile `$01`, attribute `$03` — four
+    pixels a cell, 96 across, a minimap. 807 records, 34 rows, 291 drawn, 207 empty.
+  - **A record's bytes.** Byte 0: bit 7 = drawn on the map, low nibble = length − 1, and
+    `$80` exactly is an empty cell. Byte 1: low three bits pick a progress flag — `$8860`
+    subtracts one, calls `$C078` for a bit mask, ANDs with `$04B0` and skips the cell when
+    clear, which is what hides the map until you have been somewhere. Byte 2: bit 7 marks an
+    **area entrance**, low seven bits are the area number.
+  - **The check that carries it:** the records with byte 0 `$82` and byte 2 bit 7 set carry
+    area numbers **1 to 21, each exactly once**. Twenty-one areas is what this project
+    established from a completely different direction — bank 4's per-area table and the
+    `CPY #$15` tests — and nothing here was tuned to produce it. `parse-map.py --grid`
+    draws it; `--areas` lists all 21 with their row and column.
+  - **Not established:** bits 4-6 of byte 0, and everything past byte 2 in the longer
+    records, which run to 16 bytes. The last row holds 15 cells, not 24.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -493,16 +508,16 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Read the high nibble of a bank 5 map record.** The stream at `$8A6E` is bounded and
-   walked; only the low nibble (the length) is understood. `$882D` sets up a second walk of
-   the same data with different parameters — reading that would say what a record is.
-2. **Bank 5 `$B379`'s six block pointers.** Bounded (the table ends where its first target
+1. **Bank 5 `$B379`'s six block pointers.** Bounded (the table ends where its first target
    begins) but no reader found; targets look like 2×2 tile groups with a palette index —
    four bytes then `$03`, repeating. Would open `$B393-$BFFE`, about 3,100 bytes.
-3. **Bank 0 `$8BB2`, 1,482 bytes**, read by a single `LDA $8BB2,Y` at `$8959`.
-4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`. None read.
+2. **Bank 0 `$8BB2`, 1,482 bytes**, read by a single `LDA $8BB2,Y` at `$8959`. The largest
+   single gap left.
+3. **The rest of a map record** — bits 4-6 of byte 0 and bytes 3 onward. `$891F`, called
+   just before the map screen draws a cell, is the obvious place to look.
+4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`.
 5. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained.
 6. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent only.
 7. Start a RAM map. Page 3 is sound state; `$B0-$BD` the screen-data interpreter;
-   `$0180-$0183` palette staging; `$0200` OAM; `$0500,X` object type; `$0548,X` metasprite
-   id; `$14`/`$15` the map walker's row and column.
+   `$0180-$0183` palette staging; `$0200` OAM; `$04B0` map progress flags; `$0500,X` object
+   type; `$0548,X` metasprite id; `$14`/`$15` the map walker's row and column.
