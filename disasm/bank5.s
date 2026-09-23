@@ -2503,7 +2503,8 @@ L5_A33F:
         sta     $05D8,Y
         rts
 
-; ---- UNCLAIMED (gap) $A377-$A3BA, 68 bytes
+; ---- bank5.tbl_A377 (data) $A377-$A3BA, 68 bytes
+; Value copied to $55, by map sub-id
         .byte   $00,$0D,$0B,$0B,$0D,$11,$0F,$0C,$0B,$0C,$0C,$03,$0D,$05,$11,$0E
         .byte   $11,$0B,$0F,$00,$0E,$02,$0F,$0F,$11,$04,$0F,$11,$0B,$02,$0D,$0F
         .byte   $0B,$00,$00,$0A,$01,$0D,$0C,$10,$11,$0D,$0A,$03,$04,$00,$05,$07

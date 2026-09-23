@@ -4959,13 +4959,31 @@ L7_EEE0:
         lda     $EF16,Y
         jmp     L7_D852
 
-; ---- UNCLAIMED (gap) $EF16-$EF6B, 86 bytes
-        .byte   $09,$07,$07,$02,$02,$07,$0D,$07,$02,$0D,$0E,$10,$18,$18,$13,$10
-        .byte   $00,$18,$18,$12,$1E,$15,$15,$04,$04,$05,$05,$0C,$0C,$08,$08,$15
-        .byte   $15,$04,$04,$05,$05,$0C,$0C,$08,$08,$1C,$19,$07,$09,$0C,$00,$0B
-        .byte   $06,$0A,$03,$06,$0B,$04,$08,$0F,$0D,$11,$01,$09,$05,$0F,$0E,$20
-        .byte   $21,$21,$22,$22,$23,$23,$24,$24,$26,$26,$21,$21,$22,$22,$23,$23
-        .byte   $24,$24,$25,$25,$25,$20
+; ---- bank7.tbl_EF16 (data) $EF16-$EF20, 11 bytes
+; Labyrinth music, by area
+        .byte   $09,$07,$07,$02,$02,$07,$0D,$07,$02,$0D,$0E
+
+; ---- bank7.tbl_EF21 (data) $EF21-$EF29, 9 bytes
+; Corridor sound, first 9 corridors
+        .byte   $10,$18,$18,$13,$10,$00,$18,$18,$12
+
+; ---- bank7.tbl_EF2A (data) $EF2A-$EF3F, 22 bytes
+; Corridor music, by corridor
+        .byte   $1E,$15,$15,$04,$04,$05,$05,$0C,$0C,$08,$08,$15,$15,$04,$04,$05
+        .byte   $05,$0C,$0C,$08,$08,$1C
+
+; ---- bank7.tbl_EF40 (data) $EF40-$EF54, 21 bytes
+; Value copied to $55, by room index
+        .byte   $19,$07,$09,$0C,$00,$0B,$06,$0A,$03,$06,$0B,$04,$08,$0F,$0D,$11
+        .byte   $01,$09,$05,$0F,$0E
+
+; ---- bank7.tbl_EF55 (data) $EF55-$EF6A, 22 bytes
+; Corridor scene, by corridor
+        .byte   $20,$21,$21,$22,$22,$23,$23,$24,$24,$26,$26,$21,$21,$22,$22,$23
+        .byte   $23,$24,$24,$25,$25,$25
+
+; ---- UNCLAIMED (gap) $EF6B-$EF6B, 1 bytes
+        .byte   $20
 
 ; ---- bank7.code_EF6C (code) $EF6C-$EFD7, 108 bytes
 L7_EF6C:

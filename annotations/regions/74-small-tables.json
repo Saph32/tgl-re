@@ -1,0 +1,71 @@
+{
+  "_comment": "Hand-authored. Small tables whose readers were found while mapping scenes and corridors.",
+  "regions": [
+    {
+      "id": "bank7.tbl_EF16",
+      "offset": 126758,
+      "size": 11,
+      "kind": "data",
+      "name": "Labyrinth music, by area",
+      "confidence": "confirmed",
+      "cpu_addr": 61206,
+      "sha1": "18ee44fc1872afe80a30bb45a9b197ca49465c11",
+      "description": "LDA $EF16,Y with Y = $50, the labyrinth area (bank 7 $EBB0, $EF10 and $FFDE), then JSR/JMP $D852 - the play-sound call - so one song per labyrinth area 0-10. 11 entries, ending where the next table's reads begin at $EF21. Values 09 07 07 02 02 07 0D 07 02 0D 0E."
+    },
+    {
+      "id": "bank7.tbl_EF21",
+      "offset": 126769,
+      "size": 9,
+      "kind": "data",
+      "name": "Corridor sound, first 9 corridors",
+      "confidence": "lead",
+      "cpu_addr": 61217,
+      "sha1": "9ac559152e615727161907bb610db7076065d825",
+      "description": "LDA $EF21,Y with Y = $51, the corridor, at $EEAF; zero means nothing, otherwise JMP $D852. Only 9 bytes lie between $EF21 and the next table at $EF2A, so corridors 9 and up read that table's bytes - either they never reach this code or the overlap is deliberate. THE 9 IS STRUCTURAL; a LEAD."
+    },
+    {
+      "id": "bank7.tbl_EF2A",
+      "offset": 126778,
+      "size": 22,
+      "kind": "data",
+      "name": "Corridor music, by corridor",
+      "confidence": "confirmed",
+      "cpu_addr": 61226,
+      "sha1": "594c540ea4395570d76438e94359504f2ca59e33",
+      "description": "LDA $EF2A,Y with Y = $51 then JSR $D852 at $ECB3. 22 entries, corridors 0-21, ending where $EF40 begins. The values repeat in pairs and then repeat 1-10 for 11-20 - corridors 1-2 share a song, 3-4 another, and corridor n+10 plays what corridor n does - the same pairing the scenes ($EF55) and keys follow."
+    },
+    {
+      "id": "bank7.tbl_EF40",
+      "offset": 126800,
+      "size": 21,
+      "kind": "data",
+      "name": "Value copied to $55, by room index",
+      "confidence": "confirmed",
+      "cpu_addr": 61248,
+      "sha1": "62da0405bac169e06d8863ec1d4ec5c36d97a48f",
+      "description": "$EE1D: JSR $EECC, and when the result has bit 7 set, AND #$7F / TAY / LDA $EF40,Y / STA $55. 21 entries, ending where $EF55 begins. Bank 5 $A377 feeds $55 too. What $55 selects is NOT established."
+    },
+    {
+      "id": "bank7.tbl_EF55",
+      "offset": 126821,
+      "size": 22,
+      "kind": "data",
+      "name": "Corridor scene, by corridor",
+      "confidence": "confirmed",
+      "cpu_addr": 61269,
+      "sha1": "d7a59978790f459f276c827d11626d7f5b879669",
+      "description": "$EF74: LDY $51 / $EF76 LDA $EF55,Y / STA $5C / JSR bank 5 $8000 - the scene (tiles, metatile sets, palettes, see tools/tgl/scene.py) each corridor loads after scene 1. 22 entries, corridors 0-21, ending exactly where the code at $EF6C begins. Values 32 for corridor 0, then pairs 33-38; 11-20 repeat 1-10. HARDWARE: a savestate in corridor 15 has $5C = $23 = $EF55[15]."
+    },
+    {
+      "id": "bank5.tbl_A377",
+      "offset": 91015,
+      "size": 68,
+      "kind": "data",
+      "name": "Value copied to $55, by map sub-id",
+      "confidence": "confirmed",
+      "cpu_addr": 41847,
+      "sha1": "281194b3e908ecf66bb2574f07f7ab559c367877",
+      "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. What $55 selects is NOT established; bank 7 $EF40 writes it too."
+    }
+  ]
+}
