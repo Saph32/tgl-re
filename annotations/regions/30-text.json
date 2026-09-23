@@ -45,6 +45,17 @@
   "_glyph_caveat": "Every glyph above is derived from context. There is no font in this file to check them against: CHR is RAM and no uploader has been found, so no byte of the ROM is a tile yet. CORRECTION, recorded rather than edited away: an earlier entry in annotations/dispatch.json read $5C-$5F as a single 2x2 graphic, on the strength of bank 1 writing $5C $5E to PPU $21AF and $5D $5F to $21CF, one nametable row apart. The dialogue script then showed $5D used as an exclamation mark and $5E as a quote in running English. Both readings cannot be right for one font, and they do not have to be: with CHR RAM the tile at a given index is whatever was last uploaded, so a title screen and a dialogue box can disagree about $5C. Which of the two is happening here is NOT established, and the bank 0 script is a third data point - it uses $5C where a comma belongs ('LONG AGO,AN ALIEN RACE') while the dialogue script uses $3C for the same job.",
   "regions": [
     {
+      "id": "bank0.ppuscript_84F7",
+      "offset": 1287,
+      "size": 497,
+      "kind": "data",
+      "name": "PPU script at $84F7",
+      "confidence": "confirmed",
+      "cpu_addr": 34039,
+      "sha1": "b7fd82e51dd15e608cdab2704e3fa0a078ca5ac0",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2000: 53 items over 30 row breaks, 497 bytes, ending at $86E7 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. **Nothing in the ROM names this address as an operand.** It is reached through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at $8485-$8493, which is the idiom playbook section 5 warns about: a search for the address would report the block unreferenced. It was found by walking traced code and tracking immediates. The printable bytes read as: \"%%! ! !% ! %!%!%%!! !% %!%%!%!%%%!!! TM% %%\" ###\"$%!BY%!BRODERBUND SOFTWARE INC.%TM AND @1988 IREM CORP.@1988 CO\"PILELICENSED BYNINTENDO OF AMERICA INC.PRESS START TO BEGINwww\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
       "id": "bank0.ppuscript_86E8",
       "offset": 1784,
       "size": 314,
@@ -76,6 +87,94 @@
       "cpu_addr": 35321,
       "sha1": "07a48d4cf8ee9233a230c754baab6688002ce86e",
       "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 2 items over 2 row breaks, 23 bytes, ending at $8A0F on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. **Nothing in the ROM names this address as an operand.** It is reached through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at $891F-$892F, which is the idiom playbook section 5 warns about: a search for the address would report the block unreferenced. It was found by walking traced code and tracking immediates. The printable bytes read as: \"MISSIONCOMPLETE.\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8A10",
+      "offset": 2592,
+      "size": 37,
+      "kind": "data",
+      "name": "PPU script at $8A10",
+      "confidence": "confirmed",
+      "cpu_addr": 35344,
+      "sha1": "ae687ab6bd8b9eab7bdffaf8f2c06cd5318cefe4",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 3 items over 4 row breaks, 37 bytes, ending at $8A34 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 2 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"YOU ARE THEGREATESTPLAYER.\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8A35",
+      "offset": 2629,
+      "size": 64,
+      "kind": "data",
+      "name": "PPU script at $8A35",
+      "confidence": "confirmed",
+      "cpu_addr": 35381,
+      "sha1": "e940619662a54f7ffbe1e2dbf0ffff1354e13487",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 5 items over 7 row breaks, 64 bytes, ending at $8A74 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 3 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"PROGRAMAND EFFECTJEMINI HIRONOPASSWORDWAO ISEE\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8A75",
+      "offset": 2693,
+      "size": 30,
+      "kind": "data",
+      "name": "PPU script at $8A75",
+      "confidence": "confirmed",
+      "cpu_addr": 35445,
+      "sha1": "59a893a8324180b4c77584f9c9b791abd4fe6b99",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 2 items over 2 row breaks, 30 bytes, ending at $8A92 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 4 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"MAP MAKERPOCHI NAKAMORI\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8A93",
+      "offset": 2723,
+      "size": 37,
+      "kind": "data",
+      "name": "PPU script at $8A93",
+      "confidence": "confirmed",
+      "cpu_addr": 35475,
+      "sha1": "31825827269b0de5b994c336bee52fb9672df173",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 3 items over 3 row breaks, 37 bytes, ending at $8AB7 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 5 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"GRAPHICJANUS TERAMOTOYORIKI\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8AB8",
+      "offset": 2760,
+      "size": 52,
+      "kind": "data",
+      "name": "PPU script at $8AB8",
+      "confidence": "confirmed",
+      "cpu_addr": 35512,
+      "sha1": "6620fdb26352509a02011ee0cf34c56626bc5bfe",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 5 items over 7 row breaks, 52 bytes, ending at $8AEB on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 6 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"MUSICMIYAMOSHANTEFFECT IDEASIN!KUN\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8AEC",
+      "offset": 2812,
+      "size": 97,
+      "kind": "data",
+      "name": "PPU script at $8AEC",
+      "confidence": "confirmed",
+      "cpu_addr": 35564,
+      "sha1": "ff5e22ef9d3d94d1c948f3159419c03fb12e4576",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 9 items over 9 row breaks, 97 bytes, ending at $8B4C on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 7 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"TEST PLAYMIDNIGHTCOMMANDER!NUIJANUS TERAMOTOKUNNYTANIDASHANTPAL...ETC\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8B4D",
+      "offset": 2909,
+      "size": 26,
+      "kind": "data",
+      "name": "PPU script at $8B4D",
+      "confidence": "confirmed",
+      "cpu_addr": 35661,
+      "sha1": "8a1b1f2d9a8db4df89b713d99ac1f5efbe947aa2",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 2 items over 2 row breaks, 26 bytes, ending at $8B66 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 8 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"DIRECTORMOO NIITANI\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
+      "id": "bank0.ppuscript_8B67",
+      "offset": 2935,
+      "size": 60,
+      "kind": "data",
+      "name": "PPU script at $8B67",
+      "confidence": "confirmed",
+      "cpu_addr": 35687,
+      "sha1": "5650b5e3e4ab65692bd9a870ba4bfd0c18130a70",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 5 items over 6 row breaks, 60 bytes, ending at $8BA2 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen 9 of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly. The printable bytes read as: \"CREATED BYCO\"PILEPRODUCED BYIREMCORPORATION\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
     },
     {
       "id": "bank5.msgtable_960F",

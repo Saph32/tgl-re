@@ -30,8 +30,8 @@
       "pages": "1, back cover",
       "topic": "Credits",
       "claim": "Trademark and copyright IREM Corp. 1988; copyright COMPILE 1988; copyright Brøderbund Software 1988. Product manager Alan Weiss; special thanks to Ed Bernstein, Cynthia Wuthmann, Shigeo Akada, Dave Davis and E². Printed in Japan.",
-      "status": "consistent",
-      "rom": "The title sequence's screen script in bank 0 ($8B80) reads PRODUCED BY / IREM / CORPORATION. No text found so far names COMPILE or Brøderbund."
+      "status": "confirmed",
+      "rom": "The ending credits in bank 0 ($8A10-$8BA2, rendered in sequence by $8927) end on CREATED BY / CO?PILE / PRODUCED BY / IREM / CORPORATION - COMPILE with an M drawn from the patched glyph slot $5E. They also name staff the manual does not: program and effect JEMINI HIRONO; password WAO ISEE; map maker POCHI NAKAMORI; graphic JANUS TERAMOTO, YORIKI; music MIYAMO, SHANT; effect idea SIN-KUN; test play MIDNIGHT, COMMANDER-NUI, JANUS TERAMOTO, KUNNY, TANIDA, SHANT, PAL; director MOO NIITANI. Brøderbund does not appear. CORRECTION: this entry said no ROM text names COMPILE; the credits had not been read."
     },
     {
       "id": "setting",
@@ -225,6 +225,15 @@
       "claim": "The game has two main modes: a vertically scrolling shooter, the corridors, and a top-down adventure, the labyrinth, which is divided into areas.",
       "status": "confirmed",
       "rom": "The HUD prints AREA from $50 in the labyrinth and from $51 otherwise (bank 7 $E169, bit 1 of $30); a labyrinth savestate shows 'AREA 0 X 8 Y12' with $50 = 0. $51 is the corridor number 1-21 - what this project had been calling 'areas 1-21', CORRECTED. Leaving corridor n sets the labyrinth area to n, folding 11-20 onto 1-10 and capping 21 at 10 (bank 7 $F2A0-$F2AC): corridors n and n+10 belong to labyrinth area n, which is why the keys repeat with period ten."
+    },
+    {
+      "id": "tgl-credits",
+      "source": "owner",
+      "pages": "-",
+      "topic": "Password",
+      "claim": "The special password TGL starts the game in a special mode.",
+      "status": "consistent",
+      "rom": "Bank 3 $857A accepts T G L and blanks, skipping the checksum and setting $2F = 0, $30 = 2. The game itself shows the word: press Start on the last ending-credits screen and bank 0 $899F takes one more pass that renders the script PASSWORD TGL ($8BA3). What mode $30 = 2 is has not been read."
     }
   ]
 }

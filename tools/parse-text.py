@@ -60,14 +60,25 @@ DIALOGUE_ENTRIES = 21
 # The other seven go to $C04B, $C006, $C07E, $80F5 and $C042: different consumers, different
 # formats, none of them claimed here.
 #
-# $8600 is NOT in this list although a script plainly starts near there. Parsing it with this
-# grammar runs past the $FE at $86E7 and on to $88B6, swallowing the block below - so either
-# $8600 is not a script head or the grammar is incomplete. Claiming it would be claiming an
-# extent the parse does not support.
+# $8600 is NOT a script head - parsing from it runs past the $FE at $86E7. CORRECTION: this
+# comment used to leave that open. The head is $84F7: $8485-$8493 builds PPU $2000 and
+# pointer $84F7 and falls into $8495, and parsing from $84F7 ends on exactly that $FE -
+# 30 rows of tiles $80-$F6, a picture, not text. $8600 is in its middle.
+CREDITS = ("THE ENDING CREDITS. $891B points $16/$17 at $89F9 once; each pass of the loop at $8927 renders the next script at PPU $2220 - $8495 leaves the pointer just past the $FE - waits $8BB2[$F0] seconds and clears the text. So this script is reached by SEQUENCE, not by any pointer: nothing in the ROM names its address. Screen {n} of the chain $89F9 (MISSION COMPLETE) ... $8BA3 (PASSWORD TGL), which partitions $89F9-$8BB1 exactly.")
+
 PPU_SCRIPTS = [
+    (0, 0x84F7, 0x2000, "$8485-$8493"),
     (0, 0x86E8, 0x2080, "$8381-$8391"),
     (0, 0x8836, 0x2220, "$8822-$8832"),
     (0, 0x89F9, 0x2220, "$891F-$892F"),
+    (0, 0x8A10, 0x2220, "$891B", CREDITS.format(n=2)),
+    (0, 0x8A35, 0x2220, "$891B", CREDITS.format(n=3)),
+    (0, 0x8A75, 0x2220, "$891B", CREDITS.format(n=4)),
+    (0, 0x8A93, 0x2220, "$891B", CREDITS.format(n=5)),
+    (0, 0x8AB8, 0x2220, "$891B", CREDITS.format(n=6)),
+    (0, 0x8AEC, 0x2220, "$891B", CREDITS.format(n=7)),
+    (0, 0x8B4D, 0x2220, "$891B", CREDITS.format(n=8)),
+    (0, 0x8B67, 0x2220, "$891B", CREDITS.format(n=9)),
 ]
 
 # Glyphs, as far as the text itself establishes them. EVERY ENTRY HERE IS DERIVED FROM
@@ -267,7 +278,9 @@ def main() -> int:
                 "in the ROM to check them against, because CHR is RAM here."),
         })
 
-    for bank, start, ppu, site in PPU_SCRIPTS:
+    for entry in PPU_SCRIPTS:
+        bank, start, ppu, site = entry[:4]
+        how = entry[4] if len(entry) > 4 else None
         try:
             end, items, rows = parse_ppu_script(rm, bank, start)
         except AnnotationError as exc:
@@ -292,12 +305,13 @@ def main() -> int:
                 "column is ORed into the PPU address low byte, $FF ends a row and adds $20 "
                 "to the address, and bit 7 of the count means repeat one character instead "
                 "of advancing through the source, which is a run-length fill. "
-                "**Nothing in the ROM names this address as an operand.** It is reached "
-                "through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at "
-                + site + ", which "
-                "is the idiom playbook section 5 warns about: a search for the address "
-                "would report the block unreferenced. It was found by walking traced code "
-                "and tracking immediates. "
+                + (how + " " if how else
+                 "**Nothing in the ROM names this address as an operand.** It is reached "
+                 "through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at "
+                 + site + ", which "
+                 "is the idiom playbook section 5 warns about: a search for the address "
+                 "would report the block unreferenced. It was found by walking traced code "
+                 "and tracking immediates. ")
                 + (f'The printable bytes read as: "{text[:180]}". ' if len(text) > 8 else
                    "Its payload is mostly tile numbers rather than letters. ")
                 + "NOT ESTABLISHED: what the non-letter tile numbers depict, and whether "

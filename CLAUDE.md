@@ -609,6 +609,18 @@ Do not re-derive these; do check anything that depends on them.
   - CHR 393/512 from the ROM; OAM: the player and a 2-sprite object found whole.
   - Metatile sets come from records `[count]` + `[set|list<<4][tile base][ptr]` via the
     pointer table `$AE24` (loader `$AD1A`); the first record, `$AF1C`, points at itself.
+- **Bank 0 screens found in the gaps.** `$84F7` is the **title-screen picture** (a screen
+  script, 30 rows of tiles `$80-$F6`; `$8485` builds PPU `$2000` + pointer), matching the
+  title savestate's nametable **360/360**. `$89F9-$8BB1` is the **ending**: MISSION
+  COMPLETE and eight credit screens rendered in sequence by `$8927` at PPU `$2220` (the
+  renderer leaves `$16/$17` past each `$FE`), timed by the **9-entry** table `$8BB2`. At the
+  last screen `$899F` waits for Start, reads `$8BBA` and renders a tenth, **PASSWORD TGL**
+  (`$8BA3`) — the game shows its own back door. The credits name COMPILE and the staff.
+  **CORRECTIONS:** `$8BBA` was "unexplained"; `bank0.text_8B80` was the middle of the ninth
+  screen, whose script starts at `$8B67`; `$8600` was never a head.
+- **Tracer: branches after `LDA/LDX/LDY #imm` are decided** (`LDA #$01 / BNE` is a jump).
+  Found when the weapon handler tables (bank 6 `$8653` ×12, `$86E7` ×13, dispatching on
+  `$3C`) traced `$879A` and the fall-through at `$87DA` decoded a table.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and

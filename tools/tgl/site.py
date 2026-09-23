@@ -371,7 +371,7 @@ TOPICS = [
      "to fire."),
 ]
 
-PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.text_8B80")
+PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.ppuscript_8B67")
 # Everything tools/parse-enemies.py generates. Selected by source file rather than a list
 # of ids, because the set grows whenever another spawn script or stream is found.
 ENEMY_SOURCE = "80-enemies.json"
