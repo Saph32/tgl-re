@@ -357,6 +357,10 @@ TOPICS = [
      lambda rs: [r for r in rs if r["id"] in PASSWORD_REGIONS],
      "32 characters, six bits each, a running XOR key and a checksum \u2014 and a back door "
      "that skips all of it."),
+    ("enemies.html", "Enemies",
+     lambda rs: [r for r in rs if r["id"] in ENEMY_REGIONS],
+     "127 object types with hit points, attack and art; 47 spawn scripts; and the loader "
+     "that decompresses enemy tiles as rooms are entered."),
     ("status.html", "Status screen",
      lambda rs: [r for r in rs if r["id"] in STATUS_REGIONS],
      "Select during play: the world map, seven keys, twelve weapons and what each one costs "
@@ -364,6 +368,22 @@ TOPICS = [
 ]
 
 PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.text_8B80")
+ENEMY_REGIONS = ("bank5.tbl_803C",
+                 "bank5.tbl_82D9",
+                 "bank5.data_A497",
+                 "bank5.tbl_A4C7",
+                 "bank5.data_A525",
+                 "bank5.tbl_A68D",
+                 "bank5.tbl_A6A3",
+                 "bank5.data_A6CA",
+                 "bank7.tbl_C174",
+                 "bank7.tbl_C201",
+                 "bank7.tbl_CFC4",
+                 "bank7.tbl_D02C",
+                 "bank7.tbl_D0AB",
+                 "bank7.tbl_D12A",
+                 "bank7.tbl_D1A9",
+                 "bank7.tbl_D441")
 STATUS_REGIONS = ("bank5.map_8A6E", "bank5.tbl_8690", "bank5.tbl_85DA", "bank5.tbl_87E4",
                   "bank2.gfx_8E0C", "bank2.gfx_928C", "bank2.gfx_92AC", "bank3.tbl_817A",
                   "bank7.tbl_EFD8", "bank7.tbl_FDCA", "bank7.tbl_FDD7")
@@ -1739,13 +1759,17 @@ def _status_page(rm):
              + ", ".join(str(k) for k in keys[10:20]) + f"; area 21: {keys[20]}."
              " <strong>Correction:</strong> this project first read byte 1 as a "
              "been-there flag and every drawn cell as a sprite; both were wrong.</div>")
-    p.append('<div class="note warn"><strong>Not established.</strong> The stream holds '
-             f"{len(recs)} records, 34 rows, but the status screen draws only 24 and all 21 "
-             "entrances are in them. Rows 24-33 are walked by the seek like the rest; what "
-             "they are is open. An entrance marker is shown while the area's <code>$04A9</code> "
-             "bit is clear, and area 21's only once areas 1-10 are all flagged &mdash; "
-             "&ldquo;cleared&rdquo; is the obvious reading of that flag and has not been "
-             "checked.</div>")
+    p.append('<div class="note"><strong>The map is exactly 24 &times; 24.</strong> '
+             f"{len(recs)} records, and the status screen draws all of them. "
+             "<strong>Correction:</strong> this page first said the stream held 807 records in "
+             "34 rows. The last ten &ldquo;rows&rdquo; were bank 5's room shapes and room "
+             "layouts, which <code>$8042</code> and <code>$8243</code> read; the old proof "
+             "(&ldquo;the walk lands exactly on <code>$960F</code>&rdquo;) was one a walk over "
+             "arbitrary data passes about one time in four.</div>")
+    p.append('<div class="note warn"><strong>Not established.</strong> An entrance marker is '
+             "shown while the area's <code>$04A9</code> bit is clear, and area 21's only once "
+             "areas 1-10 are all flagged &mdash; &ldquo;cleared&rdquo; is the obvious reading "
+             "of that flag and has not been checked.</div>")
 
     p.append("<h2>Keys and weapons</h2>")
     p.append('<p class="sub">Twenty slots from the table at <code>$8690</code>, '
@@ -1857,6 +1881,157 @@ def _status_page(rm):
     return "".join(p)
 
 
+def _enemies_page(rm):
+    import sys
+    from collections import Counter
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import enemy, gfx, worldmap
+
+    b5, b7 = rm.prg_bank(5), rm.prg_bank(7)
+    bases = {2: 0x8024, 3: 0x8020}
+
+    def block_tiles(k):
+        bank, i = enemy.block_source(k)
+        d = rm.prg_bank(bank)
+        p = bases[bank] + 2 * i - 0x8000
+        ptr = d[p] | d[p + 1] << 8
+        return bank, ptr, gfx.decode(d, ptr - 0x8000)[0]
+
+    ptrs = enemy.script_pointers(b5)
+    walks = {p: enemy.walk_script(b5, p) for p in set(ptrs)}
+    spawned = Counter()
+    for p in ptrs:
+        for e in walks[p][0]:
+            if e[0] in ("spawn", "formation"):
+                spawned[e[1]] += 1
+    recs, _ = worldmap.records(b5)
+    rooms = Counter(worldmap.fields(r).get("script") for r in recs if r["b"][0] != 0x80)
+
+    p = ["<h1>Enemies</h1>",
+         '<p class="sub">127 object types, each with hit points, attack, a death type and a '
+         "tile block of its own art; 47 spawn scripts that the labyrinth's rooms name; and "
+         "a loader that decompresses enemy art into CHR RAM as rooms are entered.</p>"]
+
+    p.append("<h2>How a fight is decided</h2>")
+    p.append('<div class="note">An object lives in one of 24 slots, its fields at '
+             "<code>$0500 + $18 &times; field + slot</code>. <code>$0500</code> is the type; "
+             "bank 6 dispatches behaviour on it, and bit 7 is set once <code>$CFA0</code> has "
+             "filled four fields from the per-type tables. Slots 0-4 are the player's side: "
+             "<code>$D348</code> tests only those against everything else, skipping any whose "
+             "<code>$0578</code> has bit 7 set and requiring the collision class the caller "
+             "names. <code>$D364</code> overlaps two boxes, each the position &plusmn; a "
+             "half-size looked up by <em>metasprite id</em> in <code>$C174</code>/"
+             "<code>$C201</code>. On a hit <code>$D30E</code> subtracts each side's "
+             "<strong>attack</strong> (<code>$05A8</code>) from the other's <strong>hit "
+             "points</strong> (<code>$0590</code>), clamping at 0, and at 0 <code>$D32A</code> "
+             "turns the object into its <strong>death type</strong>. The player is treated "
+             "differently: the damage is divided by the player's own <code>$0590</code> "
+             "first.</div>")
+
+    p.append("<h2>Every type</h2>")
+    p.append('<p class="sub">From <code>$D02C</code> (flags), <code>$D0AB</code> (HP), '
+             "<code>$D12A</code> (attack), <code>$D441</code> (death) and <code>$CFC4</code> "
+             "(art). The art is the tile block the type names, decoded with the codec &mdash; "
+             "the tiles, not assembled into a sprite. &ldquo;In scripts&rdquo; counts the "
+             "spawn scripts that create the type.</p>")
+    rows = []
+    for t in range(1, 128):
+        v = enemy.per_type(b7, t)
+        art = ""
+        if v["gfx"] is not None and 0 < v["gfx"] < 0x80:
+            bank, ptr, tiles = block_tiles(v["gfx"])
+            art = (f'<span class="meta">block <code>${v["gfx"]:02X}</code> &rarr; bank {bank} '
+                   f'<code>${ptr:04X}</code></span><br>'
+                   + _tiles_svg(tiles, per_row=16, px=22))
+        elif v["gfx"] is not None and v["gfx"] >= 0x80:
+            art = '<span class="meta">per object (<code>$07B8,X</code>)</span>'
+        rows.append(f'<tr><td><code>${t:02X}</code></td><td class="mono">{v["hp"]}</td>'
+                    f'<td class="mono">{v["attack"]}</td>'
+                    f'<td><code>${v["flags"]:02X}</code></td>'
+                    f'<td><code>${v["death"]:02X}</code></td>'
+                    f'<td class="mono">{spawned.get(t, "")}</td><td>{art}</td></tr>')
+    p.append('<div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>HP</th>'
+             "<th>Attack</th><th>Flags</th><th>Death</th><th>In scripts</th><th>Art</th>"
+             f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>")
+    p.append('<div class="note warn"><strong>Not established.</strong> Which type is which '
+             "enemy by name; what <code>$0620</code> (from <code>$D1A9</code>) is for; the "
+             "meaning of the individual flag bits beyond bit 7 and the collision classes. "
+             "Types <code>$76-$7F</code> have no art entry: <code>$CFC4</code> ends at type "
+             "<code>$75</code>, and a lookup past it would read the flags table.</div>")
+
+    p.append("<h2>Spawn scripts</h2>")
+    p.append('<p class="sub">A labyrinth room with byte 1 bit 3 set names a script '
+             "(<code>$57</code>); <code>$A480</code> finds it through <code>$A4C7</code> and "
+             "bank 7 <code>$F78F</code> runs it a step at a time. <strong>formation</strong> "
+             "<em>type &times; count / interval</em> creates a type-<code>$29</code> spawner "
+             "(bank 6 <code>$9A19</code>) that makes <em>count</em> of the type, one every "
+             "<em>interval</em> frames; <strong>wait</strong> is in units of 60 frames. All 47 "
+             "are used by the map.</p>")
+    items = []
+    for i, ptr in enumerate(ptrs, 1):
+        ev, _, how = walks[ptr]
+        parts = []
+        for e in ev:
+            if e[0] == "formation":
+                parts.append(f"formation <code>${e[1]:02X}</code> &times; {e[2]} / {e[3]}")
+            elif e[0] == "spawn":
+                parts.append(f"spawn <code>${e[1]:02X}</code>")
+            elif e[0] in ("delay", "wait"):
+                parts.append(f"wait {e[1]}")
+            elif e[0] == "jump":
+                parts.append(f'<span class="conf lead">jump ${e[1]:04X}?</span>')
+            else:
+                parts.append("end")
+        items.append(f"<tr><td>{i}</td><td><code>${ptr:04X}</code></td>"
+                     f'<td class="mono">{rooms.get(i, 0)}</td><td>{" &rarr; ".join(parts)}</td>'
+                     "</tr>")
+    p.append("<table><thead><tr><th>Id</th><th>At</th><th>Rooms</th><th>Steps</th></tr>"
+             f"</thead><tbody>{''.join(items)}</tbody></table>")
+    p.append('<div class="note warn"><strong>Five scripts do not end cleanly.</strong> They '
+             "finish <code>[byte] 01 02</code>, which the interpreter reads as a long wait "
+             "followed by command 1, a jump &mdash; whose two operand bytes are the next "
+             "script's <code>02</code> and first byte. Either that wait never runs out in "
+             "play, or this reading misses something. Marked <em>jump ?</em> above.</div>")
+
+    p.append("<h2>Loading enemy art</h2>")
+    p.append('<div class="note">Enemy tiles are decompressed into CHR RAM as a room is '
+             "entered. A <em>load stream</em> is <code>[flags | slot][block][tile]</code> "
+             "records, bit 7 ending it. Bank 7 <code>$E99F</code> takes one record per pass: "
+             "it evicts whatever was in <code>slot</code> (objects still using it become type "
+             "<code>$28</code>), has <code>$D7F9</code> decode <code>block</code> to tile "
+             "<code>tile</code> &mdash; bank 3 below <code>$40</code>, bank 2 above &mdash; "
+             "and records the block in <code>$0480</code>,slot and the tile in "
+             "<code>$0490</code>,slot. An enemy whose block is not in <code>$0480</code> "
+             "waits (<code>$CF5F</code>); when it is, <code>$0490</code> becomes its base "
+             "tile. <strong>The check:</strong> in every stream, each record's tile is the "
+             "previous one's plus that block's decoded length in tiles &mdash; the codec, "
+             "the streams and the loader agree.</div>")
+    rs, _ = enemy.walk_gfx_stream(b5, enemy.GFX_DEFAULT)
+    rows = []
+    for slot, blk, tile in rs:
+        bank, ptr, tiles = block_tiles(blk)
+        rows.append(f"<tr><td>{slot}</td><td><code>${blk:02X}</code></td>"
+                    f"<td>bank {bank} <code>${ptr:04X}</code></td>"
+                    f"<td><code>${tile:02X}</code></td><td>{len(tiles) // 16}</td>"
+                    f"<td>{_tiles_svg(tiles, per_row=16, px=22)}</td></tr>")
+    p.append('<p class="sub">The default stream, bank 5 <code>$A497</code>:</p>')
+    p.append("<table><thead><tr><th>Slot</th><th>Block</th><th>Source</th><th>Tile</th>"
+             f"<th>Tiles</th><th></th></tr></thead><tbody>{''.join(rows)}</tbody></table>")
+
+    p.append("<h2>Regions</h2>")
+    for r in [x for x in rm.regions if x["id"] in ENEMY_REGIONS]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:'
+                 f'{KIND_COLOURS.get(r["kind"], DEFAULT_COLOUR)}">{_h(r["kind"])}</span> '
+                 f'<span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank '
+                 f'{r["prg_bank"]} ${r["cpu_addr"]:04X}-'
+                 f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+    return "".join(p)
+
+
 def build_site(rm, out: Path) -> list[str]:
     written: list[str] = []
 
@@ -1871,6 +2046,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["sound.html"] = _sound_page(rm)
     if any(r["id"] in PASSWORD_REGIONS for r in rm.regions):
         pages["password.html"] = _password_page(rm)
+    if any(r["id"] in ENEMY_REGIONS for r in rm.regions):
+        pages["enemies.html"] = _enemies_page(rm)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
         pages["status.html"] = _status_page(rm)
 
@@ -1896,6 +2073,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Sound - {rm.meta["title"]}' if name == "sound.html"
                  else f'Password - {rm.meta["title"]}' if name == "password.html"
                  else f'Status screen - {rm.meta["title"]}' if name == "status.html"
+                 else f'Enemies - {rm.meta["title"]}' if name == "enemies.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

@@ -151,6 +151,14 @@
       "via": "$A1C1 JSR $9F10, with A from $15",
       "name": "bank 5 inline jump table B",
       "description": "Ten entries, each a target minus one, inline after the JSR at $A1C1. THE COUNT COMES FROM THE CALLER, which is what this project asks for: $A1A2 does LDA ($E4),Y / AND #$7F / SEC / SBC #$01 / STA $15 / CMP #$0A / BCC $A1B7, and the failing side goes to an error path at $A1AA that sets $0787,X and returns through $C048. So the index reaching $9F10 is 0 to 9 and cannot be anything else. The structural bound agrees independently: entry 2 targets $A1D8, which is exactly where the tenth entry ends. Two bounds, arrived at differently, same answer."
+    },
+    {
+      "cpu_addr": "$F7C9",
+      "bank": 7,
+      "entries": 3,
+      "via": "$F7C6 JSR $D6AE, A = the script byte, taken only when CMP #$03 / BCS fails",
+      "name": "enemy spawn script commands",
+      "description": "Three entries, each a target minus one, inline after the JSR at $F7C6 in the spawn-script interpreter $F78F. THE COUNT COMES FROM THE CALLER: $F7C2 does CMP #$03 / BCS $F7F4, so only 0, 1 and 2 reach the table. Command 0 ($F7CF) loads the next byte into the wait counter $68; command 1 ($F7D9) loads a new script pointer into $66/$67; command 2 ($F7EB) clears bit 1 of $60, stopping the script. The table ends at $F7CE, where command 0's code begins - the structural bound agrees."
     }
   ],
   "unresolved": [

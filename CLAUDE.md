@@ -59,6 +59,9 @@ wrong finding away.
 - `tools/parse-map.py` — walks bank 5's world map (`tools/tgl/worldmap.py`) into
   `annotations/regions/77-bank5-map.json`. `--grid` draws it, `--areas` lists the 21
   entrances. Generated.
+- `tools/parse-enemies.py` — claims the enemy per-type tables, spawn scripts and
+  graphics-load streams into `annotations/regions/80-enemies.json`, printing four checks.
+  `--types` and `--scripts` decode them. Generated; `tools/tgl/enemy.py` holds the formats.
 - `tools/find-tables.py` — claims byte tables whose extent their own readers fix, into
   `annotations/regions/75-tables.json`. `--list` shows every candidate. Generated. **Read
   its header before trusting a number from it** — the rule only holds for reads in the same
@@ -447,9 +450,13 @@ Do not re-derive these; do check anything that depends on them.
   - `$80F5` is a **seek**: `$15` counts columns to `CMP #$18` then rolls into a row counter
     `$14`, so the stream is **24 records per row**, and it stops when (`$14`,`$15`) reaches
     the (`$18`,`$19`) the caller wants.
-  - **The extent is proved by where it lands:** 807 records from `$8A6E` end *exactly* on
-    `$960F`, the first byte of the dialogue pointer table. A wrong length rule would
-    overshoot or stop short somewhere in 2,977 bytes.
+  - **CORRECTION — the map is 24 × 24 = 576 records, `$8A6E-$91E9`, not 807 in 34 rows.**
+    The old proof, "807 records land exactly on `$960F`", is one a walk over arbitrary data
+    passes about one time in four. `$91EA-$933F` is **19 room shapes** of 18 bytes (1bpp,
+    `$8042` computes `$91EA + 18 × n`, `$8278` shifts them into rows 2-10 of the `$0740`
+    buffer) and `$9340-$960E` is **79 room layouts**, `[shape | count<<5][tile]` + count ×
+    `[tile][pos][mask|dir]` (`$8243`/`$82A3`, steps from `$82D9`). The layout chain lands
+    on `$960F` exactly and holds all 67 layouts the map points at.
   - **`$882D` draws it on the status screen**, rows 0-23 only (`CMP #$18` on `$14`), as
     **background tiles covering 2×2 cells each**: `$891F` ORs a quadrant bit (1/2 even row,
     4/8 odd, doubled for an odd column) into a 12-byte row buffer at `$0150`, flushed as 12
@@ -470,8 +477,13 @@ Do not re-derive these; do check anything that depends on them.
     repeats with period ten — areas 1-10 need 0,1,2,3,4,4,5,5,6,7 and 11-20 need
     1,1,2,3,4,4,5,5,6,7 — and drawn by key the map falls into solid zones, not noise.
     `parse-map.py --grid` prints the key per cell; `docs/status.html` draws it.
-  - **Not established:** bits 4-6 of byte 0, bytes 3 onward, and **rows 24-33** — 231
-    records the seek walks but the status screen never draws, holding no entrance.
+  - **The rest of the record** (`$8121`, `$8243`): byte 0 bit 4 = layout pointer present,
+    bits 5-6 = room kind (`$5D`; `$20`/`$40` carry a sub-id `$5E`, `$40` rooms go to
+    `$A663`); byte 1 bit 3 = the room has enemies. Then, in order: sub-id, spawn script id
+    (`$57`), layout pointer. **All 370 non-empty records are exactly as long as those flags
+    say**, and 211 rooms name script ids 1-47, every one of the 47.
+  - **Not established:** bit 7 of byte 0 beyond the entrance test; what `$5E` selects
+    through `$A377`; 12 layouts nothing points at.
 - **The status screen (Select during play).** `$D626` reads the pads with `ROL`, so A is
   bit 7 and Right bit 0; `$D678` keeps `$F7`/`$F8` held and `$F5`/`$F6` newly pressed.
   Bank 7 `$E4B3`: new Start pauses, new Select goes to `$E4EE`, which calls bank 5 `$801B`
@@ -494,6 +506,28 @@ Do not re-derive these; do check anything that depends on them.
     weapon 12 is counted in `$04AF` instead. `$3E` = chips / `$45`, the uses left.
   - **Also bounded:** bank 3 `$817A`, 73 `[threshold][icon]` pairs for "YOU GOT ITEM",
     fixed by `CPX #$92`, thresholds non-decreasing, icons all 0-17.
+- **Enemies.** 24 object slots, field f of slot s at `$0500 + $18f + s`; slots 0-4 are the
+  player's side and `$EA8C` allocates 5-23. `$CFA0` fills four fields from per-type tables
+  six bytes apart: `$D02C` → `$0578` collision flags, `$D0AB` → `$0590` **hit points**,
+  `$D12A` → `$05A8` **attack**, `$D1A9` → `$0620`. `$D30E` subtracts each side's attack
+  from the other's HP; at 0 `$D32A` sets the type to `$D441[type]`, the death type.
+  Hitboxes are **by metasprite id**: `$C174` half-width, `$C201` half-height.
+  - **Art:** `$CFC4[type − $0E]` names the tile block holding a type's tiles. Load streams
+    `[flags|slot][block][tile]` are run by `$E99F`, which decodes through `$D7F9` and keeps
+    `$0480`/`$0490` as the loaded block and tile per slot; `$CF5F` makes an enemy wait for
+    its block. **Checks:** all 54 graphics ids name real blocks, and in every stream each
+    tile position is the previous plus that block's decoded length — 19 of 19.
+  - **Spawn scripts**, bank 5 `$A525`, pointers `$A4C7` (47), run by `$F78F`: `<3` =
+    command via the inline table `$F7C9` (0 wait, 1 jump, 2 end — now in `dispatch.json`);
+    else spawn a type, or with bit 7 a **formation** `[type|$80][count][interval]` carried
+    by a type-`$29` spawner (bank 6 `$9A19`). They cover `$A525-$A662` byte for byte.
+    **Five end `[byte] 01 02`**, read as a long wait then a jump into the next script —
+    open.
+  - **Special rooms** (kind `$40`): `$A682[sub-id]` with sub-ids 11-32 — `$A682+11` is
+    exactly where code ends — into 13 `[type→$72][stream]` records at `$A6A3`, whose
+    seven streams end exactly on code at `$A6EB`.
+  - **Tracer change:** `JSR $D705` with A unknown now continues in the fixed bank with the
+    live bank unknown, instead of stopping. That traced `$E9AA-$EA67`, the loader.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -543,18 +577,14 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Bank 5 `$B379`'s six block pointers.** Bounded (the table ends where its first target
-   begins) but no reader found; targets look like 2×2 tile groups with a palette index —
-   four bytes then `$03`, repeating. Would open `$B393-$BFFE`, about 3,100 bytes.
-2. **Bank 0 `$8BB2`, 1,482 bytes**, read by a single `LDA $8BB2,Y` at `$8959`. The largest
-   single gap left.
-3. **The rest of a map record** — bits 4-6 of byte 0, bytes 3 onward, and rows 24-33.
-   `$891F` only reads the position; the walker `$8071` and its callers (`$80F5` seeks with
-   the target in `$18`/`$19`) are where the other bytes must be used. A status-screen
-   savestate would check the whole screen against hardware.
-4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`.
-5. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained.
-6. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent only.
-7. Start a RAM map. Page 3 is sound state; `$B0-$BD` the screen-data interpreter;
-   `$0180-$0183` palette staging; `$0200` OAM; `$04B0` keys held; `$0500,X` object
-   type; `$0548,X` metasprite id; `$14`/`$15` the map walker's row and column.
+1. **Name the enemy types.** A savestate with enemies on screen would tie types, via
+   `$0500,X` and `$0548,X`, to what is visible; the per-type table is in
+   `docs/enemies.html`.
+2. **The five spawn scripts that end on a jump**, and the scrolling areas' spawns — bank 4's
+   command stream presumably creates the area enemies; which command, not yet read.
+3. **Bank 5 `$B379`'s six block pointers** — targets look like 2×2 tile groups.
+4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`
+   (`$C042` is now known: the codec's front end `$D7F9`).
+5. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent only.
+6. **The labyrinth spawn lists** behind bank 5 `$803C` (`$AF61`, `$AF69`, `$AF71`).
+7. Start a RAM map. The object slot fields above are most of page 5.

@@ -1,61 +1,77 @@
 #!/usr/bin/env python3
-"""Walk bank 5's map stream into `annotations/regions/77-bank5-map.json`.
+"""Walk bank 5's world map, room shapes and room layouts into
+`annotations/regions/77-bank5-map.json`.
 
     python tools/parse-map.py          # rewrite the file, print the checks
     python tools/parse-map.py --check  # report, write nothing
     python tools/parse-map.py --grid   # draw the map as a 24-column grid
     python tools/parse-map.py --areas  # just the 21 area entrances
 
-**The output file is generated. A hand edit to it is lost on the next run.**
+**The output file is generated. A hand edit to it is lost on the next run.** The walks
+themselves are in `tools/tgl/worldmap.py`.
 
-What the stream is
-------------------
-**The world map.** Bank 5 ``$8A6E-$960E`` is 807 variable-length records, twenty-four to a
-row, and two routines walk it:
+What the block is
+-----------------
+Bank 5 ``$8A6E-$960E`` is **three** structures, not one:
 
+* ``$8A6E-$91E9`` - **the world map**, 24 x 24 = 576 variable-length records.
+* ``$91EA-$933F`` - **19 room shapes**, 18 bytes each: a 1bpp mask, 8 cells a byte, 144
+  cells = rows 2-10 of the room's 16-wide buffer at ``$0740``.
+* ``$9340-$960E`` - **79 room layouts**, ``2 + 3 x count`` bytes each.
+
+**CORRECTION.** This tool first walked the whole block as 807 map records in 34 rows and
+cited "the walk lands exactly on ``$960F``" as the proof of the extent. That check was weak -
+with steps of 1-16 bytes, a walk over arbitrary data lands on a given byte about one time in
+four - and the conclusion was wrong. Rows 24-33 fail every test the real rows pass, and
+their bytes are the room shapes and layouts below.
+
+The map
+-------
 * ``$80F5`` is a **seek**. ``$8103`` does ``LDA ($16),Y / AND #$0F / SEC / ADC $16``, so a
-  record is ``(first byte AND $0F) + 1`` bytes and the ``SEC`` supplies the plus one. ``$15``
-  counts columns to ``CMP #$18`` then rolls into a row counter ``$14``, and the walk stops
-  when (row, column) reaches the pair the caller asked for.
-* ``$882D`` draws it **on the status screen** (Select during play). It walks rows 0-23 only
-  (``CMP #$18`` on ``$14``) and draws **background tiles, two by two cells each**: ``$891F``
-  ORs a quadrant bit into a 12-byte row buffer at ``$0150`` - 1 and 2 for an even row, 4 and
-  8 for an odd one, doubled for an odd column - and every second row the buffer is queued as
-  12 tiles with 0 replaced by ``$20``. So tiles ``$01-$0F`` are the fifteen quadrant patterns.
-  **Hardware sprites mark area entrances only**, one at ``column * 4 + $10``,
-  ``row * 4 + $3B``, tile ``$01`` - the one-quadrant tile, a single cell. Bank 2 ``$8998``
-  blinks one more at (``$52``, ``$53``) with the same arithmetic: the player's position.
+  record is ``(first byte AND $0F) + 1`` bytes. ``$15`` counts columns to ``CMP #$18`` and
+  rolls into a row counter ``$14``. ``$8071`` steps the player's column ``$52`` and row
+  ``$53`` and seeks to the new room, whose address it keeps in ``$E4``.
+* ``$882D`` draws it **on the status screen**, rows 0-23 (``CMP #$18`` on ``$14``), as
+  **background tiles covering 2 x 2 cells**: ``$891F`` ORs a quadrant bit into a 12-byte
+  row buffer at ``$0150``, flushed as 12 tiles every second row. **Hardware sprites mark
+  area entrances only**, at ``column * 4 + $10``, ``row * 4 + $3B``, tile ``$01``; bank 2
+  ``$8998`` blinks one more at (``$52``, ``$53``).
 
 What a record's bytes mean
 --------------------------
-* **byte 0** - the low nibble is the length minus one; ``$80`` exactly is an empty cell and
-  is skipped outright. Bit 7 is required, with byte 2's bit 7, before an entrance sprite is
-  drawn.
-* **byte 1** - the low three bits name the **key** that reveals the cell. ``$8860``
-  subtracts one, calls ``$C078`` for a bit, ANDs with ``$04B0`` and skips the cell when the
-  bit is clear. ``$04B0`` is the key inventory: bank 7 ``$F547`` sets bit k-1 when key k is
-  collected, and the status screen draws key k's icon only when it is set. 0 means no key.
-* **byte 2** - bit 7 marks an **area entrance**, and the low seven bits are the area number.
-  The entrance sprite is then drawn only while the area's bit in ``$04A9`` is clear
-  (``$C07B``) - except area 21, drawn only when ``$04A9`` is ``$FF`` and bits 0-1 of
-  ``$04AA`` are set: areas 1 to 10 all flagged.
+* **byte 0** - low nibble = length - 1; ``$80`` exactly = empty. **Bit 4** = a layout
+  pointer is present. **Bits 5-6** = the room kind, which ``$8121`` stores in ``$5D``:
+  ``$20`` and ``$40`` carry a sub-id (``$5E``), and ``$40`` is taken to ``$A663`` instead
+  of an ordinary enemy script.
+* **byte 1** - low three bits name the **key** that reveals the cell (``$8860`` against
+  ``$04B0``, the key inventory bank 7 ``$F547`` fills). **Bit 3** = the room has enemies.
+* **byte 2** - bit 7 marks an **area entrance**, low seven bits the area number; its marker
+  shows while the area's ``$04A9`` bit is clear, and area 21's only once areas 1-10 are all
+  flagged.
+* **then, in this order** (``$8121``, ``$8243``): the sub-id if the kind is ``$20``/``$40``;
+  the **spawn script id** if byte 1 bit 3 is set (``$57``, 0 read as 1, indexing bank 5
+  ``$A4C7``); the **layout pointer** if byte 0 bit 4 is set.
 
-**CORRECTION.** The first version of this header said every qualifying cell becomes a sprite,
-that byte 0 bit 7 means "drawn on the map", and that byte 1 is a progress flag "that hides
-the map until you have been there". Reading the rest of the routine (``$891F`` and the flush
-at ``$88DF``) and the status screen around it showed all three wrong as stated.
+**CORRECTION** (an earlier one): this header first said every qualifying cell is a sprite,
+that byte 0 bit 7 means "drawn", and that byte 1 is a been-there flag. All three were wrong.
 
-**The checks that carry it:** the records with byte 0 of ``$82`` and byte 2's bit 7 set carry
-the area numbers **1 to 21, each exactly once**, and **all 21 lie in rows 0-23**, the rows the
-status screen draws. And the keys they need repeat with period ten - areas 1-10 need keys
-0, 1, 2, 3, 4, 4, 5, 5, 6, 7 and areas 11-20 need 1, 1, 2, 3, 4, 4, 5, 5, 6, 7, area 21 none.
+The checks
+----------
+1. **Every non-empty record is exactly as long as its flags say** - 3 + sub-id + script +
+   2 for a layout. That is the check that carries the field order.
+2. The records with byte 0 ``$82`` and byte 2 bit 7 carry area numbers **1 to 21, each
+   exactly once**; the keys they need repeat with period ten across 1-10 and 11-20.
+3. **211 rooms have enemies, their script ids are all in 1-47, and all 47 are used** - the
+   script table's 47 was fixed independently, by where its first target begins.
+4. **The layouts partition their stretch**: chained from ``$9340`` they land exactly on
+   ``$960F``, and all 67 layouts the map points at are on that chain. The shapes they use
+   are 0-18, and 19 shapes of 18 bytes end exactly at ``$9340``.
 
 What is NOT established
 -----------------------
-Bits 4 to 6 of byte 0, and everything past byte 2 in the longer records - a record runs to
-16 bytes. **Rows 24-33** (231 records, the last row 15 long) are walked by the seek like the
-rest but never drawn on the status screen, and hold no entrance; what they are is open. What
-the ``$04A9`` flag means in play ("cleared" is the obvious reading) is not established.
+Bit 7 of byte 0 beyond its part in the entrance test; what the sub-id ``$5E`` selects
+through ``$A377``; the 12 layouts on the chain that no map record points at (``$9340``
+among them, a two-byte empty layout); what ``$04A9`` means in play.
 """
 
 from __future__ import annotations
@@ -64,13 +80,14 @@ import argparse
 import hashlib
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from tgl.model import load
-from tgl.worldmap import (COLUMNS, DRAWN_ROWS, EMPTY, END, ENTRANCE, START, entrances,
-                          key, records)
+from tgl.worldmap import (COLUMNS, EMPTY, END, LAYOUTS, MAP_END, ROWS, SHAPE_SIZE, SHAPES,
+                          START, entrances, fields, key, layouts, records)
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "annotations" / "regions" / "77-bank5-map.json"
@@ -91,23 +108,29 @@ def main() -> int:
     recs, landed = records(b5)
     ent = entrances(recs)
     areas = sorted(r["b"][2] & 0x7F for r in ent)
-    rows = max(r["row"] for r in recs) + 1
-
-    print(f"{len(recs)} records, ${START:04X}-${END - 1:04X}, walked to ${landed:04X}"
-          + ("  (exactly the next claimed region)" if landed == END else "  ** OVERSHOT **"))
-    print(f"{rows} rows of {COLUMNS}; the last holds {len(recs) % COLUMNS or COLUMNS}")
-    print(f"{len(ent)} area entrances (byte 0 == ${ENTRANCE:02X} and byte 2 bit 7 set)")
-    print(f"their area numbers: {areas}")
-    print("  -> 1 to 21, each exactly once: "
-          + str(areas == list(range(1, 22))))
-    print(f"{sum(1 for r in recs if r['b'][0] == EMPTY)} cells are empty (byte 0 == $80)")
-    print(f"entrance rows: {sorted(r['row'] for r in ent)}  -> all inside rows 0-{DRAWN_ROWS - 1}, "
-          f"the rows the status screen draws: {all(r['row'] < DRAWN_ROWS for r in ent)}")
+    full = [r for r in recs if r["b"][0] != EMPTY]
+    f = {r["addr"]: fields(r) for r in full}
+    exact = sum(1 for r in full if f[r["addr"]]["need"] == r["n"])
+    scripts = Counter(f[r["addr"]]["script"] for r in full if "script" in f[r["addr"]])
+    refs = {f[r["addr"]]["layout"] for r in full if "layout" in f[r["addr"]]}
+    chain, lend = layouts(b5)
+    on_chain = {a for a, _ in chain}
+    shapes_used = sorted({b5[a - 0x8000] & 0x1F for a in refs})
     by_area = {r["b"][2] & 0x7F: r for r in ent}
     keys = [key(by_area[a]) for a in sorted(by_area)]
-    print(f"key each area needs (byte 1 AND 7), areas 1-21: {keys}")
-    print("  -> areas 1-10 and 11-20 differ only in the first: "
-          + str(keys[1:10] == keys[11:20]))
+
+    print(f"{len(recs)} map records = {ROWS} x {COLUMNS}, ${START:04X}-${MAP_END - 1:04X}"
+          + ("" if landed == MAP_END and len(recs) == ROWS * COLUMNS else "  ** MISMATCH **"))
+    print(f"{exact} of {len(full)} non-empty records are exactly as long as their flags say")
+    print(f"{len(ent)} area entrances; 1-21 once each: {areas == list(range(1, 22))}; "
+          f"keys by area {keys}")
+    print(f"{sum(scripts.values())} rooms with enemies, script ids {min(scripts)}-"
+          f"{max(scripts)}, {len(scripts)} distinct")
+    print(f"{len(refs)} layouts referenced, {len(refs & on_chain)} on the chain from "
+          f"${LAYOUTS:04X}; the chain of {len(chain)} lands on ${lend:04X}"
+          + ("  (exactly the dialogue table)" if lend == END else "  ** OVERSHOT **"))
+    print(f"shapes used {shapes_used[0]}-{shapes_used[-1]}: {SHAPES} x {SHAPE_SIZE} from "
+          f"${MAP_END:04X} ends at ${MAP_END + SHAPES * SHAPE_SIZE:04X}")
 
     if args.areas:
         for r in sorted(ent, key=lambda r: r["b"][2] & 0x7F):
@@ -117,61 +140,68 @@ def main() -> int:
     if args.grid:
         grid = {(r["row"], r["col"]): r for r in recs}
         print("\n    " + "".join(f"{c % 10}" for c in range(COLUMNS)))
-        for row in range(rows):
+        for row in range(ROWS):
             line = ""
             for c in range(COLUMNS):
-                r = grid.get((row, c))
-                if r is None:
-                    line += " "
-                elif r in ent:
+                r = grid[(row, c)]
+                if r in ent:
                     line += "A"
                 elif r["b"][0] == EMPTY:
                     line += "."
                 else:
                     line += str(key(r)) if key(r) else "#"
             print(f" {row:2d} {line}")
-            if row == DRAWN_ROWS - 1:
-                print("    " + "-" * COLUMNS + "  (the status screen draws the rows above)")
         print("\n A = area entrance, # = a cell needing no key, 1-7 = the key that reveals "
               "it, . = empty")
 
-    off = rm.meta["prg_offset"] + BANK * rm.meta["prg_bank_size"] + (START - 0x8000)
-    size = END - START
+    base = rm.meta["prg_offset"] + BANK * rm.meta["prg_bank_size"] - 0x8000
+
+    def region(rid, a, e, name, desc):
+        return {"id": f"bank{BANK}.{rid}_{a:04X}", "offset": base + a, "size": e - a,
+                "kind": "level", "name": name, "confidence": "confirmed", "cpu_addr": a,
+                "sha1": hashlib.sha1(rm.rom[base + a:base + e]).hexdigest(),
+                "description": desc}
+
+    regions = [
+        region("map", START, MAP_END, f"World map: {ROWS} x {COLUMNS} rooms",
+               f"{len(recs)} variable-length records, {ROWS} rows of {COLUMNS} - one per room "
+               "of the labyrinth. A record is (first byte AND $0F) + 1 bytes ($8103: "
+               "LDA ($16),Y / AND #$0F / SEC / ADC $16). $80F5 seeks through it; $8071 walks "
+               "it as the player moves ($52 column, $53 row); $882D draws it on the status "
+               "screen as 2x2-cell background tiles, sprites marking area entrances only. "
+               "BYTE 0: low nibble length-1, $80 exactly empty, bit 4 = layout pointer "
+               "present, bits 5-6 = room kind ($5D; $20 and $40 carry a sub-id). BYTE 1: low "
+               "three bits = the KEY that reveals the cell ($04B0), bit 3 = the room has "
+               "enemies. BYTE 2: bit 7 = area entrance, low seven bits = area number. THEN, "
+               "in order: sub-id ($5E), spawn script id ($57, into $A4C7), layout pointer. "
+               f"CHECKS: {exact} of {len(full)} non-empty records are exactly as long as "
+               "their flags imply; area numbers 1-21 occur once each; "
+               f"{sum(scripts.values())} rooms with enemies use script ids "
+               f"{min(scripts)}-{max(scripts)}, {len(scripts)} distinct. CORRECTION: this "
+               "region was first 807 records running to $960E, proved by 'the walk lands "
+               "exactly on $960F' - a weak test that a walk over arbitrary data passes about "
+               "one time in four. The map ends at $91EA, which $8042 names as the room-shape "
+               "base. Generated by tools/parse-map.py."),
+        region("level", MAP_END, LAYOUTS, f"Room shapes: {SHAPES} x {SHAPE_SIZE} bytes, 1bpp",
+               f"{SHAPES} room shapes. $8042 computes $91EA + 18 * (A AND $1F), and $8278 "
+               "shifts the 18 bytes out one bit at a time (CPY #$12) into the 16-wide room "
+               "buffer at $0740 from index $20, writing the layout's fill tile wherever a bit "
+               "is set: 144 cells, rows 2-10. THE EXTENT: the layouts use shapes "
+               f"{shapes_used[0]}-{shapes_used[-1]}, and {SHAPES} x 18 bytes from $91EA end "
+               "exactly where the layout chain begins. Generated by tools/parse-map.py."),
+        region("level", LAYOUTS, END, f"Room layouts: {len(chain)}",
+               f"{len(chain)} room layouts, read by $8243 through the pointer at the end of a "
+               "map record. [shape | count << 5][fill tile], then count x [tile][position]"
+               "[six-bit mask | direction]: $82A3 walks the mask along a step from $82D9 "
+               "(-15, 1, 16, 17 - up-right, right, down, down-right), writing the tile at "
+               "each set bit. So a layout is 2 + 3 * count bytes. THE CHECK: chained from "
+               f"$9340 the layouts land exactly on $960F, and all {len(refs)} layouts the map "
+               f"points at are on the chain; {len(chain) - len(refs & on_chain)} are not "
+               "pointed at by any map record. Generated by tools/parse-map.py."),
+    ]
     doc = {"_comment": "GENERATED by tools/parse-map.py - do not hand-edit. Bank 5's world "
-                       "map: variable-length records, 24 to a row.",
-           "regions": [{
-               "id": f"bank{BANK}.map_{START:04X}", "offset": off, "size": size,
-               "kind": "level", "name": f"World map: {len(recs)} cells, {COLUMNS} per row",
-               "confidence": "confirmed", "cpu_addr": START,
-               "sha1": hashlib.sha1(rm.rom[off:off + size]).hexdigest(),
-               "description":
-                   f"{len(recs)} variable-length records in {rows} rows of {COLUMNS} - the "
-                   "world map. A record is (first byte AND $0F) + 1 bytes, stated by $8103: "
-                   "LDA ($16),Y / AND #$0F / SEC / ADC $16, the SEC supplying the plus one. "
-                   "$80F5 seeks through it counting columns to CMP #$18 and rows in $14. "
-                   "$8853 draws it: each qualifying cell becomes one hardware sprite at "
-                   "column * 4 + $10 across and row * 4 + $3B down, tile $01, attribute $03 "
-                   "- four pixels a cell, 96 across, as background tiles each covering "
-                   "two by two cells (a quadrant bitmask built by $891F in $0150). Only rows "
-                   "0-23 are drawn. Hardware sprites mark area entrances only. "
-                   "BYTE 0's low nibble is the length minus one; $80 exactly is an empty "
-                   "cell. BYTE 1's low three bits name the KEY that reveals the cell - $8860 "
-                   "subtracts one, calls $C078 for a bit mask and ANDs with $04B0, the key "
-                   "inventory bank 7 $F547 fills. BYTE 2 bit 7 marks an AREA ENTRANCE and the "
-                   "low seven bits are the area number; its sprite shows while the area's "
-                   "$04A9 bit is clear, and area 21's only once areas 1-10 are all flagged. "
-                   "CORRECTION: an earlier version said every drawn cell is a sprite, that "
-                   "byte 0 bit 7 means 'drawn', and that byte 1 is a been-there flag. "
-                   f"THE CHECK: the {len(ent)} records with byte 0 of $82 and byte 2 bit 7 "
-                   "set carry the area numbers 1 to 21, EACH EXACTLY ONCE. Twenty-one areas "
-                   "is what this project established from an unrelated direction - bank 4's "
-                   "per-area table and the CPY #$15 tests - and nothing here was tuned to "
-                   "produce it. All 21 lie in rows 0-23, and the keys they need repeat with period "
-                   "ten across areas 1-10 and 11-20. The extent: walking the whole stream "
-                   f"lands on ${END:04X}, the first byte of the dialogue pointer table. "
-                   "NOT ESTABLISHED: bits 4-6 of byte 0, everything past byte 2 in the "
-                   "longer records, which run to 16 bytes, and rows 24-33 - 231 records the "
-                   "status screen never draws, holding no entrance."}]}
+                       "map, its room shapes and its room layouts.",
+           "regions": regions}
     text = json.dumps(doc, indent=2) + "\n"
     if args.check:
         print("\nno change" if OUT.exists() and OUT.read_text() == text else "\nWOULD CHANGE")
