@@ -1,0 +1,118 @@
+{
+  "_comment": "Hand-authored. The status screen (Select during play): bank 7 $E4EE, bank 5 $84CB/$8937/$8711, bank 2's icon uploaders.",
+  "regions": [
+    {
+      "id": "bank2.gfx_8E0C",
+      "offset": 36380,
+      "size": 1152,
+      "kind": "graphics",
+      "name": "Item icons: 18 x 2x2 tiles, raw 2bpp",
+      "confidence": "confirmed",
+      "cpu_addr": 36364,
+      "sha1": "12e1fe4c8fb3a6e6b318765227bad2f2d647ed8d",
+      "description": "Eighteen 16x16 icons, 64 bytes each = four ordinary 2bpp tiles, stored UNCOMPRESSED. THE UPLOADER is bank 2 $81B2 (entry slot $8003): source = $8E0C + A * $40, queued as two 32-byte PPU writes to the CHR address in $18/$19. The four tiles are column-major - the status screen's $86F4 draws a selected icon as tiles $3C $3E over $3D $3F. THE EXTENT: the highest index any caller passes is 17 ($11, in bank 3's reward table $817A), and $8E0C + 18 * 64 is $928C, exactly where the next table - read by the other uploader - begins. Indices 0-11 are the twelve weapons: the status screen's $84CB uploads 0-11 to $1800-$1AFF (tiles $80-$AF) and $86ED uploads the selected one, index $3C - 1, to tile $3C. Indices 12-17 are non-weapon items, appearing only in the reward table. Rendered, all eighteen are recognisable framed pictures (docs/graphics.html). WHICH ICON IS WHICH WEAPON by name is not established from the ROM.",
+      "codec": "raw_2bpp_icon"
+    },
+    {
+      "id": "bank2.gfx_928C",
+      "offset": 37532,
+      "size": 32,
+      "kind": "graphics",
+      "name": "Key icons: the shared high bit plane",
+      "confidence": "confirmed",
+      "cpu_addr": 37516,
+      "sha1": "093301feea1c84507571f1bc240b7b52a3599567",
+      "description": "The high bit planes of all eight key icons - one 2x2 frame every key shares. Bank 2 $8212 (entry slot $8006) builds each tile from 8 low-plane bytes out of the icon ($92AC + 32k) and 8 high-plane bytes from here: $928C,Y for tiles 0 and 2 and $9294,Y for tiles 1 and 3, with Y running 0-7 and then $10-$17. Those four reads cover $928C-$92AB exactly, 32 bytes. CORRECTION: tools/find-tables.py claimed $928C-$9293 as a bare 8-byte table; it is a quarter of this plane.",
+      "codec": "raw_1bpp_shared_plane"
+    },
+    {
+      "id": "bank2.gfx_92AC",
+      "offset": 37564,
+      "size": 256,
+      "kind": "graphics",
+      "name": "Key icons: 8 x 32 bytes of low bit plane",
+      "confidence": "confirmed",
+      "cpu_addr": 37548,
+      "sha1": "369cabcf70cefc3be42f8cfb6fdfe04ac2f5465e",
+      "description": "Eight 16x16 icons stored as the LOW bit plane only, 32 bytes each (four tiles x 8 rows); the high plane is shared, at $928C. Uploader bank 2 $8212: source = $92AC + A * 32. Index 0 is an empty frame. THE EXTENT: callers pass 0-7 - bank 7 $ED51 passes $0058,Y AND $0F with 8 excluded, the status screen passes 1-7, and $F547 passes a per-area value from $F6DA - and $92AC + 8 * 32 is $93AC, where the unclaimed gap ends. Indices 1-7 are the SEVEN KEYS: $F547 ORs bit (k - 1) into $04B0 when key k is collected, and the status screen draws key k's icon only when that bit is set.",
+      "codec": "raw_1bpp_low_plane"
+    },
+    {
+      "id": "bank3.tbl_817A",
+      "offset": 49546,
+      "size": 146,
+      "kind": "data",
+      "name": "Item reward list: 73 x [threshold][icon]",
+      "confidence": "confirmed",
+      "cpu_addr": 33146,
+      "sha1": "f95ae7ec586c43142684e220ac64cb80a3acd01b",
+      "description": "73 two-byte records for the 'YOU GOT ITEM' screen. $80E7 walks them with X stepping by two and stops at CPX #$92 - so the table is 146 bytes, stated by the code - or at the first record whose threshold $817A,X exceeds $15. Each shown record prints its icon (the second byte, through bank 2 $8003) and its threshold as a decimal number (C051). CHECKS: the thresholds never decrease across all 73 (0 to 80), and every icon byte is 0-17, the range of the 18-icon table at bank 2 $8E0C. WHAT $15 COUNTS on entry is not established."
+    },
+    {
+      "id": "bank5.tbl_85DA",
+      "offset": 83434,
+      "size": 4,
+      "kind": "data",
+      "name": "Icon attribute by weapon level: 00 00 55 AA",
+      "confidence": "confirmed",
+      "cpu_addr": 34266,
+      "sha1": "ee654666b8fa6769e927023820f2278376fad479",
+      "description": "Read by $85C2 LDA $85DA,Y with Y = 0 or 1 for a key (held or not) and 0-3 for a weapon (its level from $C075), giving the attribute byte that picks the icon's palette: level 2 gets palette 1, level 3 palette 2. CORRECTION: the trace decoded $85DA as a BRK. It is never executed - the instruction before it is LDA #$20 / BNE, which always branches."
+    },
+    {
+      "id": "bank5.tbl_8690",
+      "offset": 83616,
+      "size": 80,
+      "kind": "data",
+      "name": "Status screen slot layout: 20 x [ppu lo][ppu hi][attr lo][tile]",
+      "confidence": "confirmed",
+      "cpu_addr": 34448,
+      "sha1": "d731ec956bc41e1840639a3555d3e209f3d973e8",
+      "description": "Twenty 4-byte records, walked by $858B with Y stepping by 4 to CPY #$50. Slots 0-6 are the seven keys, on nametable row 0 from column 16 in steps of 2, tiles $B0-$C8; slot 7 is all zero and skipped by CPY #$1C; slots 8-19 are the twelve weapons in a grid at rows 14, 16 and 18, tiles $80-$AC. CHECKS: the tile numbers are exactly where the uploaders put the art ($1800 = tile $80, $1B00 = tile $B0), and every third byte is the correct attribute-table address for its slot's position, e.g. row 14 column 8 -> $DA."
+    },
+    {
+      "id": "bank5.tbl_87E4",
+      "offset": 83956,
+      "size": 33,
+      "kind": "data",
+      "name": "Status map frame: 8 runs + $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 34788,
+      "sha1": "931f1560589cd130821f48799706ddb01a82176a",
+      "description": "Eight [count][ppu hi][ppu lo][tile] records and a $FF terminator, read by $8805 and each passed to C036 ($D5F8), which writes `tile` count AND $7F times - across, or down when bit 7 of the count is set. Two horizontal edges of 14, two vertical of 12 and four corners: the box around the 12 x 12-tile map."
+    },
+    {
+      "id": "bank7.tbl_EFD8",
+      "offset": 126952,
+      "size": 8,
+      "kind": "data",
+      "name": "Bit masks $01-$80",
+      "confidence": "confirmed",
+      "cpu_addr": 61400,
+      "sha1": "c5e8ab60ed9c473ebfb92e52109524a608bcfbe2",
+      "description": "$EFC7 (C078) reads $EFD8,(A AND 7) for a mask and returns A >> 3 in Y as a byte index: the flag-array accessor behind $04B0 (keys), $04A9 (areas) and $04AC (weapon levels)."
+    },
+    {
+      "id": "bank7.tbl_FDCA",
+      "offset": 130522,
+      "size": 13,
+      "kind": "data",
+      "name": "Per-selection value copied to $3B",
+      "confidence": "confirmed",
+      "cpu_addr": 64970,
+      "sha1": "e305a4b6cdce6cd51164b384e398eb6a1783bfb3",
+      "description": "$FD77 does LDA $FDCA,Y / STA $3B with Y = the selected weapon $3C, 0-12: thirteen bytes. What $3B controls is NOT established."
+    },
+    {
+      "id": "bank7.tbl_FDD7",
+      "offset": 130535,
+      "size": 33,
+      "kind": "data",
+      "name": "Use-chip cost: 11 weapons x 3 levels",
+      "confidence": "confirmed",
+      "cpu_addr": 64983,
+      "sha1": "0b671ced766ca97d726b861a1d991abbbc6063fb",
+      "description": "$FD77 computes Y = 3 * $3C + $3D and reads $FDD3,Y into $45, the chips one use costs - the number the status screen prints after 'USE CHIP'. $3C is 1-11 here (0 and 12 skip the read) and the level $3D is 1-3, so Y runs 4-36 and the bytes read are $FDD7-$FDF7: 33, ending exactly where the code at $FDF8 begins and starting exactly after the 13-byte table at $FDCA. Weapon 12 has no cost row - its count comes from $04AF instead. The costs rise steeply with level, e.g. 1, 3, 10 and 1, 5, 40."
+    }
+  ]
+}

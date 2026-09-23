@@ -357,9 +357,16 @@ TOPICS = [
      lambda rs: [r for r in rs if r["id"] in PASSWORD_REGIONS],
      "32 characters, six bits each, a running XOR key and a checksum \u2014 and a back door "
      "that skips all of it."),
+    ("status.html", "Status screen",
+     lambda rs: [r for r in rs if r["id"] in STATUS_REGIONS],
+     "Select during play: the world map, seven keys, twelve weapons and what each one costs "
+     "to fire."),
 ]
 
 PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.text_8B80")
+STATUS_REGIONS = ("bank5.map_8A6E", "bank5.tbl_8690", "bank5.tbl_85DA", "bank5.tbl_87E4",
+                  "bank2.gfx_8E0C", "bank2.gfx_928C", "bank2.gfx_92AC", "bank3.tbl_817A",
+                  "bank7.tbl_EFD8", "bank7.tbl_FDCA", "bank7.tbl_FDD7")
 
 
 def _topic_pages(rm):
@@ -738,6 +745,54 @@ def _tiles_svg(tiles: bytes, per_row: int = 32, px: int = 22) -> str:
     return "".join(out)
 
 
+ICON_CODECS = ("raw_2bpp_icon", "raw_1bpp_low_plane", "raw_1bpp_shared_plane")
+
+
+def _icons(rm):
+    """(label, list of 64-byte 2bpp icons) for bank 2's two icon sets.
+
+    Weapon/item icons are four ordinary tiles each. Key icons are rebuilt the way $8212
+    builds them: eight low-plane bytes from the icon, eight high-plane bytes from the frame
+    at $928C shared by all eight."""
+    b2 = rm.prg_bank(2)
+    items = [bytes(b2[0x0E0C + 64 * i:0x0E0C + 64 * i + 64]) for i in range(18)]
+    hi = b2[0x128C:0x12AC]
+    keys = []
+    for i in range(8):
+        lo = b2[0x12AC + 32 * i:0x12AC + 32 * i + 32]
+        keys.append(b"".join(bytes(lo[8 * k:8 * k + 8]) + bytes(hi[8 * k:8 * k + 8])
+                             for k in range(4)))
+    return [("items", items), ("keys", keys)]
+
+
+def _icons_svg(icons, px: int = 3, labels=None) -> str:
+    """16x16 icons in a row, four tiles each, column-major as the status screen draws them
+    (tiles 0 and 2 on top, 1 and 3 below)."""
+    paths: dict[int, list[str]] = {1: [], 2: [], 3: []}
+    step = 20
+    for i, ic in enumerate(icons):
+        for k in range(4):
+            ox, oy = i * step + (k // 2) * 8, (k % 2) * 8
+            lo, hi = ic[16 * k:16 * k + 8], ic[16 * k + 8:16 * k + 16]
+            for y in range(8):
+                for x in range(8):
+                    v = ((lo[y] >> (7 - x)) & 1) | (((hi[y] >> (7 - x)) & 1) << 1)
+                    if v:
+                        paths[v].append(f"M{ox + x} {oy + y}h1v1h-1z")
+    w, h = len(icons) * step - 4, 16 + (8 if labels else 0)
+    out = [f'<svg viewBox="0 0 {w} {h}" width="{min(w * px, 780)}" '
+           'style="max-width:100%;height:auto;image-rendering:pixelated" '
+           'xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">']
+    for v, op in ((1, "0.34"), (2, "0.67"), (3, "1")):
+        if paths[v]:
+            out.append(f'<path fill="currentColor" opacity="{op}" d="{"".join(paths[v])}"/>')
+    for i, lab in enumerate(labels or []):
+        out.append(f'<text x="{i * step + 8}" y="{h - 1}" font-size="5.5" '
+                   f'text-anchor="middle" fill="currentColor" opacity="0.7">{_h(lab)}</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _metasprite_svg(sp, cell=16):
     """One metasprite's arrangement: a box per hardware sprite at its real offset."""
     if not sp:
@@ -852,6 +907,27 @@ def _graphics_page(rm) -> str:
             if reg:
                 p.append(f'<p class="desc">{_h(reg["description"])}</p>')
             p.append("</div>")
+
+    p.append("<h2>Icons</h2>")
+    p.append('<p class="sub">Not compressed and not in any pointer table: two small sets in '
+             "bank 2, each with its own uploader, which the status screen and the item screens "
+             "call. Found by reading the status screen, "
+             '<a href="status.html">written up there</a>.</p>')
+    ic = dict(_icons(rm))
+    p.append('<div class="card"><h4>Items, <code>$8E0C</code> &mdash; 0-11 weapons, 12-17 '
+             "other</h4>" + _icons_svg(ic["items"], labels=[str(i) for i in range(18)])
+             + '<h4>Keys, <code>$92AC</code> + shared plane <code>$928C</code> &mdash; 0 is '
+             "the empty frame, 1-7 the seven keys</h4>"
+             + _icons_svg(ic["keys"], labels=[str(i) for i in range(8)]) + "</div>")
+    for r in [x for x in rm.regions if x.get("codec") in ICON_CODECS]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:{KIND_COLOURS["graphics"]}">graphics</span>'
+                 f' <span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank {r["prg_bank"]} '
+                 f'${r["cpu_addr"]:04X}-${r["cpu_addr"] + r["size"] - 1:04X} &middot; '
+                 f'{r["size"]:,} bytes &middot; codec <code>{_h(r["codec"])}</code></p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
 
     p.append("<h2>The font</h2>")
     for r in [x for x in rm.regions if x.get("codec") == "font_1bpp_7byte"]:
@@ -1563,6 +1639,215 @@ document.getElementById("selfcheck").innerHTML = bad
     return "".join(p)
 
 
+KEY_COLOURS = ("#8a94a6", "#4fb0f2", "#ed64a6", "#38c172", "#ecc94b", "#f2704f", "#9d7cf8",
+               "#38b2ac")
+
+
+def _worldmap_svg(recs, cell=14):
+    """Rows 0-23 of the world map as the status screen reveals them: one square per
+    non-empty cell, coloured by the key that reveals it, area entrances numbered."""
+    from tgl import worldmap as wm
+    n = wm.COLUMNS
+    w, h = n * cell, wm.DRAWN_ROWS * cell
+    out = [f'<svg viewBox="-1 -1 {w + 2} {h + 2}" width="{min(w * 2, 700)}" '
+           'style="max-width:100%;height:auto" xmlns="http://www.w3.org/2000/svg" '
+           'font-family="ui-monospace,monospace">',
+           f'<rect x="-1" y="-1" width="{w + 2}" height="{h + 2}" fill="none" '
+           'stroke="currentColor" stroke-opacity="0.3"/>']
+    for r in recs:
+        if r["row"] >= wm.DRAWN_ROWS or r["b"][0] == wm.EMPTY:
+            continue
+        x, y = r["col"] * cell, r["row"] * cell
+        out.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cell - 2}" height="{cell - 2}" '
+                   f'rx="2" fill="{KEY_COLOURS[wm.key(r)]}" fill-opacity="0.8"/>')
+    for r in wm.entrances(recs):
+        x, y = r["col"] * cell, r["row"] * cell
+        out.append(f'<rect x="{x + 1}" y="{y + 1}" width="{cell - 2}" height="{cell - 2}" '
+                   'rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+                   f'<text x="{x + cell / 2}" y="{y + cell / 2 + 3.5}" font-size="9" '
+                   'font-weight="700" text-anchor="middle" fill="currentColor">'
+                   f'{r["b"][2] & 0x7F}</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _status_page(rm):
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import worldmap as wm
+
+    b5, b7 = rm.prg_bank(5), rm.prg_bank(7)
+    recs, _ = wm.records(b5)
+    ent = {r["b"][2] & 0x7F: r for r in wm.entrances(recs)}
+    ic = dict(_icons(rm))
+
+    p = ["<h1>Status screen</h1>",
+         '<p class="sub">Press Select during play: the world map, the seven keys, the twelve '
+         "weapons, attack and shield, and a cursor to choose the weapon you fire.</p>"]
+
+    p.append("<h2>How the game gets there</h2>")
+    p.append('<div class="note">Bank 7 <code>$E4B3</code> runs every frame of play. The '
+             "controller routine <code>$D626</code> shifts buttons in with <code>ROL</code>, so "
+             "A lands in bit 7 and Right in bit 0; <code>$D678</code> then keeps "
+             "<code>$F7</code>/<code>$F8</code> as <em>held</em> and <code>$F5</code>/"
+             "<code>$F6</code> as <em>newly pressed</em>. A new Start (<code>$10</code>) "
+             "pauses; a new Select (<code>$20</code>), or Select during the pause, goes to "
+             "<code>$E4EE</code>: sound <code>$3E</code>, bit 4 of <code>$30</code> cleared, "
+             "bank 5, <code>JSR $801B</code> &rarr; <code>$84CB</code> to <strong>open</strong>, "
+             "then each frame <code>JSR $8021</code> &rarr; <code>$8937</code> until Start or "
+             "Select is pressed, then <code>JSR $801E</code> &rarr; <code>$8711</code> to "
+             "<strong>close</strong>, bank 6 <code>$8000</code>, and the saved bank and "
+             "<code>$30</code> put back.</div>")
+    p.append("<table><thead><tr><th>Routine</th><th>What it does</th></tr></thead><tbody>"
+             "<tr><td><code>$84CB</code></td><td>Saves the palette (<code>$0181-$0198</code> "
+             "&rarr; <code>$04D0</code>) and sprite 0's Y, then queues the whole screen: the "
+             "map, twelve weapon icons to CHR <code>$1800</code> and seven key icons to "
+             "<code>$1B00</code> through bank 2, the text, the stat bars and each slot's "
+             "icon.</td></tr>"
+             "<tr><td><code>$8937</code></td><td>Moves the weapon cursor <code>$3C</code>; "
+             "bank 2 <code>$8998</code> draws it and blinks the player's map position."
+             "</td></tr>"
+             "<tr><td><code>$8711</code></td><td>Puts the palette back and, if the weapon "
+             "changed, clears two object slots (<code>$C048</code> with X = 3, 4) before "
+             "returning to play.</td></tr></tbody></table>")
+
+    p.append("<h2>The map</h2>")
+    p.append('<p class="sub">Bank 5 <code>$8A6E</code>, the same records the game walks '
+             "while you move. <code>$882D</code> draws rows 0-23 as background tiles, each "
+             "covering two by two cells; hardware sprites mark only the area entrances and "
+             "(blinking) you.</p>")
+    p.append(f'<div class="card">{_worldmap_svg(recs)}<p class="meta">'
+             + " ".join(f'<span style="color:{KEY_COLOURS[k]}">&#9632;</span> '
+                        + ("no key" if k == 0 else f"key {k}") for k in range(8))
+             + " &middot; numbered squares are area entrances</p></div>")
+    keys = [wm.key(ent[a]) for a in sorted(ent)]
+    p.append('<div class="note"><strong>Byte 1 of a cell is a key, and the picture shows it'
+             "</strong>: <code>$8860</code> tests <code>byte 1 AND 7</code> against "
+             "<code>$04B0</code>, and a cell whose key is not held is not drawn. The colours "
+             "above come out in solid zones, not noise. And the keys the 21 entrances need "
+             "repeat with period ten &mdash; areas 1-10: "
+             + ", ".join(str(k) for k in keys[:10]) + "; areas 11-20: "
+             + ", ".join(str(k) for k in keys[10:20]) + f"; area 21: {keys[20]}."
+             " <strong>Correction:</strong> this project first read byte 1 as a "
+             "been-there flag and every drawn cell as a sprite; both were wrong.</div>")
+    p.append('<div class="note warn"><strong>Not established.</strong> The stream holds '
+             f"{len(recs)} records, 34 rows, but the status screen draws only 24 and all 21 "
+             "entrances are in them. Rows 24-33 are walked by the seek like the rest; what "
+             "they are is open. An entrance marker is shown while the area's <code>$04A9</code> "
+             "bit is clear, and area 21's only once areas 1-10 are all flagged &mdash; "
+             "&ldquo;cleared&rdquo; is the obvious reading of that flag and has not been "
+             "checked.</div>")
+
+    p.append("<h2>Keys and weapons</h2>")
+    p.append('<p class="sub">Twenty slots from the table at <code>$8690</code>, '
+             "<code>[ppu lo][ppu hi][attribute lo][tile]</code>. A key's icon is drawn when its "
+             "bit in <code>$04B0</code> is set; a weapon's when its two-bit level is not zero, "
+             "with the palette picked by the level through <code>$85DA</code>.</p>")
+    slots = b5[0x0690:0x06E0]
+    rows = []
+    for i in range(20):
+        lo, hi, at, tile = slots[4 * i:4 * i + 4]
+        if i == 7:
+            rows.append('<tr><td>7</td><td colspan="4"><em>all zero, skipped by '
+                        "<code>CPY #$1C</code></em></td></tr>")
+            continue
+        addr = hi << 8 | lo
+        what = f"key {i + 1}" if i < 7 else f"weapon {i - 7}"
+        art = ic["keys"][i + 1] if i < 7 else ic["items"][i - 8]
+        rows.append(f"<tr><td>{i}</td><td>{what}</td><td>{_icons_svg([art], px=2)}</td>"
+                    f"<td><code>${addr:04X}</code> row {(addr & 0x3FF) // 32}, "
+                    f"col {addr & 31}</td><td><code>${tile:02X}</code></td></tr>")
+    p.append("<table><thead><tr><th>Slot</th><th>Holds</th><th>Icon</th><th>Nametable</th>"
+             f"<th>Tile</th></tr></thead><tbody>{''.join(rows)}</tbody></table>")
+
+    p.append("<h3>Moving the cursor</h3>")
+    p.append('<p class="desc"><code>$8937</code>: a new press acts at once and sets a 20-frame '
+             "delay, a held direction repeats every 6. Right adds 1 and Left subtracts 1, "
+             "wrapping over 0-12; Down adds 5 and Up subtracts 5, wrapping within the columns. "
+             "Position 0 is &ldquo;no weapon&rdquo; and 1-12 are the weapons, five to a row. "
+             "After a move, <code>$FD77</code> looks the weapon's level up into <code>$3D</code>, "
+             "and a weapon at level 0 is skipped by moving again the same way &mdash; you "
+             "cannot select what you do not have.</p>")
+
+    p.append("<h3>What a weapon costs</h3>")
+    cost = b7[0x3DD3:0x3DF8]
+    rows = []
+    for w in range(1, 12):
+        c = [cost[3 * w + lv] for lv in (1, 2, 3)]
+        rows.append(f"<tr><td>{w}</td><td>{_icons_svg([ic['items'][w - 1]], px=2)}</td>"
+                    + "".join(f'<td class="mono">{x}</td>' for x in c)
+                    + f'<td class="mono">{b7[0x3DCA + w]}</td></tr>')
+    rows.append(f"<tr><td>12</td><td>{_icons_svg([ic['items'][11]], px=2)}</td>"
+                '<td colspan="3"><em>no cost row: its count is <code>$04AF</code></em></td>'
+                f'<td class="mono">{b7[0x3DCA + 12]}</td></tr>')
+    p.append('<p class="desc"><code>$FD77</code> reads <code>$FDD3 + 3 &times; weapon + '
+             "level</code> into <code>$45</code>, the chips one use costs &mdash; the number "
+             "printed after USE CHIP &mdash; and <code>$3E = chips / $45</code> is how many "
+             "uses you have left, drawn in the play HUD. The table's first byte read is "
+             "<code>$FDD7</code>, straight after the 13-byte table at <code>$FDCA</code>, and "
+             "its last is <code>$FDF7</code>, straight before code.</p>")
+    p.append("<table><thead><tr><th>Weapon</th><th></th><th>Level 1</th><th>Level 2</th>"
+             "<th>Level 3</th><th><code>$FDCA</code> &rarr; <code>$3B</code></th></tr></thead>"
+             f"<tbody>{''.join(rows)}</tbody></table>")
+
+    p.append("<h2>The rest of the screen</h2>")
+    p.append("<table><thead><tr><th>Shown</th><th>From</th><th>How</th></tr></thead><tbody>"
+             "<tr><td>ATTACK</td><td><code>$4A</code></td><td>a bar of tile <code>$CD</code>, "
+             "one tile per unit (<code>$87BC</code>)</td></tr>"
+             "<tr><td>SHIELD</td><td><code>$4B</code></td><td>a bar of tile <code>$CC</code>"
+             "</td></tr>"
+             "<tr><td>CHIP MAX</td><td><code>$4E</code>/<code>$4F</code></td><td>16-bit "
+             "decimal (<code>$E24B</code>)</td></tr>"
+             "<tr><td>WEAPON POWER</td><td><code>$3D</code></td><td>one digit, the selected "
+             "weapon's level</td></tr>"
+             "<tr><td>USE CHIP</td><td><code>$45</code></td><td>decimal (<code>$E1CD</code>)"
+             "</td></tr>"
+             "<tr><td>NO USE</td><td>&mdash;</td><td>fixed text, beside slot 0</td></tr>"
+             "<tr><td>&ldquo;EE&rdquo; and a number</td><td><code>$04AF</code></td><td>only "
+             "when weapon 12's level bits (<code>$04AE</code> bits 6-7) are set. <em>A lead:"
+             "</em> the letters read as an abbreviation of weapon 12's name, and weapon 12 "
+             "is the one counted rather than charged.</td></tr>"
+             "</tbody></table>")
+
+    p.append("<h2>RAM this screen names</h2>")
+    p.append("<table><thead><tr><th>Address</th><th>Meaning</th></tr></thead><tbody>"
+             + "".join(f"<tr><td><code>{a}</code></td><td>{m}</td></tr>" for a, m in (
+                 ("$F5 / $F6", "buttons newly pressed, players 1 / 2 (A = $80 &hellip; "
+                  "Right = $01)"),
+                 ("$F7 / $F8", "buttons held"),
+                 ("$3C", "selected weapon, 0 = none, 1-12"),
+                 ("$3D", "its level, 0-3"),
+                 ("$3B", "a per-weapon value from $FDCA; meaning not established"),
+                 ("$45", "chips per use"),
+                 ("$3E", "uses left = chips / $45, or $04AF for weapon 12"),
+                 ("$4A / $4B", "attack / shield bar lengths"),
+                 ("$4C / $4D", "chips, the dividend in $FD77"),
+                 ("$4E / $4F", "the number printed after CHIP MAX"),
+                 ("$52 / $53", "the player's map column / row"),
+                 ("$0150-$015B", "the map row buffer, one quadrant mask per tile"),
+                 ("$04A9-$04AB", "one bit per area; hides its entrance marker"),
+                 ("$04AC-$04AE", "weapon levels, two bits each, weapon 1 in the low bits"),
+                 ("$04AF", "weapon 12's count"),
+                 ("$04B0", "keys held, bit k-1 for key k"),
+                 ("$04D0-$04E7", "the palette, saved while the screen is up"),
+                 ("$0176", "the weapon selected when the screen opened"),
+                 ("$0177", "sprite 0's Y, saved"),
+             )) + "</tbody></table>")
+
+    p.append("<h2>Regions</h2>")
+    for r in [x for x in rm.regions if x["id"] in STATUS_REGIONS]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} '
+                 f'<span class="tag" style="background:'
+                 f'{KIND_COLOURS.get(r["kind"], DEFAULT_COLOUR)}">{_h(r["kind"])}</span> '
+                 f'<span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank '
+                 f'{r["prg_bank"]} ${r["cpu_addr"]:04X}-'
+                 f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+    return "".join(p)
+
+
 def build_site(rm, out: Path) -> list[str]:
     written: list[str] = []
 
@@ -1577,6 +1862,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["sound.html"] = _sound_page(rm)
     if any(r["id"] in PASSWORD_REGIONS for r in rm.regions):
         pages["password.html"] = _password_page(rm)
+    if any(r["id"] in STATUS_REGIONS for r in rm.regions):
+        pages["status.html"] = _status_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
@@ -1599,6 +1886,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Graphics - {rm.meta["title"]}' if name == "graphics.html"
                  else f'Sound - {rm.meta["title"]}' if name == "sound.html"
                  else f'Password - {rm.meta["title"]}' if name == "password.html"
+                 else f'Status screen - {rm.meta["title"]}' if name == "status.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

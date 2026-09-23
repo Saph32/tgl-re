@@ -860,7 +860,7 @@ L5_8580:
 ; Far-call argument at $8588
         .byte   $00,$17,$80
 
-; ---- bank5.code_858B (code) $858B-$85DA, 80 bytes
+; ---- bank5.code_858B (code) $858B-$85D9, 79 bytes
         ldy     #$00
 L5_858D:
         sty     $16
@@ -906,10 +906,10 @@ L5_85C1:
         bne     L5_85DE
         lda     #$20
         bne     L5_85E1
-        brk
 
-; ---- UNCLAIMED (gap) $85DB-$85DD, 3 bytes
-        .byte   $00,$55,$AA
+; ---- bank5.tbl_85DA (data) $85DA-$85DD, 4 bytes
+; Icon attribute by weapon level: 00 00 55 AA
+        .byte   $00,$00,$55,$AA
 
 ; ---- bank5.code_85DE (code) $85DE-$85F9, 28 bytes
 L5_85DE:
@@ -1013,7 +1013,8 @@ L5_8625:
 ; ---- bank5.code_868D (code) $868D-$868F, 3 bytes
         jmp     L7_C063
 
-; ---- UNCLAIMED (gap) $8690-$86DF, 80 bytes
+; ---- bank5.tbl_8690 (data) $8690-$86DF, 80 bytes
+; Status screen slot layout: 20 x [ppu lo][ppu hi][attr lo][tile]
         .byte   $10,$2C,$C4,$B0,$12,$2C,$C4,$B4,$14,$2C,$C5,$B8,$16,$2C,$C5,$BC
         .byte   $18,$2C,$C6,$C0,$1A,$2C,$C6,$C4,$1C,$2C,$C7,$C8,$00,$00,$00,$00
         .byte   $C8,$2D,$DA,$80,$CE,$2D,$DB,$84,$D4,$2D,$DD,$88,$DA,$2D,$DE,$8C
@@ -1173,7 +1174,8 @@ L5_87D7:
         bne     L5_87D7
         jmp     L7_C03F
 
-; ---- UNCLAIMED (gap) $87E4-$8804, 33 bytes
+; ---- bank5.tbl_87E4 (data) $87E4-$8804, 33 bytes
+; Status map frame: 8 runs + $FF
         .byte   $0E,$27,$A1,$03,$0E,$2D,$81,$0C,$8C,$2C,$01,$05,$8C,$2C,$0E,$0A
         .byte   $01,$27,$A1,$07,$01,$27,$AE,$0B,$01,$2D,$81,$0D,$01,$2D,$8E,$0E
         .byte   $FF

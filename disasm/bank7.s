@@ -4742,7 +4742,8 @@ L7_EFC7:
         lda     $10
         rts
 
-; ---- UNCLAIMED (gap) $EFD8-$EFDF, 8 bytes
+; ---- bank7.tbl_EFD8 (data) $EFD8-$EFDF, 8 bytes
+; Bit masks $01-$80
         .byte   $01,$02,$04,$08,$10,$20,$40,$80
 
 ; ---- bank7.code_EFE0 (code) $EFE0-$F027, 72 bytes
@@ -6535,10 +6536,15 @@ L7_FDC7:
         sta     $3E
         rts
 
-; ---- UNCLAIMED (gap) $FDCA-$FDF7, 46 bytes
-        .byte   $04,$03,$02,$03,$03,$03,$03,$02,$03,$03,$03,$02,$03,$01,$03,$0A
-        .byte   $01,$05,$28,$03,$07,$14,$03,$06,$1E,$02,$05,$14,$04,$0C,$1E,$01
-        .byte   $08,$78,$03,$0A,$1E,$04,$06,$1E,$04,$08,$1E,$05,$0A,$23
+; ---- bank7.tbl_FDCA (data) $FDCA-$FDD6, 13 bytes
+; Per-selection value copied to $3B
+        .byte   $04,$03,$02,$03,$03,$03,$03,$02,$03,$03,$03,$02,$03
+
+; ---- bank7.tbl_FDD7 (data) $FDD7-$FDF7, 33 bytes
+; Use-chip cost: 11 weapons x 3 levels
+        .byte   $01,$03,$0A,$01,$05,$28,$03,$07,$14,$03,$06,$1E,$02,$05,$14,$04
+        .byte   $0C,$1E,$01,$08,$78,$03,$0A,$1E,$04,$06,$1E,$04,$08,$1E,$05,$0A
+        .byte   $23
 
 ; ---- bank7.code_FDF8 (code) $FDF8-$FE21, 42 bytes
 L7_FDF8:

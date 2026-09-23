@@ -165,5 +165,11 @@
   "palettes": {
     "summary": "Bank 5 $B30A: THIRTY-SEVEN PALETTES OF THREE COLOURS. $B2E4 states the layout rather than leaving it to be inferred - ASL A / ADC $11 / TAX makes X = A * 3, then LDA $B30A,X / $B30B,X / $B30C,X go to $0181,Y / $0182,Y / $0183,Y with Y = the destination index * 3. $0181 is the palette staging area the NMI uploads through $DEF3. Colour 0 is not in the record: it comes from $0180, the shared backdrop, which is why a record is three bytes and not four.",
     "the_extent_lands_on_a_record_boundary": "Every byte from $B30A is a legal NES colour ($3F or below) for exactly 111 bytes - 37 records of three with NOTHING left over - and the first byte past it is $93. A limit that falls on a record edge by accident is a one-in-three coincidence. The values read as palettes too: $30 $16 $0F is white, red, black. WHICH palette is used where is not established."
+  },
+  "status_screen": {
+    "entry": "Select during play. Bank 7 $E4B3 tests the newly-pressed byte $F5 ($D678 keeps held buttons in $F7/$F8, newly pressed in $F5/$F6; $D626 shifts with ROL so A is bit 7, Right bit 0): Start pauses, Select goes to $E4EE, which calls bank 5 $84CB to open, $8937 each frame until Start or Select, and $8711 to close.",
+    "map": "$882D draws rows 0-23 of the bank 5 world map as background tiles, 2x2 cells per tile (quadrant masks built by $891F in $0150). Hardware sprites mark area entrances only, plus the player at ($52,$53). Map byte 1 AND 7 is the key that reveals a cell, tested against $04B0. CORRECTION: this was first read as a been-there flag, with every cell a sprite.",
+    "icons": "Bank 2 $81B2 uploads 18 raw 2bpp icons from $8E0C (0-11 the weapons); $8212 builds 8 key icons from low planes at $92AC and a shared high plane at $928C. Both extents land exactly on the next claimed byte.",
+    "weapons": "$3C selected weapon, $3D its level (two bits each in $04AC-$04AE), $45 = chips per use from $FDD3 + 3*weapon + level, $3E uses left. Weapon 12 is counted in $04AF instead."
   }
 }

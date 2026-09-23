@@ -56,7 +56,7 @@ wrong finding away.
 - `tools/parse-screen.py` — walks bank 4's per-area screen data into
   `annotations/regions/60-screen.json`. `--block N` prints one entry block record by
   record. Generated; do not hand-edit. `tools/tgl/screen.py` holds the format.
-- `tools/parse-map.py` — walks bank 5's world map into
+- `tools/parse-map.py` — walks bank 5's world map (`tools/tgl/worldmap.py`) into
   `annotations/regions/77-bank5-map.json`. `--grid` draws it, `--areas` lists the 21
   entrances. Generated.
 - `tools/find-tables.py` — claims byte tables whose extent their own readers fix, into
@@ -444,21 +444,50 @@ Do not re-derive these; do check anything that depends on them.
   - **The extent is proved by where it lands:** 807 records from `$8A6E` end *exactly* on
     `$960F`, the first byte of the dialogue pointer table. A wrong length rule would
     overshoot or stop short somewhere in 2,977 bytes.
-  - **`$8853` is the map screen.** Each qualifying cell becomes one hardware sprite at
-    `column × 4 + $10` across and `row × 4 + $3B` down, tile `$01`, attribute `$03` — four
-    pixels a cell, 96 across, a minimap. 807 records, 34 rows, 291 drawn, 207 empty.
-  - **A record's bytes.** Byte 0: bit 7 = drawn on the map, low nibble = length − 1, and
-    `$80` exactly is an empty cell. Byte 1: low three bits pick a progress flag — `$8860`
-    subtracts one, calls `$C078` for a bit mask, ANDs with `$04B0` and skips the cell when
-    clear, which is what hides the map until you have been somewhere. Byte 2: bit 7 marks an
-    **area entrance**, low seven bits are the area number.
-  - **The check that carries it:** the records with byte 0 `$82` and byte 2 bit 7 set carry
-    area numbers **1 to 21, each exactly once**. Twenty-one areas is what this project
-    established from a completely different direction — bank 4's per-area table and the
-    `CPY #$15` tests — and nothing here was tuned to produce it. `parse-map.py --grid`
-    draws it; `--areas` lists all 21 with their row and column.
-  - **Not established:** bits 4-6 of byte 0, and everything past byte 2 in the longer
-    records, which run to 16 bytes. The last row holds 15 cells, not 24.
+  - **`$882D` draws it on the status screen**, rows 0-23 only (`CMP #$18` on `$14`), as
+    **background tiles covering 2×2 cells each**: `$891F` ORs a quadrant bit (1/2 even row,
+    4/8 odd, doubled for an odd column) into a 12-byte row buffer at `$0150`, flushed as 12
+    tiles every second row. **Hardware sprites mark area entrances only**, at
+    `column × 4 + $10`, `row × 4 + $3B`, tile `$01`; bank 2 `$8998` blinks one more at
+    (`$52`, `$53`) — the player's column and row, which `$8071` steps as you walk.
+  - **A record's bytes.** Byte 0: low nibble = length − 1, `$80` exactly = empty. Byte 1:
+    low three bits name the **key** that reveals the cell — `$8860` tests bit (k−1) of
+    `$04B0`, the key inventory that bank 7 `$F547` fills on pickup. Byte 2: bit 7 marks an
+    **area entrance**, low seven bits the area number; its marker shows while the area's
+    `$04A9` bit is clear (`$C07B`), and area 21's only once areas 1-10 are all flagged.
+  - **CORRECTION.** This file said every qualifying cell becomes a hardware sprite, that
+    byte 0 bit 7 means "drawn on the map", and that byte 1 is a progress flag "which hides
+    the map until you have been somewhere". Reading `$891F` and the rest of the status
+    screen showed all three wrong.
+  - **The checks that carry it:** the records with byte 0 `$82` and byte 2 bit 7 set carry
+    area numbers **1 to 21, each exactly once**, all in rows 0-23. The key each needs
+    repeats with period ten — areas 1-10 need 0,1,2,3,4,4,5,5,6,7 and 11-20 need
+    1,1,2,3,4,4,5,5,6,7 — and drawn by key the map falls into solid zones, not noise.
+    `parse-map.py --grid` prints the key per cell; `docs/status.html` draws it.
+  - **Not established:** bits 4-6 of byte 0, bytes 3 onward, and **rows 24-33** — 231
+    records the seek walks but the status screen never draws, holding no entrance.
+- **The status screen (Select during play).** `$D626` reads the pads with `ROL`, so A is
+  bit 7 and Right bit 0; `$D678` keeps `$F7`/`$F8` held and `$F5`/`$F6` newly pressed.
+  Bank 7 `$E4B3`: new Start pauses, new Select goes to `$E4EE`, which calls bank 5 `$801B`
+  → `$84CB` (open), `$8021` → `$8937` each frame until Start/Select, `$801E` → `$8711`
+  (close).
+  - **Icons, uncompressed, in bank 2.** `$81B2` (slot `$8003`) uploads icon A from
+    `$8E0C + 64A`: 18 icons, four 2bpp tiles each, 0-11 the weapons. The extent is the
+    highest index any caller passes (17, in bank 3's reward list) and lands exactly on
+    `$928C`. `$8212` (slot `$8006`) builds **key** icons from 8 × 32 bytes of low plane at
+    `$92AC` and one shared high plane at `$928C` — ending exactly where the gap does.
+    Rendered, all 26 are clean pictures.
+  - **Slots** `$8690`: 20 × `[ppu lo][ppu hi][attr lo][tile]` — keys 1-7, a zero slot 7,
+    weapons 1-12. The tiles match where the uploaders put the art, and each attribute byte
+    matches its slot's position. `$85DA` gives the palette per weapon level —
+    **CORRECTION:** the trace had decoded it as a `BRK` after an always-taken
+    `LDA #$20 / BNE`.
+  - **Weapons.** Cursor `$3C` (0 none, 1-12), five to a row; `$FD77` puts its level (two
+    bits each in `$04AC-$04AE`) in `$3D` and skips unowned ones. Chips per use:
+    `$45 = [$FDD3 + 3 × weapon + level]`, 11 × 3 bytes that fill `$FDD7-$FDF7` exactly;
+    weapon 12 is counted in `$04AF` instead. `$3E` = chips / `$45`, the uses left.
+  - **Also bounded:** bank 3 `$817A`, 73 `[threshold][icon]` pairs for "YOU GOT ITEM",
+    fixed by `CPX #$92`, thresholds non-decreasing, icons all 0-17.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
@@ -471,7 +500,7 @@ soon as it exists: `$04` (live PRG bank), `$05` (the DMC timer's rate index, rel
 handler and tuned between `$81` and `$89` to land the raster split), `$10`/`$11` (saved A/Y across a far call), `$12`/`$13` (the far-call inline
 pointer), `$26` (`PPUSTATUS` snapshot taken in NMI), `$2B` (frame counter, incremented in
 NMI and read by the IRQ handler), `$2F` (branched on at `$FF53` in the boot path; set to 0 by the TGL back door), `$30`
-(the game-mode byte — bit 4 tested in NMI, set to 2 by the TGL back door), `$FC` (added to `$0200` in NMI), `$FE` (`PPUMASK` shadow).
+(the game-mode byte — bit 4 tested in NMI, set to 2 by the TGL back door), `$FC` (added to `$0200` in NMI), `$FE` (`PPUMASK` shadow). The status screen adds a batch — `$3B-$3E`, `$45`, `$4A-$4F`, `$52`/`$53`, `$04A9-$04B0`, `$F5-$F8` — tabled in `docs/status.html`.
 
 ## Known limits of the searches run so far
 
@@ -513,11 +542,13 @@ authoritative, up-to-date version of this list; what follows is what does not li
    four bytes then `$03`, repeating. Would open `$B393-$BFFE`, about 3,100 bytes.
 2. **Bank 0 `$8BB2`, 1,482 bytes**, read by a single `LDA $8BB2,Y` at `$8959`. The largest
    single gap left.
-3. **The rest of a map record** — bits 4-6 of byte 0 and bytes 3 onward. `$891F`, called
-   just before the map screen draws a cell, is the obvious place to look.
+3. **The rest of a map record** — bits 4-6 of byte 0, bytes 3 onward, and rows 24-33.
+   `$891F` only reads the position; the walker `$8071` and its callers (`$80F5` seeks with
+   the target in `$18`/`$19`) are where the other bytes must be used. A status-screen
+   savestate would check the whole screen against hardware.
 4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`.
 5. **Find bank 0's tile blocks.** The title screen is 18 of 512 tiles explained.
 6. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent only.
 7. Start a RAM map. Page 3 is sound state; `$B0-$BD` the screen-data interpreter;
-   `$0180-$0183` palette staging; `$0200` OAM; `$04B0` map progress flags; `$0500,X` object
+   `$0180-$0183` palette staging; `$0200` OAM; `$04B0` keys held; `$0500,X` object
    type; `$0548,X` metasprite id; `$14`/`$15` the map walker's row and column.
