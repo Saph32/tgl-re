@@ -376,13 +376,45 @@ STATUS_REGIONS = ("bank5.map_8A6E", "bank5.tbl_8690", "bank5.tbl_85DA", "bank5.t
                   "bank7.tbl_EFD8", "bank7.tbl_FDCA", "bank7.tbl_FDD7")
 
 
+EXTERNAL = Path(__file__).resolve().parents[2] / "annotations" / "external.json"
+EXTERNAL_STATUSES = ("confirmed", "consistent", "rom-differs", "unchecked", "inconclusive")
+
+
+def _external():
+    """annotations/external.json, validated: every fact names a known source and status."""
+    if not EXTERNAL.exists():
+        return None
+    import json as _json
+    d = _json.loads(EXTERNAL.read_text(encoding="utf-8"))
+    ids = {s["id"] for s in d["sources"]}
+    seen = set()
+    for f in d["facts"]:
+        if f["source"] not in ids:
+            raise AnnotationError(f'external fact {f["id"]}: unknown source {f["source"]}')
+        if f["status"] not in EXTERNAL_STATUSES:
+            raise AnnotationError(f'external fact {f["id"]}: unknown status {f["status"]}')
+        if f["id"] in seen:
+            raise AnnotationError(f'external fact {f["id"]} is duplicated')
+        seen.add(f["id"])
+    return d
+
+
 def _topic_pages(rm):
-    """(filename, nav label, blurb, region count) for each topic page that has regions."""
+    """(filename, nav label, blurb, count text) for each topic page that has content.
+
+    The outside-sources page is the one topic with no regions: it is about what is known
+    from OUTSIDE the ROM, so it counts facts."""
     out = []
     for fname, label, select, blurb in TOPICS:
         n = len(select(rm.regions))
         if n:
-            out.append((fname, label, blurb, n))
+            out.append((fname, label, blurb, f"{n:,} regions"))
+    ext = _external()
+    if ext and ext["facts"]:
+        out.append(("external.html", "Outside sources",
+                    "What the manual and other outside sources say, each claim checked "
+                    "against the ROM - or marked as not yet checked.",
+                    f'{len(ext["facts"])} facts'))
     return out
 
 
@@ -496,7 +528,7 @@ def _index(rm) -> str:
             tl.append(f'<a class="pagelink" href="{fname}">'
                       f'<div class="t">{_h(label)}</div>'
                       f'<div class="d">{_h(blurb)}</div>'
-                      f'<div class="n">{n:,} regions</div></a>')
+                      f'<div class="n">{n}</div></a>')
         p.append(f'<div class="pagelinks">{"".join(tl)}</div>')
 
     p.append("<h2>What is documented so far</h2>")
@@ -1407,7 +1439,10 @@ def _sound_page(rm) -> str:
 # The on-screen grid, as the password savestate's nametable shows it: five columns, a gap,
 # five more, and the three controls on the last row. Row and column here are the layout, and
 # the index is what $88F2 stores.
-GRID_ROWS = ("ABCDE FGHIJ", "KLMNO PQRST", "UVWXY Z0123", "  456 789")
+# Seven rows of ten, with the screen's gap after the fifth column. Lowercase letters are
+# drawn with two dots above them on screen, which the page shows as a diaeresis.
+GRID_ROWS = ("ABCDE FGHIJ", "KLMNO PQRST", "UVWXY Z0123", "abcde fghij", "klmno pqrst",
+             "uvwxy z4567", "89!?")
 CONTROLS = ("FR", "BA", "END")
 
 
@@ -1422,7 +1457,8 @@ def _grid_table(alphabet):
                 continue
             cells.append(
                 '<td style="border:none;padding:4px 10px">'
-                f'<div style="font-weight:600;font-size:16px">{c}</div>'
+                f'<div style="font-weight:600;font-size:16px">'
+                f'{c + chr(0x308) if c.islower() else c}</div>'
                 f'<div style="color:var(--dim);font-size:11px;font-family:ui-monospace,'
                 f'monospace">{alphabet.index(c)}</div></td>')
             i += 1
@@ -1485,10 +1521,16 @@ def _password_page(rm):
     p.append('<div class="note"><strong>A character is stored as its position on the grid, '
              "not as a letter.</strong> <code>$88F2</code> is <code>LDX $17 / LDA $16 / "
              "STA $0411,X</code>, and <code>$16</code> holds the cursor's grid index. So "
-             "<strong>A is 0</strong>, T is 19, Z is 25, <code>0</code> is 26 and "
-             "<code>9</code> is 35 &mdash; 36 values, which is why six bits is exactly "
-             "enough. The layout below is read off the nametable of a savestate taken on "
-             "the password screen, row by row.</div>")
+             "<strong>A is 0</strong>, T is 19, <code>0</code> is 26, <code>a</code> is 30 "
+             "and <code>?</code> is 63 &mdash; <strong>64 values, exactly six bits</strong>. "
+             "The layout is read off the nametable of a savestate taken on the password "
+             "screen; lowercase letters are tiles <code>$81-$9A</code>, drawn under a row "
+             "of <code>$AE</code> dots, so on screen they carry an umlaut.</div>")
+    p.append('<div class="note warn"><strong>Correction.</strong> This page used to show '
+             "a 36-character grid, A-Z and 0-9, with 4-9 at 30-35. The savestate had seven "
+             "rows and only three were read; 4-9 are 56-61. It was a scanned manual, whose "
+             "former owner wrote passwords full of umlauted letters, that prompted the "
+             'second look (<a href="external.html">outside sources</a>).</div>')
     p.append(_grid_table(pw.ALPHABET))
 
     p.append('<div class="note warn"><strong>A blank and the letter A are the same '
@@ -1568,9 +1610,7 @@ def _password_page(rm):
              "cannot tell them apart.</div>")
 
     # ---------------------------------------------------------------- live decoder
-    # Vectors are generated from random CHARACTERS, never from random payloads: a six-bit
-    # field runs 0-63 and the grid has 36 characters, so most payloads are not typeable and
-    # a payload-driven loop here would never terminate.
+    # Vectors are generated from random characters - every one of the 64 is typeable.
     random.seed(11)
     vectors = []
     for _ in range(5):
@@ -1586,13 +1626,13 @@ def _password_page(rm):
              '<input id="pw" maxlength="32" placeholder="TGL" '
              'style="width:100%;font:16px ui-monospace,monospace;padding:10px 12px;'
              'border:1px solid var(--line);border-radius:8px;background:var(--code);'
-             'color:var(--fg);text-transform:uppercase" />'
+             'color:var(--fg)" />'
              '<div id="out" style="margin-top:14px"></div>'
              '<p class="meta" id="selfcheck" style="margin-top:12px"></p></div>')
     p.append("<script>" + f"""
 const AB={_json.dumps(pw.ALPHABET)}, TGL={_json.dumps(tgl)}, EXEMPT={pw.XOR_EXEMPT};
 const VEC={_json.dumps(vectors)};
-function idx(s){{const o=[];for(const c of s.toUpperCase()){{
+function idx(s){{const o=[];for(const c of s.normalize("NFD").replace(/̈/g,"")){{
   if(c===" "||c==="_"){{o.push(0);continue;}} const i=AB.indexOf(c); if(i<0) return null; o.push(i);}}
   while(o.length<32) o.push(0); return o.slice(0,32);}}
 function decode(ch){{
@@ -1611,7 +1651,7 @@ const el=document.getElementById("pw"), out=document.getElementById("out");
 function render(){{
   const t=el.value, ch=idx(t);
   if(!t){{out.innerHTML='<span class="meta">Nothing entered.</span>';return;}}
-  if(!ch){{out.innerHTML='<span class="meta">Only the 36 characters on the grid.</span>';return;}}
+  if(!ch){{out.innerHTML='<span class="meta">Only the 64 characters on the grid (type a lowercase letter for an umlauted one).</span>';return;}}
   if(ch[0]===TGL[0]&&ch[1]===TGL[1]&&ch[2]===TGL[2]&&ch.slice(3).every(x=>x===0)){{
     out.innerHTML='<strong>The back door.</strong> $857A matches, $8589 finds the rest '+
       'blank, and $8592 sets $2F = 0 and $30 = 2 and returns carry clear. The checksum '+
@@ -1792,12 +1832,16 @@ def _status_page(rm):
     p.append("<h3>What a weapon costs</h3>")
     cost = b7[0x3DD3:0x3DF8]
     rows = []
+    ext = _external() or {"facts": []}
+    names = next((f.get("weapon_names") for f in ext["facts"] if f.get("weapon_names")),
+                 None) or [""] * 12
     for w in range(1, 12):
         c = [cost[3 * w + lv] for lv in (1, 2, 3)]
-        rows.append(f"<tr><td>{w}</td><td>{_icons_svg([ic['items'][w - 1]], px=2)}</td>"
+        rows.append(f"<tr><td>{w} {_h(names[w - 1])}</td>"
+                    f"<td>{_icons_svg([ic['items'][w - 1]], px=2)}</td>"
                     + "".join(f'<td class="mono">{x}</td>' for x in c)
                     + f'<td class="mono">{b7[0x3DCA + w]}</td></tr>')
-    rows.append(f"<tr><td>12</td><td>{_icons_svg([ic['items'][11]], px=2)}</td>"
+    rows.append(f"<tr><td>12 {_h(names[11])}</td><td>{_icons_svg([ic['items'][11]], px=2)}</td>"
                 '<td colspan="3"><em>no cost row: its count is <code>$04AF</code></em></td>'
                 f'<td class="mono">{b7[0x3DCA + 12]}</td></tr>')
     p.append('<p class="desc"><code>$FD77</code> reads <code>$FDD3 + 3 &times; weapon + '
@@ -2193,6 +2237,85 @@ def _enemies_page(rm):
     return "".join(p)
 
 
+STATUS_COLOURS = {"confirmed": "#38c172", "consistent": "#4fb0f2", "rom-differs": "#f2704f",
+                  "unchecked": "#8a94a6", "inconclusive": "#ecc94b"}
+
+
+def _status_tag(s: str) -> str:
+    return (f'<span class="tag" style="background:{STATUS_COLOURS[s]}">{_h(s)}</span>')
+
+
+def _external_page(rm):
+    from collections import Counter
+    ext = _external()
+    facts = ext["facts"]
+    p = ["<h1>Outside sources</h1>",
+         '<p class="sub">What is known about the game from outside the ROM &mdash; its '
+         "manual, for a start &mdash; kept one claim at a time, each next to what the ROM "
+         "says about it.</p>"]
+    p.append('<div class="note"><strong>An outside claim is a lead until the ROM backs '
+             "it.</strong> A manual describes the game its writers meant to ship, in words "
+             "chosen for players; the ROM is the game. So every entry here carries a status, "
+             "and <em>unchecked</em> means exactly that. Claims are paraphrased, not copied. "
+             "The source file is <code>annotations/external.json</code>, which the build "
+             "validates.</div>")
+
+    counts = Counter(f["status"] for f in facts)
+    p.append(_stats([(s, str(counts.get(s, 0))) for s in EXTERNAL_STATUSES]))
+    p.append('<p class="meta">' + " &middot; ".join(
+        f'{_status_tag(s)} {_h(ext["statuses"][s])}' for s in EXTERNAL_STATUSES) + "</p>")
+
+    p.append("<h2>Sources</h2>")
+    for s in ext["sources"]:
+        n = sum(1 for f in facts if f["source"] == s["id"])
+        p.append(f'<div class="card"><h3>{_h(s["title"])}</h3>'
+                 f'<p class="meta"><code>{_h(s["id"])}</code> &middot; {_h(s["publisher"])} '
+                 f"&middot; {n} facts</p>"
+                 f'<p class="desc">{_h(s["form"])}</p>'
+                 f'<p class="desc">{_h(s["notes"])}</p></div>')
+
+    # ------------------------------------------------ what the manual named in the ROM
+    names = next((f.get("weapon_names") for f in facts if f.get("weapon_names")), None)
+    items = next((f.get("item_icons") for f in facts if f.get("item_icons")), None)
+    if names or items:
+        ic = dict(_icons(rm))["items"]
+        p.append("<h2>Names the manual gave the ROM</h2>")
+        p.append('<p class="sub">The manual pictures every weapon and item. Bank 2 '
+                 "<code>$8E0C</code> holds eighteen icons, drawn straight from the ROM "
+                 "below, and they match the manual's pictures one for one &mdash; which "
+                 "names the ROM's weapon numbers. The ROM's order is not the manual's.</p>")
+        rows = []
+        for i in range(18):
+            label = (names[i] if names and i < 12 else (items or {}).get(str(i), ""))
+            what = (f"weapon {i + 1} (<code>$3C</code> = {i + 1})" if i < 12
+                    else "item, in the reward list")
+            rows.append(f"<tr><td>{i}</td><td>{_icons_svg([ic[i]], px=2)}</td>"
+                        f"<td><strong>{_h(label)}</strong></td><td>{what}</td></tr>")
+        p.append("<table><thead><tr><th>Icon</th><th></th><th>Manual name</th>"
+                 f"<th>In the ROM</th></tr></thead><tbody>{''.join(rows)}</tbody></table>")
+
+    # ------------------------------------------------------------------- the facts
+    p.append("<h2>Every claim</h2>")
+    topics = []
+    for f in facts:
+        if f["topic"] not in topics:
+            topics.append(f["topic"])
+    for topic in topics:
+        p.append(f"<h3>{_h(topic)}</h3>")
+        rows = []
+        for f in (x for x in facts if x["topic"] == topic):
+            rows.append(f'<tr id="{_h(f["id"])}"><td>{_status_tag(f["status"])}</td>'
+                        f'<td><p class="desc" style="margin:0">{_h(f["claim"])}</p>'
+                        f'<p class="meta" style="margin:4px 0 0">{_h(f["source"])}, '
+                        f'p. {_h(f["pages"])}</p></td>'
+                        f'<td><p class="desc" style="margin:0">'
+                        f'{_h(f["rom"]) or "<em>Not looked for yet.</em>"}</p></td></tr>')
+        p.append('<table><thead><tr><th style="width:110px">Status</th>'
+                 '<th style="width:40%">The source says</th><th>The ROM says</th></tr>'
+                 f"</thead><tbody>{''.join(rows)}</tbody></table>")
+    return "".join(p)
+
+
 def build_site(rm, out: Path) -> list[str]:
     written: list[str] = []
 
@@ -2207,6 +2330,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["sound.html"] = _sound_page(rm)
     if any(r["id"] in PASSWORD_REGIONS for r in rm.regions):
         pages["password.html"] = _password_page(rm)
+    if _external():
+        pages["external.html"] = _external_page(rm)
     if any(r.get("source") == ENEMY_SOURCE for r in rm.regions):
         pages["enemies.html"] = _enemies_page(rm)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
@@ -2235,6 +2360,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Password - {rm.meta["title"]}' if name == "password.html"
                  else f'Status screen - {rm.meta["title"]}' if name == "status.html"
                  else f'Enemies - {rm.meta["title"]}' if name == "enemies.html"
+                 else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

@@ -7,17 +7,30 @@ python tools/password.py TGL              # what the ROM does with it
 Where it lives
 --------------
 Bank 3, and the password screen runs with bank 3 live - which the savestate confirms, its
-mapper latch reading $83. The entry grid is drawn A-Z then 0-9 then FR / BA / END, and a
-character is stored as its **grid index**: `$88F2` does `LDX $17 / LDA $16 / STA $0411,X`,
-so A is 0, T is 19, Z is 25, '0' is 26 and '9' is 35. The field is 32 characters at
-`$0411-$0430`.
+mapper latch reading $83. A character is stored as its **grid index**: `$88F2` does
+`LDX $17 / LDA $16 / STA $0411,X`, and `$880F-$8839` builds `$16` as column + 10 x row
+from the cursor sprite's position. The field is 32 characters at `$0411-$0430`.
+
+**The grid is 64 characters, seven rows of ten** - read off the password savestate's
+nametable: A-J / K-T / U-Z 0-3 / a-j / k-t / u-z 4-7 / 8 9 ! ? then FR, BA, END. The
+lowercase letters are tiles `$81-$9A` (`$9B` is !, `$9C` is ?) and every lowercase row is
+drawn with a row of `$AE` - two dots - above it, so on screen they read as a-umlaut,
+b-umlaut and so on. 64 is exactly what the six-bit fields hold.
+
+**CORRECTION.** This file said the grid was "A-Z then 0-9", 36 characters, with '9' at
+index 35, and the site drew a four-row grid. The savestate showed seven rows all along; only
+the first three were read. The mistake put digits 4-9 at 30-35 when they are 56-61, and it
+manufactured a puzzle - "most six-bit payloads are not typeable" - that does not exist:
+with 64 characters, every payload is. What prompted the re-read was the game's manual,
+whose former owner wrote passwords full of umlauted lowercase letters
+(`docs/external.html`).
 
 How a password decodes, read off $8516
 --------------------------------------
 1. **A seed comes out of the last two characters.** `$8519` builds
    `($0430 << 2) | ($042F >> 4)`, adds `$1D`, and keeps it in `$19`.
 2. **Four characters become three bytes.** `$85BB` copies four characters to `$0403`, masks
-   each with `AND #$3F` - six bits, which is exactly enough for the 36-character set - and
+   each with `AND #$3F` - six bits, exactly the 64-character grid - and
    shifts them together into three bytes.
 3. **Each byte is XORed with the seed, and the seed counts down.** `$854D` does
    `EOR $19 / DEC $19`, so every output byte uses a different key. Index `$17` is skipped
@@ -60,13 +73,15 @@ FIELD_LEN = 0x20
 BUFFER = 0x011E           # 24 decoded bytes, $011E-$0135
 XOR_EXEMPT = 0x17         # the one index $854D does not XOR
 
-# A-Z then 0-9, which is the on-screen grid read left to right, top to bottom.
-ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+# The on-screen grid read left to right, top to bottom: ten to a row, seven rows. The
+# lowercase letters are the umlauted ones on screen.
+ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123abcdefghijklmnopqrstuvwxyz456789!?"
+assert len(ALPHABET) == 64
 
 
 def to_indices(text: str) -> list[int]:
     out = []
-    for c in text.upper():
+    for c in text:
         if c in " _":
             out.append(0)
             continue
@@ -100,17 +115,11 @@ def decode(chars: list[int]) -> tuple[list[int], bool]:
 
 
 def encode(payload: list[int], seed_chars: tuple[int, int] = (0, 0)) -> str:
-    """The inverse of `decode`. Returns "?" for any six-bit field the grid cannot express.
+    """The inverse of `decode`, for a given pair of seed characters.
 
-    **Not every 24-byte payload is typeable.** A six-bit field runs 0-63 but the grid has
-    only 36 characters, so a payload whose packed form lands in 36-63 anywhere has no
-    password at this seed. That is almost all random payloads - which is worth knowing,
-    because a round trip driven from the payload side silently tests nothing. Drive it from
-    the character side instead, as `--selftest` now does.
-
-    A LEAD, not established: the seed comes from the last two characters, which means the
-    game gets to CHOOSE it. Searching seeds until every field falls under 36 would be a
-    natural reason for the seed to exist at all. Nothing here checks that.
+    Every payload is typeable: a six-bit field runs 0-63 and the grid has 64 characters.
+    CORRECTION: this used to say most payloads were not, from the 36-character misreading
+    of the grid, and floated a lead that the seed existed to dodge untypeable fields.
     """
     seed = ((seed_chars[1] << 2) | (seed_chars[0] >> 4)) + 0x1D
     seed &= 0xFF

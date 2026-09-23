@@ -74,6 +74,11 @@ wrong finding away.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
+- `annotations/external.json` — **knowledge from outside the ROM** (the manual so far), one
+  paraphrased claim per fact, each with a status — `confirmed`, `consistent`,
+  `rom-differs`, `unchecked`, `inconclusive` — and what the ROM says. The build validates it
+  and draws `docs/external.html`. **An outside claim is a lead until the ROM backs it**;
+  never cite one as a finding without its status.
 - `annotations/dispatch.json` — hand-resolved control flow the trace cannot follow: the
   inline-argument call registry, the rejects from the scan that found it, and an
   `unresolved` list. **An empty `unresolved` list would be a weaker statement than it
@@ -316,8 +321,13 @@ Do not re-derive these; do check anything that depends on them.
     pointers in from commands 1, 2, 4, 6 and 7. Extent claimed, contents not.
 - **The password system, and the TGL back door.** Bank 3 runs the password screen (the
   savestate's latch reads `$83`). The field is 32 characters at `$0411-$0430`, each stored
-  as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and the grid is A-Z then 0-9,
-  so A is 0, T is 19, `0` is 26. The savestate's nametable confirms that layout row by row.
+  as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and `$880F` builds `$16` as
+  column + 10 × row. **The grid is 64 characters**, seven rows of ten: A-Z, 0-3, a-z, 4-9,
+  ! and ? (tiles `$81-$9A` are a-z, drawn under a row of `$AE` dots, so on screen they
+  carry umlauts). A is 0, T is 19, `0` is 26, `a` is 30, `4` is 56, `?` is 63.
+  - **CORRECTION.** This file said "A-Z then 0-9" and that the nametable confirmed it; only
+    three of the seven rows had been read, which put 4-9 at 30-35. The manual's handwritten
+    passwords, full of umlauted letters, prompted the re-read.
   - **Decode** (`$8516`): a seed from the last two characters, `($0430 << 2) | ($042F >> 4)
     + $1D`; then four characters at a time masked `AND #$3F` and shifted into three bytes;
     each output byte XORed with the seed, which decrements per byte. Eight groups give 24
@@ -333,14 +343,12 @@ Do not re-derive these; do check anything that depends on them.
   - **A blank and the letter A are the same byte** — A's grid index is 0 and an untouched
     field is all `$00` in the savestate — so "TGL" plus any number of A's is byte-identical
     to "TGL" plus blanks. Stated from the code; not tried on hardware.
-  - **Not every payload is typeable, and that broke a check.** A six-bit field runs 0-63
-    and the grid has 36 characters, so most 24-byte payloads have no password.
-    `password.py --selftest` originally round-tripped from the *payload* side, skipped all
-    500 cases on its "?" guard, and reported "0 disagreements" — true and meaningless. It
-    now runs from the character side: 2000 random passwords decode and re-encode to
-    themselves. **A lead:** the seed comes from the last two characters, so the encoder gets
-    to choose it, and searching seeds until every field lands under 36 would explain why the
-    seed exists at all.
+  - **Every payload is typeable** — 64 characters fill six bits. **CORRECTION:** this file
+    said most were not and floated a lead that the seed exists to dodge untypeable fields;
+    both came from the 36-character misreading. `password.py --selftest` round-trips 2000
+    random passwords; it still tests only self-consistency. The manual's handwritten
+    passwords are too ambiguous to check the decoder: 6 of 1,536 readings pass, which is
+    chance.
   - `docs/password.html` carries the grid, a bit-packing diagram and a decoder transcribed
     into the page, which self-checks against vectors from `tgl/password.py` on load.
 - **Bank 6 is object behaviour, behind a SPLIT dispatch table.** `$8210` reads the object
@@ -500,6 +508,11 @@ Do not re-derive these; do check anything that depends on them.
     matches its slot's position. `$85DA` gives the palette per weapon level —
     **CORRECTION:** the trace had decoded it as a `BRK` after an always-taken
     `LDA #$20 / BNE`.
+  - **Weapon names, from the manual's pictures** (`annotations/external.json`): the 12
+    weapon icons match the manual one for one, so `$3C` 1-12 = MultiBullets, Back Fire, Wave
+    Attack, Bullet Shield, Grenade, Fireball, Area Blaster, Repeller, Hyper Laser, Saber
+    Laser, Cutter Laser, Enemy Eraser; icons 12-17 = Energy Tank, Red Lander, Gun, Shield,
+    Consecutive firing, Blue Lander. So "EE" / `$04AF` is the Enemy Eraser's stock.
   - **Weapons.** Cursor `$3C` (0 none, 1-12), five to a row; `$FD77` puts its level (two
     bits each in `$04AC-$04AE`) in `$3D` and skips unowned ones. Chips per use:
     `$45 = [$FDD3 + 3 × weapon + level]`, 11 × 3 bytes that fill `$FDD7-$FDF7` exactly;
@@ -604,7 +617,8 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Name the enemy types.** A savestate with enemies on screen would tie types, via
+1. **Name the enemy types.** The manual names nine (`docs/external.html`); a match by
+   eye against `docs/enemies.html` is a lead, not a finding. A savestate with enemies on screen would tie types, via
    `$0500,X` and `$0548,X`, to what is visible; the per-type table is in
    `docs/enemies.html`.
 2. **The five bank 5 spawn scripts that end on a jump**, and area 16's, which runs into the

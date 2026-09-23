@@ -8,17 +8,18 @@
 Where it lives
 --------------
 Bank 3, and the password screen runs with bank 3 live - which the savestate confirms, its
-mapper latch reading $83. The entry grid is drawn A-Z then 0-9 then FR / BA / END, and a
-character is stored as its **grid index**: `$88F2` does `LDX $17 / LDA $16 / STA $0411,X`,
-so A is 0, T is 19, Z is 25, '0' is 26 and '9' is 35. The field is 32 characters at
-`$0411-$0430`.
+mapper latch reading $83. The grid is 64 characters in seven rows of ten - A-Z, 0-3,
+a-z (shown with umlauts), 4-9, ! and ? - then FR / BA / END, and a character is stored as
+its **grid index**: `$88F2` does `LDX $17 / LDA $16 / STA $0411,X`. Type lowercase letters
+for the umlauted ones. CORRECTION: this used to say 36 characters, A-Z then 0-9; see
+`tools/tgl/password.py`. The field is 32 characters at `$0411-$0430`.
 
 How a password decodes, read off $8516
 --------------------------------------
 1. **A seed comes out of the last two characters.** `$8519` builds
    `($0430 << 2) | ($042F >> 4)`, adds `$1D`, and keeps it in `$19`.
 2. **Four characters become three bytes.** `$85BB` copies four characters to `$0403`, masks
-   each with `AND #$3F` - six bits, which is exactly enough for the 36-character set - and
+   each with `AND #$3F` - six bits, exactly the 64-character grid - and
    shifts them together into three bytes.
 3. **Each byte is XORed with the seed, and the seed counts down.** `$854D` does
    `EOR $19 / DEC $19`, so every output byte uses a different key. Index `$17` is skipped
@@ -89,11 +90,10 @@ def main() -> int:
         random.seed(7)
         bad = tested = 0
         for _ in range(2000):
-            # Driven from the CHARACTER side, which is always expressible. Driving it from
-            # the payload side tests nothing: six-bit fields run 0-63, the grid has 36
-            # characters, and a random payload almost never encodes. An earlier version of
-            # this check did exactly that and skipped all 500 of its cases while reporting
-            # "0 disagreements" - the number was true and meaningless.
+            # Driven from the CHARACTER side. An earlier version drove it from the payload
+            # side, skipped all 500 cases on a "?" guard and reported "0 disagreements" -
+            # true and meaningless. (That guard fired because the alphabet was then misread
+            # as 36 characters; with the real 64 every payload encodes.)
             text = "".join(random.choice(ALPHABET) for _ in range(FIELD_LEN))
             chars = to_indices(text)
             payload, _ = decode(chars)
