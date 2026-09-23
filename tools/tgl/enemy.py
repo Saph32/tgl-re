@@ -40,19 +40,19 @@ spawns: bit 7 clear = one object of that type; bit 7 set = a **formation**, two 
 creating a type-``$29`` spawner (bank 6 ``$9A19``) that makes ``count`` objects of type
 ``byte AND $7F``, one every ``interval`` frames. After a spawn, a byte with bit 7 set is
 another spawn; otherwise it is the wait before the next command, in units of 60 frames
-(``$69``) - or, in the scrolling areas, of events.
+(``$69``) - or, in the corridors, of events.
 
-The scrolling areas
+The corridors
 -------------------
 Three mechanisms, all found from bank 4's screen-data commands (``tools/tgl/screen.py``):
 
 * **Command 2 with bit 1 set** (``$E733``) loads ``$66``/``$67`` and sets ``$7F = 4``: it
   starts a spawn script **in bank 4**, run by the same ``$F78F``. There the wait counts
   frames in which ``$A0`` bit 2 is set - ``$E98F`` sets it when a new background row is
-  brought in and ``$E655`` clears it every frame - so area waves are keyed to how far the
-  screen has scrolled, not to time. Areas 1-21 name exactly one script each.
+  brought in and ``$E655`` clears it every frame - so corridor waves are keyed to how far the
+  screen has scrolled, not to time. Corridors 1-21 name exactly one script each.
 * **Command 7** (``$E85E``) waits for any load in progress, then points ``$28``/``$29`` at a
-  graphics-load stream in bank 4 (``$7E = 4``): the art for that area's enemies.
+  graphics-load stream in bank 4 (``$7E = 4``): the art for that corridor's enemies.
 * **The terrain.** Each new row is 16 metatile ids copied into ``$04C0`` (``$E8AB``, from
   command 1's table at ``$B4``; command 6's channels paint over it). Bank 5 ``$83B3`` draws a
   metatile from 5 bytes - four tiles and a fifth byte it writes back into ``$04C0`` - and

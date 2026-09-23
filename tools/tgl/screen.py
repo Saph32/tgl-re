@@ -1,10 +1,16 @@
-"""Bank 4: the per-area screen data, and the command stream that drives it.
+"""Bank 4: the per-corridor screen data, and the command stream that drives it.
+
+**Terminology - CORRECTION.** This module says "area" for ``$51`` throughout. ``$51`` is the
+**corridor** number: the vertically scrolling shooter stages, 1-21, entered from the
+labyrinth ("Corridor No.2" in the game's own dialogue). The labyrinth has areas of its own,
+``$50``, 0-10, which the HUD prints after "AREA" (bank 7 ``$E169``). Read "area N" below as
+"corridor N". The code keeps the old variable names.
 
 How it is reached
 -----------------
 Bank 4 has ONE entry point and it returns a pointer instead of running code, which is why a
 control-flow trace found nineteen bytes of a sixteen-kilobyte bank. ``$EF9B`` in bank 7
-switches to bank 4, ``$EF9E`` loads the area number from ``$51`` and ``$EFA0`` calls
+switches to bank 4, ``$EF9E`` loads the corridor number from ``$51`` and ``$EFA0`` calls
 ``$8000``, which indexes the 25-entry table at ``$8013`` by ``(A + 2) * 2`` and hands back
 the block address in ``$18``/``$19``.
 

@@ -1701,7 +1701,7 @@ KEY_COLOURS = ("#8a94a6", "#4fb0f2", "#ed64a6", "#38c172", "#ecc94b", "#f2704f",
 
 def _worldmap_svg(recs, cell=14):
     """Rows 0-23 of the world map as the status screen reveals them: one square per
-    non-empty cell, coloured by the key that reveals it, area entrances numbered."""
+    non-empty cell, coloured by the key that reveals it, corridor entrances numbered."""
     from tgl import worldmap as wm
     n = wm.COLUMNS
     w, h = n * cell, wm.DRAWN_ROWS * cell
@@ -1770,12 +1770,12 @@ def _status_page(rm):
     p.append("<h2>The map</h2>")
     p.append('<p class="sub">Bank 5 <code>$8A6E</code>, the same records the game walks '
              "while you move. <code>$882D</code> draws rows 0-23 as background tiles, each "
-             "covering two by two cells; hardware sprites mark only the area entrances and "
+             "covering two by two cells; hardware sprites mark only the corridor entrances and "
              "(blinking) you.</p>")
     p.append(f'<div class="card">{_worldmap_svg(recs)}<p class="meta">'
              + " ".join(f'<span style="color:{KEY_COLOURS[k]}">&#9632;</span> '
                         + ("no key" if k == 0 else f"key {k}") for k in range(8))
-             + " &middot; numbered squares are area entrances</p></div>")
+             + " &middot; numbered squares are corridor entrances</p></div>")
     keys = [wm.key(ent[a]) for a in sorted(ent)]
     p.append('<div class="note"><strong>Byte 1 of a cell is a key, and the picture shows it'
              "</strong>: <code>$8860</code> tests <code>byte 1 AND 7</code> against "
@@ -1794,8 +1794,8 @@ def _status_page(rm):
              "(&ldquo;the walk lands exactly on <code>$960F</code>&rdquo;) was one a walk over "
              "arbitrary data passes about one time in four.</div>")
     p.append('<div class="note warn"><strong>Not established.</strong> An entrance marker is '
-             "shown while the area's <code>$04A9</code> bit is clear, and area 21's only once "
-             "areas 1-10 are all flagged &mdash; &ldquo;cleared&rdquo; is the obvious reading "
+             "shown while the corridor's <code>$04A9</code> bit is clear, and corridor 21's only once "
+             "corridors 1-10 are all flagged &mdash; &ldquo;cleared&rdquo; is the obvious reading "
              "of that flag and has not been checked.</div>")
 
     p.append("<h2>Keys and weapons</h2>")
@@ -2142,8 +2142,8 @@ def _enemies_page(rm):
              "script's <code>02</code> and first byte. Either that wait never runs out in "
              "play, or this reading misses something. Marked <em>jump ?</em> above.</div>")
 
-    p.append("<h2>The scrolling areas</h2>")
-    p.append('<div class="note">Enemies in the 21 vertically scrolling areas come from two '
+    p.append("<h2>The corridors</h2>")
+    p.append('<div class="note">Enemies in the 21 vertically corridors come from two '
              "places. <strong>Waves</strong>: bank 4's screen-data command 2, with bit 1 of its "
              "operand set (<code>$E733</code>), points <code>$66</code>/<code>$67</code> at a "
              "spawn script in bank 4 and sets <code>$7F = 4</code> &mdash; the same format and "
@@ -2186,16 +2186,16 @@ def _enemies_page(rm):
     p.append("<table><thead><tr><th>Area</th><th>Script</th><th>Steps</th>"
              "<th>Types spawned, in order of first appearance</th><th>Blocks loaded</th>"
              f"</tr></thead><tbody>{''.join(rows)}</tbody></table>")
-    p.append('<div class="note"><strong>The checks.</strong> Areas 1-21 name exactly one '
+    p.append('<div class="note"><strong>The checks.</strong> Corridors 1-21 name exactly one '
              "script each; areas <em>n</em> and <em>n</em>+10 share graphics streams, the "
              "same pairing the keys follow. The scripts and streams are pairwise disjoint, "
              "and all five scripts that end on a jump jump back into themselves. "
-             "<strong>139 of 144</strong> (area, spawned type) pairs find the type's art block "
-             "in that area's own load streams; the five that do not may be relying on art "
+             "<strong>139 of 144</strong> (corridor, spawned type) pairs find the type's art block "
+             "in that corridor's own load streams; the five that do not may be relying on art "
              "left loaded from before. <strong>Correction:</strong> the four huge "
              "&ldquo;terminal triggers&rdquo; that end bank 4's blocks are not trigger data "
              "&mdash; three are exactly the first two bytes of the spawn script or graphics "
-             "stream that follows. Area 16's script runs on into the next block after its "
+             "stream that follows. Corridor 16's script runs on into the next block after its "
              "last wave; where it really ends is not established.</div>")
 
     p.append("<h2>Loading enemy art</h2>")

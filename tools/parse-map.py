@@ -5,7 +5,7 @@
     python tools/parse-map.py          # rewrite the file, print the checks
     python tools/parse-map.py --check  # report, write nothing
     python tools/parse-map.py --grid   # draw the map as a 24-column grid
-    python tools/parse-map.py --areas  # just the 21 area entrances
+    python tools/parse-map.py --areas  # just the 21 corridor entrances
 
 **The output file is generated. A hand edit to it is lost on the next run.** The walks
 themselves are in `tools/tgl/worldmap.py`.
@@ -34,7 +34,7 @@ The map
 * ``$882D`` draws it **on the status screen**, rows 0-23 (``CMP #$18`` on ``$14``), as
   **background tiles covering 2 x 2 cells**: ``$891F`` ORs a quadrant bit into a 12-byte
   row buffer at ``$0150``, flushed as 12 tiles every second row. **Hardware sprites mark
-  area entrances only**, at ``column * 4 + $10``, ``row * 4 + $3B``, tile ``$01``; bank 2
+  corridor entrances only**, at ``column * 4 + $10``, ``row * 4 + $3B``, tile ``$01``; bank 2
   ``$8998`` blinks one more at (``$52``, ``$53``).
 
 What a record's bytes mean
@@ -45,9 +45,17 @@ What a record's bytes mean
   of an ordinary enemy script.
 * **byte 1** - low three bits name the **key** that reveals the cell (``$8860`` against
   ``$04B0``, the key inventory bank 7 ``$F547`` fills). **Bit 3** = the room has enemies.
-* **byte 2** - bit 7 marks an **area entrance**, low seven bits the area number; its marker
-  shows while the area's ``$04A9`` bit is clear, and area 21's only once areas 1-10 are all
-  flagged.
+  **Bits 7, 6, 5, 4 = openings north, west, east, south** - ``$82DD`` tests each against the
+  neighbour ``$8071`` addressed in ``$E0`` (row - 1), ``$E2`` (column - 1), ``$E6``
+  (column + 1) and ``$E8`` (row + 1). **Checked on hardware:** in the labyrinth savestate
+  the player's room (row 12, column 8, byte 1 ``$B8``) is open north, east and south and
+  walled on the west, exactly as the nametable shows it.
+* **byte 0 bit 7** - where an opening leads to or from a room with it set, ``$82DD`` puts a
+  door in the opening (``$08`` into the room buffer, e.g. ``$0777``) locked by the
+  neighbour's key, kept in ``$58-$5B``. Read from the code; not yet seen on screen.
+* **byte 2** - bit 7 marks an **corridor entrance**, low seven bits the corridor number; its marker
+  shows while the corridor's ``$04A9`` bit is clear, and corridor 21's only once corridors 1-10
+  are all flagged.
 * **then, in this order** (``$8121``, ``$8243``): the sub-id if the kind is ``$20``/``$40``;
   the **spawn script id** if byte 1 bit 3 is set (``$57``, 0 read as 1, indexing bank 5
   ``$A4C7``); the **layout pointer** if byte 0 bit 4 is set.
@@ -59,17 +67,23 @@ The checks
 ----------
 1. **Every non-empty record is exactly as long as its flags say** - 3 + sub-id + script +
    2 for a layout. That is the check that carries the field order.
-2. The records with byte 0 ``$82`` and byte 2 bit 7 carry area numbers **1 to 21, each
-   exactly once**; the keys they need repeat with period ten across 1-10 and 11-20.
+2. The records with byte 0 ``$82`` and byte 2 bit 7 carry corridor numbers **1 to 21, each
+   exactly once**; the keys they need repeat with period ten across corridors 1-10 and 11-20.
 3. **211 rooms have enemies, their script ids are all in 1-47, and all 47 are used** - the
    script table's 47 was fixed independently, by where its first target begins.
 4. **The layouts partition their stretch**: chained from ``$9340`` they land exactly on
    ``$960F``, and all 67 layouts the map points at are on that chain. The shapes they use
    are 0-18, and 19 shapes of 18 bytes end exactly at ``$9340``.
+5. **Hardware.** In the labyrinth savestate the live room pointer ``$E4`` is ``$8E4C``, the
+   record this walk puts at row 12 column 8 - where ``$52``/``$53`` and the HUD say the
+   player is. Decoding that record's layout (``$95D9``: shape 0 and five mask-walked items)
+   predicts 17 cells of metatile 3 and one of metatile 9; the nametable shows those tiles in
+   exactly those cells and floor everywhere else inside the walls, the one exception being
+   the cell a live object stands on.
 
 What is NOT established
 -----------------------
-Bit 7 of byte 0 beyond its part in the entrance test; what the sub-id ``$5E`` selects
+What the sub-id ``$5E`` selects
 through ``$A377``; the 12 layouts on the chain that no map record points at (``$9340``
 among them, a two-byte empty layout); what ``$04A9`` means in play.
 """
@@ -122,8 +136,8 @@ def main() -> int:
     print(f"{len(recs)} map records = {ROWS} x {COLUMNS}, ${START:04X}-${MAP_END - 1:04X}"
           + ("" if landed == MAP_END and len(recs) == ROWS * COLUMNS else "  ** MISMATCH **"))
     print(f"{exact} of {len(full)} non-empty records are exactly as long as their flags say")
-    print(f"{len(ent)} area entrances; 1-21 once each: {areas == list(range(1, 22))}; "
-          f"keys by area {keys}")
+    print(f"{len(ent)} corridor entrances; 1-21 once each: {areas == list(range(1, 22))}; "
+          f"keys by corridor {keys}")
     print(f"{sum(scripts.values())} rooms with enemies, script ids {min(scripts)}-"
           f"{max(scripts)}, {len(scripts)} distinct")
     print(f"{len(refs)} layouts referenced, {len(refs & on_chain)} on the chain from "
@@ -134,7 +148,7 @@ def main() -> int:
 
     if args.areas:
         for r in sorted(ent, key=lambda r: r["b"][2] & 0x7F):
-            print(f"  area {r['b'][2] & 0x7F:2d}  row {r['row']:2d} col {r['col']:2d}  "
+            print(f"  corridor {r['b'][2] & 0x7F:2d}  row {r['row']:2d} col {r['col']:2d}  "
                   f"${r['addr']:04X}  " + " ".join(f"{x:02X}" for x in r["b"]))
 
     if args.grid:
@@ -151,7 +165,7 @@ def main() -> int:
                 else:
                     line += str(key(r)) if key(r) else "#"
             print(f" {row:2d} {line}")
-        print("\n A = area entrance, # = a cell needing no key, 1-7 = the key that reveals "
+        print("\n A = corridor entrance, # = a cell needing no key, 1-7 = the key that reveals "
               "it, . = empty")
 
     base = rm.meta["prg_offset"] + BANK * rm.meta["prg_bank_size"] - 0x8000
@@ -168,14 +182,18 @@ def main() -> int:
                "of the labyrinth. A record is (first byte AND $0F) + 1 bytes ($8103: "
                "LDA ($16),Y / AND #$0F / SEC / ADC $16). $80F5 seeks through it; $8071 walks "
                "it as the player moves ($52 column, $53 row); $882D draws it on the status "
-               "screen as 2x2-cell background tiles, sprites marking area entrances only. "
+               "screen as 2x2-cell background tiles, sprites marking corridor entrances only. "
                "BYTE 0: low nibble length-1, $80 exactly empty, bit 4 = layout pointer "
                "present, bits 5-6 = room kind ($5D; $20 and $40 carry a sub-id). BYTE 1: low "
                "three bits = the KEY that reveals the cell ($04B0), bit 3 = the room has "
-               "enemies. BYTE 2: bit 7 = area entrance, low seven bits = area number. THEN, "
+               "enemies, bits 7/6/5/4 = openings north/west/east/south ($82DD against the "
+               "neighbours $E0/$E2/$E6/$E8), and byte 0 bit 7 puts a key door in an opening. "
+               "BYTE 2: bit 7 = corridor entrance, low seven bits = corridor number. THEN, "
                "in order: sub-id ($5E), spawn script id ($57, into $A4C7), layout pointer. "
                f"CHECKS: {exact} of {len(full)} non-empty records are exactly as long as "
-               "their flags imply; area numbers 1-21 occur once each; "
+               "their flags imply; corridor numbers 1-21 occur once each; in the labyrinth "
+               "savestate the live room pointer $E4 = $8E4C is this walk's row 12 column 8, "
+               "and that room's layout and openings match the nametable cell for cell; "
                f"{sum(scripts.values())} rooms with enemies use script ids "
                f"{min(scripts)}-{max(scripts)}, {len(scripts)} distinct. CORRECTION: this "
                "region was first 807 records running to $960E, proved by 'the walk lands "

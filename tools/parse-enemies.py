@@ -55,7 +55,7 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--types", action="store_true")
     ap.add_argument("--scripts", action="store_true")
-    ap.add_argument("--areas", action="store_true", help="each area's scripts and streams")
+    ap.add_argument("--areas", action="store_true", help="each corridor's scripts and streams")
     args = ap.parse_args()
 
     rm = load(ROOT, exclude={OUT.name})
@@ -123,7 +123,7 @@ def main() -> int:
           f"streams end at ${s_end:04X}" + ("  (exactly the code)" if s_end == SPECIAL_END
                                            else "  ** MISMATCH **"))
 
-    # 5. the scrolling areas
+    # 5. the corridors
     b4 = rm.prg_bank(4)
     a_scripts, a_streams = enemy.area_spawns(b4)
     all_s = sorted(set().union(*a_scripts.values()))
@@ -165,17 +165,17 @@ def main() -> int:
                 if gid in loaded:
                     have += 1
                 else:
-                    misses.append(f"area {area} type ${ty:02X} block ${gid:02X}")
+                    misses.append(f"corridor {area} type ${ty:02X} block ${gid:02X}")
     spans = sorted([(s, s_walk[s][1]) for s in all_s] + [(g, g_walk[g][1]) for g in all_g])
     disjoint = all(a2 >= b1 for (_, b1), (a2, _) in zip(spans, spans[1:]))
-    print(f"areas: {len(all_s)} spawn scripts (areas 1-21 one each: {one_each}), "
+    print(f"areas: {len(all_s)} spawn scripts (corridors 1-21 one each: {one_each}), "
           f"{len(all_g)} graphics streams, all in bank 4, pairwise disjoint: {disjoint}")
     print(f"  {len(loops)} scripts end on a jump, every one back into itself: {loops_ok}")
     print(f"  load streams pack exactly: {a_ok} of {a_pairs}")
     print(f"  {len(overrun)} scripts run into the next named structure: "
           + ", ".join(f"${s:04X} into ${n:04X}" for s, n in overrun.items()))
-    print(f"  {have} of {need} (area, spawned type) pairs have the type's art block loaded by "
-          f"that area's own streams; misses: {', '.join(misses)}")
+    print(f"  {have} of {need} (corridor, spawned type) pairs have the type's art block loaded by "
+          f"that corridor's own streams; misses: {', '.join(misses)}")
 
     if args.types:
         print("\ntype flags  hp  atk  $0620 death  gfx")
@@ -312,7 +312,7 @@ def main() -> int:
         ev, e, how = s_walk[s]
         kinds = sorted({x[1] for x in ev if x[0] in ("spawn", "formation")})
         R.append(region(4, "data", s, e - s, "data",
-                        f"Area spawn script: area {', '.join(map(str, by_script[s]))}",
+                        f"Corridor spawn script: corridor {', '.join(map(str, by_script[s]))}",
                         "Started by screen-data command 2 with bit 1 set ($E733: pointer to "
                         "$66/$67, $7F = 4) and run by bank 7 $F78F, the same interpreter as the "
                         "labyrinth's. Here a wait counts frames in which $A0 bit 2 is set - a "
@@ -327,7 +327,7 @@ def main() -> int:
     for g in all_g:
         rs, e = g_walk[g]
         R.append(region(4, "data", g, e - g, "data",
-                        f"Area graphics stream: area {', '.join(map(str, by_stream[g]))}",
+                        f"Corridor graphics stream: corridor {', '.join(map(str, by_stream[g]))}",
                         "Started by screen-data command 7 ($E85E: waits for $27 to clear, "
                         "then $28/$29 and $7E = 4) and loaded by $E99F. Records: "
                         + "; ".join(f"slot {sl} empty" if not b else

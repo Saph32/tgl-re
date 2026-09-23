@@ -66,7 +66,9 @@ def read_state(path: Path) -> dict:
     raw = path.read_bytes()
     if raw[:4] != b"FCSX":
         raise SystemExit(f"{path} is not an FCEUX savestate (no FCSX magic)")
-    data = zlib.decompress(raw[16:])
+    # Bytes 12-15 are the compressed length; FCEUX writes $FFFFFFFF there when it saved the
+    # state uncompressed, which some builds and settings do.
+    data = raw[16:] if raw[12:16] == b"\xff\xff\xff\xff" else zlib.decompress(raw[16:])
     out: dict[str, bytes] = {}
     i = 0
     while i + 5 <= len(data):

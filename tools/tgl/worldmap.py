@@ -15,7 +15,7 @@ SHAPE_SIZE = 18       # $8042 multiplies by 18; $828C: CPY #$12
 SHAPES = 19           # shapes 0-18 are used, and 19 x 18 lands on the first layout
 LAYOUTS = MAP_END + SHAPES * SHAPE_SIZE      # $9340
 END = 0x960F          # the dialogue pointer table; the layout chain lands here exactly
-ENTRANCE = 0x82       # byte 0 of an area entrance
+ENTRANCE = 0x82       # byte 0 of a corridor entrance
 EMPTY = 0x80
 
 # Byte 0 bits 5-6, stored in $5D by $8121.

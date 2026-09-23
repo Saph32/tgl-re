@@ -14,143 +14,217 @@
       "publisher": "Brøderbund Software, 1988",
       "form": "Scan of the printed US manual, 18 numbered pages plus covers, two pages per PDF sheet. Distributed by Vimm's Lair, credited to a contributor named Maxamilious. The user's copy is a local PDF and is not in this repository.",
       "notes": "A previous owner hand-wrote passwords on pages 15 and 18 (one crossed out). Those are not part of the printed manual, but they turned out to matter: see the password facts."
+    },
+    {
+      "id": "owner",
+      "title": "The project owner's description of the game",
+      "publisher": "Stated in conversation, 2026-09",
+      "form": "Knowledge of how the game plays, given while supplying savestates.",
+      "notes": "Recorded like any other outside source: a lead until the ROM backs it."
     }
   ],
   "facts": [
     {
       "id": "credits",
-      "source": "manual-us", "pages": "1, back cover", "topic": "Credits",
+      "source": "manual-us",
+      "pages": "1, back cover",
+      "topic": "Credits",
       "claim": "Trademark and copyright IREM Corp. 1988; copyright COMPILE 1988; copyright Brøderbund Software 1988. Product manager Alan Weiss; special thanks to Ed Bernstein, Cynthia Wuthmann, Shigeo Akada, Dave Davis and E². Printed in Japan.",
       "status": "consistent",
       "rom": "The title sequence's screen script in bank 0 ($8B80) reads PRODUCED BY / IREM / CORPORATION. No text found so far names COMPILE or Brøderbund."
     },
     {
       "id": "setting",
-      "source": "manual-us", "pages": "3-4", "topic": "Story",
+      "source": "manual-us",
+      "pages": "3-4",
+      "topic": "Story",
       "claim": "An alien world called Naju is heading for Earth. Its surface is the Labyrinth - passages and rooms; inside it is the Dungeon - corridors made by the large alien life forms.",
       "status": "confirmed",
       "rom": "The dialogue script (bank 5 $9639) names NAJU and talks about corridors throughout. The two halves match the ROM's two modes: the 24 x 24 labyrinth map in bank 5 and the 21 scrolling areas in bank 4."
     },
     {
       "id": "ten-devices",
-      "source": "manual-us", "pages": "6, 7", "topic": "Goal",
+      "source": "manual-us",
+      "pages": "6, 7",
+      "topic": "Goal",
       "claim": "Ten safety devices inside the dungeon must be activated to destroy Naju. Killing the master monster at the end of a corridor may activate part of the safety system, or give a key.",
       "status": "consistent",
       "rom": "Area 21's entrance marker is drawn only when areas 1-10 are all flagged in $04A9 (status screen, bank 5 $887F-$888F): ten corridors gate the last one. The dialogue calls them SEALS ('the seal for Corridor No.2', 'Seal No.4 cannot be removed'). Keys are the bits of $04B0, set by bank 7 $F547 with a per-area value from $F6DA. This makes 'area cleared' the natural reading of $04A9 - still a reading, not proven."
     },
     {
       "id": "map-lights",
-      "source": "manual-us", "pages": "7", "topic": "Status screen",
+      "source": "manual-us",
+      "pages": "7",
+      "topic": "Status screen",
       "claim": "On the map, blinking lights are the corridor entrances.",
       "status": "consistent",
       "rom": "The status screen marks area entrances, and only those, with hardware sprites (bank 5 $8896). Whether they blink is not read: bank 2 $8998 blinks the player's marker every 4 frames and swaps two OAM blocks every 16 ($8A1E), which may be it."
     },
     {
       "id": "controller-2",
-      "source": "manual-us", "pages": "5", "topic": "Controls",
+      "source": "manual-us",
+      "pages": "5",
+      "topic": "Controls",
       "claim": "Only controller 1 is used.",
       "status": "rom-differs",
       "rom": "Controller 2 is read every frame into $F6 (new presses) and $F8 (held) by $D626/$D678, and the status screen's weapon cursor (bank 5 $8937) ORs the two pads together, so a second pad moves it too."
     },
     {
       "id": "start-select",
-      "source": "manual-us", "pages": "5-6", "topic": "Controls",
+      "source": "manual-us",
+      "pages": "5-6",
+      "topic": "Controls",
       "claim": "START pauses during play; SELECT switches between the main screen and the subscreen, and chooses START or PASSWORD CONTINUE on the title screen.",
       "status": "confirmed",
       "rom": "Bank 7 $E4B3: a new Start ($10) pauses, a new Select ($20) opens the status screen through bank 5 $84CB, and Start or Select closes it. The title-screen half is unchecked."
     },
     {
       "id": "buttons",
-      "source": "manual-us", "pages": "6", "topic": "Controls",
+      "source": "manual-us",
+      "pages": "6",
+      "topic": "Controls",
       "claim": "A fires the optional weapon chosen on the subscreen; B fires the normal weapon, auto-fires when held, and pages through messages.",
       "status": "unchecked",
       "rom": ""
     },
     {
       "id": "password-creature",
-      "source": "manual-us", "pages": "7", "topic": "Password",
+      "source": "manual-us",
+      "pages": "7",
+      "topic": "Password",
       "claim": "A friendly blue creature in certain labyrinth rooms gives a password if the optional weapon is set to 'NONE' and A is pressed. Enter it via PASSWORD CONTINUE on the title screen.",
       "status": "consistent",
       "rom": "The dialogue has the creature's lines ('Do you want me to record your progress? Set your...'). The game's own label for 'none' is NO USE - slot 0 of the weapon cursor, drawn from bank 5 $85FA / $8602 - not NONE."
     },
     {
       "id": "password-alphabet",
-      "source": "manual-us", "pages": "15, 18 (handwritten)", "topic": "Password",
+      "source": "manual-us",
+      "pages": "15, 18 (handwritten)",
+      "topic": "Password",
       "claim": "The owner's passwords are written in groups of four using capitals, digits and many lowercase letters with two dots above them (ä, ö, ü, ë ...).",
       "status": "confirmed",
       "rom": "CORRECTION PROMPTED BY THIS SOURCE. The project had the grid as 36 characters, A-Z and 0-9. Re-reading the password savestate's nametable shows seven rows of ten: A-Z, 0-3, a-z, 4-9, ! and ? - 64 characters, exactly the six bits a field holds. The lowercase letters are tiles $81-$9A and each of their rows has a row of $AE (two dots) above it, which is why they were written with umlauts. $880F builds the index as column + 10 x row, so 4-9 are 56-61, not 30-35."
     },
     {
       "id": "password-check",
-      "source": "manual-us", "pages": "15, 18 (handwritten)", "topic": "Password",
+      "source": "manual-us",
+      "pages": "15, 18 (handwritten)",
+      "topic": "Password",
       "claim": "The handwritten passwords are real passwords from a real game.",
       "status": "inconclusive",
       "rom": "Decoding them tests the checksum at bank 3 $859B, but the handwriting is ambiguous (0/O, s/S, 2/z, m/M ...). Over all 1,536 plausible readings of the page-18 password, 6 pass - the 1-in-256 chance rate - and none of 64 readings of page 15's pass. So this does not check the decoder either way. A password typed into an emulator and captured in a savestate would."
     },
     {
       "id": "hud",
-      "source": "manual-us", "pages": "8", "topic": "Main screen",
+      "source": "manual-us",
+      "pages": "8",
+      "topic": "Main screen",
       "claim": "The main screen shows the score, life force, X/Y coordinates, chips carried, and the selected optional weapon with its shots remaining.",
       "status": "confirmed",
       "rom": "Inline PPU strings SC, SHOT and CHIP (bank 0 $8191, $8199, $81A3) and AREA (bank 7 $E162). Shots remaining is $3E = chips / cost-per-shot, drawn at $2739 by $E1C3 (bank 7 $FD77)."
     },
     {
       "id": "subscreen",
-      "source": "manual-us", "pages": "9", "topic": "Status screen",
+      "source": "manual-us",
+      "pages": "9",
+      "topic": "Status screen",
       "claim": "The subscreen shows the map, keys, chips, chip maximum, attack power, shield strength, the chosen weapon's power, the chips needed to fire it, and the list of optional weapons.",
       "status": "confirmed",
       "rom": "Bank 5 $84CB draws exactly these labels - KEY, CHIP MAX, ATTACK, SHIELD, WEAPON POWER, USE CHIP, NO USE - with ATTACK and SHIELD as bars of $4A and $4B tiles. See docs/status.html."
     },
     {
       "id": "two-forms",
-      "source": "manual-us", "pages": "10", "topic": "The Guardian",
+      "source": "manual-us",
+      "pages": "10",
+      "topic": "The Guardian",
       "claim": "The Guardian is a humanoid in the labyrinth and a fighter craft in the corridors. Its shields are automatic and are strengthened by parts found on the surface.",
       "status": "unchecked",
       "rom": ""
     },
     {
       "id": "weapons",
-      "source": "manual-us", "pages": "10-11", "topic": "Weapons",
+      "source": "manual-us",
+      "pages": "10-11",
+      "topic": "Weapons",
       "claim": "Twelve optional weapons: MultiBullets, Back Fire, Area Blaster, Repeller, Wave Attack, Bullet Shield, Grenade, Fireball, Hyper Laser, Saber Laser, Cutter Laser, Enemy Eraser - each with an icon. Some cost more Power Chips than others.",
       "status": "confirmed",
       "rom": "The twelve weapon icons in bank 2 ($8E0C, icons 0-11) match the manual's twelve pictures one for one, which names the ROM's weapon numbers ($3C = 1-12): 1 MultiBullets, 2 Back Fire, 3 Wave Attack, 4 Bullet Shield, 5 Grenade, 6 Fireball, 7 Area Blaster, 8 Repeller, 9 Hyper Laser, 10 Saber Laser, 11 Cutter Laser, 12 Enemy Eraser. The ROM's order is not the manual's. Weapon 12 being the Enemy Eraser confirms the lead that the status screen's 'EE' and count ($04AF) are its stock - it is the one weapon counted rather than charged in chips.",
-      "weapon_names": ["MultiBullets", "Back Fire", "Wave Attack", "Bullet Shield", "Grenade", "Fireball", "Area Blaster", "Repeller", "Hyper Laser", "Saber Laser", "Cutter Laser", "Enemy Eraser"]
+      "weapon_names": [
+        "MultiBullets",
+        "Back Fire",
+        "Wave Attack",
+        "Bullet Shield",
+        "Grenade",
+        "Fireball",
+        "Area Blaster",
+        "Repeller",
+        "Hyper Laser",
+        "Saber Laser",
+        "Cutter Laser",
+        "Enemy Eraser"
+      ]
     },
     {
       "id": "hyper-laser",
-      "source": "manual-us", "pages": "11", "topic": "Weapons",
+      "source": "manual-us",
+      "pages": "11",
+      "topic": "Weapons",
       "claim": "The Hyper Laser cannot be used in the labyrinth.",
       "status": "unchecked",
       "rom": ""
     },
     {
       "id": "items",
-      "source": "manual-us", "pages": "12-13", "topic": "Items",
+      "source": "manual-us",
+      "pages": "12-13",
+      "topic": "Items",
       "claim": "Items: Energy Tank (fills energy), Blue Lander (raises maximum energy), Red Lander (raises Power Chip maximum), Gun (attack), Power Heart (partial energy), Blue Chip (20 chips), Red Chip (50 chips), Shield (defence), Consecutive firing (standard weapon), and Blue, Red, Yellow and Green Pyramids (entrance, indestructible, score, changes into blue).",
       "status": "confirmed",
       "rom": "Bank 2 icons 12-17 match six of them one for one: 12 Energy Tank, 13 Red Lander, 14 Gun, 15 Shield, 16 Consecutive firing, 17 Blue Lander. Those are exactly the icons bank 3's 'YOU GOT ITEM' reward list ($817A) hands out. Power Heart, the chips and the pyramids have no icon there - they are objects in the world. The chip values (20, 50) and each item's effect are unchecked.",
-      "item_icons": {"12": "Energy Tank", "13": "Red Lander", "14": "Gun", "15": "Shield", "16": "Consecutive firing", "17": "Blue Lander"}
+      "item_icons": {
+        "12": "Energy Tank",
+        "13": "Red Lander",
+        "14": "Gun",
+        "15": "Shield",
+        "16": "Consecutive firing",
+        "17": "Blue Lander"
+      }
     },
     {
       "id": "enemies",
-      "source": "manual-us", "pages": "13-14", "topic": "Enemies",
+      "source": "manual-us",
+      "pages": "13-14",
+      "topic": "Enemies",
       "claim": "Named enemies, with artwork: Zibzub, Crawdaddy, Eyegore, Optomon, Grimgrin, Bombarder, Teramute, Fleepa, Clawbot.",
       "status": "unchecked",
       "rom": "Not yet tied to object types. docs/enemies.html draws every type's metasprites, and several large ones look like the manual's master monsters, but a match by eye is a lead and is not recorded as one yet."
     },
     {
       "id": "drops",
-      "source": "manual-us", "pages": "6", "topic": "Items",
+      "source": "manual-us",
+      "pages": "6",
+      "topic": "Items",
       "claim": "Some aliens drop items, Power Chips among them, when killed; some dropped items must be shot open first.",
       "status": "unchecked",
       "rom": ""
     },
     {
       "id": "game-over",
-      "source": "manual-us", "pages": "7", "topic": "Rules",
+      "source": "manual-us",
+      "pages": "7",
+      "topic": "Rules",
       "claim": "The game ends when the life gauge reaches zero.",
       "status": "consistent",
       "rom": "Bank 7 $D2E8-$D2F6: when the player's damage underflows $48 and $49 is zero, slot 0 becomes its death type ($D442). The GAME OVER text is bank 0 $8237."
+    },
+    {
+      "id": "two-modes",
+      "source": "owner",
+      "pages": "-",
+      "topic": "Story",
+      "claim": "The game has two main modes: a vertically scrolling shooter, the corridors, and a top-down adventure, the labyrinth, which is divided into areas.",
+      "status": "confirmed",
+      "rom": "The HUD prints AREA from $50 in the labyrinth and from $51 otherwise (bank 7 $E169, bit 1 of $30); a labyrinth savestate shows 'AREA 0 X 8 Y12' with $50 = 0. $51 is the corridor number 1-21 - what this project had been calling 'areas 1-21', CORRECTED. Leaving corridor n sets the labyrinth area to n, folding 11-20 onto 1-10 and capping 21 at 10 (bank 7 $F2A0-$F2AC): corridors n and n+10 belong to labyrinth area n, which is why the keys repeat with period ten."
     }
   ]
 }

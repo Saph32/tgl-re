@@ -57,7 +57,7 @@ L4_8003:
         .byte   $0F,$27
 
 ; ---- bank4.data_81B4 (data) $81B4-$81EC, 57 bytes
-; Area spawn script: area 0
+; Corridor spawn script: corridor 0
         .byte   $00,$54,$00,$64,$1C,$64,$1C,$64,$9C,$0A,$78,$64,$9C,$04,$96,$64
         .byte   $9C,$04,$5A,$64,$9C,$0A,$78,$64,$9C,$0A,$78,$64,$1B,$64,$1B,$64
         .byte   $9A,$0A,$5A,$64,$1C,$64,$1B,$64,$A0,$05,$F0,$64,$9C,$0A,$78,$64
@@ -127,7 +127,7 @@ L4_8003:
         .byte   $59,$57,$40,$41,$05,$0C,$0D,$0E,$20,$21,$22,$23
 
 ; ---- bank4.data_8505 (data) $8505-$8510, 12 bytes
-; Area graphics stream: area 22
+; Corridor graphics stream: corridor 22
         .byte   $00,$37,$80,$01,$36,$88,$02,$45,$9C,$83,$18,$D0
 
 ; ---- bank4.screen_8511 (level) $8511-$8573, 99 bytes
@@ -141,7 +141,7 @@ L4_8003:
         .byte   $03,$6A,$85
 
 ; ---- bank4.data_8574 (data) $8574-$8582, 15 bytes
-; Area spawn script: area 22
+; Corridor spawn script: corridor 22
         .byte   $1C,$10,$9C,$14,$0A,$0A,$9C,$0A,$28,$14,$9C,$05,$64,$14,$02
 
 ; ---- bank4.data_8583 (data) $8583-$9C4F, 5837 bytes
@@ -532,16 +532,16 @@ L4_8003:
         .byte   $03,$25,$9D
 
 ; ---- bank4.data_9D43 (data) $9D43-$9D54, 18 bytes
-; Area graphics stream: area 1, 12
+; Corridor graphics stream: corridor 1, 12
         .byte   $00,$39,$80,$01,$52,$92,$02,$18,$94,$03,$21,$96,$04,$1F,$A2,$85
         .byte   $20,$B8
 
 ; ---- bank4.data_9D55 (data) $9D55-$9D59, 5 bytes
-; Area graphics stream: area 1, 12
+; Corridor graphics stream: corridor 1, 12
         .byte   $04,$00,$85,$43,$B0
 
 ; ---- bank4.data_9D5A (data) $9D5A-$9D7E, 37 bytes
-; Area spawn script: area 1
+; Corridor spawn script: corridor 1
         .byte   $00,$0A,$C2,$0F,$78,$64,$C2,$0F,$3C,$28,$43,$0A,$C4,$0C,$78,$28
         .byte   $C2,$0F,$78,$78,$C4,$0A,$3C,$46,$C2,$14,$3C,$64,$C3,$04,$96,$6E
         .byte   $C2,$0F,$28,$64,$02
@@ -574,11 +574,11 @@ L4_8003:
         .byte   $36,$01,$AD,$88,$63,$36,$0D,$AD,$88,$FE,$01,$03,$DC,$9E
 
 ; ---- bank4.data_9EFD (data) $9EFD-$9F03, 7 bytes
-; Area graphics stream: area 2
+; Corridor graphics stream: corridor 2
         .byte   $04,$00,$05,$00,$86,$49,$BA
 
 ; ---- bank4.data_9F04 (data) $9F04-$9F2A, 39 bytes
-; Area spawn script: area 2
+; Corridor spawn script: corridor 2
         .byte   $C2,$06,$1E,$0E,$C4,$05,$28,$3C,$E4,$03,$F0,$32,$E1,$06,$F0,$C2
         .byte   $0A,$64,$46,$E3,$14,$1E,$64,$C4,$0A,$3C,$14,$E3,$14,$1E,$E3,$14
         .byte   $28,$28,$C2,$0A,$32,$32,$02
@@ -605,16 +605,16 @@ L4_8003:
         .byte   $F4,$79,$97,$63,$46,$FE,$AE,$97,$C6,$02,$03,$32,$A0
 
 ; ---- bank4.data_A048 (data) $A048-$A05C, 21 bytes
-; Area graphics stream: area 2, 11
+; Corridor graphics stream: corridor 2, 11
         .byte   $00,$20,$80,$01,$18,$A0,$02,$25,$A2,$03,$22,$A8,$04,$27,$BA,$05
         .byte   $1F,$CE,$86,$21,$E4
 
 ; ---- bank4.data_A05D (data) $A05D-$A066, 10 bytes
-; Area graphics stream: area 11
+; Corridor graphics stream: corridor 11
         .byte   $03,$00,$04,$00,$05,$40,$B0,$86,$53,$E0
 
 ; ---- bank4.data_A067 (data) $A067-$A08D, 39 bytes
-; Area spawn script: area 11
+; Corridor spawn script: corridor 11
         .byte   $00,$0A,$C2,$0F,$B4,$32,$E3,$08,$3C,$6E,$E3,$0A,$46,$3C,$C2,$05
         .byte   $96,$64,$E3,$05,$0A,$32,$C2,$06,$B4,$1E,$C3,$06,$B4,$64,$E1,$02
         .byte   $B4,$28,$C2,$06,$14,$64,$02
@@ -650,7 +650,7 @@ L4_8003:
         .byte   $FC,$03,$03,$12,$A2
 
 ; ---- bank4.data_A233 (data) $A233-$A25D, 43 bytes
-; Area spawn script: area 12
+; Corridor spawn script: corridor 12
         .byte   $42,$0A,$42,$46,$43,$46,$64,$28,$64,$64,$C2,$0F,$64,$3C,$E3,$0A
         .byte   $78,$32,$C2,$02,$32,$64,$E4,$02,$78,$3C,$C2,$0A,$3C,$64,$C3,$0A
         .byte   $78,$28,$00,$64,$00,$64,$C2,$0A,$1E,$64,$02
@@ -683,11 +683,11 @@ L4_8003:
         .byte   $93,$43,$00,$03,$07,$0D,$4B,$93,$EE,$01,$03,$B6,$A3
 
 ; ---- bank4.data_A3DB (data) $A3DB-$A3E4, 10 bytes
-; Area graphics stream: area 3
+; Corridor graphics stream: corridor 3
         .byte   $07,$00,$08,$00,$09,$40,$C0,$8A,$53,$F0
 
 ; ---- bank4.data_A3E5 (data) $A3E5-$A40B, 39 bytes
-; Area spawn script: area 3
+; Corridor spawn script: corridor 3
         .byte   $00,$12,$E6,$08,$1E,$34,$E6,$32,$64,$1E,$E7,$02,$64,$1E,$A1,$08
         .byte   $32,$1E,$E0,$02,$96,$1E,$1B,$0A,$1B,$14,$9C,$0F,$14,$14,$E2,$0A
         .byte   $64,$1E,$9C,$14,$32,$64,$02
@@ -723,11 +723,11 @@ L4_8003:
         .byte   $03,$7D,$A5
 
 ; ---- bank4.data_A5AF (data) $A5AF-$A5BC, 14 bytes
-; Area graphics stream: area 4
+; Corridor graphics stream: corridor 4
         .byte   $05,$00,$06,$00,$07,$00,$08,$00,$09,$44,$B0,$8A,$03,$F2
 
 ; ---- bank4.data_A5BD (data) $A5BD-$A5F6, 58 bytes
-; Area spawn script: area 4
+; Corridor spawn script: corridor 4
         .byte   $00,$14,$9C,$32,$1E,$50,$E2,$14,$32,$50,$9C,$0A,$50,$64,$D9,$04
         .byte   $3C,$14,$E0,$03,$96,$14,$E8,$04,$96,$32,$E6,$0A,$46,$3C,$E7,$04
         .byte   $82,$3C,$9B,$03,$3C,$9C,$1E,$78,$64,$E6,$14,$46,$64,$9C,$0A,$32
@@ -760,17 +760,17 @@ L4_8003:
         .byte   $01,$03,$30,$A7
 
 ; ---- bank4.data_A75B (data) $A75B-$A77B, 33 bytes
-; Area graphics stream: area 3, 4, 13, 14
+; Corridor graphics stream: corridor 3, 4, 13, 14
         .byte   $00,$4C,$80,$01,$4A,$84,$02,$4B,$88,$03,$2F,$8E,$04,$2E,$96,$05
         .byte   $28,$AA,$06,$4E,$BE,$07,$37,$C0,$08,$3B,$C8,$09,$3D,$D0,$8A,$1E
         .byte   $D8
 
 ; ---- bank4.data_A77C (data) $A77C-$A786, 11 bytes
-; Area graphics stream: area 13, 14
+; Corridor graphics stream: corridor 13, 14
         .byte   $07,$00,$08,$2A,$C6,$09,$51,$E4,$8A,$35,$E6
 
 ; ---- bank4.data_A787 (data) $A787-$A7B0, 42 bytes
-; Area spawn script: area 13
+; Corridor spawn script: corridor 13
         .byte   $00,$14,$9C,$14,$28,$9C,$64,$46,$28,$E2,$06,$78,$28,$A0,$06,$50
         .byte   $1E,$D9,$02,$64,$1E,$9C,$3C,$5A,$1E,$9B,$03,$F0,$64,$D9,$04,$64
         .byte   $1E,$9C,$32,$28,$3C,$A1,$06,$3C,$64,$02
@@ -806,7 +806,7 @@ L4_8003:
         .byte   $04,$00,$05,$08,$5F,$93,$63,$2A,$05,$5B,$93,$C1,$02,$03,$47,$A9
 
 ; ---- bank4.data_A961 (data) $A961-$A98D, 45 bytes
-; Area spawn script: area 14
+; Corridor spawn script: corridor 14
         .byte   $00,$14,$9C,$0F,$28,$0A,$E8,$02,$F0,$32,$9C,$0A,$50,$50,$E2,$0A
         .byte   $C8,$1E,$E6,$0A,$5A,$32,$A0,$05,$14,$32,$E8,$04,$F0,$A0,$0A,$3C
         .byte   $1E,$E6,$0A,$3C,$28,$9C,$1E,$50,$A1,$0A,$78,$64,$02
@@ -837,11 +837,11 @@ L4_8003:
         .byte   $02,$03,$C1,$AA
 
 ; ---- bank4.data_AAE2 (data) $AAE2-$AAE9, 8 bytes
-; Area graphics stream: area 5
+; Corridor graphics stream: corridor 5
         .byte   $0C,$00,$0D,$41,$C0,$8E,$35,$E6
 
 ; ---- bank4.data_AAEA (data) $AAEA-$AB10, 39 bytes
-; Area spawn script: area 5
+; Corridor spawn script: corridor 5
         .byte   $7B,$14,$9C,$3C,$0A,$28,$9B,$04,$64,$3C,$EE,$0A,$3C,$3C,$9A,$0F
         .byte   $28,$32,$D9,$08,$3C,$28,$E3,$0F,$14,$28,$EE,$08,$3C,$28,$9A,$1E
         .byte   $28,$32,$9A,$14,$14,$32,$02
@@ -872,11 +872,11 @@ L4_8003:
         .byte   $7A,$99,$D8,$01,$03,$41,$AC
 
 ; ---- bank4.data_AC68 (data) $AC68-$AC6F, 8 bytes
-; Area graphics stream: area 6
+; Corridor graphics stream: corridor 6
         .byte   $0C,$00,$0D,$34,$C6,$8E,$35,$E6
 
 ; ---- bank4.data_AC70 (data) $AC70-$AC8F, 32 bytes
-; Area spawn script: area 6
+; Corridor spawn script: corridor 6
         .byte   $00,$12,$9A,$0A,$28,$9C,$14,$1E,$16,$9B,$03,$3C,$28,$9A,$06,$5A
         .byte   $1E,$A0,$06,$1E,$28,$EE,$06,$32,$1E,$ED,$08,$14,$28,$01,$7D,$AC
 
@@ -904,19 +904,19 @@ L4_8003:
         .byte   $02,$0C,$8B,$9B,$8A,$02,$03,$A8,$AD
 
 ; ---- bank4.data_ADC9 (data) $ADC9-$ADF5, 45 bytes
-; Area graphics stream: area 5, 6, 15, 16
+; Corridor graphics stream: corridor 5, 6, 15, 16
         .byte   $00,$4B,$80,$01,$2B,$86,$02,$25,$8A,$03,$3B,$90,$04,$37,$98,$05
         .byte   $32,$A0,$06,$4F,$A6,$07,$2D,$A8,$08,$4A,$AC,$09,$3F,$B0,$0A,$4F
         .byte   $B8,$0B,$33,$BA,$0C,$3D,$C0,$0D,$3C,$C8,$8E,$1E,$D4
 
 ; ---- bank4.data_ADF6 (data) $ADF6-$AE1F, 42 bytes
-; Area spawn script: area 15
+; Corridor spawn script: corridor 15
         .byte   $7B,$14,$ED,$10,$1E,$32,$9A,$0A,$32,$3C,$E9,$03,$50,$1E,$EE,$03
         .byte   $32,$4B,$6B,$19,$ED,$14,$14,$A0,$04,$28,$3C,$ED,$14,$14,$A1,$06
         .byte   $3C,$3C,$9C,$14,$3C,$E2,$14,$2D,$78,$02
 
 ; ---- bank4.data_AE20 (data) $AE20-$AE28, 9 bytes
-; Area graphics stream: area 15
+; Corridor graphics stream: corridor 15
         .byte   $0C,$35,$C4,$0D,$2A,$D6,$8E,$51,$F4
 
 ; ---- bank4.screen_AE29 (level) $AE29-$AFD3, 427 bytes
@@ -950,11 +950,11 @@ L4_8003:
         .byte   $98,$58,$05,$01,$93,$98,$86,$05,$03,$9C,$AF
 
 ; ---- bank4.data_AFD4 (data) $AFD4-$AFDB, 8 bytes
-; Area graphics stream: area 16
+; Corridor graphics stream: corridor 16
         .byte   $0C,$00,$0D,$40,$C6,$8E,$53,$F6
 
 ; ---- bank4.data_AFDC (data) $AFDC-$B010, 53 bytes
-; Area spawn script: area 16
+; Corridor spawn script: corridor 16
         .byte   $7B,$14,$6A,$50,$E0,$03,$5A,$64,$9B,$03,$50,$64,$9C,$0A,$1E,$50
         .byte   $F6,$02,$F0,$78,$A1,$0A,$28,$50,$9C,$0A,$1E,$32,$ED,$0A,$1E,$EE
         .byte   $0A,$32,$78,$6B,$78,$F6,$04,$3C,$50,$A0,$04,$5A,$E3,$0F,$28,$96
@@ -986,7 +986,7 @@ L4_8003:
         .byte   $02,$00,$00,$80
 
 ; ---- bank4.data_B165 (data) $B165-$B195, 49 bytes
-; Area spawn script: area 7
+; Corridor spawn script: corridor 7
         .byte   $00,$11,$E9,$14,$46,$E6,$08,$5A,$17,$67,$28,$E9,$14,$3C,$64,$0A
         .byte   $64,$1E,$EC,$08,$64,$28,$E1,$08,$96,$28,$E6,$14,$78,$50,$E9,$04
         .byte   $C8,$50,$E4,$08,$78,$64,$E9,$04,$64,$28,$EC,$04,$28,$19,$01,$8B
@@ -1022,7 +1022,7 @@ L4_8003:
         .byte   $B3
 
 ; ---- bank4.data_B327 (data) $B327-$B345, 31 bytes
-; Area spawn script: area 8
+; Corridor spawn script: corridor 8
         .byte   $00,$14,$EC,$28,$5A,$9B,$14,$F0,$1E,$E2,$14,$32,$A1,$0A,$64,$32
         .byte   $E7,$06,$3C,$32,$C3,$06,$50,$32,$E9,$04,$64,$5A,$01,$30,$B3
 
@@ -1051,13 +1051,13 @@ L4_8003:
         .byte   $00,$00,$42,$02,$00,$00,$80
 
 ; ---- bank4.data_B48D (data) $B48D-$B4B0, 36 bytes
-; Area graphics stream: area 7, 8, 17, 18
+; Corridor graphics stream: corridor 7, 8, 17, 18
         .byte   $00,$38,$80,$01,$32,$88,$02,$4F,$8E,$03,$4A,$90,$04,$4B,$94,$05
         .byte   $18,$96,$06,$2F,$98,$07,$1F,$A0,$08,$22,$B6,$09,$27,$C8,$0A,$2E
         .byte   $DC,$8B,$04,$F0
 
 ; ---- bank4.data_B4B1 (data) $B4B1-$B4DF, 47 bytes
-; Area spawn script: area 17
+; Corridor spawn script: corridor 17
         .byte   $00,$14,$EC,$05,$14,$14,$E1,$06,$28,$1E,$C3,$06,$3C,$28,$E6,$0F
         .byte   $3C,$32,$E7,$05,$28,$6E,$F6,$02,$64,$28,$EC,$08,$50,$3C,$E4,$04
         .byte   $5A,$50,$E7,$0A,$32,$64,$EC,$04,$50,$1E,$76,$1E,$01,$D7,$B4
@@ -1093,15 +1093,15 @@ L4_8003:
         .byte   $01,$03,$51,$B6
 
 ; ---- bank4.data_B684 (data) $B684-$B689, 6 bytes
-; Area graphics stream: area 8, 18
+; Corridor graphics stream: corridor 8, 18
         .byte   $08,$37,$B6,$89,$3D,$BE
 
 ; ---- bank4.data_B68A (data) $B68A-$B694, 11 bytes
-; Area graphics stream: area 8, 18
+; Corridor graphics stream: corridor 8, 18
         .byte   $06,$00,$07,$00,$08,$00,$09,$00,$8A,$1C,$9A
 
 ; ---- bank4.data_B695 (data) $B695-$B6BE, 42 bytes
-; Area spawn script: area 18
+; Corridor spawn script: corridor 18
         .byte   $00,$11,$A1,$0A,$3C,$3F,$E9,$04,$50,$3C,$9C,$14,$28,$1E,$9B,$02
         .byte   $32,$64,$76,$14,$C3,$04,$3C,$E7,$03,$78,$E6,$0A,$64,$9C,$14,$3C
         .byte   $64,$F6,$03,$50,$14,$9C,$14,$14,$64,$02
@@ -1139,13 +1139,13 @@ L4_8003:
         .byte   $00,$FE,$02,$0E,$BB,$88,$63,$0A,$0E,$BB,$88,$A8,$02,$03,$71,$B8
 
 ; ---- bank4.data_B88F (data) $B88F-$B8B7, 41 bytes
-; Area spawn script: area 9
+; Corridor spawn script: corridor 9
         .byte   $9C,$28,$0F,$28,$9A,$14,$1E,$14,$BE,$02,$5A,$28,$E9,$04,$C8,$50
         .byte   $A0,$0C,$3C,$1E,$A1,$0A,$3C,$50,$EE,$05,$5A,$28,$EA,$04,$78,$64
         .byte   $F6,$0F,$5A,$78,$BE,$04,$78,$64,$02
 
 ; ---- bank4.data_B8B8 (data) $B8B8-$B8C0, 9 bytes
-; Area graphics stream: area 9, 10
+; Corridor graphics stream: corridor 9, 10
         .byte   $0D,$38,$D2,$0E,$42,$DA,$8F,$4F,$F6
 
 ; ---- bank4.screen_B8C1 (level) $B8C1-$BAB8, 504 bytes
@@ -1184,7 +1184,7 @@ L4_8003:
         .byte   $0C,$61,$86,$09,$06,$03,$74,$BA
 
 ; ---- bank4.data_BAB9 (data) $BAB9-$BAFE, 70 bytes
-; Area spawn script: area 10
+; Corridor spawn script: corridor 10
         .byte   $9C,$1E,$1E,$32,$9B,$06,$3C,$50,$9A,$0A,$78,$9C,$0A,$14,$64,$E9
         .byte   $04,$3C,$EE,$08,$64,$78,$EA,$08,$28,$78,$9B,$04,$78,$78,$A0,$08
         .byte   $46,$32,$9C,$0F,$3C,$9B,$04,$78,$64,$9C,$05,$1E,$78,$F6,$03,$64
@@ -1224,17 +1224,17 @@ L4_8003:
         .byte   $89,$16,$03,$03,$9F,$BC
 
 ; ---- bank4.data_BCC5 (data) $BCC5-$BCF1, 45 bytes
-; Area graphics stream: area 0, 9, 10, 19, 20
+; Corridor graphics stream: corridor 0, 9, 10, 19, 20
         .byte   $00,$3A,$80,$01,$02,$8E,$02,$33,$98,$03,$32,$9E,$04,$4F,$A4,$05
         .byte   $37,$A6,$06,$3F,$AE,$07,$4F,$B6,$08,$52,$B8,$09,$4A,$BA,$0A,$4B
         .byte   $BE,$0B,$3D,$C0,$0C,$2D,$C8,$0D,$3B,$CC,$8E,$3C,$D4
 
 ; ---- bank4.data_BCF2 (data) $BCF2-$BCFE, 13 bytes
-; Area graphics stream: area 19, 20
+; Corridor graphics stream: corridor 19, 20
         .byte   $0B,$00,$0C,$00,$0D,$2A,$C6,$0E,$51,$E4,$8F,$35,$E6
 
 ; ---- bank4.data_BCFF (data) $BCFF-$BD31, 51 bytes
-; Area spawn script: area 19
+; Corridor spawn script: corridor 19
         .byte   $96,$0A,$46,$1E,$96,$14,$1E,$1E,$9A,$04,$50,$1E,$A0,$08,$3C,$96
         .byte   $0F,$3C,$50,$EA,$04,$50,$E9,$06,$50,$50,$9C,$14,$1E,$9B,$02,$F0
         .byte   $14,$EE,$04,$64,$64,$6B,$32,$A1,$0A,$46,$32,$9C,$19,$32,$EE,$06
@@ -1259,7 +1259,7 @@ L4_8003:
         .byte   $02,$C0,$03,$00,$33,$88,$61,$1A,$0C,$7D,$89,$02,$03,$03,$0F,$BE
 
 ; ---- bank4.data_BE22 (data) $BE22-$BE59, 56 bytes
-; Area spawn script: area 20
+; Corridor spawn script: corridor 20
         .byte   $E9,$0A,$3C,$32,$9C,$0F,$5A,$EA,$08,$5A,$46,$A1,$0A,$50,$9A,$0F
         .byte   $3C,$50,$96,$14,$78,$A0,$08,$82,$E9,$04,$32,$32,$E9,$14,$C8,$9A
         .byte   $0F,$C8,$A0,$04,$C8,$EE,$08,$C8,$64,$9C,$1E,$5A,$A0,$08,$C8,$64
@@ -1292,31 +1292,31 @@ L4_8003:
         .byte   $F6,$2F,$87,$65,$0D,$0A,$2F,$87
 
 ; ---- bank4.data_BFC2 (data) $BFC2-$BFCA, 9 bytes
-; Area graphics stream: area 21
+; Corridor graphics stream: corridor 21
         .byte   $00,$37,$80,$01,$39,$88,$82,$43,$B2
 
 ; ---- bank4.data_BFCB (data) $BFCB-$BFD0, 6 bytes
-; Area graphics stream: area 21
+; Corridor graphics stream: corridor 21
         .byte   $01,$35,$88,$82,$41,$D2
 
 ; ---- bank4.data_BFD1 (data) $BFD1-$BFD6, 6 bytes
-; Area graphics stream: area 21
+; Corridor graphics stream: corridor 21
         .byte   $02,$2A,$D8,$83,$51,$F6
 
 ; ---- bank4.data_BFD7 (data) $BFD7-$BFDC, 6 bytes
-; Area graphics stream: area 21
+; Corridor graphics stream: corridor 21
         .byte   $02,$40,$C6,$83,$53,$F6
 
 ; ---- bank4.data_BFDD (data) $BFDD-$BFE2, 6 bytes
-; Area graphics stream: area 21
+; Corridor graphics stream: corridor 21
         .byte   $02,$04,$9A,$83,$1C,$A2
 
 ; ---- bank4.data_BFE3 (data) $BFE3-$BFE5, 3 bytes
-; Area graphics stream: area 21
+; Corridor graphics stream: corridor 21
         .byte   $82,$2A,$D8
 
 ; ---- bank4.data_BFE6 (data) $BFE6-$BFF0, 11 bytes
-; Area spawn script: area 21
+; Corridor spawn script: corridor 21
         .byte   $9C,$14,$1E,$28,$9C,$28,$78,$64,$01,$E6,$BF
 
 ; ---- bank4.data_BFF1 (data) $BFF1-$BFFE, 14 bytes

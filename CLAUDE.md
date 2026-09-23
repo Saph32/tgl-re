@@ -568,6 +568,32 @@ Do not re-derive these; do check anything that depends on them.
     fixed by sorting.
   - **Tracer change:** `JSR $D705` with A unknown now continues in the fixed bank with the
     live bank unknown, instead of stopping. That traced `$E9AA-$EA67`, the loader.
+- **Terminology — CORRECTION.** What this file and the tools called "areas 1-21" are the
+  **corridors** (`$51`): the vertically scrolling shooter stages, entered from the
+  labyrinth ("Corridor No.2" in the dialogue). The **labyrinth** has its own **areas**,
+  `$50`, 0-10, which the HUD prints after AREA (bank 7 `$E169`: `$50` in the labyrinth, `$51`
+  when `$30` bit 1 is set). Leaving corridor n sets `$50` to n, folding 11-20 onto 1-10 and
+  capping 21 at 10 (`$F2A0`) — corridors n and n+10 belong to labyrinth area n, which is the
+  period-ten key pattern. Generated text now says corridor; `tools/tgl/screen.py` keeps the
+  old variable names under a note.
+- **The labyrinth savestate** (`...zakkythegoatragon...labyrinth.fcs`, saved uncompressed —
+  `savestate.py` now reads that too) checked, all against hardware:
+  - the HUD reads `AREA 0  X 8 Y12` = `$50`, `$52`, `$53`; the live room pointer `$E4` =
+    `$8E4C` is exactly the map walk's row 12 column 8 record, whose "enemies, script 1" is
+    the live `$57 = 1`, and slot 23 is a type-`$29` spawner of type `$0F`, script 1's
+    first formation;
+  - `$0480`/`$0490` are the default load stream `$A497`, loader mid-way through its last
+    record; the type-`$0F` enemies' base tile `$80` is where block `$13` went;
+  - **the room**: layout `$95D9` decoded from the ROM puts metatile 3 in 17 cells and 9 in
+    one, and the nametable has `14 16 / 15 17` and `10 12 / 11 13` in exactly those cells —
+    metatiles read from the live set pointer `$0460` = `$AF1C`, 5 bytes each. Floor is set
+    3 metatile 16 (`$70`). The one odd cell is metatile 10 where an object stands;
+  - **map byte 1 bits 7/6/5/4 = openings N/W/E/S** (`$82DD` against `$E0`/`$E2`/`$E6`/`$E8`,
+    built by `$8071` from row±1, column±1); the room's `$B8` = open N, E, S, walled W,
+    as on screen. Byte 0 bit 7 puts a key door in an opening (code only).
+  - CHR 393/512 from the ROM; OAM: the player and a 2-sprite object found whole.
+  - Metatile sets come from records `[count]` + `[set|list<<4][tile base][ptr]` via the
+    pointer table `$AE24` (loader `$AD1A`); the first record, `$AF1C`, points at itself.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
