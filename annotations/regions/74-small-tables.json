@@ -110,6 +110,83 @@
       "cpu_addr": 33341,
       "sha1": "12909e6ec0db0a98229ce35049938414ea20e68a",
       "description": "$8176 LDA $823D,Y, zero skipping, with Y from the caller - not bounded by code. The extent is structural: it starts where the 16-entry table at $822D ends and runs to the code at $82B5, and nothing else in bank 1 reads into it. A LEAD."
+    },
+    {
+      "id": "bank2.tbl_87D4",
+      "offset": 34788,
+      "size": 24,
+      "kind": "data",
+      "name": "Chip maximum by level: 12 words",
+      "confidence": "confirmed",
+      "cpu_addr": 34772,
+      "sha1": "d561ccbb180637a72ce27a38dcb6e5aaba93ed6b",
+      "description": "$8820: LDA $46 / ASL A / TAY / LDA $87D4,Y / STA $4E / LDA $87D5,Y / STA $4F - the chip maximum the status screen prints after CHIP MAX, chosen by the level in $46 (which a password restores from $04A8). Values 50, 100, 150, 200, 400, 800, 1200, 1600, 2400, 4000, 6000, 30000. The manual's Red Lander 'raises Power Chip maximum' - a step up this table. 12 entries, ending where the door records at $87EC begin - a structural bound."
+    },
+    {
+      "id": "bank2.tbl_87EC",
+      "offset": 34812,
+      "size": 32,
+      "kind": "data",
+      "name": "Door cells: 8 x [cell][tile][?][exit mask]",
+      "confidence": "confirmed",
+      "cpu_addr": 34796,
+      "sha1": "49bf0ae9003903c27c62c422b0f85162cd994667",
+      "description": "$866E-$86AC walks these with X stepping by 4 to CPX #$20 - eight records, which is exactly this stretch. For each: the terrain nibble of cell byte 0 (packed map at $0400) must be $0E, and byte 3 ANDed with $54 - the room's exit bits from map byte 1 ($80 north, $40 west, $20 east, $10 south) - must be non-zero; then bytes 1 and 2 go to $15 and $17 and the cell is redrawn through $8812. The masks run $80 $80 $40 $40 $20 $20 $10 $10: two door cells per side."
+    },
+    {
+      "id": "bank6.tbl_A9BF",
+      "offset": 109007,
+      "size": 80,
+      "kind": "level",
+      "name": "Tile rectangles: 5 x 4x4, by $0638",
+      "confidence": "confirmed",
+      "cpu_addr": 43455,
+      "sha1": "b3979d1d74dbd61d8e877e88449c5c3ca42b8e0a",
+      "description": "$A991: $16/$17 = $A9BF + 16 x A, then $15 = $14 = 4 and JMP $C07E, the rectangle blit - so each entry is a 4 x 4 block of background tiles, drawn at the object's position. A is the object's $0638 (or 3, from $A98B). Five entries fill $A9BF-$AA0E exactly, ending on the code at $AA0F; the count is structural."
+    },
+    {
+      "id": "bank6.tbl_BEAE",
+      "offset": 114366,
+      "size": 3,
+      "kind": "data",
+      "name": "Three direction offsets",
+      "confidence": "confirmed",
+      "cpu_addr": 48814,
+      "sha1": "d89793c704035fe8e53f1d620407e3c8511d41db",
+      "description": "$BE54: LDY $14 / LDA $BEAE,Y with Y counting 2, 1, 0 - added to $15 and stored in $0788 of each of three objects spawned there (type $17). Values 02 FE 00."
+    },
+    {
+      "id": "bank6.tbl_BEB1",
+      "offset": 114369,
+      "size": 30,
+      "kind": "level",
+      "name": "Tile rectangle 6 x 5",
+      "confidence": "confirmed",
+      "cpu_addr": 48817,
+      "sha1": "9073495cd37c7a08137fdd7da7ef9a16c45fcc04",
+      "description": "$BDF8-$BE07: $16/$17 = $BEB1, width $15 = 6, height $14 = 3 or 5, blitted by $C07E through $BEA3. 6 x 5 = 30 bytes, ending exactly where the next rectangle begins."
+    },
+    {
+      "id": "bank6.tbl_BECF",
+      "offset": 114399,
+      "size": 6,
+      "kind": "level",
+      "name": "Tile rectangle 6 x 1",
+      "confidence": "confirmed",
+      "cpu_addr": 48847,
+      "sha1": "9dfa79cb79d8db070d38b22d3508313f2b996649",
+      "description": "$BE15-$BE1F: $16/$17 = $BECF, height $14 = 1 with width still 6, then JSR $C07E. Six bytes."
+    },
+    {
+      "id": "bank6.tbl_BED5",
+      "offset": 114405,
+      "size": 36,
+      "kind": "level",
+      "name": "Tile rectangle 6 x 6",
+      "confidence": "confirmed",
+      "cpu_addr": 48853,
+      "sha1": "4e26c60dc754908a1ad533a2901be86437512e5a",
+      "description": "$BE92-$BEA1: $15 = $14 = 6, $16/$17 = $BED5, then $BEA3 blits it. 36 bytes, ending on the code at $BEF9. With the three tables before it this partitions $BEAE-$BEF8 exactly, 75 of 75 bytes."
     }
   ]
 }

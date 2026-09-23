@@ -5045,13 +5045,16 @@ L6_A991:
         ldy     $0518,X
         jmp     L7_C07E
 
-; ---- UNCLAIMED (gap) $A9B8-$AA0E, 87 bytes
-        .byte   $31,$21,$FE,$02,$FF,$01,$00,$CA,$CB,$CC,$CD,$DA,$DB,$DC,$DD,$EA
-        .byte   $EB,$EC,$ED,$FA,$FB,$FC,$FD,$CA,$C0,$C1,$CD,$C2,$C3,$C4,$C5,$C6
-        .byte   $C7,$C8,$C9,$FA,$CE,$CF,$FD,$CA,$DE,$DF,$CD,$B8,$B9,$BA,$BB,$BC
-        .byte   $BD,$BE,$BF,$FA,$EE,$EF,$FD,$CA,$B6,$B7,$CD,$B2,$20,$20,$B3,$B0
-        .byte   $20,$20,$B1,$FA,$B4,$B5,$FD,$C0,$C1,$C2,$C3,$C4,$C5,$C6,$C7,$C4
-        .byte   $C5,$C6,$C7,$C8,$C9,$CA,$CB
+; ---- UNCLAIMED (gap) $A9B8-$A9BE, 7 bytes
+        .byte   $31,$21,$FE,$02,$FF,$01,$00
+
+; ---- bank6.tbl_A9BF (level) $A9BF-$AA0E, 80 bytes
+; Tile rectangles: 5 x 4x4, by $0638
+        .byte   $CA,$CB,$CC,$CD,$DA,$DB,$DC,$DD,$EA,$EB,$EC,$ED,$FA,$FB,$FC,$FD
+        .byte   $CA,$C0,$C1,$CD,$C2,$C3,$C4,$C5,$C6,$C7,$C8,$C9,$FA,$CE,$CF,$FD
+        .byte   $CA,$DE,$DF,$CD,$B8,$B9,$BA,$BB,$BC,$BD,$BE,$BF,$FA,$EE,$EF,$FD
+        .byte   $CA,$B6,$B7,$CD,$B2,$20,$20,$B3,$B0,$20,$20,$B1,$FA,$B4,$B5,$FD
+        .byte   $C0,$C1,$C2,$C3,$C4,$C5,$C6,$C7,$C4,$C5,$C6,$C7,$C8,$C9,$CA,$CB
 
 ; ---- bank6.code_AA0F (code) $AA0F-$AA7B, 109 bytes
 L6_AA0F:
@@ -7519,12 +7522,24 @@ L6_BEA3:
 L6_BEAD:
         rts
 
-; ---- UNCLAIMED (gap) $BEAE-$BEF8, 75 bytes
-        .byte   $02,$FE,$00,$80,$C0,$C1,$C2,$C3,$80,$C4,$C5,$C6,$C7,$C8,$C9,$CA
-        .byte   $CB,$CC,$CD,$CE,$CF,$D0,$D1,$20,$20,$D2,$D3,$D4,$20,$20,$20,$20
-        .byte   $D5,$D6,$D7,$20,$20,$D8,$D9,$80,$81,$80,$81,$80,$81,$81,$80,$81
-        .byte   $80,$81,$80,$80,$80,$F2,$F3,$F4,$80,$F5,$F6,$F7,$F8,$F9,$FA,$FB
-        .byte   $20,$20,$20,$20,$CF,$D6,$D7,$20,$20,$D8,$D9
+; ---- bank6.tbl_BEAE (data) $BEAE-$BEB0, 3 bytes
+; Three direction offsets
+        .byte   $02,$FE,$00
+
+; ---- bank6.tbl_BEB1 (level) $BEB1-$BECE, 30 bytes
+; Tile rectangle 6 x 5
+        .byte   $80,$C0,$C1,$C2,$C3,$80,$C4,$C5,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD
+        .byte   $CE,$CF,$D0,$D1,$20,$20,$D2,$D3,$D4,$20,$20,$20,$20,$D5
+
+; ---- bank6.tbl_BECF (level) $BECF-$BED4, 6 bytes
+; Tile rectangle 6 x 1
+        .byte   $D6,$D7,$20,$20,$D8,$D9
+
+; ---- bank6.tbl_BED5 (level) $BED5-$BEF8, 36 bytes
+; Tile rectangle 6 x 6
+        .byte   $80,$81,$80,$81,$80,$81,$81,$80,$81,$80,$81,$80,$80,$80,$F2,$F3
+        .byte   $F4,$80,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$20,$20,$20,$20,$CF,$D6,$D7
+        .byte   $20,$20,$D8,$D9
 
 ; ---- bank6.code_BEF9 (code) $BEF9-$BFD0, 216 bytes
 L6_BEF9:
