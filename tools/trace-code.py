@@ -35,7 +35,8 @@ What the model covers
   the far-call trampoline is published at $C006, and until that was resolved 28 of the 35
   far calls in the ROM were invisible and their inline bytes were being decoded as code.
 * **The nine bank-switch routines**, by their effect: after `JSR $D714` the live bank is 0,
-  after `JSR $D705` it is whatever was in A, and so on.
+  after `JSR $D705` it is whatever was in A, and so on. When A is not known and the call
+  is in the fixed bank, the walk goes on with the live bank unknown rather than stopping.
 * **The far-call trampoline at $D76F**: three inline bytes follow the JSR - bank, then the
   target address **minus one**, because $D790 pushes them as a fake return address and lets
   RTS add the one back. The call site continues at pc+6 with its own bank restored, which
@@ -562,7 +563,17 @@ class Trace:
                 if a is None:
                     self.leads.append({"bank": bank, "addr": addr,
                                        "why": "JSR $D705 with A not statically known"})
-                    return
+                    # In the fixed bank the walk can go on: the bytes after the JSR are
+                    # bank 7's whatever got switched in, so only the LIVE bank becomes
+                    # unknown, and resolve() then refuses any call into the window. In a
+                    # switchable bank the next instruction is fetched from the new bank,
+                    # so there it has to stop. This let $E9AA-$EA67 be traced, which
+                    # holds the only writers of the loaded-graphics list at $0480.
+                    if bank != self.m.fixed:
+                        return
+                    live = None
+                    addr += insn.size
+                    continue
                 new = a & 0x07
                 self.switch_sites.append({"bank": bank, "addr": addr, "to": new,
                                           "how": "A"})

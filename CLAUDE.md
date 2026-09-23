@@ -237,20 +237,26 @@ Do not re-derive these; do check anything that depends on them.
     leaves exactly ONE survivor for 14 of bank 1's blocks, and it is header byte 1 every
     time. *Hardware:* decoding out of the ROM reproduces **398 of the 512 tiles** of an
     in-game savestate's live CHR, byte for byte, 16 more being blank.
-  - **The second header byte is NOT understood.** Always greater than the escape, often by
-    one; nothing in the decode uses it.
+  - **The second header byte is a MIRROR escape — CORRECTION**, it was recorded here as not
+    understood. Read off the decoder, bank 7 `$DB52` (NMI-driven, a byte budget per frame;
+    `$DC5A` loads the header into `$09`/`$0A`; `$D7F9` = `$C042` arms it with block in A and
+    bank in Y). The mirror byte is followed by a pointer: decoding continues there with every
+    byte **bit-reversed** until the mirror byte recurs, whose pointer is then skipped. Run
+    count 0 = 256. The three "3 bytes over" blocks were mirror references read as literals;
+    implemented, every block in banks 0-3 is whole tiles.
+  - **Bank 0's table is `$8030`, two entries — CORRECTION** to "no table in bank 0". Named
+    by `$D842`/`$D84A`, the per-bank table bases. `$8BBB` and `$8D90` end exactly on
+    `$917C` (sound tick) and match a title savestate **38/38 and 128/128**: title screen 18 →
+    181 of 512 tiles. `$8BB2-$8BB9` before it is an 8-entry table of waits in seconds
+    (`$8959`, `CPY #$08`, `LDY #$3C`); `$8BBA` is one byte unexplained.
   - **CORRECTION to the earlier lead.** This file said 1,046 of 8,192 live CHR bytes were in
     the ROM verbatim with sources in bank 0 `$8CDA-$9195`. The shape was right and the size
     was badly wrong: a verbatim byte search can only ever find a block's *literal* sections,
     never a run section. The bank 0 attribution is also unreliable — `savestate.py --chr`
     reports the first occurrence of a window anywhere in the file, not the producing block.
-- **Bank 0's tiles are still not found, and neither is the decompressor.** The same hardware
-  check against a *title-screen* savestate reproduces only 18 of 512 tiles, so the title
-  tiles are elsewhere — bank 0 holds tile-shaped data and **no pointer table in it passes the
-  partition test**; a scan of every offset in bank 0 gave runaway decodes and a few
-  unconfirmable candidates around `$8BBB`. The code that runs the codec has not been found
-  either: the output must reach the `$0100` queue, but no reader of these tables has turned
-  up, and an absolute-indexed load from the table addresses finds nothing outside bank 4.
+- **The decompressor was in traced code all along** (`$DB52`), unrecognised; the note that
+  said it was not found is superseded by the two entries above. Its callers are how enemy
+  graphics get loaded — see the enemy entry.
 - **Bank 0 is the sound bank, and seven soft channels compete for four hardware ones.**
   Entry slots `$8000` -> `$97A0` (init), `$8006` -> `$97CC` (play sound A) and `$8009` ->
   `$917C` (the per-frame tick the NMI calls). Per-channel state is a structure of arrays:

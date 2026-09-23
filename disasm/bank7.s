@@ -904,13 +904,25 @@ L7_CF05:
         sta     $0200,X
         jmp     L7_CE5B
 
-; ---- UNCLAIMED (gap) $CF2B-$CF5E, 52 bytes
+; ---- UNCLAIMED (gap) $CF2B-$CF4B, 33 bytes
         .byte   $A5,$83,$29,$02,$D0,$D3,$86,$38,$A6,$80,$A5,$84,$9D,$00,$02,$A5
         .byte   $85,$9D,$03,$02,$A5,$87,$9D,$01,$02,$A5,$86,$9D,$02,$02,$4C,$5B
-        .byte   $CE,$29,$7F,$A8,$C9,$0E,$90,$09,$B9,$B6,$CF,$10,$03,$BD,$B8,$07
-        .byte   $60,$A9,$00,$60
+        .byte   $CE
 
-; ---- bank7.code_CF5F (code) $CF5F-$CFC3, 101 bytes
+; ---- bank7.code_CF4C (code) $CF4C-$CFC3, 120 bytes
+L7_CF4C:
+        and     #$7F
+        tay
+        cmp     #$0E
+        bcc     L7_CF5C
+        lda     $CFB6,Y
+        bpl     L7_CF5B
+        lda     $07B8,X
+L7_CF5B:
+        rts
+L7_CF5C:
+        lda     #$00
+        rts
 L7_CF5F:
         lda     $0500,X
         and     #$7F
@@ -1598,7 +1610,7 @@ L7_D68B:
         .byte   $86,$01,$A2,$00,$86,$00,$81,$00,$E6,$00,$D0,$FA,$E6,$01,$C4,$01
         .byte   $B0,$F4,$60
 
-; ---- bank7.code_D6AE (code) $D6AE-$D820, 371 bytes
+; ---- bank7.code_D6AE (code) $D6AE-$D841, 404 bytes
 L7_D6AE:
         asl     A
         tay
@@ -1840,11 +1852,24 @@ L7_D81B:
         pla
         sta     $06
         jsr     L7_D705
-
-; ---- UNCLAIMED (gap) $D821-$D841, 33 bytes
-        .byte   $68,$85,$15,$68,$85,$14,$A0,$00,$B1,$14,$85,$0C,$C8,$B1,$14,$85
-        .byte   $0D,$A5,$18,$85,$0E,$A5,$19,$85,$0F,$A9,$02,$85,$0B,$68,$4C,$05
-        .byte   $D7
+        pla
+        sta     $15
+        pla
+        sta     $14
+        ldy     #$00
+        lda     ($14),Y
+        sta     $0C
+        iny
+        lda     ($14),Y
+        sta     $0D
+        lda     $18
+        sta     $0E
+        lda     $19
+        sta     $0F
+        lda     #$02
+        sta     $0B
+        pla
+        jmp     L7_D705
 
 ; ---- bank7.tbl_D842 (data) $D842-$D849, 8 bytes
 ; Table, 8 bytes
@@ -2251,34 +2276,185 @@ L7_DB15:
         .byte   $C2,$C6,$C0,$CA,$C6,$C1,$C2,$C1,$C4,$C5,$C8,$C6,$C0,$C9,$C5,$C2
         .byte   $C4,$C0,$C5,$C2,$CA,$C4,$C0,$C1,$C0,$C5,$C1,$CA,$C9,$C0,$C5,$C9
 
-; ---- bank7.code_DB52 (code) $DB52-$DB59, 8 bytes
+; ---- bank7.code_DB52 (code) $DB52-$DF9D, 1100 bytes
 L7_DB52:
         lda     $04
         pha
         lda     $06
         jsr     L7_D705
-
-; ---- UNCLAIMED (gap) $DB5A-$DC74, 283 bytes
-        .byte   $A5,$0B,$4A,$B0,$06,$4A,$90,$14,$20,$5A,$DC,$A5,$A5,$F0,$04,$A9
-        .byte   $2D,$D0,$02,$A9,$4D,$38,$E5,$21,$F0,$02,$B0,$03,$4C,$55,$DC,$48
-        .byte   $18,$69,$03,$20,$E0,$D6,$AA,$68,$85,$12,$85,$13,$A0,$00,$A5,$0B
-        .byte   $29,$20,$D0,$7A,$B1,$0C,$C8,$C5,$09,$D0,$18,$A5,$0B,$49,$80,$85
-        .byte   $0B,$B1,$0C,$C5,$09,$D0,$ED,$A9,$00,$85,$0B,$A5,$13,$38,$E5,$12
-        .byte   $4C,$27,$DC,$C5,$0A,$D0,$1D,$A5,$0B,$49,$40,$85,$0B,$29,$40,$F0
-        .byte   $0F,$B1,$0C,$48,$C8,$B1,$0C,$85,$0D,$68,$85,$0C,$A0,$00,$F0,$C4
-        .byte   $C8,$C8,$D0,$C0,$24,$0B,$50,$1A,$0A,$66,$10,$0A,$66,$10,$0A,$66
-        .byte   $10,$0A,$66,$10,$0A,$66,$10,$0A,$66,$10,$0A,$66,$10,$0A,$66,$10
-        .byte   $A5,$10,$24,$0B,$30,$0B,$9D,$03,$01,$E8,$C6,$12,$F0,$2D,$4C,$8E
-        .byte   $DB,$85,$07,$A5,$0B,$49,$20,$85,$0B,$B1,$0C,$C8,$85,$08,$A5,$07
-        .byte   $9D,$03,$01,$E8,$C6,$08,$F0,$06,$C6,$12,$D0,$F4,$F0,$0D,$A5,$0B
-        .byte   $49,$20,$85,$0B,$C6,$12,$F0,$03,$4C,$8E,$DB,$A5,$13,$A6,$21,$9D
-        .byte   $00,$01,$18,$69,$03,$85,$25,$A5,$0F,$9D,$01,$01,$A5,$0E,$9D,$02
-        .byte   $01,$A5,$13,$48,$20,$F7,$D6,$68,$18,$65,$0E,$85,$0E,$90,$02,$E6
-        .byte   $0F,$98,$18,$65,$0C,$85,$0C,$90,$02,$E6,$0D,$68,$20,$05,$D7,$60
-        .byte   $A0,$00,$B1,$0C,$85,$09,$C8,$B1,$0C,$85,$0A,$A9,$01,$85,$0B,$A5
-        .byte   $0C,$18,$69,$02,$85,$0C,$90,$02,$E6,$0D,$60
-
-; ---- bank7.code_DC75 (code) $DC75-$DCE5, 113 bytes
+        lda     $0B
+        lsr     A
+        bcs     L7_DB65
+        lsr     A
+        bcc     L7_DB76
+        jsr     L7_DC5A
+L7_DB65:
+        lda     $A5
+        beq     L7_DB6D
+        lda     #$2D
+        bne     L7_DB6F
+L7_DB6D:
+        lda     #$4D
+L7_DB6F:
+        sec
+        sbc     $21
+        beq     L7_DB76
+        bcs     L7_DB79
+L7_DB76:
+        jmp     L7_DC55
+L7_DB79:
+        pha
+        clc
+        adc     #$03
+        jsr     L7_D6E0
+        tax
+        pla
+        sta     $12
+        sta     $13
+        ldy     #$00
+        lda     $0B
+        and     #$20
+        bne     L7_DC08
+L7_DB8E:
+        lda     ($0C),Y
+        iny
+        cmp     $09
+        bne     L7_DBAD
+        lda     $0B
+        eor     #$80
+        sta     $0B
+        lda     ($0C),Y
+        cmp     $09
+        bne     L7_DB8E
+        lda     #$00
+        sta     $0B
+        lda     $13
+        sec
+        sbc     $12
+        jmp     L7_DC27
+L7_DBAD:
+        cmp     $0A
+        bne     L7_DBCE
+        lda     $0B
+        eor     #$40
+        sta     $0B
+        and     #$40
+        beq     L7_DBCA
+        lda     ($0C),Y
+        pha
+        iny
+        lda     ($0C),Y
+        sta     $0D
+        pla
+        sta     $0C
+        ldy     #$00
+        beq     L7_DB8E
+L7_DBCA:
+        iny
+        iny
+        bne     L7_DB8E
+L7_DBCE:
+        bit     $0B
+        bvc     L7_DBEC
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        asl     A
+        ror     $10
+        lda     $10
+L7_DBEC:
+        bit     $0B
+        bmi     L7_DBFB
+        sta     $0103,X
+        inx
+        dec     $12
+        beq     L7_DC25
+        jmp     L7_DB8E
+L7_DBFB:
+        sta     $07
+        lda     $0B
+        eor     #$20
+        sta     $0B
+        lda     ($0C),Y
+        iny
+        sta     $08
+L7_DC08:
+        lda     $07
+L7_DC0A:
+        sta     $0103,X
+        inx
+        dec     $08
+        beq     L7_DC18
+        dec     $12
+        bne     L7_DC0A
+        beq     L7_DC25
+L7_DC18:
+        lda     $0B
+        eor     #$20
+        sta     $0B
+        dec     $12
+        beq     L7_DC25
+        jmp     L7_DB8E
+L7_DC25:
+        lda     $13
+L7_DC27:
+        ldx     $21
+        sta     $0100,X
+        clc
+        adc     #$03
+        sta     $25
+        lda     $0F
+        sta     $0101,X
+        lda     $0E
+        sta     $0102,X
+        lda     $13
+        pha
+        jsr     L7_D6F7
+        pla
+        clc
+        adc     $0E
+        sta     $0E
+        bcc     L7_DC4B
+        inc     $0F
+L7_DC4B:
+        tya
+        clc
+        adc     $0C
+        sta     $0C
+        bcc     L7_DC55
+        inc     $0D
+L7_DC55:
+        pla
+        jsr     L7_D705
+        rts
+L7_DC5A:
+        ldy     #$00
+        lda     ($0C),Y
+        sta     $09
+        iny
+        lda     ($0C),Y
+        sta     $0A
+        lda     #$01
+        sta     $0B
+        lda     $0C
+        clc
+        adc     #$02
+        sta     $0C
+        bcc     L7_DC74
+        inc     $0D
+L7_DC74:
+        rts
 L7_DC75:
         pha
         txa
@@ -2336,11 +2512,17 @@ L7_DCD3:
         jsr     L0_8009
         pla
         jsr     L7_D705
-
-; ---- UNCLAIMED (gap) $DCE6-$DCF2, 13 bytes
-        .byte   $BA,$8A,$65,$2A,$2A,$85,$2A,$68,$A8,$68,$AA,$68,$40
-
-; ---- bank7.code_DCF3 (code) $DCF3-$DF9D, 683 bytes
+        tsx
+        txa
+        adc     $2A
+        rol     A
+        sta     $2A
+        pla
+        tay
+        pla
+        tax
+        pla
+        rti
 L7_DCF3:
         pha
         lda     #$0F
@@ -3647,7 +3829,7 @@ L7_E6EB:
         .byte   $06,$E7,$20,$E7,$32,$E7,$5F,$E7,$89,$E7,$9E,$E7,$B5,$E7,$5D,$E8
         .byte   $80,$E8,$92,$E8
 
-; ---- bank7.code_E707 (code) $E707-$E9A9, 675 bytes
+; ---- bank7.code_E707 (code) $E707-$EAE1, 987 bytes
 L7_E707:
         ldy     $16
         lda     ($BC),Y
@@ -4027,22 +4209,117 @@ L7_E9A4:
         pha
         lda     $7E
         jsr     L7_D705
-
-; ---- UNCLAIMED (gap) $E9AA-$EA67, 190 bytes
-        .byte   $68,$30,$03,$4C,$21,$EA,$A4,$0B,$F0,$03,$4C,$4C,$EA,$29,$7F,$85
-        .byte   $27,$A8,$B1,$28,$29,$7F,$29,$0F,$A8,$B9,$80,$04,$85,$17,$F0,$1F
-        .byte   $A9,$00,$99,$80,$04,$A2,$05,$BD,$00,$05,$F0,$0E,$20,$4C,$CF,$F0
-        .byte   $09,$C5,$17,$D0,$05,$A9,$28,$9D,$00,$05,$E8,$E0,$18,$D0,$E8,$A4
-        .byte   $27,$B1,$28,$85,$10,$C8,$B1,$28,$85,$17,$D0,$0D,$88,$A5,$10,$30
-        .byte   $4C,$98,$18,$69,$82,$85,$27,$D0,$49,$C8,$A9,$00,$85,$19,$B1,$28
-        .byte   $0A,$26,$19,$0A,$26,$19,$0A,$26,$19,$0A,$26,$19,$85,$18,$A5,$17
-        .byte   $20,$58,$EA,$E6,$27,$D0,$2B,$A5,$0B,$D0,$27,$A5,$27,$A8,$88,$B1
-        .byte   $28,$85,$17,$29,$0F,$AA,$C8,$B1,$28,$9D,$80,$04,$C8,$B1,$28,$9D
-        .byte   $90,$04,$C8,$98,$85,$27,$24,$17,$30,$03,$4C,$BB,$E9,$A9,$00,$85
-        .byte   $27,$60,$A5,$FE,$29,$18,$D0,$F9,$20,$C3,$D7,$4C,$9F,$E9,$C9,$40
-        .byte   $B0,$05,$A0,$03,$4C,$F9,$D7,$E9,$30,$A0,$02,$4C,$F9,$D7
-
-; ---- bank7.code_EA68 (code) $EA68-$EAE1, 122 bytes
+        pla
+        bmi     L7_E9B0
+        jmp     L7_EA21
+L7_E9B0:
+        ldy     $0B
+        beq     L7_E9B7
+        jmp     L7_EA4C
+L7_E9B7:
+        and     #$7F
+        sta     $27
+L7_E9BB:
+        tay
+        lda     ($28),Y
+        and     #$7F
+        and     #$0F
+        tay
+        lda     $0480,Y
+        sta     $17
+        beq     L7_E9E9
+        lda     #$00
+        sta     $0480,Y
+        ldx     #$05
+L7_E9D1:
+        lda     $0500,X
+        beq     L7_E9E4
+        jsr     L7_CF4C
+        beq     L7_E9E4
+        cmp     $17
+        bne     L7_E9E4
+        lda     #$28
+        sta     $0500,X
+L7_E9E4:
+        inx
+        cpx     #$18
+        bne     L7_E9D1
+L7_E9E9:
+        ldy     $27
+        lda     ($28),Y
+        sta     $10
+        iny
+        lda     ($28),Y
+        sta     $17
+        bne     L7_EA03
+        dey
+        lda     $10
+        bmi     L7_EA47
+        tya
+        clc
+        adc     #$82
+        sta     $27
+        bne     L7_EA4C
+L7_EA03:
+        iny
+        lda     #$00
+        sta     $19
+        lda     ($28),Y
+        asl     A
+        rol     $19
+        asl     A
+        rol     $19
+        asl     A
+        rol     $19
+        asl     A
+        rol     $19
+        sta     $18
+        lda     $17
+        jsr     L7_EA58
+        inc     $27
+        bne     L7_EA4C
+L7_EA21:
+        lda     $0B
+        bne     L7_EA4C
+        lda     $27
+        tay
+        dey
+        lda     ($28),Y
+        sta     $17
+        and     #$0F
+        tax
+        iny
+        lda     ($28),Y
+        sta     $0480,X
+        iny
+        lda     ($28),Y
+        sta     $0490,X
+        iny
+        tya
+        sta     $27
+        bit     $17
+        bmi     L7_EA47
+        jmp     L7_E9BB
+L7_EA47:
+        lda     #$00
+        sta     $27
+L7_EA4B:
+        rts
+L7_EA4C:
+        lda     $FE
+        and     #$18
+        bne     L7_EA4B
+        jsr     L7_D7C3
+        jmp     L7_E99F
+L7_EA58:
+        cmp     #$40
+        bcs     L7_EA61
+        ldy     #$03
+        jmp     L7_D7F9
+L7_EA61:
+        sbc     #$30
+        ldy     #$02
+        jmp     L7_D7F9
 L7_EA68:
         ldx     #$01
 L7_EA6A:
@@ -5757,27 +6034,108 @@ L7_F76F:
 ; ---- UNCLAIMED (gap) $F78B-$F78E, 4 bytes
         .byte   $00,$1E,$1F,$20
 
-; ---- bank7.code_F78F (code) $F78F-$F793, 5 bytes
+; ---- bank7.code_F78F (code) $F78F-$F7C8, 58 bytes
 L7_F78F:
         lda     $7F
         jsr     L7_D705
+        lda     $60
+        and     #$02
+        beq     L7_F7B0
+        bit     $30
+        bvc     L7_F7AC
+        lda     $B8
+        ora     $B9
+        beq     L7_F7AC
+        lda     $A0
+        and     #$04
+        bne     L7_F7B3
+        beq     L7_F7B0
+L7_F7AC:
+        dec     $69
+        beq     L7_F7B3
+L7_F7B0:
+        jmp     L7_F85C
+L7_F7B3:
+        lda     #$3C
+        sta     $69
+        ldy     #$00
+        dec     $68
+        bne     L7_F7B0
+L7_F7BD:
+        lda     ($66),Y
+        iny
+        sty     $15
+        cmp     #$03
+        bcs     L7_F7F4
+        jsr     L7_D6AE
 
-; ---- UNCLAIMED (gap) $F794-$F85C, 201 bytes
-        .byte   $A5,$60,$29,$02,$F0,$16,$24,$30,$50,$0E,$A5,$B8,$05,$B9,$F0,$08
-        .byte   $A5,$A0,$29,$04,$D0,$09,$F0,$04,$C6,$69,$F0,$03,$4C,$5C,$F8,$A9
-        .byte   $3C,$85,$69,$A0,$00,$C6,$68,$D0,$F3,$B1,$66,$C8,$84,$15,$C9,$03
-        .byte   $B0,$2E,$20,$AE,$D6,$CE,$F7,$D8,$F7,$EA,$F7,$A4,$15,$B1,$66,$85
-        .byte   $68,$C8,$4C,$52,$F8,$A4,$15,$B1,$66,$48,$C8,$B1,$66,$85,$67,$68
-        .byte   $85,$66,$A0,$00,$4C,$BD,$F7,$A5,$60,$29,$FD,$85,$60,$4C,$5C,$F8
-        .byte   $85,$16,$A5,$60,$29,$08,$F0,$09,$A5,$16,$10,$43,$C8,$C8,$4C,$43
-        .byte   $F8,$84,$15,$A5,$16,$30,$0E,$20,$62,$D7,$20,$5B,$FA,$A5,$7F,$20
-        .byte   $05,$D7,$4C,$1C,$F8,$20,$8C,$EA,$84,$17,$A4,$15,$B0,$DA,$A6,$17
-        .byte   $A5,$16,$30,$05,$9D,$00,$05,$10,$16,$29,$7F,$9D,$48,$05,$B1,$66
-        .byte   $C8,$9D,$60,$05,$B1,$66,$C8,$9D,$A0,$07,$A9,$29,$9D,$00,$05,$B1
-        .byte   $66,$08,$C8,$28,$30,$AA,$85,$68,$D0,$04,$C8,$4C,$BD,$F7,$98,$18
-        .byte   $65,$66,$85,$66,$90,$02,$E6,$67,$60
+; ---- UNCLAIMED (gap) $F7C9-$F7F3, 43 bytes
+        .byte   $CE,$F7,$D8,$F7,$EA,$F7,$A4,$15,$B1,$66,$85,$68,$C8,$4C,$52,$F8
+        .byte   $A4,$15,$B1,$66,$48,$C8,$B1,$66,$85,$67,$68,$85,$66,$A0,$00,$4C
+        .byte   $BD,$F7,$A5,$60,$29,$FD,$85,$60,$4C,$5C,$F8
 
-; ---- bank7.code_F85D (code) $F85D-$F95A, 254 bytes
+; ---- bank7.code_F7F4 (code) $F7F4-$F95A, 359 bytes
+L7_F7F4:
+        sta     $16
+        lda     $60
+        and     #$08
+        beq     L7_F805
+L7_F7FC:
+        lda     $16
+        bpl     L7_F843
+        iny
+        iny
+        jmp     L7_F843
+L7_F805:
+        sty     $15
+        lda     $16
+        bmi     L7_F819
+        jsr     L7_D762
+        jsr     L7_FA5B
+        lda     $7F
+        jsr     L7_D705
+        jmp     L7_F81C
+L7_F819:
+        jsr     L7_EA8C
+L7_F81C:
+        sty     $17
+        ldy     $15
+        bcs     L7_F7FC
+        ldx     $17
+        lda     $16
+        bmi     L7_F82D
+        sta     $0500,X
+        bpl     L7_F843
+L7_F82D:
+        and     #$7F
+        sta     $0548,X
+        lda     ($66),Y
+        iny
+        sta     $0560,X
+        lda     ($66),Y
+        iny
+        sta     $07A0,X
+        lda     #$29
+        sta     $0500,X
+L7_F843:
+        lda     ($66),Y
+        php
+        iny
+        plp
+        bmi     L7_F7F4
+        sta     $68
+        bne     L7_F852
+        iny
+        jmp     L7_F7BD
+L7_F852:
+        tya
+        clc
+        adc     $66
+        sta     $66
+        bcc     L7_F85C
+        inc     $67
+L7_F85C:
+        rts
 L7_F85D:
         jsr     L7_F863
         jmp     L7_F8CE

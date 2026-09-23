@@ -42,10 +42,14 @@ OUT = ROOT / "annotations" / "regions" / "45-gfx-blocks.json"
 
 BLOCK_DESC = (
     "A tile block, {size} ROM bytes decoding to {out} bytes = {tiles} tiles ({ratio:.2f}x). "
-    "The escape byte is ${esc:02X}, taken from the block's own first byte; the second "
-    "header byte is ${hdr2:02X} and is NOT understood. Decoding starts in literal mode, the "
-    "escape toggles into a run section of [value][count] pairs, the escape toggles back, "
-    "and two escape bytes in a row - an empty section - end the block. "
+    "The escape byte is ${esc:02X} and the MIRROR byte ${hdr2:02X}, the block's first two "
+    "bytes, loaded by bank 7 $DC5A into $09 and $0A. The decoder is $DB52, run from NMI a "
+    "budgeted number of bytes per frame after $D7F9 arms it. Decoding starts in literal "
+    "mode, the escape toggles into a run section of [value][count] pairs (count 0 = 256), "
+    "the escape toggles back, and two escape bytes in a row end the block. The mirror byte "
+    "followed by a pointer re-reads from that pointer with every output byte bit-reversed - "
+    "a horizontally flipped copy - until the mirror byte comes round again, whose two "
+    "pointer bytes are then skipped. {mirrors}"
     "THE EXTENT IS CHAINED, NOT ARGUED: this block's decoded length ends exactly where the "
     "next block's pointer says it should, and that holds for every block in the bank in "
     "sequence, so a wrong length here would derail the rest of the bank. "
@@ -110,6 +114,9 @@ def main() -> int:
             if extra:
                 live += (f"This block's output is {extra} bytes over a whole number of "
                          "tiles, which is NOT explained. ")
+            k = gfx.mirror_refs(data, b["addr"] - 0x8000)
+            mirrors = (f"This block uses {k} mirror reference{'s' if k > 1 else ''}. "
+                       if k else "")
             regions.append({
                 "id": f"bank{bank}.gfx_{b['addr']:04X}", "offset": off, "size": b["size"],
                 "kind": "graphics",
@@ -119,7 +126,8 @@ def main() -> int:
                 "sha1": hashlib.sha1(rm.rom[off:off + b["size"]]).hexdigest(),
                 "description": BLOCK_DESC.format(size=b["size"], out=n, tiles=n / 16,
                                                  ratio=n / b["size"], esc=b["esc"],
-                                                 hdr2=b["hdr2"], live=live),
+                                                 hdr2=b["hdr2"], live=live,
+                                                 mirrors=mirrors),
                 "codec": "rle_toggle_escape",
             })
             claimed[off:off + b["size"]] = b"\1" * b["size"]

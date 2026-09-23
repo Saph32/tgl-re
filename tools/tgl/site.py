@@ -838,15 +838,24 @@ def _graphics_page(rm) -> str:
     p.append("<h2>The tile codec</h2>")
     p.append('<div class="note"><strong>A block is a stream that toggles between two modes, and '
              "the toggle is a byte the block chooses for itself.</strong> A block begins "
-             "<code>[escape][unknown]</code>. Decoding starts in <em>literal</em> mode, where "
+             "<code>[escape][mirror]</code>. Decoding starts in <em>literal</em> mode, where "
              "every byte that is not the escape is one output byte. The escape switches into a "
              "<em>run</em> section, which is a sequence of <code>[value][count]</code> pairs; the "
              "escape switches back. <strong>Two escape bytes in a row &mdash; an empty section, "
              "in either mode &mdash; end the block.</strong> The compressor picks a byte that "
              "does not occur in the block's literal data, which is why the escape differs per "
              "block and why values like <code>$A4</code> and <code>$FD</code> turn up alongside "
-             "<code>$01</code>. The second header byte is always greater than the escape and is "
-             "<em>not</em> understood; nothing in the decode uses it.</div>")
+             "<code>$01</code>.</div>")
+    p.append('<div class="note"><strong>The second header byte is a second escape: mirror.'
+             "</strong> Read off the decoder itself, bank 7 <code>$DB52</code>, which the NMI "
+             "runs a budgeted number of bytes per frame after <code>$D7F9</code> (entry "
+             "<code>$C042</code>, block in A, bank in Y) arms it. The mirror byte is followed "
+             "by a pointer; decoding continues from there with every byte <em>bit-reversed</em>"
+             " &mdash; a horizontally flipped copy of earlier data &mdash; until the mirror byte "
+             "comes round again, whose pointer bytes are then skipped. A run count of 0 means "
+             "256. <strong>Correction:</strong> this page used to call the byte not understood, "
+             "and three blocks decoded to &ldquo;3 bytes over a whole number of tiles&rdquo;; "
+             "those were mirror references emitted as literals.</div>")
     p.append('<div class="note"><strong>Worked example</strong> &mdash; bank 1 '
              "<code>$B76D</code>, inside the block at <code>$B664</code> whose escape is "
              "<code>$0A</code>:<pre><code>0A  FF 04  1F 01  00 03  0A\n"
@@ -1120,16 +1129,16 @@ def _graphics_page(rm) -> str:
                  f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
         p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
 
-    p.append('<div class="note warn"><strong>The title screen is not explained by any of this, '
-             "and bank 0 has no table.</strong> The same hardware check against a "
-             "<em>title-screen</em> savestate reproduces only 18 of 512 tiles. Those tiles live "
-             "in bank 0, which holds tile-shaped data and no pointer table that passes the "
-             "partition test &mdash; scanning every offset in bank 0 produced runaway decodes "
-             "and a few unconfirmable candidates around <code>$8BBB</code>, nothing more. "
-             "<strong>The code that runs the codec has also not been found.</strong> The "
-             "decompressed bytes have to reach the <code>$0100</code> queue, but no reader of "
-             "these pointer tables has turned up in any scan run so far, and an absolute-indexed "
-             "load from the table addresses finds nothing outside bank 4.</div>")
+    p.append('<div class="note"><strong>Bank 0 has a table after all: <code>$8030</code>, two '
+             "entries.</strong> <code>$D7F9</code> takes each bank's table base from "
+             "<code>$D842</code>/<code>$D84A</code>, and bank 0's is <code>$8030</code>, "
+             "naming <code>$8BBB</code> and <code>$8D90</code>. They end exactly on "
+             "<code>$917C</code>, the sound driver's per-frame entry, and reproduce "
+             "<strong>38 of 38 and 128 of 128</strong> tiles of a title-screen savestate's live "
+             "CHR &mdash; which takes the title screen from 18 to 181 of 512 explained. "
+             "<strong>Correction:</strong> this note used to say bank 0 had no table and that "
+             "the code running the codec had not been found. It was in the traced code all "
+             "along, unrecognised.</div>")
     return "".join(p)
 
 
