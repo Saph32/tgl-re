@@ -230,6 +230,11 @@ Do not re-derive these; do check anything that depends on them.
   - **Two corrections.** `$5D` is a **hyphen**, not the `!` this project read from context;
     `$5E` is a grid block, not a double quote. Both hold for the title screen's record set
     only — the dialogue loads a different one, proved by `$3C`.
+  - **Three record sets, not one — CORRECTION.** `$80EC` is set 0; `$810B` (set 1, entered
+    at `$8153` with Y = `$1F`) puts eight glyphs in sprite tiles `$08-$0F`; `$8134` (set 2,
+    `$8158`, Y = `$48`) is the password screen's a-z, ! ?, umlaut dots and slashed zero. The
+    font continues to `$8E0B` (31 more glyphs). Hardware: set 0 41/41 title and in-game,
+    set 1 8/8 labyrinth, set 2 32/32 password.
 - **One other confirmed CHR write.** Bank 7 `$E3CC` queues 5 bytes at PPU `$1FF9` — inside
   tile `$FF` of pattern table 1 — from the mask tables at `$E3F9` and `$E401`: a status
   meter redrawing part of a character tile.

@@ -1,0 +1,28 @@
+{
+  "_comment": "Hand-authored. The rest of the font and its other two upload-record sets.",
+  "regions": [
+    {
+      "id": "bank2.font_8D33",
+      "offset": 36163,
+      "size": 217,
+      "kind": "graphics",
+      "name": "The font, continued: 31 more 7-byte glyphs",
+      "confidence": "confirmed",
+      "cpu_addr": 36147,
+      "sha1": "b002cbf4ddad8e783df67c14f014e58f33ff377a",
+      "description": "The rest of the 1bpp, seven-bytes-a-glyph font that begins at $8BF8, expanded by the same routine, $806C: !, a double quote, two dots (the umlaut drawn above the password grid's lowercase rows), an apostrophe, a-z, and a slashed zero. Named by the second and third upload-record sets at $810B and $8134; the highest byte any record reads is $8E0B, the byte before the item icons at $8E0C, which is the extent. HARDWARE: set 2 puts these on the password screen - 32 of 32 glyphs match that savestate's live CHR (a-z at tiles $81-$9A, ! at $9B, the dots at $AE, the slashed zero over '0' at $30) - and set 1's eight glyphs match a labyrinth savestate 8 of 8. Records address sources byte-wise, not only on a 7-byte grid: set 1 reads from $8D3D.",
+      "codec": "font_1bpp_7byte"
+    },
+    {
+      "id": "bank2.tbl_810B",
+      "offset": 33051,
+      "size": 72,
+      "kind": "pointer_table",
+      "name": "Font upload records, sets 1 and 2",
+      "confidence": "confirmed",
+      "cpu_addr": 33035,
+      "sha1": "c3343f1c2d666d67243006fea80bde078142edaf",
+      "description": "Two more record sets in the format of $80EC - [glyph count][dest lo][dest hi][src lo][src hi], $FF ends a set - read by the same $80C5 through $80EC,Y. Set 1 starts at $810B, entered by bank 2 $8153 (LDY #$1F / JMP $80BD, entry slot $800C): eight single glyphs into sprite tiles $08-$0F. Set 2 starts at $8134, entered by $8158 (LDY #$48, slot $8012): the password screen's lowercase a-z to $1800, ! and ? to $19B0/$19C0, the umlaut dots to $1AE0, a glyph to $1000 and a slashed zero over $1300. Both sets end in $FF and the second ends exactly where the code at $8153 begins. HARDWARE: set 2 32/32 on the password savestate, set 1 8/8 on the labyrinth savestate, set 0 41/41 on the title and in-game ones."
+    }
+  ]
+}
