@@ -62,6 +62,11 @@ wrong finding away.
 - `tools/parse-enemies.py` — claims the enemy per-type tables, spawn scripts and
   graphics-load streams into `annotations/regions/80-enemies.json`, printing four checks.
   `--types` and `--scripts` decode them. Generated; `tools/tgl/enemy.py` holds the formats.
+- `tools/parse-scenes.py` — claims bank 5's scene tables, tile lists, metatile set records
+  and metatile data into `annotations/regions/78-scenes.json`. `--areas` lists each
+  labyrinth area's scene; `--verify STATE` checks a savestate's sets and room. Generated;
+  `tools/tgl/scene.py` holds the format and the hardware checks. `docs/labyrinth.html`
+  draws every area's metatiles.
 - `tools/find-tables.py` — claims byte tables whose extent their own readers fix, into
   `annotations/regions/75-tables.json`. `--list` shows every candidate. Generated. **Read
   its header before trusting a number from it** — the rule only holds for reads in the same
@@ -439,13 +444,23 @@ Do not re-derive these; do check anything that depends on them.
     `$B30C` at 3,315 bytes — the rest of the gap. Reads must now be within 24 bytes of
     each other, and a candidate containing another candidate's base is clipped there.
   - It claims **extents, not meanings**, and it cannot bound the last table in a group.
-- **Bank 5 `$B30A` is 37 palettes of three colours.** `$B2E4` states the layout: `ASL A /
-  ADC $11 / TAX` makes `X = A × 3`, then `$B30A,X`/`$B30B,X`/`$B30C,X` go to `$0181,Y`
-  upward — the palette staging area the NMI uploads. **Colour 0 is not in the record**; it
-  comes from `$0180`, the shared backdrop, which is why a record is three bytes.
-  - **The extent lands on a record boundary:** every byte is a legal NES colour for exactly
-    111 bytes — 37 × 3 with nothing over — and the next byte is `$93`. `docs/graphics.html`
-    draws them all.
+- **Bank 5 `$B30A` is 36 palettes of three colours — CORRECTION, it was 37.** `$B2E4` states
+  the layout (`X = A × 3` into `$0181,Y`; colour 0 is the backdrop `$0180`). The old bound —
+  "every byte a legal colour for 111 bytes" — swallowed the first three bytes of set record
+  6 at `$B376`. The real bound: every palette list in the ROM (`$D92D` walks up to 8, `$FE`
+  ends, `$FF` skips) uses indices 0-35. Sprite palettes 0-3 match two savestates.
+- **Scenes: how an area or corridor gets its tiles, metatiles and palettes.** Bank 5 `$ACA9`
+  loads scene A from `$AD91 + 3A` (39 scenes): a tile list (`$AE06`, blocks decompressed to
+  background CHR), a metatile-set record (`$AE24`, `[count]` + `[set|list<<4][tile base][ptr]`,
+  loaded by `$AD1A` into `$0460-$047F`) and a palette record (`$AE50`). A set is a window of 32
+  metatiles × 5 bytes; a room cell's byte is set (bits 5-7) + metatile (bits 0-4).
+  - **Labyrinth area n = scene n + 5**, after the common scenes 0 and 32; areas 1-2, 3-4,
+    5-6, 7-8, 9-10 share data. Corridors: scene 1 then `$EF55[c]`; special rooms 16-31.
+  - **Hardware (labyrinth savestate, area 0):** background CHR **159/159**, set pointers
+    **8/8**, palette slots **8/8**, room cells **192/192** metatiles of the live sets.
+    Corridor savestate: CHR 141/142, sets 6/6.
+  - **CORRECTION:** the old lead "`$B379`'s six block pointers" is set record 6 at `$B376`;
+    its targets are metatiles. Tables, lists and records partition `$AD91-$AF1B` exactly.
 - **Bank 5 `$8A6E-$960E` is the WORLD MAP**, and finding it needed a different search. No traced code references it and **no pointer table anywhere in the
   ROM points into it** — a scan for runs of four or more consecutive in-range 16-bit values
   returned 34 runs, every one a false positive inside an unrelated table. What found it was
@@ -649,7 +664,8 @@ authoritative, up-to-date version of this list; what follows is what does not li
    `docs/enemies.html`.
 2. **The five bank 5 spawn scripts that end on a jump**, and area 16's, which runs into the
    next block — the same shape of problem in both banks.
-3. **Bank 5 `$B379`'s six block pointers** — targets look like 2×2 tile groups.
+3. **Which metatiles rooms actually use**, and what sets `$50` as you walk the labyrinth
+   (only leaving a corridor and the password are known).
 4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`
    (`$C042` is now known: the codec's front end `$D7F9`).
 5. **The rest of bank 4's pool** — spawn scripts and art streams are now carved out;

@@ -361,6 +361,10 @@ TOPICS = [
      lambda rs: [r for r in rs if r.get("source") == ENEMY_SOURCE],
      "127 object types with hit points, attack and art; 47 spawn scripts; and the loader "
      "that decompresses enemy tiles as rooms are entered."),
+    ("labyrinth.html", "Labyrinth tilesets",
+     lambda rs: [r for r in rs if r.get("source") == SCENE_SOURCE],
+     "Every labyrinth area's metatiles, drawn from the ROM with the tiles and palettes it "
+     "loads - checked against a savestate cell for cell."),
     ("status.html", "Status screen",
      lambda rs: [r for r in rs if r["id"] in STATUS_REGIONS],
      "Select during play: the world map, seven keys, twelve weapons and what each one costs "
@@ -371,6 +375,7 @@ PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.text_8B80")
 # Everything tools/parse-enemies.py generates. Selected by source file rather than a list
 # of ids, because the set grows whenever another spawn script or stream is found.
 ENEMY_SOURCE = "80-enemies.json"
+SCENE_SOURCE = "78-scenes.json"
 STATUS_REGIONS = ("bank5.map_8A6E", "bank5.tbl_8690", "bank5.tbl_85DA", "bank5.tbl_87E4",
                   "bank2.gfx_8E0C", "bank2.gfx_928C", "bank2.gfx_92AC", "bank3.tbl_817A",
                   "bank7.tbl_EFD8", "bank7.tbl_FDCA", "bank7.tbl_FDD7")
@@ -2316,6 +2321,160 @@ def _external_page(rm):
     return "".join(p)
 
 
+def _metatiles_svg(chr_tiles, b5, ptr, base, pals, backdrop, px=2, per_row=16):
+    """32 metatiles of one set window, as the PPU draws them: four tiles each (TL TR BL BR
+    = bytes 0-3, $FF blank), coloured by attribute (byte 4 AND 3, via $0199), colour 0 the
+    backdrop. A tile the scenes never load is drawn as a dashed outline."""
+    runs: dict[tuple, list[str]] = {}
+    missing = []
+    w, h = per_row * 17 - 1, (32 // per_row) * 17 - 1
+    for i in range(32):
+        a = ptr + 5 * i - 0x8000
+        if a + 5 > len(b5):
+            break
+        t4, attr = list(b5[a:a + 4]), b5[a + 4]
+        pal = pals[attr & 3]
+        ox, oy = (i % per_row) * 17, (i // per_row) * 17
+        for k, t in enumerate(t4):
+            tx, ty = ox + (k % 2) * 8, oy + (k // 2) * 8
+            if t == 0xFF:
+                continue
+            tile = chr_tiles.get((t + base) & 0xFF)
+            if tile is None:
+                missing.append((tx, ty))
+                continue
+            for y in range(8):
+                x = 0
+                while x < 8:
+                    v = ((tile[y] >> (7 - x)) & 1) | (((tile[8 + y] >> (7 - x)) & 1) << 1)
+                    run = 1
+                    while x + run < 8 and (((tile[y] >> (7 - x - run)) & 1)
+                                           | (((tile[8 + y] >> (7 - x - run)) & 1) << 1)) == v:
+                        run += 1
+                    c = backdrop if v == 0 else pal[v - 1]
+                    runs.setdefault(c, []).append(f"M{tx + x} {ty + y}h{run}v1h-{run}z")
+                    x += run
+    out = [f'<svg viewBox="0 0 {w} {h}" width="{w * px}" style="max-width:100%;height:auto;'
+           'image-rendering:pixelated" xmlns="http://www.w3.org/2000/svg">']
+    for c, d in runs.items():
+        out.append(f'<path fill="rgb{tuple(c)}" d="{"".join(d)}"/>')
+    for x, y in missing:
+        out.append(f'<rect x="{x + .5}" y="{y + .5}" width="7" height="7" fill="none" '
+                   'stroke="currentColor" stroke-opacity=".4" stroke-width=".5" '
+                   'stroke-dasharray="1 1"/>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+def _labyrinth_page(rm):
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import scene as sc
+
+    b5 = rm.prg_bank(5)
+    pal = lambda i: [NES_RGB[b5[0x330A + 3 * i + k] & 0x3F] for k in range(3)]
+    backdrop = NES_RGB[0x0F]
+
+    def slots(seq):
+        out = [None] * 8
+        for s in seq:
+            i = sc.scene(b5, s)[2]
+            if i == 0xFF:
+                continue
+            _, _, pl, _ = sc.nt_record(b5, i)
+            for k, v in enumerate(sc.palette_list(b5, pl)):
+                if v != 0xFF:
+                    out[k] = v
+        return out
+
+    p = ["<h1>Labyrinth tilesets</h1>",
+         '<p class="sub">Every labyrinth area&rsquo;s metatiles &mdash; the 16&times;16 blocks '
+         "rooms are built from &mdash; drawn from the ROM with the tiles and palettes that "
+         "area loads.</p>"]
+    p.append('<div class="note"><strong>How an area gets its look.</strong> Labyrinth area '
+             "<em>n</em> is <strong>scene <em>n</em> + 5</strong> (bank 7 <code>$EEE0</code> "
+             "stores <code>$50 + 5</code> in <code>$5C</code>), loaded after the common "
+             "scenes 0 and 32 by bank 5 <code>$ACA9</code>. A scene is three bytes at "
+             "<code>$AD91</code>: a <strong>tile list</strong> (blocks decompressed into "
+             "background CHR), a <strong>set record</strong> (up to eight metatile windows "
+             "into <code>$0460</code>) and a <strong>palette list</strong>. A room cell's byte "
+             "picks set = bits 5-7 and metatile = bits 0-4; a metatile is four tile numbers and "
+             "a fifth byte whose low bits choose the palette and whose high nibble names a "
+             "ground object. Areas 1-2, 3-4, 5-6, 7-8 and 9-10 share scene data, so this page "
+             "draws six tilesets.</div>")
+    p.append('<div class="note"><strong>Checked against a labyrinth savestate</strong> (area 0): '
+             "replaying scenes 0, 32, a special room and 5 rebuilds the background pattern "
+             "table <strong>159 of 159</strong> tiles; the eight set pointers match "
+             "<strong>8 of 8</strong>; all eight palette slots match; and <strong>all 192</strong> "
+             "cells of the room on screen are metatiles of the live sets. "
+             "<code>tools/parse-scenes.py --verify</code> repeats the set and room checks.</div>")
+
+    groups: list[tuple[list[int], tuple]] = []
+    for area in range(11):
+        key = sc.scene(b5, sc.LAB_FIRST_SCENE + area)
+        for g in groups:
+            if g[1] == key:
+                g[0].append(area)
+                break
+        else:
+            groups.append(([area], key))
+
+    for areas, (tl, sr, nt) in groups:
+        seq = sc.area_scenes(areas[0])
+        chr_tiles = sc.background_chr(rm, seq)
+        sl = slots(seq)
+        pals = [pal(sl[k]) if sl[k] is not None else [backdrop] * 3 for k in range(4)]
+        sets = sc.effective_sets(b5, seq)
+        names = ", ".join(str(a) for a in areas)
+        p.append(f'<h2 id="area{areas[0]}">Area{"s" if len(areas) > 1 else ""} {names}</h2>')
+        blocks = []
+        for s in seq:
+            i = sc.scene(b5, s)[0]
+            if i != 0xFF:
+                blocks += [f"bank {bk} block {bl} &rarr; tile <code>${t:02X}</code>"
+                           for t, bk, bl in sc.tile_list(b5, i, s)]
+        sw = "".join(
+            f'<span class="sw" style="background:rgb{NES_RGB[c & 0x3F]};color:'
+            f'{"#000" if sum(NES_RGB[c & 0x3F]) > 340 else "#fff"}">{c:02X}</span>'
+            for k in range(4) if sl[k] is not None
+            for c in b5[0x330A + 3 * sl[k]:0x330D + 3 * sl[k]])
+        p.append(f'<p class="meta">Scenes {", ".join(map(str, seq))} &middot; tile list {tl}, '
+                 f"set record {sr}, palette record {nt} &middot; background palettes "
+                 f"{', '.join(str(sl[k]) for k in range(4))}</p>")
+        p.append(f'<p class="meta">Loads: {"; ".join(blocks)}</p>')
+        p.append(f'<div style="display:flex;flex-wrap:wrap;gap:3px;margin:8px 0">{sw}</div>')
+        for n in sorted(sets):
+            lst, base, ptr = sets[n]
+            src = next(s for s in reversed(seq) if sc.scene(b5, s)[1] != 0xFF and any(
+                e[0] == n for e in sc.set_record(b5, sc.scene(b5, s)[1])[1]))
+            p.append(f'<div class="card"><h4>Set {n} &mdash; cell bytes '
+                     f'<code>${n << 5:02X}-${(n << 5) | 31:02X}</code></h4>'
+                     f'<p class="meta">window <code>${ptr:04X}</code> &middot; tile base '
+                     f"<code>${base:02X}</code> &middot; object list {lst} &middot; from scene "
+                     f"{src}</p>"
+                     + _metatiles_svg(chr_tiles, b5, ptr, base, pals, backdrop) + "</div>")
+
+    p.append('<div class="note warn"><strong>Not established.</strong> Which of a window&rsquo;s '
+             "32 metatiles any room actually uses &mdash; a window can run past real data, and "
+             "those entries draw as noise. Tiles no scene here loads are dashed outlines; some "
+             "may come from other loads (a special room&rsquo;s tile list overwrote "
+             "<code>$D0-$FD</code> in the savestate). What decides the labyrinth area as you "
+             "walk: only leaving a corridor or entering a password is known to set "
+             "<code>$50</code>.</div>")
+
+    p.append("<h2>Regions</h2>")
+    for r in [x for x in rm.regions if x.get("source") == SCENE_SOURCE]:
+        p.append(f'<div class="card" id="{_h(r["id"])}">')
+        p.append(f'<h3>{_h(r["name"])} <span class="tag" style="background:'
+                 f'{KIND_COLOURS.get(r["kind"], DEFAULT_COLOUR)}">{_h(r["kind"])}</span> '
+                 f'<span class="conf {r["confidence"]}">{_h(r["confidence"])}</span></h3>')
+        p.append(f'<p class="meta"><code>{_h(r["id"])}</code> &middot; bank {r["prg_bank"]} '
+                 f'${r["cpu_addr"]:04X}-${r["cpu_addr"] + r["size"] - 1:04X} &middot; '
+                 f'{r["size"]:,} bytes</p>')
+        p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
+    return "".join(p)
+
+
 def build_site(rm, out: Path) -> list[str]:
     written: list[str] = []
 
@@ -2330,6 +2489,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["sound.html"] = _sound_page(rm)
     if any(r["id"] in PASSWORD_REGIONS for r in rm.regions):
         pages["password.html"] = _password_page(rm)
+    if any(r.get("source") == SCENE_SOURCE for r in rm.regions):
+        pages["labyrinth.html"] = _labyrinth_page(rm)
     if _external():
         pages["external.html"] = _external_page(rm)
     if any(r.get("source") == ENEMY_SOURCE for r in rm.regions):
@@ -2361,6 +2522,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Status screen - {rm.meta["title"]}' if name == "status.html"
                  else f'Enemies - {rm.meta["title"]}' if name == "enemies.html"
                  else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
+                 else f'Labyrinth tilesets - {rm.meta["title"]}' if name == "labyrinth.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

@@ -1,27 +1,16 @@
 {
-  "_comment": "Hand-authored. The palette table in bank 5, and the pointer table after it.",
+  "_comment": "Hand-authored. The palette table in bank 5.",
   "regions": [
     {
       "id": "bank5.pal_B30A",
       "offset": 95002,
-      "size": 111,
+      "size": 108,
       "kind": "palette",
-      "name": "Palettes: 37 x 3 colours",
+      "name": "Palettes: 36 x 3 colours",
       "confidence": "confirmed",
       "cpu_addr": 45834,
-      "sha1": "4f060ca99e5d11bb4a38bc180f212d2e89fc2c56",
-      "description": "Thirty-seven palettes of three colours. $B2E4 is the reader and it states the layout exactly: ASL A / ADC $11 / TAX makes X = A * 3, then LDA $B30A,X / LDA $B30B,X / LDA $B30C,X go to $0181,Y / $0182,Y / $0183,Y with Y = the destination index * 3. $0181 is the palette staging area the NMI uploads - $DEF3 walks it in groups reading $0180 for the shared backdrop and $0181,Y upward for the rest - so three bytes here are colours 1, 2 and 3 of a palette and colour 0 comes from $0180. THE EXTENT IS BOUNDED BY THE DATA AND LANDS ON A RECORD BOUNDARY: every byte from $B30A is a legal NES colour ($3F or below) for exactly 111 bytes, which is 37 records of three with NOTHING left over, and the first byte past it is $93. A boundary that falls on a record edge by accident is a coincidence worth one in three. The values read as palettes too: $30 $16 $0F is white, red, black and $30 $27 $06 is white, orange, dark red. WHICH palette is used where is NOT established."
-    },
-    {
-      "id": "bank5.tbl_B379",
-      "offset": 95113,
-      "size": 26,
-      "kind": "pointer_table",
-      "name": "Six block pointers with ids",
-      "confidence": "lead",
-      "cpu_addr": 45945,
-      "sha1": "764d241647402328869ad3944175d4f60f115349",
-      "description": "Six four-byte records [pointer][word] - ($B393,$0012), ($B3C5,$0013), ($B465,$0014), ($B505,$0015), ($B5A5,$0016), ($B582,$0007) - then two more bytes, $D2 $B5, which read as a seventh pointer $B5D2 with no word after it. Bounded the way $E6F3 is: the records end at $B392 and the first pointer's target is $B393, the very next byte, so the table cannot be longer. **A LEAD.** No reader has been found. A byte scan turned up LDY $B385,X at bank 7 $E8A4, and that is a FALSE POSITIVE - the bytes are B1 BC 85 B3, LDA ($BC),Y followed by STA $B3, with the scan reading an operand as an opcode. Exactly the class the playbook warns about. What the targets hold is also unread, though $B3C5 onward is visibly four bytes then $03, repeating, which looks like 2x2 tile groups with a palette index."
+      "sha1": "ee007758c44efe3cf094f0ea9bfd0a172ea8fd1b",
+      "description": "Thirty-six palettes of three colours. $B2E4 is the reader and it states the layout exactly: ASL A / ADC $11 / TAX makes X = A * 3, then LDA $B30A,X / LDA $B30B,X / LDA $B30C,X go to $0181,Y / $0182,Y / $0183,Y with Y = the destination index * 3. $0181 is the palette staging area the NMI uploads - $DEF3 walks it reading $0180 for the shared backdrop and $0181,Y upward for the rest - so three bytes here are colours 1, 2 and 3 of a palette and colour 0 comes from $0180. THE EXTENT: $B2E4 is reached through $D92D (entry $C05D), which walks a list of up to eight palette indices ($FE ends it, $FF skips a slot, CPY #$08); every such list in the ROM - the scene records at bank 5 $AE50, the status screen's, and every bank 4 command-4 list - uses indices 0-35 and nothing higher, and 36 x 3 bytes end exactly where set record 6 begins at $B376. CORRECTION: this region was 37 palettes, bounded by 'every byte is a legal colour for exactly 111 bytes'; the 37th 'palette' was the first three bytes of set record 6 (07 11 00), which happen to be legal colours. HARDWARE: two savestates hold exactly records 0-3 in sprite palette RAM. Which palette is used where is in tools/tgl/scene.py."
     }
   ]
 }
