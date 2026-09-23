@@ -508,6 +508,13 @@ class Trace:
                     continue
                 self.seed(live, target, f'{tbl["name"]} (${addr:04X}) entry {k}')
 
+        # Code reached through data the tracer does not model - listed in dispatch.json
+        # "extra_seeds", each with the reason. Bank 0's song table has five entries whose
+        # header byte is $00: $97E4 then pushes the pointer and RTSes, running code at
+        # pointer + 1.
+        for s in self.registry.get("extra_seeds", []):
+            self.seed(s["bank"], int(s["cpu_addr"].lstrip("$"), 16), s["name"])
+
         # The ABI routines and the inline-argument helpers themselves. They are recognised
         # at their call sites by target and stepped over rather than entered, so without
         # this they are never walked and their own bytes sit in a gap - 106 bytes of

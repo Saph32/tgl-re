@@ -78,6 +78,17 @@
       "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $2220: 26 items over 10 row breaks, 129 bytes, ending at $88B6 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. **Nothing in the ROM names this address as an operand.** It is reached through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at $8822-$8832, which is the idiom playbook section 5 warns about: a search for the address would report the block unreferenced. It was found by walking traced code and tracking immediates. The printable bytes read as: \"!% GAME SELECT !% NEW GAME ! % !% PASSWORD CONTINUE ! !!% % !% !\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
     },
     {
+      "id": "bank0.ppuscript_88B7",
+      "offset": 2247,
+      "size": 62,
+      "kind": "data",
+      "name": "PPU script at $88B7",
+      "confidence": "confirmed",
+      "cpu_addr": 34999,
+      "sha1": "17e65df65cf60337de0c978cf78efc1eccc46e05",
+      "description": "A screen-painting script for the renderer at bank 0 $8495, painting from PPU $21A0: 17 items over 10 row breaks, 62 bytes, ending at $88F4 on the $FE the renderer stops at. An item is [col][count][characters]; the column is ORed into the PPU address low byte, $FF ends a row and adds $20 to the address, and bit 7 of the count means repeat one character instead of advancing through the source, which is a run-length fill. **Nothing in the ROM names this address as an operand.** It is reached through a pointer built as LDA #lo / STA $16 and LDA #hi / STA $17 at $8902-$8911 (high byte first, which a search for LDA #lo / STA $16 followed by the high byte misses), which is the idiom playbook section 5 warns about: a search for the address would report the block unreferenced. It was found by walking traced code and tracking immediates. The printable bytes read as: \"!% ! !% %! ! !!%\". NOT ESTABLISHED: what the non-letter tile numbers depict, and whether the glyph readings that hold for the dialogue script hold here - the renderers are different and CHR is RAM, so the font need not be the same one."
+    },
+    {
       "id": "bank0.ppuscript_89F9",
       "offset": 2569,
       "size": 23,

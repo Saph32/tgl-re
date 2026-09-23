@@ -3781,7 +3781,8 @@ L3_966D:
         .byte   $2C,$28,$38,$28,$18,$18,$00,$36,$36,$30,$30,$30,$10,$10,$00,$FE
         .byte   $FE
 
-; ---- UNCLAIMED (gap) $BFD7-$BFFE, 40 bytes
+; ---- bank3.pad_BFD7 (padding) $BFD7-$BFFE, 40 bytes
+; Fill: 40 x $FF
         .fill   40,$FF
 
 ; ---- bank3.bank_id_BFFF (data) $BFFF-$BFFF, 1 bytes

@@ -70,6 +70,8 @@ PPU_SCRIPTS = [
     (0, 0x84F7, 0x2000, "$8485-$8493"),
     (0, 0x86E8, 0x2080, "$8381-$8391"),
     (0, 0x8836, 0x2220, "$8822-$8832"),
+    (0, 0x88B7, 0x21A0, "$8902-$8911 (high byte first, which a search for LDA #lo / STA $16 "
+                        "followed by the high byte misses)"),
     (0, 0x89F9, 0x2220, "$891F-$892F"),
     (0, 0x8A10, 0x2220, "$891B", CREDITS.format(n=2)),
     (0, 0x8A35, 0x2220, "$891B", CREDITS.format(n=3)),

@@ -1627,7 +1627,8 @@ L1_84FF:
         .byte   $09,$18,$38,$7F,$7C,$B0,$80,$00,$E9,$D8,$BC,$7F,$7F,$BC,$B0,$80
         .byte   $C0,$00,$C0,$0B,$00,$05,$0B,$C0,$10,$E0,$C0,$0B,$00,$04,$0B,$0B
 
-; ---- UNCLAIMED (gap) $BFCF-$BFFE, 48 bytes
+; ---- bank1.pad_BFCF (padding) $BFCF-$BFFE, 48 bytes
+; Fill: 48 x $FF
         .fill   48,$FF
 
 ; ---- bank1.bank_id_BFFF (data) $BFFF-$BFFF, 1 bytes

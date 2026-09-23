@@ -1,0 +1,49 @@
+{
+  "_comment": "Hand-authored. Unused $FF fill at the ends of banks.",
+  "regions": [
+    {
+      "id": "bank1.pad_BFCF",
+      "offset": 32735,
+      "size": 48,
+      "kind": "padding",
+      "name": "Fill: 48 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 49103,
+      "sha1": "989fbd16297ef75e5a9d5c63f7096c99b455563d",
+      "description": "48 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+    },
+    {
+      "id": "bank6.pad_BFD1",
+      "offset": 114657,
+      "size": 46,
+      "kind": "padding",
+      "name": "Fill: 46 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 49105,
+      "sha1": "3135417a5c2d783a2a38a321997cd9e020e69a92",
+      "description": "46 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+    },
+    {
+      "id": "bank3.pad_BFD7",
+      "offset": 65511,
+      "size": 40,
+      "kind": "padding",
+      "name": "Fill: 40 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 49111,
+      "sha1": "f443319695979917a03b717049235423874d2716",
+      "description": "40 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+    },
+    {
+      "id": "bank0.pad_BFDA",
+      "offset": 16362,
+      "size": 37,
+      "kind": "padding",
+      "name": "Fill: 37 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 49114,
+      "sha1": "e94cc40e6f72938b10d2577c6be7f27b91b1bbf5",
+      "description": "37 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+    }
+  ]
+}

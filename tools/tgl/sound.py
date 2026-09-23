@@ -111,7 +111,11 @@ COMMANDS: dict[int, tuple[str, int, str]] = {
                                  "paths consume two operands, which is why counting INYs to "
                                  "the first RTS gets this one wrong."),
     0x8F: ("portamento", 1, "$9439: sets $0397,X and $039E,X and flags bit 0 of $0358,X."),
-    0x90: ("duty / flags", 2, "$949E: sets $03F2,X and $03F9,X and flags bit 3 of $0358,X."),
+    0x90: ("per-note sequence", 2, "$949E: the two operands are a POINTER, stored in "
+                 "$03F2/$03F9,X, with bit 3 of $0358,X set when it is non-zero. $9534 then "
+                 "reads one byte per note through it into $03EB,X - bits 5-6 become the duty "
+                 "- and a zero byte is followed by the address to continue from. "
+                 "CORRECTION: this was listed as 'duty / flags', two plain values."),
     0x91: ("field $03xx", 1, "$94BE: a single store."),
     0x92: ("volume", 1, "$938A: replaces the low nibble of $0320,X."),
     0x93: ("play sound", 1, "$97CC: the driver's own 'play sound A' entry, called from "
@@ -201,6 +205,49 @@ def walk_track(bank0: bytes, start: int, limit: int = 0x4000) -> dict:
         i += 1 + COMMANDS[b][1]
     return {"start": start, "end": 0x8000 + i, "size": i - o, "notes": notes,
             "census": census, "ok": False, "bad": None, "at": 0x8000 + i}
+
+
+def operands(bank0: bytes, start: int) -> list[tuple[int, int, list[int]]]:
+    """Every command on one track's linear walk, as (address, command, operand bytes)."""
+    out, i = [], start - 0x8000
+    while 0 <= i and i + 3 < len(bank0):
+        b = bank0[i]
+        if b < 0x80:
+            i += 1
+            if bank0[i] >= 0xE0:
+                i += 2 if bank0[i] == 0xE0 else 1
+            continue
+        if b >= 0xE0:
+            i += 2 if b == 0xE0 else 1
+            continue
+        if b not in COMMANDS:
+            break
+        n = COMMANDS[b][1]
+        out.append((0x8000 + i, b, list(bank0[i + 1:i + 1 + n])))
+        if b in TERMINATORS:
+            break
+        i += 1 + n
+    return out
+
+
+def jump_target(cmd: int, ops: list[int]) -> int | None:
+    """Where $80, $81 or $8E sends the stream."""
+    if cmd in (0x80, 0x8E):
+        return ops[0] | ops[1] << 8
+    if cmd == 0x81:
+        return ops[1] | ops[2] << 8
+    return None
+
+
+def walk_sequence(bank0: bytes, start: int, limit: int = 256) -> int:
+    """End of a $90 per-note sequence: bytes read one per note by $9534 into $03EB, until a
+    zero, which is followed by the two-byte address to continue from ($9547-$9555)."""
+    i = start - 0x8000
+    for _ in range(limit):
+        if bank0[i] == 0:
+            return 0x8000 + i + 3
+        i += 1
+    return 0x8000 + i
 
 
 # --------------------------------------------------------------------- musical reading

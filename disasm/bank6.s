@@ -7624,7 +7624,8 @@ L6_BFC1:
         jsr     L7_C0C6
         jmp     L7_C0D5
 
-; ---- UNCLAIMED (gap) $BFD1-$BFFE, 46 bytes
+; ---- bank6.pad_BFD1 (padding) $BFD1-$BFFE, 46 bytes
+; Fill: 46 x $FF
         .fill   46,$FF
 
 ; ---- bank6.bank_id_BFFF (data) $BFFF-$BFFF, 1 bytes

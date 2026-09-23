@@ -208,5 +208,31 @@
       "name": "password entry",
       "why": "$887F loops forever at $8885 (JSR $88C7 ... JMP $8885). When the cursor is on END and A is pressed, $88C7's path reaches PLA / PLA / JMP $8516: it drops $88C7's own return address and jumps into the password decoder, whose SEC / RTS or CLC / RTS then returns to $887F's caller - bank 3 $8315, which branches on that carry at $8318. Without this entry the trace called $887F non-returning and never walked $8318-$832C."
     }
+  ],
+  "extra_seeds": [
+    {
+      "bank": 0,
+      "cpu_addr": "$993F",
+      "name": "sound 'song' 31 and 68 is code",
+      "why": "Song table entry 31 and 68 points at $993E, a byte of $00. $97E4 treats a header whose first byte is zero as code: it pushes the pointer and RTSes, so execution continues at $993F."
+    },
+    {
+      "bank": 0,
+      "cpu_addr": "$9AE0",
+      "name": "sound 'song' 69 is code",
+      "why": "Song table entry 69 points at $9ADF, a byte of $00. $97E4 treats a header whose first byte is zero as code: it pushes the pointer and RTSes, so execution continues at $9AE0."
+    },
+    {
+      "bank": 0,
+      "cpu_addr": "$9933",
+      "name": "sound 'song' 70 is code",
+      "why": "Song table entry 70 points at $9932, a byte of $00. $97E4 treats a header whose first byte is zero as code: it pushes the pointer and RTSes, so execution continues at $9933."
+    },
+    {
+      "bank": 0,
+      "cpu_addr": "$993A",
+      "name": "sound 'song' 71 is code",
+      "why": "Song table entry 71 points at $9939, a byte of $00. $97E4 treats a header whose first byte is zero as code: it pushes the pointer and RTSes, so execution continues at $993A."
+    }
   ]
 }
