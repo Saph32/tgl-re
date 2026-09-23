@@ -66,6 +66,50 @@
       "cpu_addr": 41847,
       "sha1": "281194b3e908ecf66bb2574f07f7ab559c367877",
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. What $55 selects is NOT established; bank 7 $EF40 writes it too."
+    },
+    {
+      "id": "bank7.tbl_D8E1",
+      "offset": 121073,
+      "size": 76,
+      "kind": "data",
+      "name": "2x2 tile groups for $C054",
+      "confidence": "confirmed",
+      "cpu_addr": 55521,
+      "sha1": "2b790c333db49f41a3e738e5a98a7428a6fad131",
+      "description": "$D865 (entry $C054) draws a 2x2 block with its attribute. When A AND 3 is non-zero it reads the four tiles from $D8E0 + A ... $D8E3 + A (LDA $D8E0,Y with Y = A); when it is zero it uses A, A+1 ... directly. So A itself is the byte offset into this table and any A with a low bit set names a group; the groups can overlap. The extent is structural - the last byte of $D865's code is at $D8E0 and $D92D is code - and which groups are actually used depends on callers not enumerated here."
+    },
+    {
+      "id": "bank1.tbl_8229",
+      "offset": 16953,
+      "size": 4,
+      "kind": "data",
+      "name": "Drop cycle: 4 item types",
+      "confidence": "confirmed",
+      "cpu_addr": 33321,
+      "sha1": "7b2d5aa2190c2fd8a9bca7066328f5043f745d66",
+      "description": "LDA $44 / INC $44 / AND #$03 / TAY / $81F2 LDA $8229,Y - four entries, cycled - stored to the new object's $0680. Values $15 $0C $0C $0B; a $0B is swapped for $0C when bit 6 of $04AE (weapon 11's level) is set. Read when $8221,$42 is zero."
+    },
+    {
+      "id": "bank1.tbl_822D",
+      "offset": 16957,
+      "size": 16,
+      "kind": "data",
+      "name": "By terrain class under an object: 16 entries",
+      "confidence": "confirmed",
+      "cpu_addr": 33325,
+      "sha1": "692bc1668ac26cd63371c2f4f6fafa05f3362d1d",
+      "description": "$81D9 LDA $822D,Y with Y = the value bank 6 $8435 (far-called through $8006) returns: the terrain nibble of the cell under the object, read from the packed map at $0400 and AND #$0F, so 0-15 - sixteen entries. Non-zero decrements $43 and returns. Meaning of the entries not established."
+    },
+    {
+      "id": "bank1.tbl_823D",
+      "offset": 16973,
+      "size": 120,
+      "kind": "data",
+      "name": "Table read at $8176, 120 bytes",
+      "confidence": "lead",
+      "cpu_addr": 33341,
+      "sha1": "12909e6ec0db0a98229ce35049938414ea20e68a",
+      "description": "$8176 LDA $823D,Y, zero skipping, with Y from the caller - not bounded by code. The extent is structural: it starts where the 16-entry table at $822D ends and runs to the code at $82B5, and nothing else in bank 1 reads into it. A LEAD."
     }
   ]
 }

@@ -1959,7 +1959,8 @@ L7_D8CE:
         ldx     $10
         jmp     L7_D6F7
 
-; ---- UNCLAIMED (gap) $D8E1-$D92C, 76 bytes
+; ---- bank7.tbl_D8E1 (data) $D8E1-$D92C, 76 bytes
+; 2x2 tile groups for $C054
         .byte   $F9,$FA,$F7,$F6,$F0,$F9,$F5,$F7,$F8,$F5,$F9,$FA,$F6,$F8,$F0,$F9
         .byte   $82,$83,$91,$90,$82,$83,$91,$90,$91,$90,$92,$93,$91,$90,$92,$93
         .byte   $D7,$D9,$F7,$F9,$9A,$9B,$96,$97,$9E,$9F,$9C,$9D,$98,$99,$9C,$9D

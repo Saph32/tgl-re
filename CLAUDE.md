@@ -681,18 +681,14 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Name the enemy types.** The manual names nine (`docs/external.html`); a match by
-   eye against `docs/enemies.html` is a lead, not a finding. A savestate with enemies on screen would tie types, via
-   `$0500,X` and `$0548,X`, to what is visible; the per-type table is in
-   `docs/enemies.html`.
-2. **The five bank 5 spawn scripts that end on a jump**, and area 16's, which runs into the
-   next block — the same shape of problem in both banks.
-3. **Which metatiles rooms actually use**, and what sets `$50` as you walk the labyrinth
-   (only leaving a corridor and the password are known).
-4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`
-   (`$C042` is now known: the codec's front end `$D7F9`).
-5. **The rest of bank 4's pool** — spawn scripts and art streams are now carved out;
-   command 1's row tables (`$B4`) and command 4/6 targets are next. The metatile sets
-   (`$0460`, loaded at bank 5 `$AD2C`) would name the ground objects per area.
-6. **The labyrinth spawn lists** behind bank 5 `$803C` (`$AF61`, `$AF69`, `$AF71`).
-7. Start a RAM map. The object slot fields above are most of page 5.
+1. **Name the enemy types.** The manual names nine (`docs/external.html`); a match by eye
+   against `docs/enemies.html` is a lead. A savestate with known enemies on screen would
+   settle it, and `parse-metasprites.py --verify` would check their shapes.
+2. **The remaining gaps**, largest first: bank 5 `$A8A5` (the structure targets that fail
+   the self-consistency test), bank 6 `$A9B8`, bank 0 `$A161`, bank 6 `$BEAE`, bank 0
+   `$A8AE`, bank 5 `$AA8F` — each under 100 bytes but bank 5's. `build.py --gaps`.
+3. **The five bank 5 spawn scripts that end on a jump**, and corridor 16's.
+4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
+5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
+   `$D99C`).
+6. Start a RAM map. The object slot fields are most of page 5.
