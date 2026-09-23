@@ -51,6 +51,9 @@ What the model covers
   passes on this ROM.
 * **Complementary branch pairs.** `BNE x / BEQ y` back to back is an unconditional two-way,
   so the second branch's fall-through is unreachable - and in this ROM it is a data table.
+* **Routines that return through the stack**, listed in `dispatch.json`
+  (`returns_via_stack`): a subroutine that does `PLA / PLA` and jumps on returns from its
+  caller, which no reachability test can see.
 * **Branches decided by an immediate load.** `LDA #$01 / BNE` is an unconditional jump, so
   its fall-through is not code; bank 6 `$87DA` and bank 5 `$85D8` hide tables behind one.
 * A small constant tracker for A, X and Y - immediates, the transfers between them, and
@@ -419,8 +422,14 @@ class Trace:
             # $8015, which is an endless display loop, and the bytes after the call are the
             # data block the pointer built at $8AC8/$8ACC names.
             candidates += sorted(self.farcall_targets)
+            # A routine can return without an RTS of its own: bank 3 $887F loops forever
+            # until a subroutine drops its return address (PLA / PLA) and jumps to code
+            # whose RTS then returns to $887F's caller. The walk cannot see that, so such
+            # routines are listed, with the reason, in dispatch.json "returns_via_stack".
+            stack = {(e["bank"], int(e["cpu_addr"].lstrip("$"), 16))
+                     for e in self.registry.get("returns_via_stack", [])}
             for key in candidates:
-                if key in found:
+                if key in found or key in stack:
                     continue
                 if not self._can_return(*key):
                     found.add(key)

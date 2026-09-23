@@ -200,5 +200,13 @@
     "why_the_formats_disagree": "Because they load different glyphs into the same indices, and this is now mechanism rather than speculation. The dialogue script uses $3C as a comma; the title-screen font has a patterned graphic at $3C, so the dialogue screen CANNOT be using the title screen's font. Only one record table has been found, so whatever the dialogue loads is uploaded by something not yet traced. The dialogue's $5D = '!' and $5E = '\"' therefore remain context readings, NOT contradicted by the title font because the title font does not apply to them.",
     "what_the_font_block_settles_anyway": "The 45-glyph block contains a semicolon and a question mark that the title screen's record table does not upload. Those are exactly the two glyphs the dialogue script uses at $3B and $3F, where a straight ASCII reading already put them. So two readings that rested on context now rest on a glyph existing in the ROM that matches.",
     "correction_to_the_2x2_claim": "An earlier entry read $5C-$5F as a single 2x2 graphic, from bank 1 writing $5C $5E to PPU $21AF and $5D $5F to $21CF. Under the title font those four are comma, grid, hyphen and a solid block, which is not a coherent 2x2 symbol - so bank 1's screen loads yet another set. The layout observation was right, both conclusions drawn from it were wrong, and the mechanism that explains all of it is the per-screen upload."
-  }
+  },
+  "returns_via_stack": [
+    {
+      "bank": 3,
+      "cpu_addr": "$887F",
+      "name": "password entry",
+      "why": "$887F loops forever at $8885 (JSR $88C7 ... JMP $8885). When the cursor is on END and A is pressed, $88C7's path reaches PLA / PLA / JMP $8516: it drops $88C7's own return address and jumps into the password decoder, whose SEC / RTS or CLC / RTS then returns to $887F's caller - bank 3 $8315, which branches on that carry at $8318. Without this entry the trace called $887F non-returning and never walked $8318-$832C."
+    }
+  ]
 }

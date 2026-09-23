@@ -323,7 +323,7 @@ L3_82AC:
 ; Far-call argument at $82DC
         .byte   $02,$11,$80
 
-; ---- bank3.code_82DF (code) $82DF-$82F5, 23 bytes
+; ---- bank3.code_82DF (code) $82DF-$8351, 115 bytes
         lda     #$22
         sta     $19
         lda     #$84
@@ -334,11 +334,11 @@ L3_82AC:
         jsr     L3_8B7E
         lda     #$19
         jmp     L7_C030
-
-; ---- UNCLAIMED (gap) $82F6-$82FF, 10 bytes
-        .byte   $20,$E4,$C0,$29,$F0,$F0,$F9,$4C,$7E,$8B
-
-; ---- bank3.code_8300 (code) $8300-$8317, 24 bytes
+L3_82F6:
+        jsr     L7_C0E4
+        and     #$F0
+        beq     L3_82F6
+        jmp     L3_8B7E
 L3_8300:
         lda     #$1F
         jsr     L7_C030
@@ -348,13 +348,18 @@ L3_8300:
         jsr     L3_834F
         lda     #$01
         sta     $0400
+L3_8315:
         jsr     L3_887F
-
-; ---- UNCLAIMED (gap) $8318-$832C, 21 bytes
-        .byte   $90,$09,$20,$6F,$87,$20,$F6,$82,$4C,$15,$83,$A5,$2F,$F0,$03,$20
-        .byte   $73,$84,$4C,$97,$83
-
-; ---- bank3.code_832D (code) $832D-$8351, 37 bytes
+        bcc     L3_8323
+        jsr     L3_876F
+        jsr     L3_82F6
+        jmp     L3_8315
+L3_8323:
+        lda     $2F
+        beq     L3_832A
+        jsr     L3_8473
+L3_832A:
+        jmp     L3_8397
 L3_832D:
         jsr     L3_82AC
         jsr     L3_83AE
@@ -398,7 +403,7 @@ L3_834F:
 ; Inline argument at $8367
         .byte   $14,$23,$06,$20
 
-; ---- bank3.code_836B (code) $836B-$8375, 11 bytes
+; ---- bank3.code_836B (code) $836B-$8512, 424 bytes
         lda     #$00
         ldy     #$20
 L3_836F:
@@ -406,20 +411,22 @@ L3_836F:
         dey
         bne     L3_836F
         rts
-
-; ---- UNCLAIMED (gap) $8376-$837F, 10 bytes
-        .byte   $20,$11,$87,$F0,$1C,$A9,$00,$8D,$00,$04
-
-; ---- bank3.code_8380 (code) $8380-$8385, 6 bytes
+L3_8376:
+        jsr     L3_8711
+        beq     L3_8397
+        lda     #$00
+        sta     $0400
 L3_8380:
         jsr     L3_8B7E
         jsr     L3_887F
-
-; ---- UNCLAIMED (gap) $8386-$8396, 17 bytes
-        .byte   $B0,$06,$20,$F2,$87,$4C,$91,$83,$20,$B5,$87,$20,$F6,$82,$4C,$76
-        .byte   $83
-
-; ---- bank3.code_8397 (code) $8397-$8442, 172 bytes
+        bcs     L3_838E
+        jsr     L3_87F2
+        jmp     L3_8391
+L3_838E:
+        jsr     L3_87B5
+L3_8391:
+        jsr     L3_82F6
+        jmp     L3_8376
 L3_8397:
         jsr     L7_C015
         lda     #$1F
@@ -503,11 +510,12 @@ L3_8439:
         lsr     A
         rol     $10
         rts
-
-; ---- UNCLAIMED (gap) $8443-$844C, 10 bytes
-        .byte   $A0,$00,$84,$10,$20,$39,$84,$A4,$10,$60
-
-; ---- bank3.code_844D (code) $844D-$8472, 38 bytes
+L3_8443:
+        ldy     #$00
+        sty     $10
+        jsr     L3_8439
+        ldy     $10
+        rts
 L3_844D:
         sta     $10
         lda     $18
@@ -534,18 +542,82 @@ L3_844D:
         inc     $18
 L3_8472:
         rts
-
-; ---- UNCLAIMED (gap) $8473-$8512, 160 bytes
-        .byte   $A0,$11,$B9,$38,$04,$99,$9F,$04,$88,$D0,$F7,$AD,$AE,$04,$29,$7F
-        .byte   $8D,$AE,$04,$AD,$B0,$04,$29,$7F,$8D,$B0,$04,$A9,$00,$4E,$A8,$04
-        .byte   $2A,$4E,$A8,$04,$2A,$4E,$A8,$04,$2A,$4E,$A8,$04,$2A,$85,$46,$AD
-        .byte   $4A,$04,$29,$07,$85,$6B,$AD,$4A,$04,$29,$F8,$D0,$02,$A9,$FF,$85
-        .byte   $47,$AD,$4B,$04,$20,$43,$84,$85,$7C,$C8,$84,$4A,$AD,$4C,$04,$20
-        .byte   $43,$84,$85,$7D,$84,$4B,$A9,$00,$4E,$AB,$04,$2A,$4E,$AB,$04,$2A
-        .byte   $A8,$AD,$4E,$04,$20,$02,$85,$8C,$75,$01,$8D,$74,$01,$A5,$19,$8D
-        .byte   $73,$01,$A9,$00,$4E,$AB,$04,$2A,$4E,$AB,$04,$2A,$A8,$AD,$4D,$04
-        .byte   $20,$02,$85,$8C,$72,$01,$8D,$71,$01,$A5,$19,$8D,$70,$01,$60,$48
-        .byte   $A9,$64,$85,$10,$68,$20,$0E,$C1,$85,$19,$A9,$0A,$20,$0B,$C1,$60
+L3_8473:
+        ldy     #$11
+L3_8475:
+        lda     $0438,Y
+        sta     $049F,Y
+        dey
+        bne     L3_8475
+        lda     $04AE
+        and     #$7F
+        sta     $04AE
+        lda     $04B0
+        and     #$7F
+        sta     $04B0
+        lda     #$00
+        lsr     $04A8
+        rol     A
+        lsr     $04A8
+        rol     A
+        lsr     $04A8
+        rol     A
+        lsr     $04A8
+        rol     A
+        sta     $46
+        lda     $044A
+        and     #$07
+        sta     $6B
+        lda     $044A
+        and     #$F8
+        bne     L3_84B2
+        lda     #$FF
+L3_84B2:
+        sta     $47
+        lda     $044B
+        jsr     L3_8443
+        sta     $7C
+        iny
+        sty     $4A
+        lda     $044C
+        jsr     L3_8443
+        sta     $7D
+        sty     $4B
+        lda     #$00
+        lsr     $04AB
+        rol     A
+        lsr     $04AB
+        rol     A
+        tay
+        lda     $044E
+        jsr     L3_8502
+        sty     $0175
+        sta     $0174
+        lda     $19
+        sta     $0173
+        lda     #$00
+        lsr     $04AB
+        rol     A
+        lsr     $04AB
+        rol     A
+        tay
+        lda     $044D
+        jsr     L3_8502
+        sty     $0172
+        sta     $0171
+        lda     $19
+        sta     $0170
+        rts
+L3_8502:
+        pha
+        lda     #$64
+        sta     $10
+        pla
+        jsr     L7_C10E
+        sta     $19
+        lda     #$0A
+        jsr     L7_C10B
+        rts
 
 ; ---- bank3.data_8513 (data) $8513-$8515, 3 bytes
 ; The TGL password constant
@@ -900,19 +972,22 @@ L3_8768:
 L3_876A:
         sta     $0204
         bne     L3_8747
+L3_876F:
         jsr     L3_8783
+L3_8772:
         jsr     L7_C06F
 
 ; ---- bank3.inline_8775 (text) $8775-$8781, 13 bytes
 ; "WRONG WORD" at $8775
         .byte   $0A,$21,$8A,$57,$52,$4F,$4E,$47,$20,$57,$4F,$52,$44
 
-; ---- bank3.code_8782 (code) $8782-$87B4, 51 bytes
+; ---- bank3.code_8782 (code) $8782-$87CC, 75 bytes
         rts
 L3_8783:
         lda     #$21
         sta     $19
         lda     #$88
+L3_8789:
         sta     $18
         ldx     #$0E
         ldy     #$00
@@ -937,16 +1012,50 @@ L3_879E:
 L3_87B0:
         ldy     #$03
         jmp     L3_8BB3
+L3_87B5:
+        jsr     L3_8B7E
+        lda     #$21
+        sta     $19
+        lda     #$48
+        sta     $18
+        ldx     #$0E
+        ldy     #$07
+        jsr     L3_8BB3
+        jsr     L3_8772
+        jsr     L7_C06F
 
-; ---- UNCLAIMED (gap) $87B5-$880E, 90 bytes
-        .byte   $20,$7E,$8B,$A9,$21,$85,$19,$A9,$48,$85,$18,$A2,$0E,$A0,$07,$20
-        .byte   $B3,$8B,$20,$72,$87,$20,$6F,$C0,$09,$21,$CA,$54,$48,$45,$20,$41
-        .byte   $42,$4F,$56,$45,$20,$FB,$87,$A9,$20,$85,$19,$A9,$86,$85,$18,$A2
-        .byte   $00,$BD,$40,$07,$20,$81,$86,$E8,$E0,$20,$D0,$F5,$60,$A9,$22,$85
-        .byte   $19,$A9,$08,$20,$89,$87,$20,$6F,$C0,$0D,$22,$0A,$57,$4F,$52,$44
-        .byte   $20,$49,$53,$20,$52,$49,$47,$48,$54,$60
+; ---- bank3.inline_87CD (text) $87CD-$87D8, 12 bytes
+; "THE ABOVE" at $87CD
+        .byte   $09,$21,$CA,$54,$48,$45,$20,$41,$42,$4F,$56,$45
 
-; ---- bank3.code_880F (code) $880F-$8876, 104 bytes
+; ---- bank3.code_87D9 (code) $87D9-$87FD, 37 bytes
+        jsr     L3_87FB
+        lda     #$20
+        sta     $19
+        lda     #$86
+        sta     $18
+        ldx     #$00
+L3_87E6:
+        lda     $0740,X
+        jsr     L3_8681
+        inx
+        cpx     #$20
+        bne     L3_87E6
+        rts
+L3_87F2:
+        lda     #$22
+        sta     $19
+        lda     #$08
+        jsr     L3_8789
+L3_87FB:
+        jsr     L7_C06F
+
+; ---- bank3.inline_87FE (text) $87FE-$880D, 16 bytes
+; "WORD IS RIGHT" at $87FE
+        .byte   $0D,$22,$0A,$57,$4F,$52,$44,$20,$49,$53,$20,$52,$49,$47,$48,$54
+
+; ---- bank3.code_880E (code) $880E-$8876, 105 bytes
+        rts
 L3_880F:
         lda     $0207
         cmp     #$80

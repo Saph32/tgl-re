@@ -1,0 +1,27 @@
+{
+  "_comment": "Hand-authored. The ending picture and its palette in bank 2.",
+  "regions": [
+    {
+      "id": "bank2.data_8B05",
+      "offset": 35605,
+      "size": 130,
+      "kind": "level",
+      "name": "Ending picture: 10 x 13 tiles",
+      "confidence": "confirmed",
+      "cpu_addr": 35589,
+      "sha1": "d54be59fe87edf335a8780c07c09f4b9b537a55b",
+      "description": "Bank 2 $8AC0 sets $16/$17 = $8B05, PPU $21F1, width $15 = 10 and height $14 = 13, and calls $C07E ($D99C), which queues the rectangle row by row from ($16),Y: 10 x 13 = 130 bytes, exactly this stretch. Tiles $B0-$EE framed by $F4/$F5/$F6. The same routine then copies 88 bytes from $8B87 into OAM (22 sprites) and 25 from $8BDF into the palette, and far-calls bank 0's credits roll - so this is the picture shown with the ending. The picture has NOT been checked against a savestate: none was taken at the ending."
+    },
+    {
+      "id": "bank2.palette_8BDF",
+      "offset": 35823,
+      "size": 25,
+      "kind": "palette",
+      "name": "Ending palette: 25 bytes to $0180-$0198",
+      "confidence": "confirmed",
+      "cpu_addr": 35807,
+      "sha1": "d059787676749886fb1b591c54e3c016db984413",
+      "description": "$8AEC LDA $8BDF,Y / STA $0180,Y to CPY #$19: the backdrop and all eight palettes of the ending screen, copied straight into the staging area rather than through the palette table at bank 5 $B30A. 25 bytes, ending where the font begins at $8BF8."
+    }
+  ]
+}

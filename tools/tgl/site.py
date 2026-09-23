@@ -1691,10 +1691,17 @@ document.getElementById("selfcheck").innerHTML = bad
                  f'${r["cpu_addr"] + r["size"] - 1:04X} &middot; {r["size"]:,} bytes</p>')
         p.append(f'<p class="desc">{_h(r["description"])}</p></div>')
 
+    p.append('<div class="note"><strong>What the 24 bytes are.</strong> <code>$85B0</code> '
+             "copies buffer index <em>i</em> to <code>$0439 + i</code>, and bank 3 "
+             "<code>$8473</code> turns that into game state: indices 0-16 become "
+             "<code>$04A0-$04B0</code> &mdash; corridor flags, weapon levels, the Enemy Eraser "
+             "count and the keys; index 17 the maximum life (<code>$47</code>, high five bits); "
+             "18 and 19 attack and shield; 20 and 21 the score; 22 is the checksum; 23 is read "
+             "by nothing. <code>$83AE</code> runs the other way &mdash; the game&rsquo;s own "
+             "password generator.</div>")
     p.append('<div class="note warn"><strong>Not established.</strong> What '
-             "<code>$30 = 2</code> makes the game do. What the 24 decoded bytes mean "
-             "&mdash; which are area, which are weapons, which are chips. Why byte index "
-             "<code>$17</code> is exempt from the XOR. And whether a real in-game password "
+             "<code>$30 = 2</code> makes the game do. What <code>$04A0-$04A8</code> hold. Why "
+             "byte index <code>$17</code> is exempt from the XOR and never read. And whether a real in-game password "
              "round-trips: everything here is the ROM's arithmetic transcribed, checked "
              "against itself, never against a password a real save produced.</div>")
     return "".join(p)

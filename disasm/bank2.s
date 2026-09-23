@@ -1445,7 +1445,8 @@ L2_8AF7:
 ; Far-call argument at $8B02
         .byte   $00,$14,$80
 
-; ---- UNCLAIMED (gap) $8B05-$8B86, 130 bytes
+; ---- bank2.data_8B05 (level) $8B05-$8B86, 130 bytes
+; Ending picture: 10 x 13 tiles
         .byte   $F4,$F6,$F6,$F6,$F6,$F6,$F6,$F6,$F6,$F5,$F4,$20,$B0,$B1,$B2,$B3
         .byte   $B4,$20,$20,$F5,$F4,$20,$B5,$B6,$F7,$F7,$F8,$B7,$20,$F5,$F4,$20
         .byte   $B8,$B9,$BA,$BB,$F7,$BD,$20,$F5,$F4,$20,$BE,$BF,$C0,$C1,$BC,$C2
@@ -1465,7 +1466,8 @@ L2_8AF7:
         .byte   $78,$95,$01,$80,$60,$95,$01,$A8,$70,$95,$01,$B0,$50,$91,$01,$98
         .byte   $54,$95,$01,$C0,$58,$93,$01,$CC
 
-; ---- UNCLAIMED (gap) $8BDF-$8BF7, 25 bytes
+; ---- bank2.palette_8BDF (palette) $8BDF-$8BF7, 25 bytes
+; Ending palette: 25 bytes to $0180-$0198
         .byte   $0F,$30,$07,$15,$36,$06,$07,$36,$07,$15,$0F,$0F,$0F,$30,$15,$0F
         .byte   $21,$12,$02,$30,$26,$16,$30,$3C,$12
 

@@ -57,12 +57,33 @@ character and the letter A are both the byte 0 - the savestate shows the untouch
 all `$00`, and A's grid index is 0. So "TGL" followed by any number of A's is the same 32
 bytes as "TGL" followed by blanks, and the check cannot tell them apart.
 
+What the 24 bytes are
+---------------------
+Read off bank 3 ``$85B0``, which copies buffer index i to ``$0439 + i``, and ``$8473``,
+which the password screen's caller (``$8323``, only when ``$2F`` is non-zero) runs to turn
+it into game state:
+
+* **indices 0-16** -> ``$04A0-$04B0`` by ``LDY #$11 / LDA $0438,Y / STA $049F,Y``: the
+  corridor flags ``$04A9-$04AB``, the weapon levels ``$04AC-$04AE``, the Enemy Eraser count
+  ``$04AF`` and the keys ``$04B0`` among them; bit 7 of ``$04AE`` and ``$04B0`` is cleared.
+  The low four bits of ``$04A8`` become ``$46``, bit-reversed.
+* **index 17** -> high five bits to ``$47``, the maximum life (0 means 255); low three bits
+  to ``$6B``.
+* **index 18, 19** -> attack ``$4A`` and shield ``$4B``, through ``$8443``.
+* **index 20, 21** -> the six score digits ``$0170-$0175``, each byte split by ``$8502``
+  into hundreds, tens and units, with two more high bits each taken from ``$04AB``.
+* **index 22** is the checksum; **index 23**, the byte the XOR skips, is added into the
+  checksum and read by nothing in ``$8473``.
+
+``$83AE`` is the other direction - it copies ``$04A0-$04B0`` back into ``$0439`` and packs
+the rest - so bank 3 builds passwords as well as reading them.
+
 What is NOT established
 -----------------------
-What `$30 = 2` actually makes the game do beyond selecting a mode; the meaning of the 24
-decoded bytes (which ones are area, weapons, chips); why byte index `$17` is exempt from the
-XOR; and whether a real in-game password round-trips - `--selftest` only shows the encoder
-and decoder here agree with each other, which is self-consistency and not hardware.
+What ``$30 = 2`` actually makes the game do beyond selecting a mode; what ``$04A0-$04A8``,
+``$46`` and ``$6B`` hold; why index 23 is exempt from the XOR and unused; and whether a
+real in-game password round-trips - ``--selftest`` only shows the encoder and decoder here
+agree with each other, which is self-consistency and not hardware.
 """
 
 from __future__ import annotations

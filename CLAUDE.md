@@ -359,6 +359,12 @@ Do not re-derive these; do check anything that depends on them.
     random passwords; it still tests only self-consistency. The manual's handwritten
     passwords are too ambiguous to check the decoder: 6 of 1,536 readings pass, which is
     chance.
+  - **The payload, read off `$85B0` and `$8473`:** index i lands at `$0439 + i`; 0-16 →
+    `$04A0-$04B0` (corridor flags, weapon levels, Enemy Eraser count, keys), 17 → max life
+    `$47` (high 5 bits) and `$6B`, 18/19 → attack/shield, 20/21 → score, 22 checksum, 23
+    unread. `$83AE` is the encoder. `$8473` was untraced because the trace thought `$887F`
+    never returns — it leaves by `PLA / PLA / JMP $8516` (`returns_via_stack` in
+    `dispatch.json`).
   - `docs/password.html` carries the grid, a bit-packing diagram and a decoder transcribed
     into the page, which self-checks against vectors from `tgl/password.py` on load.
 - **Bank 6 is object behaviour, behind a SPLIT dispatch table.** `$8210` reads the object
