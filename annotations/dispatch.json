@@ -159,6 +159,22 @@
       "via": "$F7C6 JSR $D6AE, A = the script byte, taken only when CMP #$03 / BCS fails",
       "name": "enemy spawn script commands",
       "description": "Three entries, each a target minus one, inline after the JSR at $F7C6 in the spawn-script interpreter $F78F. THE COUNT COMES FROM THE CALLER: $F7C2 does CMP #$03 / BCS $F7F4, so only 0, 1 and 2 reach the table. Command 0 ($F7CF) loads the next byte into the wait counter $68; command 1 ($F7D9) loads a new script pointer into $66/$67; command 2 ($F7EB) clears bit 1 of $60, stopping the script. The table ends at $F7CE, where command 0's code begins - the structural bound agrees."
+    },
+    {
+      "cpu_addr": "$8653",
+      "bank": 6,
+      "entries": 12,
+      "via": "$8650 JSR $85F4 (ASL A / TAY, then the inline table), A = $3C, the selected weapon",
+      "name": "weapon object handlers A",
+      "description": "Twelve entries, each a target minus one, inline after the JSR at $8650; A is $3C, the weapon the status screen selects (0-12; 0 = none, whose entry is $C048, free the slot). THE COUNT IS STRUCTURAL: the gap is exactly 24 bytes between the JSR and traced code at $866B, so weapon 12 (the Enemy Eraser) has no entry here - it is presumably never routed this way; that is not established."
+    },
+    {
+      "cpu_addr": "$86E7",
+      "bank": 6,
+      "entries": 13,
+      "via": "$86E4 JSR $85F4, A = $3C, the selected weapon",
+      "name": "weapon object handlers B",
+      "description": "Thirteen entries, one per value of $3C, the selected weapon: the status screen's cursor ($8937) wraps it within 0-12 (CMP #$0D), so the caller bounds the table at 13. Entry 0 is $C048 (free the slot); 1-12 are MultiBullets ... Enemy Eraser by the manual's names (annotations/external.json)."
     }
   ],
   "unresolved": [

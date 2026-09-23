@@ -128,7 +128,8 @@ L6_80A6:
         sta     $0106,Y
         jmp     L7_C03F
 
-; ---- UNCLAIMED (gap) $80DF-$815C, 126 bytes
+; ---- bank6.tbl_80DF (pointer_table) $80DF-$815C, 126 bytes
+; Object dispatch, low bytes (types 1-126)
         .byte   $6D,$8F,$6A,$74,$6A,$88,$5E,$5E,$68,$47,$0B,$66,$47,$5B,$56,$1C
         .byte   $1C,$1C,$1C,$6D,$6D,$EE,$7E,$97,$97,$F9,$97,$F9,$09,$09,$09,$B7
         .byte   $35,$A5,$6F,$67,$67,$67,$C5,$71,$18,$CF,$7C,$41,$79,$79,$79,$2B
@@ -583,8 +584,10 @@ L6_84DB:
         lda     $8488,Y
 L6_84DE:
         sta     $0548,X
+L6_84E1:
         jsr     L7_C08D
         jsr     L7_C0B1
+L6_84E7:
         lda     $06E0,X
         clc
         adc     $06F8,X
@@ -886,73 +889,522 @@ L6_86D3:
 ; Table, 11 bytes
         .byte   $00,$02,$01,$00,$01,$00,$00,$00,$00,$02,$01
 
-; ---- UNCLAIMED (gap) $879A-$8B8E, 1013 bytes
-        .byte   $02,$26,$2A,$2B,$26,$AE,$A7,$26,$A6,$28,$2C,$2C,$00,$BD,$88,$07
-        .byte   $20,$02,$C1,$A9,$02,$20,$60,$88,$20,$B8,$87,$4C,$E1,$84,$A9,$80
-        .byte   $A0,$02,$20,$A5,$C0,$BD,$48,$05,$C9,$1A,$D0,$07,$B9,$DE,$87,$9D
-        .byte   $C8,$06,$60,$B9,$DF,$87,$9D,$C8,$06,$60,$20,$E1,$87,$20,$02,$C1
-        .byte   $A9,$01,$D0,$D1,$76,$78,$7C,$BD,$88,$07,$24,$30,$50,$05,$A9,$0C
-        .byte   $9D,$88,$07,$60,$20,$E1,$87,$E0,$04,$18,$D0,$04,$69,$0B,$90,$02
-        .byte   $69,$05,$29,$0F,$9D,$88,$07,$10,$12,$4C,$E1,$84,$24,$30,$50,$08
-        .byte   $A4,$32,$B9,$37,$88,$9D,$88,$07,$BD,$88,$07,$20,$02,$C1,$A5,$3D
-        .byte   $C9,$03,$90,$07,$A9,$76,$9D,$C8,$06,$D0,$0F,$BC,$88,$07,$B9,$40
-        .byte   $88,$9D,$48,$05,$B9,$50,$88,$9D,$60,$05,$4C,$E1,$84,$0B,$0B,$0B
-        .byte   $0C,$0C,$0C,$0D,$0D,$0D,$2C,$2C,$2D,$2E,$2E,$2E,$2D,$2C,$2C,$2C
-        .byte   $2D,$2E,$2E,$2E,$2D,$2C,$40,$40,$C0,$80,$80,$80,$80,$00,$00,$00
-        .byte   $00,$00,$00,$00,$40,$40,$C5,$3D,$B0,$05,$A9,$21,$9D,$48,$05,$60
-        .byte   $BD,$98,$06,$9D,$D0,$07,$A9,$02,$20,$60,$88,$AD,$30,$05,$9D,$30
-        .byte   $05,$AD,$18,$05,$24,$30,$50,$03,$38,$E9,$10,$9D,$18,$05,$20,$B8
-        .byte   $87,$BD,$A0,$07,$FE,$A0,$07,$BC,$D0,$07,$D0,$01,$0A,$29,$1F,$A8
-        .byte   $A5,$3C,$C9,$04,$F0,$17,$20,$F6,$C0,$C9,$80,$6A,$C9,$80,$6A,$85
-        .byte   $18,$20,$F9,$C0,$C9,$80,$6A,$C9,$80,$6A,$4C,$C5,$88,$20,$F6,$C0
-        .byte   $20,$CF,$88,$85,$18,$20,$F9,$C0,$20,$CF,$88,$85,$19,$20,$08,$89
-        .byte   $B0,$9D,$4C,$E7,$84,$C9,$80,$6A,$85,$10,$C9,$80,$6A,$18,$65,$10
-        .byte   $C9,$80,$6A,$60,$20,$E1,$87,$20,$02,$C1,$A9,$02,$20,$60,$88,$A4
-        .byte   $3D,$B9,$04,$89,$9D,$D0,$07,$BD,$48,$05,$85,$15,$A9,$00,$9D,$48
-        .byte   $05,$20,$8D,$C0,$A5,$15,$9D,$48,$05,$D0,$83,$01,$00,$00,$BD,$30
-        .byte   $05,$48,$18,$65,$19,$24,$19,$30,$04,$90,$04,$B0,$2A,$90,$28,$9D
-        .byte   $30,$05,$BD,$18,$05,$48,$18,$65,$18,$24,$18,$30,$04,$90,$04,$B0
-        .byte   $15,$90,$13,$9D,$18,$05,$20,$90,$C0,$20,$B1,$C0,$68,$9D,$18,$05
-        .byte   $68,$9D,$30,$05,$18,$60,$68,$68,$9D,$30,$05,$38,$60,$BD,$98,$06
-        .byte   $48,$A9,$02,$9D,$98,$06,$BD,$88,$07,$20,$02,$C1,$68,$9D,$98,$06
-        .byte   $A9,$FE,$9D,$68,$06,$18,$7D,$D8,$05,$9D,$D8,$05,$A9,$3C,$9D,$A0
-        .byte   $07,$A9,$37,$9D,$48,$05,$BD,$A0,$07,$F0,$35,$A9,$12,$20,$9C,$C0
-        .byte   $DE,$A0,$07,$F0,$1C,$A9,$60,$A0,$04,$20,$A5,$C0,$B9,$CC,$89,$9D
-        .byte   $C8,$06,$B9,$D0,$89,$9D,$60,$05,$20,$6D,$AF,$20,$57,$AF,$4C,$8D
-        .byte   $C0,$A9,$42,$20,$30,$C0,$A9,$7C,$9D,$C8,$06,$A9,$21,$9D,$48,$05
-        .byte   $DE,$98,$06,$D0,$03,$4C,$48,$C0,$BD,$98,$06,$A4,$3D,$39,$D3,$89
-        .byte   $0A,$79,$D6,$89,$A8,$B9,$DA,$89,$85,$19,$B9,$DB,$89,$85,$18,$4C
-        .byte   $C7,$88,$7A,$76,$78,$76,$00,$00,$00,$40,$03,$07,$0F,$00,$08,$08
+; ---- UNCLAIMED (gap) $879A-$87A6, 13 bytes
+        .byte   $02,$26,$2A,$2B,$26,$AE,$A7,$26,$A6,$28,$2C,$2C,$00
+
+; ---- bank6.code_87A7 (code) $87A7-$87DD, 55 bytes
+L6_87A7:
+        lda     $0788,X
+        jsr     L7_C102
+        lda     #$02
+L6_87AF:
+        jsr     L6_8860
+L6_87B2:
+        jsr     L6_87B8
+        jmp     L6_84E1
+L6_87B8:
+        lda     #$80
+        ldy     #$02
+        jsr     L7_C0A5
+        lda     $0548,X
+        cmp     #$1A
+        bne     L6_87CD
+        lda     $87DE,Y
+        sta     $06C8,X
+        rts
+L6_87CD:
+        lda     $87DF,Y
+        sta     $06C8,X
+        rts
+L6_87D4:
+        jsr     L6_87E1
+        jsr     L7_C102
+        lda     #$01
+        bne     L6_87AF
+
+; ---- UNCLAIMED (gap) $87DE-$87E0, 3 bytes
+        .byte   $76,$78,$7C
+
+; ---- bank6.code_87E1 (code) $87E1-$8836, 86 bytes
+L6_87E1:
+        lda     $0788,X
+L6_87E4:
+        bit     $30
+        bvc     L6_87ED
+        lda     #$0C
+        sta     $0788,X
+L6_87ED:
+        rts
+L6_87EE:
+        jsr     L6_87E1
+        cpx     #$04
+        clc
+        bne     L6_87FA
+        adc     #$0B
+        bcc     L6_87FC
+L6_87FA:
+        adc     #$05
+L6_87FC:
+        and     #$0F
+        sta     $0788,X
+        bpl     L6_8815
+L6_8803:
+        jmp     L6_84E1
+L6_8806:
+        bit     $30
+        bvc     L6_8812
+        ldy     $32
+        lda     $8837,Y
+        sta     $0788,X
+L6_8812:
+        lda     $0788,X
+L6_8815:
+        jsr     L7_C102
+        lda     $3D
+        cmp     #$03
+        bcc     L6_8825
+        lda     #$76
+        sta     $06C8,X
+        bne     L6_8834
+L6_8825:
+        ldy     $0788,X
+        lda     $8840,Y
+        sta     $0548,X
+        lda     $8850,Y
+        sta     $0560,X
+L6_8834:
+        jmp     L6_84E1
+
+; ---- UNCLAIMED (gap) $8837-$883F, 9 bytes
+        .byte   $0B,$0B,$0B,$0C,$0C,$0C,$0D,$0D,$0D
+
+; ---- bank6.tbl_8840 (data) $8840-$884F, 16 bytes
+; Table, 16 bytes
+        .byte   $2C,$2C,$2D,$2E,$2E,$2E,$2D,$2C,$2C,$2C,$2D,$2E,$2E,$2E,$2D,$2C
+
+; ---- UNCLAIMED (gap) $8850-$885F, 16 bytes
+        .byte   $40,$40,$C0,$80,$80,$80,$80,$00,$00,$00,$00,$00,$00,$00,$40,$40
+
+; ---- bank6.code_8860 (code) $8860-$89CB, 364 bytes
+L6_8860:
+        cmp     $3D
+        bcs     L6_8869
+        lda     #$21
+        sta     $0548,X
+L6_8869:
+        rts
+L6_886A:
+        lda     $0698,X
+        sta     $07D0,X
+        lda     #$02
+        jsr     L6_8860
+L6_8875:
+        lda     $0530
+        sta     $0530,X
+        lda     $0518
+        bit     $30
+        bvc     L6_8885
+        sec
+        sbc     #$10
+L6_8885:
+        sta     $0518,X
+L6_8888:
+        jsr     L6_87B8
+        lda     $07A0,X
+        inc     $07A0,X
+        ldy     $07D0,X
+        bne     L6_8897
+        asl     A
+L6_8897:
+        and     #$1F
+        tay
+        lda     $3C
+        cmp     #$04
+        beq     L6_88B7
+        jsr     L7_C0F6
+        cmp     #$80
+        ror     A
+        cmp     #$80
+        ror     A
+        sta     $18
+        jsr     L7_C0F9
+        cmp     #$80
+        ror     A
+        cmp     #$80
+        ror     A
+        jmp     L6_88C5
+L6_88B7:
+        jsr     L7_C0F6
+        jsr     L6_88CF
+        sta     $18
+        jsr     L7_C0F9
+        jsr     L6_88CF
+L6_88C5:
+        sta     $19
+L6_88C7:
+        jsr     L6_8908
+        bcs     L6_8869
+        jmp     L6_84E7
+L6_88CF:
+        cmp     #$80
+        ror     A
+        sta     $10
+        cmp     #$80
+        ror     A
+        clc
+        adc     $10
+        cmp     #$80
+        ror     A
+        rts
+L6_88DE:
+        jsr     L6_87E1
+        jsr     L7_C102
+        lda     #$02
+        jsr     L6_8860
+        ldy     $3D
+        lda     $8904,Y
+        sta     $07D0,X
+L6_88F1:
+        lda     $0548,X
+        sta     $15
+        lda     #$00
+        sta     $0548,X
+        jsr     L7_C08D
+        lda     $15
+        sta     $0548,X
+        bne     L6_8888
+        ora     ($00,X)
+        brk
+L6_8908:
+        lda     $0530,X
+        pha
+        clc
+        adc     $19
+        bit     $19
+        bmi     L6_8917
+        bcc     L6_8919
+        bcs     L6_8941
+L6_8917:
+        bcc     L6_8941
+L6_8919:
+        sta     $0530,X
+        lda     $0518,X
+        pha
+        clc
+        adc     $18
+        bit     $18
+        bmi     L6_892B
+        bcc     L6_892D
+        bcs     L6_8940
+L6_892B:
+        bcc     L6_8940
+L6_892D:
+        sta     $0518,X
+        jsr     L7_C090
+        jsr     L7_C0B1
+        pla
+        sta     $0518,X
+        pla
+        sta     $0530,X
+        clc
+        rts
+L6_8940:
+        pla
+L6_8941:
+        pla
+        sta     $0530,X
+        sec
+        rts
+L6_8947:
+        lda     $0698,X
+        pha
+        lda     #$02
+        sta     $0698,X
+        lda     $0788,X
+        jsr     L7_C102
+        pla
+        sta     $0698,X
+        lda     #$FE
+        sta     $0668,X
+        clc
+        adc     $05D8,X
+        sta     $05D8,X
+        lda     #$3C
+        sta     $07A0,X
+        lda     #$37
+        sta     $0548,X
+L6_8970:
+        lda     $07A0,X
+        beq     L6_89AA
+        lda     #$12
+        jsr     L7_C09C
+        dec     $07A0,X
+        beq     L6_899B
+        lda     #$60
+        ldy     #$04
+        jsr     L7_C0A5
+        lda     $89CC,Y
+        sta     $06C8,X
+        lda     $89D0,Y
+        sta     $0560,X
+        jsr     L6_AF6D
+        jsr     L6_AF57
+        jmp     L7_C08D
+L6_899B:
+        lda     #$42
+        jsr     L7_C030
+        lda     #$7C
+        sta     $06C8,X
+        lda     #$21
+        sta     $0548,X
+L6_89AA:
+        dec     $0698,X
+        bne     L6_89B2
+        jmp     L7_C048
+L6_89B2:
+        lda     $0698,X
+        ldy     $3D
+        and     $89D3,Y
+        asl     A
+        adc     $89D6,Y
+        tay
+        lda     $89DA,Y
+        sta     $19
+        lda     $89DB,Y
+        sta     $18
+        jmp     L6_88C7
+
+; ---- bank6.tbl_89CC (data) $89CC-$89CF, 4 bytes
+; Table, 4 bytes
+        .byte   $7A,$76,$78,$76
+
+; ---- UNCLAIMED (gap) $89D0-$89D5, 6 bytes
+        .byte   $00,$00,$00,$40,$03,$07
+
+; ---- bank6.tbl_89D6 (data) $89D6-$89D9, 4 bytes
+; Table, 4 bytes
+        .byte   $0F,$00,$08,$08
+
+; ---- UNCLAIMED (gap) $89DA-$8A01, 40 bytes
         .byte   $00,$00,$00,$EC,$F0,$08,$10,$08,$F4,$F4,$F4,$0C,$0C,$F4,$0C,$0C
         .byte   $E8,$E8,$E8,$18,$18,$E8,$18,$18,$D0,$00,$00,$D0,$30,$00,$00,$30
-        .byte   $E8,$00,$00,$E8,$18,$00,$00,$18,$E0,$03,$F0,$05,$A9,$02,$9D,$60
-        .byte   $05,$BD,$88,$07,$20,$02,$C1,$4C,$8C,$8A,$DE,$80,$06,$D0,$7B,$E0
-        .byte   $03,$D0,$04,$A0,$04,$D0,$02,$A0,$03,$B9,$00,$05,$C9,$83,$D0,$04
-        .byte   $B9,$A0,$07,$A8,$84,$11,$BC,$A0,$07,$D0,$02,$A0,$05,$84,$10,$B9
-        .byte   $00,$05,$10,$15,$C9,$B1,$90,$04,$C9,$B6,$90,$0D,$B9,$78,$05,$30
-        .byte   $08,$29,$04,$D0,$04,$C4,$11,$D0,$0D,$C8,$C0,$18,$90,$02,$A0,$05
-        .byte   $C4,$10,$D0,$DB,$A0,$00,$98,$9D,$A0,$07,$20,$14,$C1,$38,$FD,$88
-        .byte   $07,$F0,$14,$29,$0F,$C9,$08,$90,$0B,$D0,$04,$E0,$04,$90,$05,$DE
-        .byte   $88,$07,$B0,$03,$FE,$88,$07,$BD,$88,$07,$29,$0F,$9D,$88,$07,$20
-        .byte   $02,$C1,$A4,$3D,$B9,$96,$8A,$9D,$80,$06,$4C,$B2,$87,$08,$04,$01
-        .byte   $A9,$00,$9D,$68,$06,$A9,$81,$9D,$80,$06,$A4,$3D,$B9,$DD,$8A,$9D
-        .byte   $D8,$05,$B9,$E0,$8A,$9D,$C8,$06,$B9,$E3,$8A,$48,$8A,$A8,$68,$20
-        .byte   $3B,$C1,$A9,$03,$9D,$20,$06,$20,$41,$C1,$20,$29,$C1,$B0,$2C,$A9
-        .byte   $08,$9D,$78,$05,$A4,$3D,$B9,$E6,$8A,$25,$41,$D0,$06,$B9,$E9,$8A
-        .byte   $9D,$78,$05,$60,$FA,$F6,$F8,$76,$76,$02,$00,$03,$06,$01,$00,$00
-        .byte   $18,$38,$3C,$A5,$F7,$05,$F8,$29,$80,$D0,$03,$4C,$48,$C0,$AD,$30
-        .byte   $05,$9D,$30,$05,$AD,$18,$05,$9D,$18,$05,$AD,$68,$06,$20,$E4,$87
-        .byte   $A8,$A5,$3C,$C9,$0A,$F0,$0C,$98,$E9,$04,$E0,$04,$90,$02,$69,$07
-        .byte   $29,$0F,$A8,$B9,$6F,$8B,$85,$18,$B9,$73,$8B,$85,$19,$A5,$41,$29
-        .byte   $01,$F0,$04,$06,$19,$06,$18,$24,$30,$50,$0A,$C0,$0C,$D0,$06,$A5
-        .byte   $18,$E9,$08,$85,$18,$98,$4A,$29,$03,$A8,$B9,$83,$8B,$9D,$48,$05
-        .byte   $B9,$87,$8B,$9D,$C8,$06,$BD,$60,$05,$29,$03,$19,$8B,$8B,$9D,$60
-        .byte   $05,$AD,$A8,$05,$0A,$A4,$3D,$88,$F0,$05,$0A,$88,$F0,$01,$0A,$9D
-        .byte   $A8,$05,$4C,$C7,$88,$00,$06,$0B,$0F,$10,$0F,$0B,$06,$00,$FA,$F5
-        .byte   $F1,$F0,$F1,$F5,$FA,$00,$06,$0B,$0F,$1A,$79,$37,$79,$7C,$7A,$7E
-        .byte   $7A,$00,$80,$00,$00
+        .byte   $E8,$00,$00,$E8,$18,$00,$00,$18
 
-; ---- bank6.code_8B8F (code) $8B8F-$8B9E, 16 bytes
+; ---- bank6.code_8A02 (code) $8A02-$8A96, 149 bytes
+L6_8A02:
+        cpx     #$03
+        beq     L6_8A0B
+        lda     #$02
+        sta     $0560,X
+L6_8A0B:
+        lda     $0788,X
+        jsr     L7_C102
+        jmp     L6_8A8C
+L6_8A14:
+        dec     $0680,X
+        bne     L6_8A94
+        cpx     #$03
+        bne     L6_8A21
+        ldy     #$04
+        bne     L6_8A23
+L6_8A21:
+        ldy     #$03
+L6_8A23:
+        lda     $0500,Y
+        cmp     #$83
+        bne     L6_8A2E
+        lda     $07A0,Y
+        tay
+L6_8A2E:
+        sty     $11
+        ldy     $07A0,X
+        bne     L6_8A37
+        ldy     #$05
+L6_8A37:
+        sty     $10
+L6_8A39:
+        lda     $0500,Y
+        bpl     L6_8A53
+        cmp     #$B1
+        bcc     L6_8A46
+        cmp     #$B6
+        bcc     L6_8A53
+L6_8A46:
+        lda     $0578,Y
+        bmi     L6_8A53
+        and     #$04
+        bne     L6_8A53
+        cpy     $11
+        bne     L6_8A60
+L6_8A53:
+        iny
+        cpy     #$18
+        bcc     L6_8A5A
+        ldy     #$05
+L6_8A5A:
+        cpy     $10
+        bne     L6_8A39
+        ldy     #$00
+L6_8A60:
+        tya
+        sta     $07A0,X
+        jsr     L7_C114
+        sec
+        sbc     $0788,X
+        beq     L6_8A81
+        and     #$0F
+        cmp     #$08
+        bcc     L6_8A7E
+        bne     L6_8A79
+        cpx     #$04
+        bcc     L6_8A7E
+L6_8A79:
+        dec     $0788,X
+        bcs     L6_8A81
+L6_8A7E:
+        inc     $0788,X
+L6_8A81:
+        lda     $0788,X
+        and     #$0F
+        sta     $0788,X
+        jsr     L7_C102
+L6_8A8C:
+        ldy     $3D
+        lda     $8A96,Y
+        sta     $0680,X
+L6_8A94:
+        jmp     L6_87B2
+
+; ---- UNCLAIMED (gap) $8A97-$8A99, 3 bytes
+        .byte   $08,$04,$01
+
+; ---- bank6.code_8A9A (code) $8A9A-$8ADD, 68 bytes
+L6_8A9A:
+        lda     #$00
+        sta     $0668,X
+        lda     #$81
+        sta     $0680,X
+        ldy     $3D
+        lda     $8ADD,Y
+        sta     $05D8,X
+        lda     $8AE0,Y
+        sta     $06C8,X
+        lda     $8AE3,Y
+        pha
+        txa
+        tay
+        pla
+        jsr     L7_C13B
+        lda     #$03
+        sta     $0620,X
+        jsr     L7_C141
+L6_8AC4:
+        jsr     L7_C129
+        bcs     L6_8AF5
+        lda     #$08
+        sta     $0578,X
+        ldy     $3D
+        lda     $8AE6,Y
+        and     $41
+        bne     L6_8ADD
+        lda     $8AE9,Y
+        sta     $0578,X
+L6_8ADD:
+        rts
+
+; ---- UNCLAIMED (gap) $8ADE-$8AEC, 15 bytes
+        .byte   $FA,$F6,$F8,$76,$76,$02,$00,$03,$06,$01,$00,$00,$18,$38,$3C
+
+; ---- bank6.code_8AED (code) $8AED-$8B6E, 130 bytes
+L6_8AED:
+        lda     $F7
+        ora     $F8
+        and     #$80
+        bne     L6_8AF8
+L6_8AF5:
+        jmp     L7_C048
+L6_8AF8:
+        lda     $0530
+        sta     $0530,X
+        lda     $0518
+        sta     $0518,X
+        lda     $0668
+        jsr     L6_87E4
+        tay
+        lda     $3C
+        cmp     #$0A
+        beq     L6_8B1D
+        tya
+        sbc     #$04
+        cpx     #$04
+        bcc     L6_8B1A
+        adc     #$07
+L6_8B1A:
+        and     #$0F
+        tay
+L6_8B1D:
+        lda     $8B6F,Y
+        sta     $18
+        lda     $8B73,Y
+        sta     $19
+        lda     $41
+        and     #$01
+        beq     L6_8B31
+        asl     $19
+        asl     $18
+L6_8B31:
+        bit     $30
+        bvc     L6_8B3F
+        cpy     #$0C
+        bne     L6_8B3F
+        lda     $18
+        sbc     #$08
+        sta     $18
+L6_8B3F:
+        tya
+        lsr     A
+        and     #$03
+        tay
+        lda     $8B83,Y
+        sta     $0548,X
+        lda     $8B87,Y
+        sta     $06C8,X
+        lda     $0560,X
+        and     #$03
+        ora     $8B8B,Y
+        sta     $0560,X
+        lda     $05A8
+        asl     A
+        ldy     $3D
+        dey
+        beq     L6_8B69
+        asl     A
+        dey
+        beq     L6_8B69
+        asl     A
+L6_8B69:
+        sta     $05A8,X
+        jmp     L6_88C7
+
+; ---- bank6.tbl_8B6F (data) $8B6F-$8B72, 4 bytes
+; Table, 4 bytes
+        .byte   $00,$06,$0B,$0F
+
+; ---- UNCLAIMED (gap) $8B73-$8B82, 16 bytes
+        .byte   $10,$0F,$0B,$06,$00,$FA,$F5,$F1,$F0,$F1,$F5,$FA,$00,$06,$0B,$0F
+
+; ---- bank6.tbl_8B83 (data) $8B83-$8B86, 4 bytes
+; Table, 4 bytes
+        .byte   $1A,$79,$37,$79
+
+; ---- bank6.tbl_8B87 (data) $8B87-$8B8A, 4 bytes
+; Table, 4 bytes
+        .byte   $7C,$7A,$7E,$7A
+
+; ---- UNCLAIMED (gap) $8B8B-$8B8E, 4 bytes
+        .byte   $00,$80,$00,$00
+
+; ---- bank6.code_8B8F (code) $8B8F-$8C69, 219 bytes
 L6_8B8F:
         sta     $10
         lda     $4C
@@ -963,13 +1415,27 @@ L6_8B8F:
         dec     $4D
 L6_8B9C:
         jmp     L7_C05A
-
-; ---- UNCLAIMED (gap) $8B9F-$8BCD, 47 bytes
-        .byte   $A5,$F5,$05,$F6,$29,$80,$F0,$24,$A9,$2F,$20,$30,$C0,$A9,$30,$20
-        .byte   $CC,$C0,$A9,$2F,$20,$30,$C0,$A0,$06,$20,$21,$C0,$20,$CE,$8B,$A9
-        .byte   $0F,$20,$CC,$C0,$CE,$AF,$04,$C6,$3E,$20,$72,$C0,$4C,$48,$C0
-
-; ---- bank6.code_8BCE (code) $8BCE-$8C69, 156 bytes
+L6_8B9F:
+        lda     $F5
+        ora     $F6
+        and     #$80
+        beq     L6_8BCB
+        lda     #$2F
+        jsr     L7_C030
+        lda     #$30
+        jsr     L7_C0CC
+        lda     #$2F
+        jsr     L7_C030
+        ldy     #$06
+        jsr     L7_C021
+        jsr     L6_8BCE
+        lda     #$0F
+        jsr     L7_C0CC
+        dec     $04AF
+        dec     $3E
+        jsr     L7_C072
+L6_8BCB:
+        jmp     L7_C048
 L6_8BCE:
         ldy     #$05
 L6_8BD0:
@@ -5222,7 +5688,7 @@ L6_AF32:
 ; ---- UNCLAIMED (gap) $AF35-$AF38, 4 bytes
         .byte   $08,$04,$F8,$FC
 
-; ---- bank6.code_AF39 (code) $AF39-$AF56, 30 bytes
+; ---- bank6.code_AF39 (code) $AF39-$B021, 233 bytes
 L6_AF39:
         ldy     #$00
         jsr     L6_AD9A
@@ -5237,13 +5703,32 @@ L6_AF42:
         lda     #$02
         sta     $05D8,X
         rts
-
-; ---- UNCLAIMED (gap) $AF57-$AF81, 43 bytes
-        .byte   $BC,$30,$05,$BD,$08,$06,$30,$06,$C0,$F0,$90,$09,$B0,$04,$C0,$10
-        .byte   $B0,$03,$4C,$23,$C1,$60,$BC,$18,$05,$BD,$D8,$05,$30,$06,$C0,$B8
-        .byte   $90,$F3,$B0,$04,$C0,$10,$B0,$ED,$4C,$26,$C1
-
-; ---- bank6.code_AF82 (code) $AF82-$B021, 160 bytes
+L6_AF57:
+        ldy     $0530,X
+        lda     $0608,X
+        bmi     L6_AF65
+        cpy     #$F0
+        bcc     L6_AF6C
+        bcs     L6_AF69
+L6_AF65:
+        cpy     #$10
+        bcs     L6_AF6C
+L6_AF69:
+        jmp     L7_C123
+L6_AF6C:
+        rts
+L6_AF6D:
+        ldy     $0518,X
+        lda     $05D8,X
+        bmi     L6_AF7B
+        cpy     #$B8
+        bcc     L6_AF6C
+        bcs     L6_AF7F
+L6_AF7B:
+        cpy     #$10
+        bcs     L6_AF6C
+L6_AF7F:
+        jmp     L7_C126
 L6_AF82:
         lda     $0500,X
         bmi     L6_AFC7

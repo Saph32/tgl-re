@@ -51,6 +51,8 @@ What the model covers
   passes on this ROM.
 * **Complementary branch pairs.** `BNE x / BEQ y` back to back is an unconditional two-way,
   so the second branch's fall-through is unreachable - and in this ROM it is a data table.
+* **Branches decided by an immediate load.** `LDA #$01 / BNE` is an unconditional jump, so
+  its fall-through is not code; bank 6 `$87DA` and bank 5 `$85D8` hide tables behind one.
 * A small constant tracker for A, X and Y - immediates, the transfers between them, and
   `LDA $04`, which yields the live bank because $04 is the shadow every switch routine
   writes. PHA/PLA and PHP/PLP push and pop it, so the `PHA / JSR $D714 / ... / PLA /
@@ -97,6 +99,10 @@ BANK_SHADOW = 0x04          # RAM byte every switch routine writes with the live
 # them, producing a BPL into the middle of an instruction two bytes later.
 COMPLEMENT = {"BNE": "BEQ", "BEQ": "BNE", "BCC": "BCS", "BCS": "BCC",
               "BPL": "BMI", "BMI": "BPL", "BVC": "BVS", "BVS": "BVC"}
+
+# Whether a branch is taken, given the value an immediate load just put in the flags.
+IMM_DECIDES = {"BNE": lambda v: v != 0, "BEQ": lambda v: v == 0,
+               "BPL": lambda v: v < 0x80, "BMI": lambda v: v >= 0x80}
 
 _SIG_SWITCH_A = bytes.fromhex("8504 98 48 a404 b9f2ff 99f2ff 68 a8 60".replace(" ", ""))
 _SIG_FARCALL = bytes.fromhex(
@@ -226,6 +232,7 @@ class Trace:
         self.dispatched: list[dict] = []
         self.dispatch_tables: list[dict] = []
         self.unconditional_pairs: list[dict] = []
+        self.decided_branches: list[dict] = []
         self.nonreturn_sites: list[dict] = []
         self.farcall_targets: set[tuple] = set()
         self._last_nonreturning: set[tuple] = set()
@@ -512,6 +519,7 @@ class Trace:
 
     def _walk(self, live, addr, regs, astack) -> None:
         prev = None
+        prev_insn = None
         while True:
             key = (live, addr)
             if key in self.seen:
@@ -702,7 +710,19 @@ class Trace:
                                                  "target": target})
                     return
             elif insn.mnemonic in BRANCHES:
-                self._push(live, target, (a, x, y), astack)
+                # A branch straight after LDA/LDX/LDY #imm tests flags that constant set, so
+                # it is decided: LDA #$01 / BNE is an unconditional jump and the bytes after
+                # it are not code. Bank 6 $87DA and bank 5 $85D8 both do this with a data
+                # table behind the branch, and walking the fall-through decoded it.
+                decided = None
+                if prev_insn is not None and prev_insn.mode == "imm" and                         prev_insn.mnemonic in ("LDA", "LDX", "LDY") and                         insn.mnemonic in IMM_DECIDES:
+                    decided = IMM_DECIDES[insn.mnemonic](prev_insn.operand & 0xFF)
+                    self.decided_branches.append({"bank": bank, "addr": addr,
+                                                  "taken": decided})
+                if decided is not False:
+                    self._push(live, target, (a, x, y), astack)
+                if decided is True:
+                    return
                 if COMPLEMENT.get(prev) == insn.mnemonic:
                     self.unconditional_pairs.append({"bank": bank, "addr": addr,
                                                      "pair": f"{prev}/{insn.mnemonic}"})
@@ -720,6 +740,7 @@ class Trace:
 
             regs, astack = self._regs(insn, (a, x, y), astack, live)
             prev = insn.mnemonic
+            prev_insn = insn
             addr += insn.size
 
     def _inline_entry(self, live, target):

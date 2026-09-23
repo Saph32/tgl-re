@@ -290,7 +290,8 @@ L7_C171:
         .byte   $68,$68,$68,$70,$7E,$91,$9A,$9A,$9A,$9A,$A1,$B4,$D3,$EE,$F6,$11
         .byte   $1D,$30,$67,$A3,$D6,$E1,$E7,$02,$5B,$90,$C1,$D0
 
-; ---- UNCLAIMED (gap) $C319-$C3A5, 141 bytes
+; ---- bank7.tbl_C319 (pointer_table) $C319-$C3A5, 141 bytes
+; Metasprite pointers, high bytes
         .byte   $DC,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4,$C4
         .byte   $C4,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5
         .byte   $C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C6,$C6,$C6,$C6,$C6,$C6

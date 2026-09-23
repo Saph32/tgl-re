@@ -1,0 +1,27 @@
+{
+  "_comment": "Hand-authored. The halves of the two split pointer tables that no reader-bounded scan can claim.",
+  "regions": [
+    {
+      "id": "bank6.tbl_80DF",
+      "offset": 98543,
+      "size": 126,
+      "kind": "pointer_table",
+      "name": "Object dispatch, low bytes (types 1-126)",
+      "confidence": "confirmed",
+      "cpu_addr": 32991,
+      "sha1": "30ea23a01956a398dbe5bb89bb8e95296b4aabf8",
+      "description": "The low half of bank 6's split object-behaviour table: $821E does LDA $815D,Y / PHA / LDA $80DE,Y / PHA / RTS with Y = type AND $7F. Type 0 is filtered by BEQ at $8213, so $80DE - low[0] - is never read, and it is in fact the last byte of the traced code before it (the same overlap the metasprite table uses). Types 1-126 are here; type 127's low byte is $815D, the first byte of the high half, which is never read as high[0]. So this is 126 bytes between code and the high half. CORRECTION: CLAUDE.md said find-tables.py claimed both halves; it only ever claimed $815D - a reader-bounded table cannot bound the half that no later read follows."
+    },
+    {
+      "id": "bank7.tbl_C319",
+      "offset": 115497,
+      "size": 141,
+      "kind": "pointer_table",
+      "name": "Metasprite pointers, high bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 49945,
+      "sha1": "5ac1d95bbfd21952d400d78229099db76a2d592d",
+      "description": "The high half of the split metasprite table: $CC3C LDA $C319,Y with Y = the object's $0548 id. 141 entries, ending exactly where the first metasprite record begins at $C3A6 - the structural bound; no later read bounds it, which is why tools/find-tables.py claimed only the low half at $C28D. Its first byte is also low[140]; high[0] is never read because id 0 is filtered by BEQ $CC44. CORRECTION: CLAUDE.md described both halves as claimed; this one was not."
+    }
+  ]
+}
