@@ -42,6 +42,24 @@ creating a type-``$29`` spawner (bank 6 ``$9A19``) that makes ``count`` objects 
 another spawn; otherwise it is the wait before the next command, in units of 60 frames
 (``$69``) - or, in the scrolling areas, of events.
 
+The scrolling areas
+-------------------
+Three mechanisms, all found from bank 4's screen-data commands (``tools/tgl/screen.py``):
+
+* **Command 2 with bit 1 set** (``$E733``) loads ``$66``/``$67`` and sets ``$7F = 4``: it
+  starts a spawn script **in bank 4**, run by the same ``$F78F``. There the wait counts
+  frames in which ``$A0`` bit 2 is set - ``$E98F`` sets it when a new background row is
+  brought in and ``$E655`` clears it every frame - so area waves are keyed to how far the
+  screen has scrolled, not to time. Areas 1-21 name exactly one script each.
+* **Command 7** (``$E85E``) waits for any load in progress, then points ``$28``/``$29`` at a
+  graphics-load stream in bank 4 (``$7E = 4``): the art for that area's enemies.
+* **The terrain.** Each new row is 16 metatile ids copied into ``$04C0`` (``$E8AB``, from
+  command 1's table at ``$B4``; command 6's channels paint over it). Bank 5 ``$83B3`` draws a
+  metatile from 5 bytes - four tiles and a fifth byte it writes back into ``$04C0`` - and
+  ``$89FB`` then spawns an object for every cell whose fifth byte has a high nibble: the
+  type is entry (high nibble) of the list ``$803C`` names for ``$0478[low nibble]``. So
+  ground enemies are placed in the scenery itself.
+
 Graphics-load streams
 ---------------------
 ``[flags | slot][block][tile]``, bit 7 of the first byte ends the stream. ``$E99F`` evicts
@@ -85,13 +103,16 @@ def script_pointers(b5: bytes) -> list[int]:
     return [_w(b5, SCRIPT_PTRS + 2 * i) for i in range(SCRIPTS)]
 
 
-def walk_script(b5: bytes, p: int):
+def walk_script(b5: bytes, p: int, stop: int = 0xC000):
     """Events of one script, and the address after its last byte.
 
-    A jump ends the walk (its target is not followed). Returns (events, end, how)."""
+    A jump ends the walk (its target is not followed); so does reaching ``stop``, which
+    returns how = "overrun". Returns (events, end, how)."""
     s, ev = p, []
     B = lambda a: b5[a - 0x8000]
     while True:
+        if s >= stop:
+            return ev, stop, "overrun"
         c = B(s)
         s += 1
         if c == 0:
@@ -122,14 +143,54 @@ def walk_script(b5: bytes, p: int):
 
 
 def walk_gfx_stream(b5: bytes, p: int):
-    """[(slot, block, tile)] and the address after the stream."""
+    """[(slot, block, tile)] and the address after the stream.
+
+    Block 0 means "empty the slot, load nothing", and that record is TWO bytes: $E9F6
+    backs Y up to the record start and sets $27 to it plus $82 - bit 7 for "next record",
+    plus two. Such a record is returned with tile None."""
     out, s = [], p
     while True:
-        f, blk, tile = b5[s - 0x8000:s - 0x8000 + 3]
-        out.append((f & 0x0F, blk, tile))
-        s += 3
+        f, blk = b5[s - 0x8000], b5[s - 0x7FFF]
+        if blk == 0:
+            out.append((f & 0x0F, 0, None))
+            s += 2
+        else:
+            out.append((f & 0x0F, blk, b5[s - 0x7FFE]))
+            s += 3
         if f & 0x80:
             return out, s
+
+
+def area_spawns(bank4: bytes):
+    """{area: set of script pointers}, {area: set of graphics-stream pointers}, walking every
+    bank 4 block through its jumps with the area it belongs to."""
+    from tgl import screen as sc
+    B = lambda a: bank4[a - 0x8000]
+    W = lambda a: B(a) | B(a + 1) << 8
+    scripts, streams = {}, {}
+    work = [(p, i + sc.FIRST_AREA) for i, p in enumerate(sc.entry_pointers(bank4))]
+    seen = set()
+    while work:
+        p, area = work.pop()
+        if (p, area) in seen or not 0x8045 <= p < 0xC000:
+            continue
+        seen.add((p, area))
+        a = p + sc.TRIGGER_BYTES
+        while a < 0xC000 - 4:
+            c, n = B(a), sc.operand_len(bank4, a, area)
+            if c > 9 or n is None:
+                break
+            if c == 2 and B(a + 1) & 2:
+                scripts.setdefault(area, set()).add(W(a + 2))
+            if c == 7:
+                streams.setdefault(area, set()).add(W(a + 1))
+            if c in sc.JUMPS:
+                work.append((W(a + 1), area))
+            trig = None if c == 3 else W(a + 1 + n)
+            a += 1 + n + (0 if c == 3 else sc.TRIGGER_BYTES)
+            if c == 3 or trig >= sc.TERMINAL_TRIGGER:
+                break
+    return scripts, streams
 
 
 def block_source(block: int) -> tuple[int, int]:

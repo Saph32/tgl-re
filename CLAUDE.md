@@ -536,6 +536,23 @@ Do not re-derive these; do check anything that depends on them.
     shared-subroutine attributions); `parse-metasprites.py --verify` finds every
     multi-sprite object drawn that frame whole in the in-game savestate's OAM (3 of 3;
     the other three are not drawn that frame). `docs/enemies.html` draws them.
+  - **The scrolling areas** get enemies two ways. *Waves:* bank 4 command 2 with bit 1
+    set (`$E733`) starts a spawn script **in bank 4** (`$66`/`$67`, `$7F = 4`), same
+    interpreter, but a wait counts frames with `$A0` bit 2 set — `$E98F` sets it when a new
+    background row comes in, `$E655` clears it — so waves follow the scroll. Command 7
+    (`$E85E`) loads the area's art from bank 4 streams. *Ground objects:* each new row is 16
+    metatile ids in `$04C0` (`$E8AB`); bank 5 `$83B3` draws a metatile from 5 bytes and
+    writes the 5th back, and `$89FB` spawns from the `$803C` lists for any cell whose 5th
+    byte has a high nibble. **Checks:** areas 1-21 name one script each; 23 scripts and 27
+    streams are pairwise disjoint; all 5 jump-ending scripts loop into themselves; 139 of
+    144 (area, spawned type) pairs have their art in that area's streams. Area 16's script
+    runs into the next block (`$B011`) — end not established. `parse-enemies.py --areas`.
+  - **CORRECTION to bank 4:** the four "terminal triggers" ($1100, $270F, $3700, $3800) are
+    not trigger data. A block's last record has no trigger; `$E89D` reads the next two bytes
+    anyway, and three of the four are exactly the first bytes of a spawn script or graphics
+    stream. The walker no longer claims them, and bank 4 is now **100%** claimed.
+  - `find-tables.py` was nondeterministic (it iterated a set of tuples holding strings);
+    fixed by sorting.
   - **Tracer change:** `JSR $D705` with A unknown now continues in the fixed bank with the
     live bank unknown, instead of stopping. That traced `$E9AA-$EA67`, the loader.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
@@ -590,11 +607,13 @@ authoritative, up-to-date version of this list; what follows is what does not li
 1. **Name the enemy types.** A savestate with enemies on screen would tie types, via
    `$0500,X` and `$0548,X`, to what is visible; the per-type table is in
    `docs/enemies.html`.
-2. **The five spawn scripts that end on a jump**, and the scrolling areas' spawns — bank 4's
-   command stream presumably creates the area enemies; which command, not yet read.
+2. **The five bank 5 spawn scripts that end on a jump**, and area 16's, which runs into the
+   next block — the same shape of problem in both banks.
 3. **Bank 5 `$B379`'s six block pointers** — targets look like 2×2 tile groups.
 4. **The other four `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E`, `$C042`
    (`$C042` is now known: the codec's front end `$D7F9`).
-5. **Bound bank 4's referenced pool** — 7,639 bytes, 212 pointers in, extent only.
+5. **The rest of bank 4's pool** — spawn scripts and art streams are now carved out;
+   command 1's row tables (`$B4`) and command 4/6 targets are next. The metatile sets
+   (`$0460`, loaded at bank 5 `$AD2C`) would name the ground objects per area.
 6. **The labyrinth spawn lists** behind bank 5 `$803C` (`$AF61`, `$AF69`, `$AF71`).
 7. Start a RAM map. The object slot fields above are most of page 5.

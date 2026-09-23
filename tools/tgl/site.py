@@ -358,7 +358,7 @@ TOPICS = [
      "32 characters, six bits each, a running XOR key and a checksum \u2014 and a back door "
      "that skips all of it."),
     ("enemies.html", "Enemies",
-     lambda rs: [r for r in rs if r["id"] in ENEMY_REGIONS],
+     lambda rs: [r for r in rs if r.get("source") == ENEMY_SOURCE],
      "127 object types with hit points, attack and art; 47 spawn scripts; and the loader "
      "that decompresses enemy tiles as rooms are entered."),
     ("status.html", "Status screen",
@@ -368,22 +368,9 @@ TOPICS = [
 ]
 
 PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.text_8B80")
-ENEMY_REGIONS = ("bank5.tbl_803C",
-                 "bank5.tbl_82D9",
-                 "bank5.data_A497",
-                 "bank5.tbl_A4C7",
-                 "bank5.data_A525",
-                 "bank5.tbl_A68D",
-                 "bank5.tbl_A6A3",
-                 "bank5.data_A6CA",
-                 "bank7.tbl_C174",
-                 "bank7.tbl_C201",
-                 "bank7.tbl_CFC4",
-                 "bank7.tbl_D02C",
-                 "bank7.tbl_D0AB",
-                 "bank7.tbl_D12A",
-                 "bank7.tbl_D1A9",
-                 "bank7.tbl_D441")
+# Everything tools/parse-enemies.py generates. Selected by source file rather than a list
+# of ids, because the set grows whenever another spawn script or stream is found.
+ENEMY_SOURCE = "80-enemies.json"
 STATUS_REGIONS = ("bank5.map_8A6E", "bank5.tbl_8690", "bank5.tbl_85DA", "bank5.tbl_87E4",
                   "bank2.gfx_8E0C", "bank2.gfx_928C", "bank2.gfx_92AC", "bank3.tbl_817A",
                   "bank7.tbl_EFD8", "bank7.tbl_FDCA", "bank7.tbl_FDD7")
@@ -2111,6 +2098,62 @@ def _enemies_page(rm):
              "script's <code>02</code> and first byte. Either that wait never runs out in "
              "play, or this reading misses something. Marked <em>jump ?</em> above.</div>")
 
+    p.append("<h2>The scrolling areas</h2>")
+    p.append('<div class="note">Enemies in the 21 vertically scrolling areas come from two '
+             "places. <strong>Waves</strong>: bank 4's screen-data command 2, with bit 1 of its "
+             "operand set (<code>$E733</code>), points <code>$66</code>/<code>$67</code> at a "
+             "spawn script in bank 4 and sets <code>$7F = 4</code> &mdash; the same format and "
+             "the same interpreter as the labyrinth's, except that a wait counts frames in "
+             "which <code>$A0</code> bit 2 is set, which <code>$E98F</code> does when a new "
+             "background row comes in. So waves are keyed to <em>distance scrolled</em>, not "
+             "time. Command 7 (<code>$E85E</code>) loads the area's enemy art the same way "
+             "the labyrinth does, from bank 4. <strong>Ground objects</strong>: each new "
+             "row is 16 metatile ids in <code>$04C0</code> (<code>$E8AB</code>); bank 5 "
+             "<code>$83B3</code> draws each from five bytes and writes the fifth back, and "
+             "<code>$89FB</code> spawns an object for any cell whose fifth byte has a high "
+             "nibble, from the lists bank 5 <code>$803C</code> names &mdash; so turrets and "
+             "the like are placed in the scenery itself.</div>")
+    b4 = rm.prg_bank(4)
+    a_scripts, a_streams = enemy.area_spawns(b4)
+    from tgl import screen as sc
+    g4 = sc.walk(b4)
+    fences = sorted(set(g4["starts"]) | set(g4["pool"])
+                    | set().union(*a_scripts.values()) | set().union(*a_streams.values()))
+    rows = []
+    for area in range(1, 22):
+        for s in sorted(a_scripts.get(area, ())):
+            ev, _, how = enemy.walk_script(b4, s, stop=next((f for f in fences if f > s),
+                                                            0xC000))
+            kinds = []
+            for e in ev:
+                if e[0] in ("spawn", "formation") and e[1] not in kinds:
+                    kinds.append(e[1])
+            art = ""
+            for g in sorted(a_streams.get(area, ())):
+                for _, blk, _ in enemy.walk_gfx_stream(b4, g)[0]:
+                    if blk:
+                        art += f"<code>${blk:02X}</code> "
+            rows.append(f"<tr><td>{area}</td><td><code>${s:04X}</code></td>"
+                        f"<td>{len(ev)}</td><td>"
+                        + " ".join(f"<code>${k:02X}</code>" for k in kinds)
+                        + ("" if how == "end" else " <em>(loops)</em>" if how == "jump"
+                           else " <em>(runs on into other data)</em>")
+                        + f"</td><td>{art}</td></tr>")
+    p.append("<table><thead><tr><th>Area</th><th>Script</th><th>Steps</th>"
+             "<th>Types spawned, in order of first appearance</th><th>Blocks loaded</th>"
+             f"</tr></thead><tbody>{''.join(rows)}</tbody></table>")
+    p.append('<div class="note"><strong>The checks.</strong> Areas 1-21 name exactly one '
+             "script each; areas <em>n</em> and <em>n</em>+10 share graphics streams, the "
+             "same pairing the keys follow. The scripts and streams are pairwise disjoint, "
+             "and all five scripts that end on a jump jump back into themselves. "
+             "<strong>139 of 144</strong> (area, spawned type) pairs find the type's art block "
+             "in that area's own load streams; the five that do not may be relying on art "
+             "left loaded from before. <strong>Correction:</strong> the four huge "
+             "&ldquo;terminal triggers&rdquo; that end bank 4's blocks are not trigger data "
+             "&mdash; three are exactly the first two bytes of the spawn script or graphics "
+             "stream that follows. Area 16's script runs on into the next block after its "
+             "last wave; where it really ends is not established.</div>")
+
     p.append("<h2>Loading enemy art</h2>")
     p.append('<div class="note">Enemy tiles are decompressed into CHR RAM as a room is '
              "entered. A <em>load stream</em> is <code>[flags | slot][block][tile]</code> "
@@ -2137,7 +2180,7 @@ def _enemies_page(rm):
              f"<th>Tiles</th><th></th></tr></thead><tbody>{''.join(rows)}</tbody></table>")
 
     p.append("<h2>Regions</h2>")
-    for r in [x for x in rm.regions if x["id"] in ENEMY_REGIONS]:
+    for r in [x for x in rm.regions if x.get("source") == ENEMY_SOURCE]:
         p.append(f'<div class="card" id="{_h(r["id"])}">')
         p.append(f'<h3>{_h(r["name"])} '
                  f'<span class="tag" style="background:'
@@ -2164,7 +2207,7 @@ def build_site(rm, out: Path) -> list[str]:
         pages["sound.html"] = _sound_page(rm)
     if any(r["id"] in PASSWORD_REGIONS for r in rm.regions):
         pages["password.html"] = _password_page(rm)
-    if any(r["id"] in ENEMY_REGIONS for r in rm.regions):
+    if any(r.get("source") == ENEMY_SOURCE for r in rm.regions):
         pages["enemies.html"] = _enemies_page(rm)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
         pages["status.html"] = _status_page(rm)

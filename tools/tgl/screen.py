@@ -58,7 +58,12 @@ DISPATCH = 0xE6F3         # bank 7, ten handlers
 TRIGGER_BYTES = 2         # the [next trigger] suffix on every record
 AREA_21 = 0x15            # the area whose command 5 takes an operand
 
-# A trigger this large never fires, so the record carrying it is a block's last. The
+# A trigger this large never fires, so the record carrying it is a block's last.
+# CORRECTION: those four values are NOT trigger data. The interpreter reads two bytes after
+# the last record whatever they are, and three of the four - $1100 at $B165, $3800 at
+# $B48D, $3700 at $BFC2 - are exactly the first two bytes of a bank 4 spawn script or
+# graphics-load stream (tools/parse-enemies.py); the fourth, $270F at $81B2, is two bytes
+# before area 0's script. They never fire because they happen to be large. The
 # threshold is not a guess: across all 25 entry blocks the 476 triggers separate cleanly
 # into 209 distinct values at $0791 or below and exactly four above - $1100, $270F, $3700
 # and $3800 - with a gap of 2,415 between the two groups. Each of those four sits at the
@@ -216,10 +221,15 @@ def walk(bank4: bytes) -> dict:
                 stops.append((a, f"byte ${c:02X} is not a command"))
                 break
             size = 1 + n + (0 if c == 3 else TRIGGER_BYTES)
-            mark(a, size)
-            records.append((a, c, n))
             trig = (None if c == 3 else
                     _b(bank4, a + 1 + n) | (_b(bank4, a + 2 + n) << 8))
+            # A block's LAST record has no trigger of its own: $E89D reads the two bytes
+            # after it regardless, and they belong to whatever follows - three of the four
+            # are the first bytes of a spawn script or graphics stream. So they are not
+            # marked as this block's.
+            last = trig is not None and trig >= TERMINAL_TRIGGER
+            mark(a, size - (TRIGGER_BYTES if last else 0))
+            records.append((a, c, n))
             jt, pt = targets(bank4, a, area)
             for t in jt:
                 if 0x8045 <= t < 0xC000:

@@ -111,10 +111,12 @@ def candidates(rm):
         base = 0xC000 if b == 7 else 0x8000
         ops = sorted({op for op, _, _ in reads[b]})
         for i, op in enumerate(ops):
-            mine = [(a, m) for o2, a, m in reads[b] if o2 == op]
+            # Sorted: reads[b] is a set of tuples holding strings, whose iteration order
+            # changes with hash randomisation - unsorted, the output differed run to run.
+            mine = sorted((a, m) for o2, a, m in reads[b] if o2 == op)
             nxt = pair = None
             for op2 in ops[i + 1:]:
-                for a2, _ in [(a, m) for o2, a, m in reads[b] if o2 == op2]:
+                for a2, _ in sorted((a, m) for o2, a, m in reads[b] if o2 == op2):
                     if any(abs(a2 - a) <= NEAR for a, _ in mine):
                         nxt, pair = op2, a2
                         break

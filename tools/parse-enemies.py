@@ -55,6 +55,7 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--types", action="store_true")
     ap.add_argument("--scripts", action="store_true")
+    ap.add_argument("--areas", action="store_true", help="each area's scripts and streams")
     args = ap.parse_args()
 
     rm = load(ROOT, exclude={OUT.name})
@@ -86,6 +87,7 @@ def main() -> int:
         rs, e = enemy.walk_gfx_stream(b5, s)
         stream_bytes += e - s
         stream_ids |= {b for _, b, _ in rs}
+        rs = [r for r in rs if r[1]]
         for (_, b, t), (_, _, t2) in zip(rs, rs[1:]):
             pairs += 1
             ok_pairs += (t2 - t == ntiles(b))
@@ -121,6 +123,60 @@ def main() -> int:
           f"streams end at ${s_end:04X}" + ("  (exactly the code)" if s_end == SPECIAL_END
                                            else "  ** MISMATCH **"))
 
+    # 5. the scrolling areas
+    b4 = rm.prg_bank(4)
+    a_scripts, a_streams = enemy.area_spawns(b4)
+    all_s = sorted(set().union(*a_scripts.values()))
+    all_g = sorted(set().union(*a_streams.values()))
+    s_walk = {s: enemy.walk_script(b4, s) for s in all_s}
+    g_walk = {g: enemy.walk_gfx_stream(b4, g) for g in all_g}
+    # A script whose walk runs past the next structure something else names is cut there:
+    # the steps beyond it are that structure's bytes, and are either never reached (the
+    # area ends first) or this reading is incomplete. Reported, not claimed.
+    from tgl import screen as sc
+    g4 = sc.walk(b4)
+    fences = sorted(set(g4["starts"]) | set(g4["pool"]) | set(all_s) | set(all_g))
+    overrun = {}
+    for s in all_s:
+        ev, e, how = s_walk[s]
+        nxt = next((f for f in fences if f > s), 0xC000)
+        if e > nxt:
+            overrun[s] = nxt
+            s_walk[s] = enemy.walk_script(b4, s, stop=nxt)
+    one_each = all(len(a_scripts.get(a, ())) == 1 for a in range(1, 22))
+    loops = [s for s in all_s if s_walk[s][2] == "jump"]
+    loops_ok = all(s <= s_walk[s][0][-1][1] < s_walk[s][1] for s in loops)
+    a_pairs = a_ok = 0
+    for g in all_g:
+        rs = [r for r in g_walk[g][0] if r[1]]
+        for (_, b, t), (_, _, t2) in zip(rs, rs[1:]):
+            a_pairs += 1
+            a_ok += (t2 - t == ntiles(b))
+    need = have = 0
+    misses = []
+    for area, ss in sorted(a_scripts.items()):
+        loaded = {b for g in a_streams.get(area, ()) for _, b, _ in g_walk[g][0] if b}
+        for s in ss:
+            for ty in sorted({e[1] for e in s_walk[s][0] if e[0] in ("spawn", "formation")}):
+                gid = enemy.per_type(b7, ty)["gfx"]
+                if not gid or gid >= 0x80:
+                    continue
+                need += 1
+                if gid in loaded:
+                    have += 1
+                else:
+                    misses.append(f"area {area} type ${ty:02X} block ${gid:02X}")
+    spans = sorted([(s, s_walk[s][1]) for s in all_s] + [(g, g_walk[g][1]) for g in all_g])
+    disjoint = all(a2 >= b1 for (_, b1), (a2, _) in zip(spans, spans[1:]))
+    print(f"areas: {len(all_s)} spawn scripts (areas 1-21 one each: {one_each}), "
+          f"{len(all_g)} graphics streams, all in bank 4, pairwise disjoint: {disjoint}")
+    print(f"  {len(loops)} scripts end on a jump, every one back into itself: {loops_ok}")
+    print(f"  load streams pack exactly: {a_ok} of {a_pairs}")
+    print(f"  {len(overrun)} scripts run into the next named structure: "
+          + ", ".join(f"${s:04X} into ${n:04X}" for s, n in overrun.items()))
+    print(f"  {have} of {need} (area, spawned type) pairs have the type's art block loaded by "
+          f"that area's own streams; misses: {', '.join(misses)}")
+
     if args.types:
         print("\ntype flags  hp  atk  $0620 death  gfx")
         for t in range(1, 128):
@@ -128,6 +184,15 @@ def main() -> int:
             g = "" if v["gfx"] is None else f"${v['gfx']:02X}"
             print(f" ${t:02X}   ${v['flags']:02X} {v['hp']:4d} {v['attack']:4d}   "
                   f"${v['p620']:02X}   ${v['death']:02X}   {g}")
+    if args.areas:
+        for area in sorted(set(a_scripts) | set(a_streams)):
+            print(f"\n area {area}: streams "
+                  + " ".join(f"${g:04X}" for g in sorted(a_streams.get(area, ()))))
+            for s in sorted(a_scripts.get(area, ())):
+                print(f"   script ${s:04X}:")
+                for e in s_walk[s][0]:
+                    print("     " + " ".join(str(x) if not isinstance(x, int) or x < 10
+                                            else f"${x:02X}" for x in e))
     if args.scripts:
         for i, p in enumerate(ptrs, 1):
             print(f"\n script {i:2d}  ${p:04X}")
@@ -241,6 +306,33 @@ def main() -> int:
                     "the records at $A6A3. They tile this stretch exactly and end on the "
                     "code at $A6EB; the tile positions inside them pack block by block like "
                     "the default stream's."))
+    by_script = {s: sorted(a for a, v in a_scripts.items() if s in v) for s in all_s}
+    by_stream = {g: sorted(a for a, v in a_streams.items() if g in v) for g in all_g}
+    for s in all_s:
+        ev, e, how = s_walk[s]
+        kinds = sorted({x[1] for x in ev if x[0] in ("spawn", "formation")})
+        R.append(region(4, "data", s, e - s, "data",
+                        f"Area spawn script: area {', '.join(map(str, by_script[s]))}",
+                        "Started by screen-data command 2 with bit 1 set ($E733: pointer to "
+                        "$66/$67, $7F = 4) and run by bank 7 $F78F, the same interpreter as the "
+                        "labyrinth's. Here a wait counts frames in which $A0 bit 2 is set - a "
+                        "new background row came in - so the waves follow the scroll. "
+                        f"{len(ev)} steps spawning types "
+                        + ", ".join(f"${k:02X}" for k in kinds)
+                        + (". Ends with a jump back into itself, a loop." if how == "jump"
+                           else f". NOT ESTABLISHED WHERE IT ENDS: its last steps run into "
+                           f"${e:04X}, which is named separately, so the claim stops there."
+                           if how == "overrun" else ". Ends with command 2.")
+                        + " tools/parse-enemies.py --areas decodes it."))
+    for g in all_g:
+        rs, e = g_walk[g]
+        R.append(region(4, "data", g, e - g, "data",
+                        f"Area graphics stream: area {', '.join(map(str, by_stream[g]))}",
+                        "Started by screen-data command 7 ($E85E: waits for $27 to clear, "
+                        "then $28/$29 and $7E = 4) and loaded by $E99F. Records: "
+                        + "; ".join(f"slot {sl} empty" if not b else
+                                    f"slot {sl} block ${b:02X} at tile ${tl:02X}"
+                                    for sl, b, tl in rs) + "."))
     doc = {"_comment": "GENERATED by tools/parse-enemies.py - do not hand-edit. Enemy "
                        "per-type tables, spawn scripts and graphics-load streams.",
            "regions": sorted(R, key=lambda r: r["offset"])}

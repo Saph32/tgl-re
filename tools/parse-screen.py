@@ -162,6 +162,21 @@ def main() -> int:
                                s="" if blocks == 1 else "s", n=len(recs)),
             "confirmed")
     poolptrs = sorted(g["pool"])
+    # Other files claim structures INSIDE the pool (bank 4's spawn scripts and graphics
+    # streams, tools/parse-enemies.py), so a pool run is cut around them rather than
+    # dropped whole the way add() drops a run that touches a claimed byte.
+    base4 = prg + 4 * bsz
+    split = []
+    for a, b in pool:
+        s = None
+        for o in range(a, b + 1):
+            free = o < b and not claimed[base4 + o]
+            if free and s is None:
+                s = o
+            elif not free and s is not None:
+                split.append((s, o))
+                s = None
+    pool = split
     for a, b in pool:
         inside = [p for p in poolptrs if a <= p - 0x8000 < b]
         if not inside:
