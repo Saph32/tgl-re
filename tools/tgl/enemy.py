@@ -29,6 +29,10 @@ Read by ``$CFA0`` into the slot, one ``LDA table,Y`` each, six bytes apart:
   ``CMP #$0E / BCC`` returns 0 below). ``$CF5F`` looks it up in the loaded list ``$0480``
   and makes the object wait until it is there; ``$0490`` gives the tile it was loaded at.
   Negative means "per object", from ``$07B8,X``. 104 bytes, ``$0E-$75``, ending at ``$D02C``.
+* ``$E00D`` - **score class** per type (bank 7 ``$DFB1``, with the dead object's type saved in
+  ``$0740,X`` by ``$D32A``; negative = per object, ``$07D0,X``). ``$DFCF`` adds the six
+  decimal digits at ``$E08C + 6 * class + 1`` into the score at ``$0170-$0175``, capping at
+  999999. Classes 0-17 run from 0 to 4000.
 * ``$C174`` / ``$C201`` - hitbox half-width and half-height, indexed by **metasprite id**
   (``$0548``), not type: ``$D229`` sets ``$06E0``-``$0728`` to position +/- these.
 
@@ -78,6 +82,8 @@ TYPE_TABLES = [
     (0xD1A9, 128, "$0620", "drawing flags"),
 ]
 DEATH = 0xD441          # 128
+SCORE_CLASS = 0xE00D    # 128; type 127's is $E08C, the unread first byte of the digits
+SCORE_DIGITS = 0xE08C   # class c: six BCD digits at +6c+1 .. +6c+6
 GFX = 0xCFB6            # indexed by type; types $0E-$75 -> $CFC4-$D02B
 GFX_FIRST, GFX_LAST = 0x0E, 0x75
 HALF_W, HALF_H = 0xC174, 0xC201   # by metasprite id
@@ -95,8 +101,16 @@ def _w(b: bytes, a: int) -> int:
 def per_type(b7: bytes, ty: int) -> dict:
     t = lambda a: b7[a - 0xC000 + ty]
     return {"flags": t(0xD02C), "hp": t(0xD0AB), "attack": t(0xD12A), "p620": t(0xD1A9),
-            "death": t(DEATH),
+            "death": t(DEATH), "score_class": t(SCORE_CLASS),
             "gfx": t(GFX) if GFX_FIRST <= ty <= GFX_LAST else None}
+
+
+def score(b7: bytes, cls: int) -> int | None:
+    """Points for a score class, or None for a per-object class."""
+    if cls >= 0x80:
+        return None
+    a = SCORE_DIGITS + 6 * cls + 1 - 0xC000
+    return int("".join(str(d) for d in b7[a:a + 6]))
 
 
 def script_pointers(b5: bytes) -> list[int]:

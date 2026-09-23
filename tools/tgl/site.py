@@ -2059,7 +2059,8 @@ def _enemies_page(rm):
 
     p.append("<h2>Every type</h2>")
     p.append('<p class="sub">From <code>$D02C</code> (flags), <code>$D0AB</code> (HP), '
-             "<code>$D12A</code> (attack), <code>$D441</code> (death) and <code>$CFC4</code> "
+             "<code>$D12A</code> (attack), <code>$E00D</code>/<code>$E08C</code> (score), "
+             "<code>$D441</code> (death) and <code>$CFC4</code> "
              "(art). The art is the tile block the type names, decoded with the codec &mdash; "
              "the tiles, not assembled into a sprite. &ldquo;In scripts&rdquo; counts the "
              "spawn scripts that create the type.</p>")
@@ -2083,12 +2084,15 @@ def _enemies_page(rm):
                 f'<code>${ptr:04X}</code></span><br>' + _tiles_svg(tiles, per_row=16, px=14))
         elif v["gfx"] is not None and v["gfx"] >= 0x80:
             art = '<span class="meta">per object (<code>$07B8,X</code>)</span>'
+        pts = enemy.score(b7, v["score_class"])
         rows.append(f'<tr><td><code>${t:02X}</code></td><td class="mono">{v["hp"]}</td>'
+                    f'<td class="mono">{"per object" if pts is None else pts}</td>'
                     f'<td class="mono">{v["attack"]}</td>'
                     f'<td><code>${v["flags"]:02X}</code></td>'
                     f'<td><code>${v["death"]:02X}</code></td>'
                     f'<td class="mono">{spawned.get(t, "")}</td><td>{art}</td></tr>')
     p.append('<div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>HP</th>'
+             "<th>Score</th>"
              "<th>Attack</th><th>Flags</th><th>Death</th><th>In scripts</th><th>Assembled, and the block it comes from</th>"
              f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>")
     p.append('<div class="note"><strong>Assembled from the ROM, and checked.</strong> Each '

@@ -183,7 +183,8 @@ def main() -> int:
             v = enemy.per_type(b7, t)
             g = "" if v["gfx"] is None else f"${v['gfx']:02X}"
             print(f" ${t:02X}   ${v['flags']:02X} {v['hp']:4d} {v['attack']:4d}   "
-                  f"${v['p620']:02X}   ${v['death']:02X}   {g}")
+                  f"${v['p620']:02X}   ${v['death']:02X}   {g:4s} "
+                  f"{enemy.score(b7, v['score_class'])}")
     if args.areas:
         for area in sorted(set(a_scripts) | set(a_streams)):
             print(f"\n area {area}: streams "
@@ -243,6 +244,23 @@ def main() -> int:
                     "then gives the tile the block was loaded at. THE CHECK: all "
                     f"{len(type_ids)} distinct ids name a real tile block when routed the "
                     "way $EA58 routes them (below $40 bank 3, else bank 2 id - $30)."))
+    classes = [b7[0xE00D - 0xC000 + ty] for ty in range(128)]
+    top = max(c for c in classes if c < 0x80)
+    R.append(region(7, "tbl", 0xE00D, 128, "data", "Score class, by type",
+                    "$DFB1: LDY $0740,X (the dead object's type, saved by $D32A) / LDA $E00D,Y; "
+                    "negative means per object, from $07D0,X. $DFCF turns the class into six "
+                    "decimal digits at $E08C + 6 x class + 1 and adds them into the score at "
+                    f"$0170-$0175, capping at 999999. Classes 0-{top} occur, plus $FF. 128 "
+                    "entries: type 127's is the byte at $E08C, which is also the never-read "
+                    "first byte of the digit rows (class 0's digits start at $E08D) - the "
+                    "overlap trick the split tables use. Values: " + ", ".join(
+                        f"class {c} = {enemy.score(b7, c)}" for c in range(top + 1)) + "."))
+    R.append(region(7, "tbl", 0xE08D, 6 * (top + 1), "data",
+                    f"Score values: {top + 1} classes x 6 digits",
+                    "Six decimal digits per class, most significant first, read by $DFE3 "
+                    "LDA $E08C,Y with Y counting down from 6 x class + 6. The highest class any "
+                    f"type names is {top}, and {top + 1} x 6 bytes from $E08D end exactly at "
+                    "$E0F8, where the code resumes."))
     R.append(region(7, "tbl", 0xC201, 140, "data", "Hitbox half-height, by metasprite id",
                     "$D229: LDA $0548,X (the metasprite id) / TAY, then $0518 +/- $C201,Y "
                     "into $0728/$0710 - the vertical extent $D364 overlaps. 140 bytes, "

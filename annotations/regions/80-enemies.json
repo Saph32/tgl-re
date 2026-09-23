@@ -726,6 +726,28 @@
       "cpu_addr": 54337,
       "sha1": "529a405c19a6c65272a52d445626fc33d71f741c",
       "description": "$D32A: when $0590 reaches 0, LDA $D441,Y / STA $0500,X with Y = the type, after saving the old type in $0740. Mostly $08 and $07 - explosions. $D2F3 reads $D442 directly for the player (type 1). 128 bytes, ending at the code at $D4C1."
+    },
+    {
+      "id": "bank7.tbl_E00D",
+      "offset": 122909,
+      "size": 128,
+      "kind": "data",
+      "name": "Score class, by type",
+      "confidence": "confirmed",
+      "cpu_addr": 57357,
+      "sha1": "7552c97fcc1e7f03cf1dd3ca7cc4c29800acceea",
+      "description": "$DFB1: LDY $0740,X (the dead object's type, saved by $D32A) / LDA $E00D,Y; negative means per object, from $07D0,X. $DFCF turns the class into six decimal digits at $E08C + 6 x class + 1 and adds them into the score at $0170-$0175, capping at 999999. Classes 0-17 occur, plus $FF. 128 entries: type 127's is the byte at $E08C, which is also the never-read first byte of the digit rows (class 0's digits start at $E08D) - the overlap trick the split tables use. Values: class 0 = 0, class 1 = 1, class 2 = 6, class 3 = 10, class 4 = 17, class 5 = 20, class 6 = 30, class 7 = 50, class 8 = 80, class 9 = 100, class 10 = 200, class 11 = 400, class 12 = 800, class 13 = 1000, class 14 = 1500, class 15 = 2000, class 16 = 3000, class 17 = 4000."
+    },
+    {
+      "id": "bank7.tbl_E08D",
+      "offset": 123037,
+      "size": 108,
+      "kind": "data",
+      "name": "Score values: 18 classes x 6 digits",
+      "confidence": "confirmed",
+      "cpu_addr": 57485,
+      "sha1": "777c9bac809736bc649dd5dfe498d8990c91bea9",
+      "description": "Six decimal digits per class, most significant first, read by $DFE3 LDA $E08C,Y with Y counting down from 6 x class + 6. The highest class any type names is 17, and 18 x 6 bytes from $E08D end exactly at $E0F8, where the code resumes."
     }
   ]
 }
