@@ -318,14 +318,16 @@ L2_8291:
 ; Table, 8 bytes
         .byte   $04,$0C,$0B,$11,$08,$08,$0B,$0B
 
-; ---- UNCLAIMED (gap) $82A9-$82B0, 8 bytes
+; ---- bank2.tbl_82A9 (data) $82A9-$82B0, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $08,$04,$04,$04,$02,$02,$04,$04
 
 ; ---- bank2.tbl_82B1 (data) $82B1-$82B7, 7 bytes
 ; Table, 7 bytes
         .byte   $02,$A0,$B0,$7C,$00,$00,$A0
 
-; ---- UNCLAIMED (gap) $82B8-$82BF, 8 bytes
+; ---- bank2.tbl_82B8 (data) $82B8-$82BF, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $A0,$7C,$68,$7C,$00,$00,$68,$68
 
 ; ---- bank2.code_82C0 (code) $82C0-$8344, 133 bytes
@@ -522,7 +524,8 @@ L2_840D:
 ; Table, 6 bytes
         .byte   $61,$65,$66,$69,$6F,$74
 
-; ---- UNCLAIMED (gap) $8423-$8428, 6 bytes
+; ---- bank2.tbl_8423 (data) $8423-$8428, 6 bytes
+; Table, 6 bytes (structural extent)
         .byte   $08,$09,$0C,$0D,$0E,$0F
 
 ; ---- bank2.code_8429 (code) $8429-$8587, 351 bytes
@@ -1116,10 +1119,14 @@ L2_8894:
         sta     $0548
         jmp     L2_8966
 
-; ---- UNCLAIMED (gap) $88A6-$88CD, 40 bytes
-        .byte   $0D,$0C,$0C,$0B,$0A,$09,$08,$01,$02,$16,$1E,$15,$03,$19,$0F,$13
-        .byte   $1F,$07,$01,$17,$0B,$1B,$14,$12,$1D,$0C,$0D,$05,$1A,$10,$06,$09
-        .byte   $00,$0A,$0E,$08,$11,$04,$1C,$18
+; ---- bank2.tbl_88A6 (data) $88A6-$88AD, 8 bytes
+; Table, 8 bytes (structural extent)
+        .byte   $0D,$0C,$0C,$0B,$0A,$09,$08,$01
+
+; ---- bank2.tbl_88AE (data) $88AE-$88CD, 32 bytes
+; Table, 32 bytes (structural extent)
+        .byte   $02,$16,$1E,$15,$03,$19,$0F,$13,$1F,$07,$01,$17,$0B,$1B,$14,$12
+        .byte   $1D,$0C,$0D,$05,$1A,$10,$06,$09,$00,$0A,$0E,$08,$11,$04,$1C,$18
 
 ; ---- bank2.code_88CE (code) $88CE-$896C, 159 bytes
 L2_88CE:

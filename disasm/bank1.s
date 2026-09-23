@@ -196,8 +196,13 @@ L1_813E:
         bcc     L1_8136
         brk
 
-; ---- UNCLAIMED (gap) $816A-$8175, 12 bytes
-        .byte   $00,$01,$10,$00,$04,$00,$10,$04,$10,$10,$04,$FF
+; ---- bank1.tbl_816A (data) $816A-$816A, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $00
+
+; ---- bank1.tbl_816B (data) $816B-$8175, 11 bytes
+; Table, 11 bytes (structural extent)
+        .byte   $01,$10,$00,$04,$00,$10,$04,$10,$10,$04,$FF
 
 ; ---- bank1.code_8176 (code) $8176-$81CC, 87 bytes
 L1_8176:
@@ -293,7 +298,8 @@ L1_820B:
         sta     $0668,X
         rts
 
-; ---- UNCLAIMED (gap) $8219-$8220, 8 bytes
+; ---- bank1.tbl_8219 (data) $8219-$8220, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $32,$50,$64,$8C,$B4,$DC,$E6,$00
 
 ; ---- bank1.tbl_8221 (data) $8221-$8228, 8 bytes
@@ -491,7 +497,8 @@ L1_841A:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $8430-$843F, 16 bytes
+; ---- bank1.tbl_8430 (data) $8430-$843F, 16 bytes
+; Table, 16 bytes (structural extent)
         .byte   $77,$02,$74,$20,$33,$21,$34,$15,$72,$42,$31,$24,$01,$36,$12,$34
 
 ; ---- bank1.code_8440 (code) $8440-$8501, 194 bytes

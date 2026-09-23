@@ -150,7 +150,8 @@ L6_80A6:
         .byte   $B1,$AE,$9F,$AF,$B0,$BF,$B2,$B2,$B3,$AA,$AB,$AB,$B9,$B6,$B6,$B1
         .byte   $B2,$B3,$B6,$B9,$B9,$B4,$B4,$C0,$C0,$C0,$B9,$B7,$B5,$B7,$B8,$B8
 
-; ---- UNCLAIMED (gap) $81DD-$81F4, 24 bytes
+; ---- bank6.tbl_81DD (data) $81DD-$81F4, 24 bytes
+; Table, 24 bytes (structural extent)
         .byte   $00,$01,$02,$03,$04,$17,$16,$15,$14,$13,$12,$11,$10,$0F,$0E,$0D
         .byte   $0C,$0B,$0A,$09,$08,$07,$06,$05
 
@@ -473,7 +474,8 @@ L6_841A:
         sta     $0770,X
         rts
 
-; ---- UNCLAIMED (gap) $8425-$8434, 16 bytes
+; ---- bank6.tbl_8425 (data) $8425-$8434, 16 bytes
+; Table, 16 bytes (structural extent)
         .byte   $00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$01,$00
 
 ; ---- bank6.code_8435 (code) $8435-$8470, 60 bytes
@@ -535,14 +537,16 @@ L6_8475:
 ; ---- bank6.code_847B (code) $847B-$847B, 1 bytes
         rts
 
-; ---- UNCLAIMED (gap) $847C-$847F, 4 bytes
+; ---- bank6.tbl_847C (data) $847C-$847F, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $81,$43,$82,$83
 
 ; ---- bank6.tbl_8480 (data) $8480-$8487, 8 bytes
 ; Table, 8 bytes
         .byte   $25,$27,$29,$27,$25,$25,$25,$18
 
-; ---- UNCLAIMED (gap) $8488-$848F, 8 bytes
+; ---- bank6.tbl_8488 (data) $8488-$848F, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $25,$26,$28,$26,$25,$25,$25,$17
 
 ; ---- bank6.code_8490 (code) $8490-$8512, 131 bytes
@@ -611,7 +615,8 @@ L6_850A:
 L6_8512:
         rts
 
-; ---- UNCLAIMED (gap) $8513-$8522, 16 bytes
+; ---- bank6.tbl_8513 (data) $8513-$8522, 16 bytes
+; Table, 16 bytes (structural extent)
         .byte   $00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$00,$00,$00,$01,$00
 
 ; ---- bank6.code_8523 (code) $8523-$8652, 304 bytes
@@ -790,7 +795,8 @@ L6_864E:
         lda     $3C
         jsr     L6_85F4
 
-; ---- UNCLAIMED (gap) $8653-$866A, 24 bytes
+; ---- bank6.tbl_8653 (pointer_table) $8653-$866A, 24 bytes
+; Weapon object handlers A: 12 entries
         .byte   $47,$C0,$B1,$87,$02,$88,$33,$88,$74,$88,$6F,$89,$B1,$87,$13,$8A
         .byte   $F0,$88,$C3,$8A,$EC,$8A,$EC,$8A
 
@@ -855,31 +861,33 @@ L6_86D3:
         lda     $3C
         jsr     L6_85F4
 
-; ---- UNCLAIMED (gap) $86E7-$86F4, 14 bytes
-        .byte   $47,$C0,$A6,$87,$ED,$87,$05,$88,$69,$88,$46,$89,$D3,$87
+; ---- bank6.tbl_86E7 (pointer_table) $86E7-$8700, 26 bytes
+; Weapon object handlers B: 13 entries
+        .byte   $47,$C0,$A6,$87,$ED,$87,$05,$88,$69,$88,$46,$89,$D3,$87,$01,$8A
+        .byte   $DD,$88,$99,$8A,$EC,$8A,$EC,$8A,$9E,$8B
 
-; ---- bank6.tbl_86F5 (data) $86F5-$8715, 33 bytes
-; Table, 33 bytes
-        .byte   $01,$8A,$DD,$88,$99,$8A,$EC,$8A,$EC,$8A,$9E,$8B,$00,$00,$01,$00
-        .byte   $10,$10,$00,$04,$02,$00,$00,$00,$00,$02,$00,$20,$18,$00,$07,$04
+; ---- bank6.tbl_8701 (data) $8701-$8721, 33 bytes
+; Weapon attack by level (to $05A8)
+        .byte   $00,$00,$01,$00,$10,$10,$00,$04,$02,$00,$00,$00,$00,$02,$00,$20
+        .byte   $18,$00,$07,$04,$00,$00,$00,$00,$06,$00,$30,$20,$00,$0A,$10,$00
         .byte   $00
 
-; ---- bank6.tbl_8716 (data) $8716-$8736, 33 bytes
-; Table, 33 bytes
-        .byte   $00,$00,$00,$06,$00,$30,$20,$00,$0A,$10,$00,$00,$03,$02,$08,$00
-        .byte   $00,$80,$80,$00,$00,$00,$00,$10,$04,$20,$00,$00,$00,$F0,$00,$00
+; ---- bank6.tbl_8722 (data) $8722-$8742, 33 bytes
+; Weapon lifetime by level (to $07B8 / $0590)
+        .byte   $03,$02,$08,$00,$00,$80,$80,$00,$00,$00,$00,$10,$04,$20,$00,$00
+        .byte   $00,$F0,$00,$00,$00,$00,$30,$10,$00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00
 
-; ---- bank6.tbl_8737 (data) $8737-$8757, 33 bytes
-; Table, 33 bytes
-        .byte   $00,$30,$10,$00,$00,$00,$00,$00,$00,$00,$00,$00,$43,$06,$C1,$01
-        .byte   $0C,$02,$03,$01,$02,$00,$00,$82,$42,$85,$00,$1E,$41,$81,$01,$03
+; ---- bank6.tbl_8743 (data) $8743-$8763, 33 bytes
+; Weapon value by level (to $0698)
+        .byte   $43,$06,$C1,$01,$0C,$02,$03,$01,$02,$00,$00,$82,$42,$85,$00,$1E
+        .byte   $41,$81,$01,$03,$00,$00,$83,$43,$C2,$00,$3C,$06,$82,$01,$03,$00
         .byte   $00
 
-; ---- UNCLAIMED (gap) $8758-$8783, 44 bytes
-        .byte   $00,$83,$43,$C2,$00,$3C,$06,$82,$01,$03,$00,$00,$30,$10,$10,$14
-        .byte   $30,$30,$30,$10,$18,$30,$30,$30,$10,$30,$14,$30,$34,$30,$30,$38
-        .byte   $30,$30,$30,$10,$34,$14,$34,$34,$34,$34,$3C,$34
+; ---- bank6.tbl_8764 (data) $8764-$8783, 32 bytes
+; Weapon collision flags by level (to $0578)
+        .byte   $30,$10,$10,$14,$30,$30,$30,$10,$18,$30,$30,$30,$10,$30,$14,$30
+        .byte   $34,$30,$30,$38,$30,$30,$30,$10,$34,$14,$34,$34,$34,$34,$3C,$34
 
 ; ---- bank6.tbl_8784 (data) $8784-$878E, 11 bytes
 ; Table, 11 bytes
@@ -889,7 +897,8 @@ L6_86D3:
 ; Table, 11 bytes
         .byte   $00,$02,$01,$00,$01,$00,$00,$00,$00,$02,$01
 
-; ---- UNCLAIMED (gap) $879A-$87A6, 13 bytes
+; ---- bank6.tbl_879A (data) $879A-$87A6, 13 bytes
+; Table, 13 bytes (structural extent)
         .byte   $02,$26,$2A,$2B,$26,$AE,$A7,$26,$A6,$28,$2C,$2C,$00
 
 ; ---- bank6.code_87A7 (code) $87A7-$87DD, 55 bytes
@@ -922,8 +931,13 @@ L6_87D4:
         lda     #$01
         bne     L6_87AF
 
-; ---- UNCLAIMED (gap) $87DE-$87E0, 3 bytes
-        .byte   $76,$78,$7C
+; ---- bank6.tbl_87DE (data) $87DE-$87DE, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $76
+
+; ---- bank6.tbl_87DF (data) $87DF-$87E0, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $78,$7C
 
 ; ---- bank6.code_87E1 (code) $87E1-$8836, 86 bytes
 L6_87E1:
@@ -975,14 +989,16 @@ L6_8825:
 L6_8834:
         jmp     L6_84E1
 
-; ---- UNCLAIMED (gap) $8837-$883F, 9 bytes
+; ---- bank6.tbl_8837 (data) $8837-$883F, 9 bytes
+; Table, 9 bytes (structural extent)
         .byte   $0B,$0B,$0B,$0C,$0C,$0C,$0D,$0D,$0D
 
 ; ---- bank6.tbl_8840 (data) $8840-$884F, 16 bytes
 ; Table, 16 bytes
         .byte   $2C,$2C,$2D,$2E,$2E,$2E,$2D,$2C,$2C,$2C,$2D,$2E,$2E,$2E,$2D,$2C
 
-; ---- UNCLAIMED (gap) $8850-$885F, 16 bytes
+; ---- bank6.tbl_8850 (data) $8850-$885F, 16 bytes
+; Table, 16 bytes (structural extent)
         .byte   $40,$40,$C0,$80,$80,$80,$80,$00,$00,$00,$00,$00,$00,$00,$40,$40
 
 ; ---- bank6.code_8860 (code) $8860-$89CB, 364 bytes
@@ -1178,17 +1194,27 @@ L6_89B2:
 ; Table, 4 bytes
         .byte   $7A,$76,$78,$76
 
-; ---- UNCLAIMED (gap) $89D0-$89D5, 6 bytes
-        .byte   $00,$00,$00,$40,$03,$07
+; ---- bank6.tbl_89D0 (data) $89D0-$89D2, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $00,$00,$00
+
+; ---- bank6.tbl_89D3 (data) $89D3-$89D5, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $40,$03,$07
 
 ; ---- bank6.tbl_89D6 (data) $89D6-$89D9, 4 bytes
 ; Table, 4 bytes
         .byte   $0F,$00,$08,$08
 
-; ---- UNCLAIMED (gap) $89DA-$8A01, 40 bytes
-        .byte   $00,$00,$00,$EC,$F0,$08,$10,$08,$F4,$F4,$F4,$0C,$0C,$F4,$0C,$0C
-        .byte   $E8,$E8,$E8,$18,$18,$E8,$18,$18,$D0,$00,$00,$D0,$30,$00,$00,$30
-        .byte   $E8,$00,$00,$E8,$18,$00,$00,$18
+; ---- bank6.tbl_89DA (data) $89DA-$89DA, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $00
+
+; ---- bank6.tbl_89DB (data) $89DB-$8A01, 39 bytes
+; Table, 39 bytes (structural extent)
+        .byte   $00,$00,$EC,$F0,$08,$10,$08,$F4,$F4,$F4,$0C,$0C,$F4,$0C,$0C,$E8
+        .byte   $E8,$E8,$18,$18,$E8,$18,$18,$D0,$00,$00,$D0,$30,$00,$00,$30,$E8
+        .byte   $00,$00,$E8,$18,$00,$00,$18
 
 ; ---- bank6.code_8A02 (code) $8A02-$8A96, 149 bytes
 L6_8A02:
@@ -1390,7 +1416,8 @@ L6_8B69:
 ; Table, 4 bytes
         .byte   $00,$06,$0B,$0F
 
-; ---- UNCLAIMED (gap) $8B73-$8B82, 16 bytes
+; ---- bank6.tbl_8B73 (data) $8B73-$8B82, 16 bytes
+; Table, 16 bytes (structural extent)
         .byte   $10,$0F,$0B,$06,$00,$FA,$F5,$F1,$F0,$F1,$F5,$FA,$00,$06,$0B,$0F
 
 ; ---- bank6.tbl_8B83 (data) $8B83-$8B86, 4 bytes
@@ -1401,7 +1428,8 @@ L6_8B69:
 ; Table, 4 bytes
         .byte   $7C,$7A,$7E,$7A
 
-; ---- UNCLAIMED (gap) $8B8B-$8B8E, 4 bytes
+; ---- bank6.tbl_8B8B (data) $8B8B-$8B8E, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$80,$00,$00
 
 ; ---- bank6.code_8B8F (code) $8B8F-$8C69, 219 bytes
@@ -1516,7 +1544,8 @@ L6_8C50:
 ; Table, 7 bytes
         .byte   $00,$40,$40,$40,$00,$00,$00
 
-; ---- UNCLAIMED (gap) $8C78-$8C7E, 7 bytes
+; ---- bank6.tbl_8C78 (data) $8C78-$8C7E, 7 bytes
+; Table, 7 bytes (structural extent)
         .byte   $0C,$08,$04,$00,$00,$04,$08
 
 ; ---- bank6.code_8C7F (code) $8C7F-$8D67, 233 bytes
@@ -1736,8 +1765,17 @@ L6_8E56:
         jsr     L7_C0C9
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $8E5F-$8E67, 9 bytes
-        .byte   $80,$80,$81,$1E,$16,$00,$00,$04,$0C
+; ---- bank6.tbl_8E5F (data) $8E5F-$8E61, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $80,$80,$81
+
+; ---- bank6.tbl_8E62 (data) $8E62-$8E64, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $1E,$16,$00
+
+; ---- bank6.tbl_8E65 (data) $8E65-$8E67, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $00,$04,$0C
 
 ; ---- bank6.code_8E68 (code) $8E68-$9030, 457 bytes
 L6_8E68:
@@ -2116,9 +2154,13 @@ L6_9170:
 ; Table, 5 bytes
         .byte   $40,$40,$00,$00,$00
 
-; ---- UNCLAIMED (gap) $9176-$9187, 18 bytes
-        .byte   $22,$23,$24,$23,$22,$14,$0C,$FC,$F4,$EC,$00,$01,$02,$03,$04,$03
-        .byte   $02,$01
+; ---- bank6.tbl_9176 (data) $9176-$917F, 10 bytes
+; Table, 10 bytes (structural extent)
+        .byte   $22,$23,$24,$23,$22,$14,$0C,$FC,$F4,$EC
+
+; ---- bank6.tbl_9180 (data) $9180-$9187, 8 bytes
+; Table, 8 bytes (structural extent)
+        .byte   $00,$01,$02,$03,$04,$03,$02,$01
 
 ; ---- bank6.code_9188 (code) $9188-$92FC, 373 bytes
 L6_9188:
@@ -2302,14 +2344,20 @@ L6_92E2:
 ; Table, 8 bytes
         .byte   $00,$00,$00,$01,$01,$01,$00,$00
 
-; ---- UNCLAIMED (gap) $930E-$9311, 4 bytes
-        .byte   $00,$04,$19,$37
+; ---- bank6.tbl_930E (data) $930E-$930F, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $00,$04
+
+; ---- bank6.tbl_9310 (data) $9310-$9311, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $19,$37
 
 ; ---- bank6.tbl_9312 (data) $9312-$9315, 4 bytes
 ; Table, 4 bytes
         .byte   $40,$00,$00,$40
 
-; ---- UNCLAIMED (gap) $9316-$9319, 4 bytes
+; ---- bank6.tbl_9316 (data) $9316-$9319, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $8A,$89,$01,$05
 
 ; ---- bank6.code_931A (code) $931A-$93D2, 185 bytes
@@ -2397,8 +2445,13 @@ L6_93C9:
 L6_93D0:
         jmp     L7_C168
 
-; ---- UNCLAIMED (gap) $93D3-$93DB, 9 bytes
-        .byte   $00,$08,$10,$18,$10,$08,$00,$08,$0C
+; ---- bank6.tbl_93D3 (data) $93D3-$93D7, 5 bytes
+; Table, 5 bytes (structural extent)
+        .byte   $00,$08,$10,$18,$10
+
+; ---- bank6.tbl_93D8 (data) $93D8-$93DB, 4 bytes
+; Table, 4 bytes (structural extent)
+        .byte   $08,$00,$08,$0C
 
 ; ---- bank6.code_93DC (code) $93DC-$95C2, 487 bytes
 L6_93DC:
@@ -2641,7 +2694,8 @@ L6_95BD:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $95C3-$95CF, 13 bytes
+; ---- bank6.tbl_95C3 (data) $95C3-$95CF, 13 bytes
+; Table, 13 bytes (structural extent)
         .byte   $F0,$F4,$10,$F4,$F4,$14,$0C,$14,$42,$43,$42,$30,$40
 
 ; ---- bank6.code_95D0 (code) $95D0-$9607, 56 bytes
@@ -2771,7 +2825,8 @@ L6_96AC:
 ; Table, 4 bytes
         .byte   $00,$01,$02,$43
 
-; ---- UNCLAIMED (gap) $96CC-$96CF, 4 bytes
+; ---- bank6.tbl_96CC (data) $96CC-$96CF, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $F8,$FA,$FC,$FA
 
 ; ---- bank6.code_96D0 (code) $96D0-$97AD, 222 bytes
@@ -3032,10 +3087,22 @@ L6_98AB:
         .byte   $FC,$08,$F8,$F6,$06,$04,$0C,$FB,$0A,$F4,$F5,$EA,$18,$07,$F3,$14
         .byte   $00,$08,$F7,$05,$FC,$F6
 
-; ---- UNCLAIMED (gap) $98F7-$991E, 40 bytes
+; ---- bank6.tbl_98F7 (data) $98F7-$990C, 22 bytes
+; Table, 22 bytes (structural extent)
         .byte   $FA,$E8,$10,$F0,$02,$19,$F8,$EC,$0C,$06,$E4,$F6,$E6,$F2,$16,$0B
-        .byte   $00,$F7,$08,$0C,$F4,$06,$30,$30,$31,$31,$32,$32,$33,$33,$30,$31
-        .byte   $32,$31,$30,$30,$31,$31,$32,$33
+        .byte   $00,$F7,$08,$0C,$F4,$06
+
+; ---- bank6.tbl_990D (data) $990D-$9914, 8 bytes
+; Table, 8 bytes (structural extent)
+        .byte   $30,$30,$31,$31,$32,$32,$33,$33
+
+; ---- bank6.tbl_9915 (data) $9915-$9918, 4 bytes
+; Table, 4 bytes (structural extent)
+        .byte   $30,$31,$32,$31
+
+; ---- bank6.tbl_9919 (data) $9919-$991E, 6 bytes
+; Table, 6 bytes (structural extent)
+        .byte   $30,$30,$31,$31,$32,$33
 
 ; ---- bank6.code_991F (code) $991F-$99C8, 170 bytes
 L6_991F:
@@ -3140,7 +3207,8 @@ L6_99C8:
 ; Table, 4 bytes
         .byte   $F6,$0A,$F6,$0A
 
-; ---- UNCLAIMED (gap) $99ED-$99F0, 4 bytes
+; ---- bank6.tbl_99ED (data) $99ED-$99F0, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $F6,$F6,$0A,$0A
 
 ; ---- bank6.code_99F1 (code) $99F1-$99F3, 3 bytes
@@ -3280,7 +3348,8 @@ L6_9AD5:
 ; Table, 6 bytes
         .byte   $04,$08,$10,$20,$30,$50
 
-; ---- UNCLAIMED (gap) $9AF3-$9AF8, 6 bytes
+; ---- bank6.tbl_9AF3 (data) $9AF3-$9AF8, 6 bytes
+; Table, 6 bytes (structural extent)
         .byte   $01,$02,$06,$0C,$18,$30
 
 ; ---- bank6.code_9AF9 (code) $9AF9-$9C0C, 276 bytes
@@ -3430,8 +3499,13 @@ L6_9C07:
 ; Table, 6 bytes
         .byte   $02,$01,$01,$02,$03,$00
 
-; ---- UNCLAIMED (gap) $9C13-$9C1C, 10 bytes
-        .byte   $50,$3C,$28,$14,$0A,$01,$50,$28,$14,$14
+; ---- bank6.tbl_9C13 (data) $9C13-$9C18, 6 bytes
+; Table, 6 bytes (structural extent)
+        .byte   $50,$3C,$28,$14,$0A,$01
+
+; ---- bank6.tbl_9C19 (data) $9C19-$9C1C, 4 bytes
+; Table, 4 bytes (structural extent)
+        .byte   $50,$28,$14,$14
 
 ; ---- bank6.code_9C1D (code) $9C1D-$9CED, 209 bytes
 L6_9C1D:
@@ -3637,7 +3711,8 @@ L6_9DE9:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $9DF2-$9DF9, 8 bytes
+; ---- bank6.tbl_9DF2 (data) $9DF2-$9DF9, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $1F,$20,$03,$02,$00,$01,$02,$03
 
 ; ---- bank6.code_9DFA (code) $9DFA-$9E81, 136 bytes
@@ -3706,7 +3781,8 @@ L6_9E66:
 ; Table, 4 bytes
         .byte   $00,$04,$08,$04
 
-; ---- UNCLAIMED (gap) $9E86-$9E89, 4 bytes
+; ---- bank6.tbl_9E86 (data) $9E86-$9E89, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$00,$00,$80
 
 ; ---- bank6.code_9E8A (code) $9E8A-$9EDE, 85 bytes
@@ -3838,7 +3914,8 @@ L6_9F93:
 L6_9FB3:
         rts
 
-; ---- UNCLAIMED (gap) $9FB4-$9FB7, 4 bytes
+; ---- bank6.tbl_9FB4 (data) $9FB4-$9FB7, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$02,$04,$06
 
 ; ---- bank6.code_9FB8 (code) $9FB8-$9FEE, 55 bytes
@@ -3874,7 +3951,8 @@ L6_9FD5:
 ; Table, 4 bytes
         .byte   $00,$04,$00,$06
 
-; ---- UNCLAIMED (gap) $9FF7-$9FFA, 4 bytes
+; ---- bank6.tbl_9FF7 (data) $9FF7-$9FFA, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$00,$40,$00
 
 ; ---- bank6.code_9FFB (code) $9FFB-$A091, 151 bytes
@@ -3943,8 +4021,17 @@ L6_A06E:
 L6_A08F:
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $A092-$A099, 8 bytes
-        .byte   $60,$FD,$FF,$00,$A0,$03,$00,$00
+; ---- bank6.tbl_A092 (data) $A092-$A092, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $60
+
+; ---- bank6.tbl_A093 (data) $A093-$A093, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $FD
+
+; ---- bank6.tbl_A094 (data) $A094-$A099, 6 bytes
+; Table, 6 bytes (structural extent)
+        .byte   $FF,$00,$A0,$03,$00,$00
 
 ; ---- bank6.tbl_A09A (data) $A09A-$A09D, 4 bytes
 ; Table, 4 bytes
@@ -3954,7 +4041,8 @@ L6_A08F:
 ; Table, 4 bytes
         .byte   $00,$04,$00,$06
 
-; ---- UNCLAIMED (gap) $A0A2-$A0A5, 4 bytes
+; ---- bank6.tbl_A0A2 (data) $A0A2-$A0A5, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$00,$40,$00
 
 ; ---- bank6.code_A0A6 (code) $A0A6-$A1EE, 329 bytes
@@ -4142,21 +4230,24 @@ L6_A1E7:
 ; Table, 8 bytes
         .byte   $01,$01,$01,$02,$02,$01,$01,$04
 
-; ---- UNCLAIMED (gap) $A22F-$A236, 8 bytes
+; ---- bank6.tbl_A22F (data) $A22F-$A236, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $80,$80,$00,$81,$02,$80,$80,$03
 
 ; ---- bank6.tbl_A237 (data) $A237-$A23E, 8 bytes
 ; Table, 8 bytes
         .byte   $00,$04,$08,$0C,$10,$0C,$08,$04
 
-; ---- UNCLAIMED (gap) $A23F-$A242, 4 bytes
+; ---- bank6.tbl_A23F (data) $A23F-$A242, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $80,$C0,$40,$00
 
 ; ---- bank6.tbl_A243 (data) $A243-$A246, 4 bytes
 ; Table, 4 bytes
         .byte   $00,$06,$04,$06
 
-; ---- UNCLAIMED (gap) $A247-$A24E, 8 bytes
+; ---- bank6.tbl_A247 (data) $A247-$A24E, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $40,$40,$00,$00,$80,$80,$C0,$C0
 
 ; ---- bank6.tbl_A24F (data) $A24F-$A256, 8 bytes
@@ -4167,8 +4258,13 @@ L6_A1E7:
 ; Table, 8 bytes
         .byte   $40,$40,$00,$00,$00,$00,$00,$00
 
-; ---- UNCLAIMED (gap) $A25F-$A26A, 12 bytes
-        .byte   $4B,$19,$1A,$19,$4B,$7B,$7B,$7B,$C0,$80,$00,$40
+; ---- bank6.tbl_A25F (data) $A25F-$A266, 8 bytes
+; Table, 8 bytes (structural extent)
+        .byte   $4B,$19,$1A,$19,$4B,$7B,$7B,$7B
+
+; ---- bank6.tbl_A267 (data) $A267-$A26A, 4 bytes
+; Table, 4 bytes (structural extent)
+        .byte   $C0,$80,$00,$40
 
 ; ---- bank6.code_A26B (code) $A26B-$A2C3, 89 bytes
 L6_A26B:
@@ -4218,7 +4314,8 @@ L6_A2A9:
 ; Table, 5 bytes
         .byte   $1A,$1B,$1C,$1C,$1B
 
-; ---- UNCLAIMED (gap) $A2CB-$A2CF, 5 bytes
+; ---- bank6.tbl_A2CB (data) $A2CB-$A2CF, 5 bytes
+; Table, 5 bytes (structural extent)
         .byte   $00,$00,$00,$00,$40
 
 ; ---- bank6.code_A2D0 (code) $A2D0-$A30E, 63 bytes
@@ -4495,7 +4592,8 @@ L6_A4F2:
 ; Table, 6 bytes
         .byte   $04,$06,$08,$0A,$10,$10
 
-; ---- UNCLAIMED (gap) $A501-$A506, 6 bytes
+; ---- bank6.tbl_A501 (data) $A501-$A506, 6 bytes
+; Table, 6 bytes (structural extent)
         .byte   $04,$04,$07,$0A,$10,$14
 
 ; ---- bank6.code_A507 (code) $A507-$A59F, 153 bytes
@@ -4818,8 +4916,17 @@ L6_A7EE:
         jsr     L7_C0C6
         jmp     L7_C0D2
 
-; ---- UNCLAIMED (gap) $A7F4-$A7F9, 6 bytes
-        .byte   $20,$03,$E0,$FD,$00,$02
+; ---- bank6.tbl_A7F4 (data) $A7F4-$A7F4, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $20
+
+; ---- bank6.tbl_A7F5 (data) $A7F5-$A7F7, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $03,$E0,$FD
+
+; ---- bank6.tbl_A7F8 (data) $A7F8-$A7F9, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $00,$02
 
 ; ---- bank6.code_A7FA (code) $A7FA-$A886, 141 bytes
 L6_A7FA:
@@ -4887,7 +4994,8 @@ L6_A881:
         jsr     L7_C0C6
         jmp     L7_C0D2
 
-; ---- UNCLAIMED (gap) $A887-$A888, 2 bytes
+; ---- bank6.tbl_A887 (data) $A887-$A888, 2 bytes
+; Table, 2 bytes (structural extent)
         .byte   $50,$2B
 
 ; ---- bank6.code_A889 (code) $A889-$A9B7, 303 bytes
@@ -5125,7 +5233,8 @@ L6_AA61:
 ; Table, 8 bytes
         .byte   $50,$40,$30,$44,$25,$18,$30,$48
 
-; ---- UNCLAIMED (gap) $AA8C-$AA93, 8 bytes
+; ---- bank6.tbl_AA8C (data) $AA8C-$AA93, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $10,$0C,$11,$05,$07,$14,$09,$0D
 
 ; ---- bank6.code_AA94 (code) $AA94-$AB21, 142 bytes
@@ -5199,7 +5308,8 @@ L6_AB1F:
 ; Table, 8 bytes
         .byte   $04,$02,$00,$02,$04,$02,$00,$02
 
-; ---- UNCLAIMED (gap) $AB2A-$AB31, 8 bytes
+; ---- bank6.tbl_AB2A (data) $AB2A-$AB31, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $00,$00,$00,$80,$80,$80,$00,$00
 
 ; ---- bank6.code_AB32 (code) $AB32-$AC1F, 238 bytes
@@ -5317,7 +5427,8 @@ L6_AC1D:
 ; Table, 4 bytes
         .byte   $00,$00,$00,$40
 
-; ---- UNCLAIMED (gap) $AC28-$AC2B, 4 bytes
+; ---- bank6.tbl_AC28 (data) $AC28-$AC2B, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $1A,$79,$1A,$79
 
 ; ---- bank6.code_AC2C (code) $AC2C-$AC8E, 99 bytes
@@ -5386,7 +5497,8 @@ L6_AC9F:
         pla
         rts
 
-; ---- UNCLAIMED (gap) $ACBA-$ACC9, 16 bytes
+; ---- bank6.tbl_ACBA (data) $ACBA-$ACC9, 16 bytes
+; Table, 16 bytes (structural extent)
         .byte   $01,$01,$00,$00,$FF,$FF,$FE,$FE,$FE,$FE,$FE,$FF,$FF,$00,$00,$01
 
 ; ---- bank6.code_ACCA (code) $ACCA-$AD89, 192 bytes
@@ -5487,8 +5599,17 @@ L6_AD87:
 ; Table, 4 bytes
         .byte   $02,$00,$02,$01
 
-; ---- UNCLAIMED (gap) $AD91-$AD99, 9 bytes
-        .byte   $01,$02,$06,$03,$41,$5B,$5C,$59,$5A
+; ---- bank6.tbl_AD91 (data) $AD91-$AD95, 5 bytes
+; Table, 5 bytes (structural extent)
+        .byte   $01,$02,$06,$03,$41
+
+; ---- bank6.tbl_AD96 (data) $AD96-$AD97, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $5B,$5C
+
+; ---- bank6.tbl_AD98 (data) $AD98-$AD99, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $59,$5A
 
 ; ---- bank6.code_AD9A (code) $AD9A-$AE44, 171 bytes
 L6_AD9A:
@@ -5569,8 +5690,21 @@ L6_AE2E:
 L6_AE42:
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $AE45-$AE4D, 9 bytes
-        .byte   $28,$01,$D8,$FF,$56,$57,$58,$57,$56
+; ---- bank6.tbl_AE45 (data) $AE45-$AE45, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $28
+
+; ---- bank6.tbl_AE46 (data) $AE46-$AE48, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $01,$D8,$FF
+
+; ---- bank6.tbl_AE49 (data) $AE49-$AE4A, 2 bytes
+; Table, 2 bytes (structural extent)
+        .byte   $56,$57
+
+; ---- bank6.tbl_AE4B (data) $AE4B-$AE4D, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $58,$57,$56
 
 ; ---- bank6.code_AE4E (code) $AE4E-$AEBA, 109 bytes
 L6_AE4E:
@@ -5622,8 +5756,13 @@ L6_AEA6:
 L6_AEB8:
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $AEBB-$AEBE, 4 bytes
-        .byte   $18,$01,$E8,$FF
+; ---- bank6.tbl_AEBB (data) $AEBB-$AEBB, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $18
+
+; ---- bank6.tbl_AEBC (data) $AEBC-$AEBE, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $01,$E8,$FF
 
 ; ---- bank6.code_AEBF (code) $AEBF-$AF34, 118 bytes
 L6_AEBF:
@@ -5688,8 +5827,13 @@ L6_AF12:
 L6_AF32:
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $AF35-$AF38, 4 bytes
-        .byte   $08,$04,$F8,$FC
+; ---- bank6.tbl_AF35 (data) $AF35-$AF35, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $08
+
+; ---- bank6.tbl_AF36 (data) $AF36-$AF38, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $04,$F8,$FC
 
 ; ---- bank6.code_AF39 (code) $AF39-$B021, 233 bytes
 L6_AF39:
@@ -5807,8 +5951,13 @@ L6_B013:
 L6_B01F:
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $B022-$B025, 4 bytes
-        .byte   $08,$02,$F8,$06
+; ---- bank6.tbl_B022 (data) $B022-$B022, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $08
+
+; ---- bank6.tbl_B023 (data) $B023-$B025, 3 bytes
+; Table, 3 bytes (structural extent)
+        .byte   $02,$F8,$06
 
 ; ---- bank6.code_B026 (code) $B026-$B0D4, 175 bytes
 L6_B026:
@@ -5892,7 +6041,8 @@ L6_B0C2:
 L6_B0D4:
         rts
 
-; ---- UNCLAIMED (gap) $B0D5-$B0D8, 4 bytes
+; ---- bank6.tbl_B0D5 (data) $B0D5-$B0D8, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $39,$3D,$41,$3D
 
 ; ---- bank6.code_B0D9 (code) $B0D9-$B11A, 66 bytes
@@ -5931,7 +6081,8 @@ L6_B118:
 ; Table, 4 bytes
         .byte   $54,$54,$55,$54
 
-; ---- UNCLAIMED (gap) $B11F-$B122, 4 bytes
+; ---- bank6.tbl_B11F (data) $B11F-$B122, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$0A,$00,$0A
 
 ; ---- bank6.code_B123 (code) $B123-$B231, 271 bytes
@@ -6061,7 +6212,8 @@ L6_B224:
         sta     $0548,X
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $B232-$B235, 4 bytes
+; ---- bank6.tbl_B232 (data) $B232-$B235, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $02,$02,$01,$00
 
 ; ---- bank6.code_B236 (code) $B236-$B453, 542 bytes
@@ -6761,7 +6913,8 @@ L6_B830:
 ; Table, 6 bytes
         .byte   $0C,$36,$32,$4A,$66,$3C
 
-; ---- UNCLAIMED (gap) $B83F-$B850, 18 bytes
+; ---- bank6.tbl_B83F (data) $B83F-$B850, 18 bytes
+; Table, 18 bytes (structural extent)
         .byte   $3C,$4E,$4A,$7A,$66,$3C,$30,$6C,$4C,$52,$66,$3C,$3C,$72,$52,$5E
         .byte   $66,$3C
 
@@ -6904,7 +7057,8 @@ L6_B958:
 ; Table, 4 bytes
         .byte   $00,$00,$00,$40
 
-; ---- UNCLAIMED (gap) $B96A-$B96D, 4 bytes
+; ---- bank6.tbl_B96A (data) $B96A-$B96D, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $1A,$19,$1A,$19
 
 ; ---- bank6.code_B96E (code) $B96E-$B9FA, 141 bytes
@@ -6971,7 +7125,8 @@ L6_B9E7:
         jsr     L6_A1DB
         jmp     L6_9BA9
 
-; ---- UNCLAIMED (gap) $B9FB-$B9FE, 4 bytes
+; ---- bank6.tbl_B9FB (data) $B9FB-$B9FE, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $00,$40,$C0,$80
 
 ; ---- bank6.code_B9FF (code) $B9FF-$BBBA, 444 bytes
@@ -7336,7 +7491,8 @@ L6_BD05:
         tay
         jmp     L7_C07E
 
-; ---- UNCLAIMED (gap) $BD09-$BD38, 48 bytes
+; ---- bank6.tbl_BD09 (data) $BD09-$BD38, 48 bytes
+; Table, 48 bytes (structural extent)
         .byte   $0F,$0E,$0D,$0D,$0C,$0B,$0B,$0A,$09,$0A,$0B,$0B,$0C,$0D,$0E,$0E
         .byte   $B0,$B1,$B2,$B3,$B4,$B5,$B6,$B7,$B8,$B9,$BA,$BB,$BC,$BD,$BE,$BF
         .byte   $80,$81,$80,$81,$81,$80,$81,$80,$80,$81,$80,$81,$81,$80,$81,$80

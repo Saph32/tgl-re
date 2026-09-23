@@ -80,7 +80,8 @@ L5_8059:
 ; Table, 5 bytes
         .byte   $00,$FF,$00,$01,$00
 
-; ---- UNCLAIMED (gap) $806C-$8070, 5 bytes
+; ---- bank5.tbl_806C (data) $806C-$8070, 5 bytes
+; Table, 5 bytes (structural extent)
         .byte   $FF,$00,$00,$00,$01
 
 ; ---- bank5.code_8071 (code) $8071-$82D8, 616 bytes
@@ -575,7 +576,8 @@ L5_83A2:
         lda     #$09
         rts
 
-; ---- UNCLAIMED (gap) $83A5-$83B2, 14 bytes
+; ---- bank5.tbl_83A5 (data) $83A5-$83B2, 14 bytes
+; Table, 14 bytes (structural extent)
         .byte   $00,$08,$07,$06,$05,$01,$04,$04,$0A,$09,$00,$02,$0E,$00
 
 ; ---- bank5.code_83B3 (code) $83B3-$8468, 182 bytes
@@ -691,7 +693,8 @@ L5_8468:
 ; Table, 4 bytes
         .byte   $FC,$F3,$CF,$3F
 
-; ---- UNCLAIMED (gap) $846D-$8470, 4 bytes
+; ---- bank5.tbl_846D (data) $846D-$8470, 4 bytes
+; Table, 4 bytes (structural extent)
         .byte   $03,$0C,$30,$C0
 
 ; ---- bank5.code_8471 (code) $8471-$84AB, 59 bytes
@@ -2103,10 +2106,30 @@ L5_A049:
         lda     #$08
         jmp     L5_9FC6
 
-; ---- UNCLAIMED (gap) $A04E-$A075, 40 bytes
-        .byte   $96,$00,$10,$14,$00,$E8,$03,$10,$14,$02,$90,$01,$0D,$0C,$03,$58
-        .byte   $02,$11,$0C,$04,$D0,$07,$06,$0C,$05,$32,$00,$02,$64,$00,$06,$96
-        .byte   $00,$01,$F4,$01,$07,$2C,$01,$08
+; ---- bank5.tbl_A04E (data) $A04E-$A04E, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $96
+
+; ---- bank5.tbl_A04F (data) $A04F-$A04F, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $00
+
+; ---- bank5.tbl_A050 (data) $A050-$A066, 23 bytes
+; Table, 23 bytes (structural extent)
+        .byte   $10,$14,$00,$E8,$03,$10,$14,$02,$90,$01,$0D,$0C,$03,$58,$02,$11
+        .byte   $0C,$04,$D0,$07,$06,$0C,$05
+
+; ---- bank5.tbl_A067 (data) $A067-$A067, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $32
+
+; ---- bank5.tbl_A068 (data) $A068-$A068, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $00
+
+; ---- bank5.tbl_A069 (data) $A069-$A075, 13 bytes
+; Table, 13 bytes (structural extent)
+        .byte   $02,$64,$00,$06,$96,$00,$01,$F4,$01,$07,$2C,$01,$08
 
 ; ---- bank5.code_A076 (code) $A076-$A1C3, 334 bytes
 L5_A076:
@@ -2397,8 +2420,21 @@ L5_A298:
         beq     L5_A245
         rts
 
-; ---- UNCLAIMED (gap) $A2A9-$A2B8, 16 bytes
-        .byte   $01,$08,$50,$40,$02,$0C,$90,$40,$04,$10,$50,$80,$08,$14,$90,$80
+; ---- bank5.tbl_A2A9 (data) $A2A9-$A2A9, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $01
+
+; ---- bank5.tbl_A2AA (data) $A2AA-$A2AA, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $08
+
+; ---- bank5.tbl_A2AB (data) $A2AB-$A2AB, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $50
+
+; ---- bank5.tbl_A2AC (data) $A2AC-$A2B8, 13 bytes
+; Table, 13 bytes (structural extent)
+        .byte   $40,$02,$0C,$90,$40,$04,$10,$50,$80,$08,$14,$90,$80
 
 ; ---- bank5.code_A2B9 (code) $A2B9-$A2D6, 30 bytes
 L5_A2B9:
@@ -2465,9 +2501,22 @@ L5_A30E:
         sta     $0728,X
         rts
 
-; ---- UNCLAIMED (gap) $A327-$A33E, 24 bytes
-        .byte   $74,$8C,$60,$78,$60,$8F,$10,$38,$50,$70,$40,$60,$90,$B0,$40,$60
-        .byte   $50,$70,$80,$A0,$90,$B0,$80,$A0
+; ---- bank5.tbl_A327 (data) $A327-$A327, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $74
+
+; ---- bank5.tbl_A328 (data) $A328-$A328, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $8C
+
+; ---- bank5.tbl_A329 (data) $A329-$A329, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $60
+
+; ---- bank5.tbl_A32A (data) $A32A-$A33E, 21 bytes
+; Table, 21 bytes (structural extent)
+        .byte   $78,$60,$8F,$10,$38,$50,$70,$40,$60,$90,$B0,$40,$60,$50,$70,$80
+        .byte   $A0,$90,$B0,$80,$A0
 
 ; ---- bank5.code_A33F (code) $A33F-$A376, 56 bytes
 L5_A33F:
@@ -2568,8 +2617,13 @@ L5_A417:
         bne     L5_A407
         rts
 
-; ---- UNCLAIMED (gap) $A41B-$A424, 10 bytes
-        .byte   $00,$FF,$FF,$00,$00,$00,$01,$00,$00,$01
+; ---- bank5.tbl_A41B (data) $A41B-$A41B, 1 bytes
+; Table, 1 bytes (structural extent)
+        .byte   $00
+
+; ---- bank5.tbl_A41C (data) $A41C-$A424, 9 bytes
+; Table, 9 bytes (structural extent)
+        .byte   $FF,$FF,$00,$00,$00,$01,$00,$00,$01
 
 ; ---- bank5.code_A425 (code) $A425-$A496, 114 bytes
 L5_A425:

@@ -632,6 +632,20 @@ Do not re-derive these; do check anything that depends on them.
 - **Tracer: branches after `LDA/LDX/LDY #imm` are decided** (`LDA #$01 / BNE` is a jump).
   Found when the weapon handler tables (bank 6 `$8653` ×12, `$86E7` ×13, dispatching on
   `$3C`) traced `$879A` and the fall-through at `$87DA` decoded a table.
+- **Late gap work.**
+  - Sound: command `$90` points at a **per-note sequence** (`$9534`; `00 lo hi` loops) —
+    CORRECTION, it was "duty / flags"; `$8B` tables and jump-only continuations
+    (`$B809`) are claimed by `parse-sound.py`; song entries whose header byte is `$00` run as
+    code at pointer + 1 (`extra_seeds` in `dispatch.json`).
+  - **Weapon stats by level**, bank 6: `$86AF` computes Y = level × 11 + weapon and reads four
+    tables whose read bases (`$86F5`, `$8716`, `$8737`, `$8758`) sit **12 bytes before** the
+    bytes actually read (`$8701`, `$8722`, `$8743`, `$8764`), since Y ≥ 12. CORRECTION:
+    `find-tables.py` had claimed them at the bases, over the weapon jump table.
+  - `find-tables.py` has a **second, weaker rule**: a gap whose first byte is a read base is
+    claimed to the next base or the gap's end, as a **lead**. 140 regions, 1,210 bytes.
+    **Coverage past 97.3% is mostly these leads** — accounted for, not understood.
+  - Registering a jump table in `dispatch.json` does not claim its bytes; `73-weapon-tables`
+    claims `$8653`, `$86E7` and bank 7 `$F7C9` by hand.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and

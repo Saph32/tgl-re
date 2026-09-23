@@ -1,0 +1,82 @@
+{
+  "_comment": "Hand-authored. The weapon handler jump tables and the weapon-by-level stat tables in bank 6, and the spawn-command table in bank 7.",
+  "regions": [
+    {
+      "id": "bank6.tbl_8653",
+      "offset": 99939,
+      "size": 24,
+      "kind": "pointer_table",
+      "name": "Weapon object handlers A: 12 entries",
+      "confidence": "confirmed",
+      "cpu_addr": 34387,
+      "sha1": "3dfd08c3738b6974e7bb429c6bf283e113f2e8dc",
+      "description": "Inline jump table after JSR $85F4 at $8650, indexed by $3C, the selected weapon; entries are targets minus one. Registered in annotations/dispatch.json, where the count's argument is: 24 bytes between the JSR and traced code at $866B."
+    },
+    {
+      "id": "bank6.tbl_86E7",
+      "offset": 100087,
+      "size": 26,
+      "kind": "pointer_table",
+      "name": "Weapon object handlers B: 13 entries",
+      "confidence": "confirmed",
+      "cpu_addr": 34535,
+      "sha1": "14fcbf090047e534fed29521662b69f207343997",
+      "description": "Inline jump table after JSR $85F4 at $86E4, indexed by $3C (0-12, the status cursor's range); entries are targets minus one. Registered in annotations/dispatch.json."
+    },
+    {
+      "id": "bank7.tbl_F7C9",
+      "offset": 128985,
+      "size": 6,
+      "kind": "pointer_table",
+      "name": "Spawn-script commands: 3 entries",
+      "confidence": "confirmed",
+      "cpu_addr": 63433,
+      "sha1": "ec00b82d8d76b7c62b25b4293a0e5ae4f8baa809",
+      "description": "Inline jump table after JSR $D6AE at $F7C6 in the spawn-script interpreter: 0 wait, 1 jump, 2 end. CMP #$03 / BCS before it bounds the index. Registered in annotations/dispatch.json."
+    },
+    {
+      "id": "bank6.tbl_8701",
+      "offset": 100113,
+      "size": 33,
+      "kind": "data",
+      "name": "Weapon attack by level (to $05A8)",
+      "confidence": "confirmed",
+      "cpu_addr": 34561,
+      "sha1": "8d51253c528afca14aec1a1cc4f8530b20257e19",
+      "description": "$86AF computes Y = $3D x 11 + $3C - the selected weapon's level times eleven plus the weapon - and $86C1-$86DC read four tables with it: LDA $86F5,Y, $8716,Y, $8737,Y and $8758,Y. A weapon object exists only at level 1-3 and for weapons 1-11, so Y runs 12-44 and each table's bytes are its base + 12 to base + 44: 33 entries, 11 weapons x 3 levels. The read BASES are 12 bytes before the tables - the overlap trick again; at $86F5 those 12 bytes are the tail of the weapon jump table. CORRECTION: tools/find-tables.py claimed the four as 33-byte tables at the read bases, which put the first on top of the jump table. This one ($86F5 base): a non-zero entry replaces the object's $05A8, its attack."
+    },
+    {
+      "id": "bank6.tbl_8722",
+      "offset": 100146,
+      "size": 33,
+      "kind": "data",
+      "name": "Weapon lifetime by level (to $07B8 / $0590)",
+      "confidence": "confirmed",
+      "cpu_addr": 34594,
+      "sha1": "3506830555b5d0f488348e993be066c0715e6cb5",
+      "description": "$86AF computes Y = $3D x 11 + $3C - the selected weapon's level times eleven plus the weapon - and $86C1-$86DC read four tables with it: LDA $86F5,Y, $8716,Y, $8737,Y and $8758,Y. A weapon object exists only at level 1-3 and for weapons 1-11, so Y runs 12-44 and each table's bytes are its base + 12 to base + 44: 33 entries, 11 weapons x 3 levels. The read BASES are 12 bytes before the tables - the overlap trick again; at $86F5 those 12 bytes are the tail of the weapon jump table. CORRECTION: tools/find-tables.py claimed the four as 33-byte tables at the read bases, which put the first on top of the jump table. This one ($8716 base): stored in $07B8 and in $0590, its hit points, with 0 meaning $FF."
+    },
+    {
+      "id": "bank6.tbl_8743",
+      "offset": 100179,
+      "size": 33,
+      "kind": "data",
+      "name": "Weapon value by level (to $0698)",
+      "confidence": "confirmed",
+      "cpu_addr": 34627,
+      "sha1": "1f29eb836d01bd645c02bcff3e7b3d945921c6df",
+      "description": "$86AF computes Y = $3D x 11 + $3C - the selected weapon's level times eleven plus the weapon - and $86C1-$86DC read four tables with it: LDA $86F5,Y, $8716,Y, $8737,Y and $8758,Y. A weapon object exists only at level 1-3 and for weapons 1-11, so Y runs 12-44 and each table's bytes are its base + 12 to base + 44: 33 entries, 11 weapons x 3 levels. The read BASES are 12 bytes before the tables - the overlap trick again; at $86F5 those 12 bytes are the tail of the weapon jump table. CORRECTION: tools/find-tables.py claimed the four as 33-byte tables at the read bases, which put the first on top of the jump table. This one ($8737 base): stored in $0698."
+    },
+    {
+      "id": "bank6.tbl_8764",
+      "offset": 100212,
+      "size": 32,
+      "kind": "data",
+      "name": "Weapon collision flags by level (to $0578)",
+      "confidence": "confirmed",
+      "cpu_addr": 34660,
+      "sha1": "fdff077317f677f81a69383716e972a6f160789f",
+      "description": "$86AF computes Y = $3D x 11 + $3C - the selected weapon's level times eleven plus the weapon - and $86C1-$86DC read four tables with it: LDA $86F5,Y, $8716,Y, $8737,Y and $8758,Y. A weapon object exists only at level 1-3 and for weapons 1-11, so Y runs 12-44 and each table's bytes are its base + 12 to base + 44: 33 entries, 11 weapons x 3 levels. The read BASES are 12 bytes before the tables - the overlap trick again; at $86F5 those 12 bytes are the tail of the weapon jump table. CORRECTION: tools/find-tables.py claimed the four as 33-byte tables at the read bases, which put the first on top of the jump table. This one ($8758 base): stored in $0578, the collision flags. Its 33rd entry, weapon 11 level 3, is the byte at $8784, which is also the first byte of the 11-entry table there."
+    }
+  ]
+}

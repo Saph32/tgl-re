@@ -2048,7 +2048,8 @@ L0_993F:
         .byte   $01,$02,$03,$04,$06,$08,$0C,$10,$18,$20,$30,$40,$60,$80,$C0,$00
         .byte   $09,$0B,$12,$15,$1E,$24,$2A,$2C,$2D,$3C,$42,$48,$54,$5A
 
-; ---- UNCLAIMED (gap) $9960-$9960, 1 bytes
+; ---- bank0.tbl_9960 (data) $9960-$9960, 1 bytes
+; Table, 1 bytes (structural extent)
         .byte   $0F
 
 ; ---- bank0.tbl_9961 (pointer_table) $9961-$9968, 8 bytes

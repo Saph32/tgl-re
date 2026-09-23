@@ -1128,7 +1128,8 @@ L3_8864:
         sta     $017F
         rts
 
-; ---- UNCLAIMED (gap) $8877-$887E, 8 bytes
+; ---- bank3.tbl_8877 (data) $8877-$887E, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $30,$10,$00,$0C,$0F,$0C,$00,$10
 
 ; ---- bank3.code_887F (code) $887F-$8B1A, 668 bytes
@@ -1792,7 +1793,8 @@ L3_8D27:
 ; Table, 12 bytes
         .byte   $01,$02,$03,$04,$05,$06,$07,$06,$05,$04,$03,$02
 
-; ---- UNCLAIMED (gap) $8D50-$8D5B, 12 bytes
+; ---- bank3.tbl_8D50 (data) $8D50-$8D5B, 12 bytes
+; Table, 12 bytes (structural extent)
         .byte   $00,$01,$02,$03,$00,$01,$02,$43,$40,$41,$42,$43
 
 ; ---- bank3.code_8D5C (code) $8D5C-$8ED7, 380 bytes
@@ -1993,9 +1995,13 @@ L3_8ED7:
 ; Table, 4 bytes
         .byte   $FF,$00,$30,$32
 
-; ---- UNCLAIMED (gap) $8EDC-$8EF3, 24 bytes
-        .byte   $34,$01,$00,$00,$00,$01,$00,$00,$01,$00,$01,$00,$01,$00,$01,$FF
-        .byte   $FF,$FF,$00,$00,$00,$01,$01,$01
+; ---- bank3.tbl_8EDC (data) $8EDC-$8EEA, 15 bytes
+; Table, 15 bytes (structural extent)
+        .byte   $34,$01,$00,$00,$00,$01,$00,$00,$01,$00,$01,$00,$01,$00,$01
+
+; ---- bank3.tbl_8EEB (data) $8EEB-$8EF3, 9 bytes
+; Table, 9 bytes (structural extent)
+        .byte   $FF,$FF,$FF,$00,$00,$00,$01,$01,$01
 
 ; ---- bank3.tbl_8EF4 (data) $8EF4-$8EFC, 9 bytes
 ; Table, 9 bytes
@@ -2005,7 +2011,8 @@ L3_8ED7:
 ; Table, 11 bytes
         .byte   $03,$02,$02,$02,$02,$01,$02,$02,$02,$02,$03
 
-; ---- UNCLAIMED (gap) $8F08-$8F12, 11 bytes
+; ---- bank3.tbl_8F08 (data) $8F08-$8F12, 11 bytes
+; Table, 11 bytes (structural extent)
         .byte   $00,$00,$00,$00,$00,$00,$40,$40,$40,$40,$40
 
 ; ---- bank3.tbl_8F13 (data) $8F13-$8F32, 32 bytes
@@ -2013,7 +2020,8 @@ L3_8ED7:
         .byte   $20,$28,$30,$28,$38,$40,$48,$40,$00,$08,$00,$08,$38,$40,$48,$40
         .byte   $20,$28,$30,$28,$50,$58,$60,$58,$10,$18,$10,$18,$50,$58,$60,$58
 
-; ---- UNCLAIMED (gap) $8F33-$8F52, 32 bytes
+; ---- bank3.tbl_8F33 (data) $8F33-$8F52, 32 bytes
+; Table, 32 bytes (structural extent)
         .byte   $40,$40,$40,$40,$40,$40,$40,$40,$00,$00,$40,$40,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$40,$40,$40,$40,$40
 
@@ -2038,7 +2046,8 @@ L3_8F53:
 ; Table, 8 bytes
         .byte   $00,$40,$28,$58,$10,$58,$28,$40
 
-; ---- UNCLAIMED (gap) $8F7D-$8F84, 8 bytes
+; ---- bank3.tbl_8F7D (data) $8F7D-$8F84, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $00,$01,$02,$03,$00,$41,$42,$43
 
 ; ---- bank3.code_8F85 (code) $8F85-$8FBB, 55 bytes
@@ -2277,7 +2286,8 @@ L3_90F7:
 ; Table, 7 bytes
         .byte   $F4,$F4,$00,$00,$0C,$0C,$00
 
-; ---- UNCLAIMED (gap) $912F-$9139, 11 bytes
+; ---- bank3.tbl_912F (data) $912F-$9139, 11 bytes
+; Table, 11 bytes (structural extent)
         .byte   $00,$30,$00,$31,$30,$31,$32,$33,$32,$33,$00
 
 ; ---- bank3.tbl_913A (data) $913A-$9150, 23 bytes
@@ -2285,10 +2295,15 @@ L3_90F7:
         .byte   $88,$88,$88,$88,$88,$88,$88,$02,$88,$88,$88,$88,$88,$88,$88,$88
         .byte   $88,$02,$88,$88,$88,$00,$00
 
-; ---- UNCLAIMED (gap) $9151-$917E, 46 bytes
+; ---- bank3.tbl_9151 (data) $9151-$9167, 23 bytes
+; Table, 23 bytes (structural extent)
         .byte   $06,$40,$45,$2E,$46,$23,$47,$06,$49,$18,$19,$2D,$41,$4C,$25,$24
-        .byte   $2F,$06,$48,$4D,$26,$4D,$4F,$03,$03,$03,$06,$06,$03,$03,$06,$03
-        .byte   $06,$03,$16,$03,$06,$06,$16,$03,$16,$03,$16,$03,$06,$06
+        .byte   $2F,$06,$48,$4D,$26,$4D,$4F
+
+; ---- bank3.tbl_9168 (data) $9168-$917E, 23 bytes
+; Table, 23 bytes (structural extent)
+        .byte   $03,$03,$03,$06,$06,$03,$03,$06,$03,$06,$03,$16,$03,$06,$06,$16
+        .byte   $03,$16,$03,$16,$03,$06,$06
 
 ; ---- bank3.code_917F (code) $917F-$92BA, 316 bytes
 L3_917F:
@@ -2480,10 +2495,14 @@ L3_92B6:
         lda     #$06
         jmp     L3_9243
 
-; ---- UNCLAIMED (gap) $92BB-$92DE, 36 bytes
+; ---- bank3.tbl_92BB (data) $92BB-$92CE, 20 bytes
+; Table, 20 bytes (structural extent)
         .byte   $22,$23,$24,$25,$26,$27,$28,$29,$2A,$2B,$2C,$2D,$3E,$4E,$5E,$6E
-        .byte   $7E,$8E,$9E,$AE,$00,$01,$00,$01,$01,$01,$00,$00,$00,$01,$00,$01
-        .byte   $01,$01,$00,$00
+        .byte   $7E,$8E,$9E,$AE
+
+; ---- bank3.tbl_92CF (data) $92CF-$92DE, 16 bytes
+; Table, 16 bytes (structural extent)
+        .byte   $00,$01,$00,$01,$01,$01,$00,$00,$00,$01,$00,$01,$01,$01,$00,$00
 
 ; ---- bank3.code_92DF (code) $92DF-$934E, 112 bytes
 L3_92DF:
@@ -2647,7 +2666,8 @@ L3_93EE:
 L3_93EF:
         jmp     L7_C15F
 
-; ---- UNCLAIMED (gap) $93F2-$93F9, 8 bytes
+; ---- bank3.tbl_93F2 (data) $93F2-$93F9, 8 bytes
+; Table, 8 bytes (structural extent)
         .byte   $0C,$00,$10,$30,$10,$00,$0C,$0F
 
 ; ---- bank3.code_93FA (code) $93FA-$950E, 277 bytes
@@ -2781,7 +2801,8 @@ L3_950E:
 ; Table, 8 bytes
         .byte   $7E,$7E,$7E,$7E,$7D,$7D,$7E,$7E
 
-; ---- UNCLAIMED (gap) $951A-$952D, 20 bytes
+; ---- bank3.tbl_951A (data) $951A-$952D, 20 bytes
+; Table, 20 bytes (structural extent)
         .byte   $2C,$28,$24,$24,$00,$00,$24,$28,$20,$28,$0C,$28,$20,$44,$01,$00
         .byte   $01,$09,$0C,$0F
 
