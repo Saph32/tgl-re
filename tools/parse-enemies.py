@@ -26,8 +26,7 @@ The checks
 
 Not established: five scripts end ``[byte] 01 02``, which the code reads as a long wait and a
 jump whose operand overlaps the next script's first byte - whether that is ever reached, or
-this reading of the script is incomplete, is open. What ``$0620`` and the special-room type
-``$72`` do.
+this reading of the script is incomplete, is open. What the special-room type ``$72`` does.
 """
 
 from __future__ import annotations
@@ -161,9 +160,11 @@ def main() -> int:
                     "whatever it collides with ($D30E). For the player the damage is divided "
                     "by the player's own $0590 first ($D2DC-$D2DF, through $F9AE)."))
     R.append(region(7, "tbl", 0xD1A9, 128, "data", "Per-type value copied to $0620",
-                    six + "Destination $0620. 128 bytes, ending at the code at $D229. What "
-                    "$0620 means for an enemy is NOT established - bank 5 also uses it as a "
-                    "dialogue index for some objects."))
+                    six + "Destination $0620: DRAWING FLAGS. The draw path $CBE8 tests them bit "
+                    "by bit - bit 0 calls $CC88 and bit 1 $CCEB before drawing, bit 2 flips "
+                    "the attribute when $05D8 is non-negative, bit 3 is tested at $CC1F - so "
+                    "the per-type value says how the object is drawn. What each extra step "
+                    "does is not yet read. 128 bytes, ending at the code at $D229."))
     R.append(region(7, "tbl", 0xD441, 128, "data", "What each type becomes at 0 HP",
                     "$D32A: when $0590 reaches 0, LDA $D441,Y / STA $0500,X with Y = the "
                     "type, after saving the old type in $0740. Mostly $08 and $07 - "

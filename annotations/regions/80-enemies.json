@@ -164,7 +164,7 @@
       "confidence": "confirmed",
       "cpu_addr": 53673,
       "sha1": "2933c7bde8120c6345320f77b392eab29a6b7163",
-      "description": "$CFA0 copies it into the slot with LDA table,Y where Y = type AND $7F - four reads six bytes apart, which is also what bounds the tables. Destination $0620. 128 bytes, ending at the code at $D229. What $0620 means for an enemy is NOT established - bank 5 also uses it as a dialogue index for some objects."
+      "description": "$CFA0 copies it into the slot with LDA table,Y where Y = type AND $7F - four reads six bytes apart, which is also what bounds the tables. Destination $0620: DRAWING FLAGS. The draw path $CBE8 tests them bit by bit - bit 0 calls $CC88 and bit 1 $CCEB before drawing, bit 2 flips the attribute when $05D8 is non-negative, bit 3 is tested at $CC1F - so the per-type value says how the object is drawn. What each extra step does is not yet read. 128 bytes, ending at the code at $D229."
     },
     {
       "id": "bank7.tbl_D441",

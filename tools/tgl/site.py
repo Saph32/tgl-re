@@ -1881,6 +1881,86 @@ def _status_page(rm):
     return "".join(p)
 
 
+def _sprite_palettes(rm):
+    """The four sprite palettes, as RGB triples for colours 1-3. Two savestates (title and
+    in-game) hold exactly bank 5 $B30A records 0-3 in sprite palette RAM, so those are used;
+    colour 0 is transparent for sprites."""
+    b5 = rm.prg_bank(5)
+    return [[NES_RGB[b5[0x330A + 3 * p + c] & 0x3F] for c in range(3)] for p in range(4)]
+
+
+def _chr_runs(rm):
+    """Tile block id -> the tiles CHR holds from where that block is loaded onward.
+
+    A load stream packs blocks back to back, so a large enemy whose metasprite indexes past
+    its own block is reading the next block in the same stream. Blocks no stream loads get
+    just their own tiles."""
+    from tgl import enemy, gfx
+    b5 = rm.prg_bank(5)
+    bases = {2: 0x8024, 3: 0x8020}
+
+    def tiles(k):
+        bank, i = enemy.block_source(k)
+        d = rm.prg_bank(bank)
+        p = bases[bank] + 2 * i - 0x8000
+        return gfx.decode(d, (d[p] | d[p + 1] << 8) - 0x8000)[0]
+
+    runs = {}
+    specials = {b5[0x26A4 + 3 * r] | b5[0x26A5 + 3 * r] << 8 for r in range(13)}
+    for s in [enemy.GFX_DEFAULT] + sorted(specials):
+        recs, _ = enemy.walk_gfx_stream(b5, s)
+        for i, (_, blk, _) in enumerate(recs):
+            run = b"".join(tiles(b) for _, b, _ in recs[i:])
+            if len(run) > len(runs.get(blk, b"")):
+                runs[blk] = run
+    return runs, tiles
+
+
+def _assembled_svg(spr, chr_run: bytes, pals, px: int = 3) -> str:
+    """One metasprite as the PPU would show it: 8x16 sprites, each the tile pair
+    (t AND $FE, +1) out of ``chr_run``, flipped by attribute bits 6 and 7, coloured by
+    attribute bits 0-1. Earlier sprites win, as in OAM. A tile the run does not reach is
+    drawn as a dashed outline rather than guessed."""
+    if not spr:
+        return ""
+    x0 = min(s[0] for s in spr)
+    y0 = min(s[1] for s in spr)
+    w = max(s[0] for s in spr) + 8 - x0
+    h = max(s[1] for s in spr) + 16 - y0
+    n = len(chr_run) // 16
+    pix, missing = {}, []
+    for dx, dy, t, a in reversed(spr):
+        top = t & 0xFE
+        if top + 1 >= n:
+            missing.append((dx - x0, dy - y0))
+            continue
+        pal = a & 3
+        for row in range(16):
+            src = 15 - row if a & 0x80 else row
+            tile = top + (src >= 8)
+            lo = chr_run[16 * tile + (src & 7)]
+            hi = chr_run[16 * tile + 8 + (src & 7)]
+            for col in range(8):
+                bit = col if a & 0x40 else 7 - col
+                v = ((lo >> bit) & 1) | (((hi >> bit) & 1) << 1)
+                if v:
+                    pix[(dx - x0 + col, dy - y0 + row)] = pals[pal][v - 1]
+    by_colour: dict[tuple, list[str]] = {}
+    for (x, y), c in pix.items():
+        by_colour.setdefault(c, []).append(f"M{x} {y}h1v1h-1z")
+    out = [f'<svg viewBox="0 0 {w} {h}" width="{w * px}" height="{h * px}" '
+           'style="image-rendering:pixelated;vertical-align:middle;margin:2px 6px 2px 0" '
+           'xmlns="http://www.w3.org/2000/svg">']
+    for c, d in by_colour.items():
+        out.append(f'<path fill="rgb{tuple(c)}" d="{"".join(d)}"/>')
+    for x, y in missing:
+        out.append(f'<rect x="{x + .5}" y="{y + .5}" width="7" height="15" fill="none" '
+                   'stroke="currentColor" stroke-opacity=".5" stroke-dasharray="1 1" '
+                   'stroke-width=".5"/>')
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _enemies_page(rm):
     import sys
     from collections import Counter
@@ -1897,6 +1977,19 @@ def _enemies_page(rm):
         ptr = d[p] | d[p + 1] << 8
         return bank, ptr, gfx.decode(d, ptr - 0x8000)[0]
 
+    from tgl import metasprite as msp
+    b6 = rm.prg_bank(6)
+    mptrs = msp.pointers(b7)
+    frames = {}
+    for row in msp.object_map(b6, b7):
+        ids = set(row["ids"])
+        for v in row["tables"].values():
+            ids |= set(v)
+        frames[row["type"]] = sorted(i for i in ids if 0 < i < len(mptrs)
+                                     and msp.parse(b7, mptrs[i]))
+    runs, _ = _chr_runs(rm)
+    pals = _sprite_palettes(rm)
+    fit = total = 0
     ptrs = enemy.script_pointers(b5)
     walks = {p: enemy.walk_script(b5, p) for p in set(ptrs)}
     spawned = Counter()
@@ -1940,9 +2033,18 @@ def _enemies_page(rm):
         art = ""
         if v["gfx"] is not None and 0 < v["gfx"] < 0x80:
             bank, ptr, tiles = block_tiles(v["gfx"])
-            art = (f'<span class="meta">block <code>${v["gfx"]:02X}</code> &rarr; bank {bank} '
-                   f'<code>${ptr:04X}</code></span><br>'
-                   + _tiles_svg(tiles, per_row=16, px=22))
+            run = runs.get(v["gfx"], tiles)
+            shots = []
+            for i in frames.get(t, [])[:8]:
+                m = msp.parse(b7, mptrs[i])
+                used = [x for x in m["tiles"] if x != 0xFF]
+                total += 1
+                fit += all(x % 2 == 0 for x in used) and max(used) + 2 <= len(tiles) // 16
+                shots.append(f'<span title="metasprite {i}">'
+                             + _assembled_svg(msp.emit(m), run, pals) + "</span>")
+            art = ("".join(shots) + "<br>" if shots else "") + (
+                f'<span class="meta">block <code>${v["gfx"]:02X}</code> &rarr; bank {bank} '
+                f'<code>${ptr:04X}</code></span><br>' + _tiles_svg(tiles, per_row=16, px=14))
         elif v["gfx"] is not None and v["gfx"] >= 0x80:
             art = '<span class="meta">per object (<code>$07B8,X</code>)</span>'
         rows.append(f'<tr><td><code>${t:02X}</code></td><td class="mono">{v["hp"]}</td>'
@@ -1951,10 +2053,26 @@ def _enemies_page(rm):
                     f'<td><code>${v["death"]:02X}</code></td>'
                     f'<td class="mono">{spawned.get(t, "")}</td><td>{art}</td></tr>')
     p.append('<div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>HP</th>'
-             "<th>Attack</th><th>Flags</th><th>Death</th><th>In scripts</th><th>Art</th>"
+             "<th>Attack</th><th>Flags</th><th>Death</th><th>In scripts</th><th>Assembled, and the block it comes from</th>"
              f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>")
+    p.append('<div class="note"><strong>Assembled from the ROM, and checked.</strong> Each '
+             "picture is a metasprite the type's behaviour code assigns (bank 6, through "
+             "<code>$0548</code>), drawn the way <code>$CC46</code>/<code>$CDD7</code> draw it: "
+             "8&times;16 sprites, each the tile pair <code>t AND $FE</code> and the next, "
+             "relative to the base tile where the type's block was loaded; mirrored records "
+             "drawn twice; flips by attribute bits 6 and 7. Colours are bank 5 "
+             "<code>$B30A</code> records 0-3, which is exactly what sprite palette RAM holds in "
+             f"both savestates. <strong>{fit} of {total}</strong> type/metasprite pairs shown use "
+             "only even tiles inside the type's own block. The rest either reach into the "
+             "block its load stream packs next (bosses; drawn from that run) or were "
+             "attributed through a subroutine several handlers share (dashed outlines mark "
+             "tiles the run does not reach). <strong>Against hardware:</strong> "
+             "<code>parse-metasprites.py --verify</code> predicts every live object's sprites "
+             "from RAM and finds each multi-sprite shape drawn that frame whole in the "
+             "in-game savestate's OAM &mdash; tiles, placement and attributes.</div>")
     p.append('<div class="note warn"><strong>Not established.</strong> Which type is which '
-             "enemy by name; what <code>$0620</code> (from <code>$D1A9</code>) is for; the "
+             "enemy by name; what each <code>$0620</code> drawing flag (from <code>$D1A9</code>) "
+             "does; the "
              "meaning of the individual flag bits beyond bit 7 and the collision classes. "
              "Types <code>$76-$7F</code> have no art entry: <code>$CFC4</code> ends at type "
              "<code>$75</code>, and a lookup past it would read the flags table.</div>")

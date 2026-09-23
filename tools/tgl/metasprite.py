@@ -110,6 +110,34 @@ def sprites(ms: dict) -> list[tuple[int, int, int, int]]:
     return out
 
 
+def emit(ms: dict, obj_attr: int = 0) -> list[tuple[int, int, int, int]]:
+    """The hardware sprites $CC46 / $CDD7 produce, as (dx, dy, tile, attr) relative to the
+    object's position and base tile. ``obj_attr`` is the object's own attribute ($86).
+
+    * a mirrored record (count bit 7) is drawn twice, first with bit 6 of $86 flipped;
+    * under bit 6 of $86 the x offset becomes -x - 8 ($CE0A: EOR #$FF / SBC #$07), under
+      bit 7 the y offset becomes -y - 16 ($CE39: EOR #$FF / SBC #$0F) - 8 x 16 sprites;
+    * the attribute is ($86 AND $E3) EOR the record's byte ($CDEE);
+    * tile $FF is skipped.
+    """
+    out = []
+
+    def one(a86):
+        for dx, dy, tile, attr in sprites(ms):
+            if tile == SKIP_TILE:
+                continue
+            if a86 & 0x40:
+                dx = -dx - 8
+            if a86 & 0x80:
+                dy = -dy - 16
+            out.append((dx, dy, tile, (a86 & 0xE3) ^ attr))
+
+    if ms["mirror"]:
+        one(obj_attr ^ 0x40)
+    one(obj_attr)
+    return out
+
+
 # --------------------------------------------------------- which object wears which shape
 
 OBJ_LO = 0x80DE           # bank 6 object dispatch, low bytes

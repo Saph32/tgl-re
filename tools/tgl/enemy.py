@@ -16,7 +16,9 @@ Read by ``$CFA0`` into the slot, one ``LDA table,Y`` each, six bytes apart:
 * ``$D0AB`` -> ``$0590`` **hit points**.
 * ``$D12A`` -> ``$05A8`` **attack**: ``$D30E`` subtracts each side's attack from the other's
   hit points, clamping at 0.
-* ``$D1A9`` -> ``$0620``, meaning not established.
+* ``$D1A9`` -> ``$0620``, **drawing flags**: ``$CBE8`` calls ``$CC88`` for bit 0 and
+  ``$CCEB`` for bit 1, and bits 2 and 3 alter the attribute - what each step does is not
+  yet read.
 
 ``$D02C``, ``$D0AB`` and ``$D12A`` are 127 bytes each - bounded by the next base - so type
 ``$7F`` reads the next table's first byte. ``$D1A9`` is 128, ending at code ``$D229``.
@@ -55,7 +57,7 @@ TYPE_TABLES = [
     (0xD02C, 127, "$0578", "collision flags"),
     (0xD0AB, 127, "$0590", "hit points"),
     (0xD12A, 127, "$05A8", "attack"),
-    (0xD1A9, 128, "$0620", "not established"),
+    (0xD1A9, 128, "$0620", "drawing flags"),
 ]
 DEATH = 0xD441          # 128
 GFX = 0xCFB6            # indexed by type; types $0E-$75 -> $CFC4-$D02B

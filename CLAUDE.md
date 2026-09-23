@@ -526,6 +526,16 @@ Do not re-derive these; do check anything that depends on them.
   - **Special rooms** (kind `$40`): `$A682[sub-id]` with sub-ids 11-32 — `$A682+11` is
     exactly where code ends — into 13 `[type→$72][stream]` records at `$A6A3`, whose
     seven streams end exactly on code at `$A6EB`.
+  - **Assembled.** `$87`, the base tile the metasprite drawer adds, is `$06C8,X`, set from
+    `$0490` — so a metasprite's relative tiles index the type's block. Sprites are **8×16**
+    (`$8711` sets PPUCTRL bit 5; flips are −x−8 at `$CE0A` and −y−16 at `$CE39`), and
+    `metasprite.emit` follows the drawer exactly. `$0620` (from `$D1A9`) is **drawing
+    flags**, tested bit by bit at `$CBE8`. The four live sprite palettes in both savestates
+    are exactly `$B30A` records 0-3. **Checks:** 133 of 149 type/metasprite pairs use only
+    even tiles inside the type's block (the rest are bosses reading the next block, or
+    shared-subroutine attributions); `parse-metasprites.py --verify` finds every
+    multi-sprite object drawn that frame whole in the in-game savestate's OAM (3 of 3;
+    the other three are not drawn that frame). `docs/enemies.html` draws them.
   - **Tracer change:** `JSR $D705` with A unknown now continues in the fixed bank with the
     live bank unknown, instead of stopping. That traced `$E9AA-$EA67`, the loader.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select

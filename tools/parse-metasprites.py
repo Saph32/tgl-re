@@ -5,6 +5,7 @@
     python tools/parse-metasprites.py --check  # report, write nothing
     python tools/parse-metasprites.py --dump   # every metasprite, sprite by sprite
     python tools/parse-metasprites.py --id 1   # one of them, drawn as a grid
+    python tools/parse-metasprites.py --verify S.fcs  # against a savestate's live OAM
 
 **The output file is generated. A hand edit to it is lost on the next run.**
 
@@ -21,6 +22,13 @@ What this checks
    than metasprites - so regions are emitted per contiguous run of covered bytes rather
    than per record, the same way the screen-data streams are. No counts are typed in this
    docstring; run the tool for them.
+4. **``--verify`` is the hardware check.** For every live object in an FCEUX savestate it
+   predicts the hardware sprites from ``$0548`` (metasprite), ``$06C8`` (base tile),
+   ``$0560`` (attribute) and ``$0518``/``$0530`` (position) through ``metasprite.emit``,
+   and looks for the whole shape in the saved OAM at one common offset. The offset is
+   allowed because OAM is built from the previous frame's positions; tiles, relative
+   placement and attributes must all match. A one-sprite shape proves nothing and is
+   reported as such.
 """
 
 from __future__ import annotations
@@ -40,6 +48,56 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "annotations" / "regions" / "70-metasprites.json"
 
 
+# How far an object can plausibly move between building OAM and the savestate: a frame.
+NEAR_FRAME = 16
+
+
+def verify(b7: bytes, ptrs: list[int], state: Path) -> int:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("savestate", ROOT / "tools" / "savestate.py")
+    ss = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ss)
+    s = ss.read_state(state)
+    ram, spra = s["RAM"], s["SPRA"]
+    oam = {(spra[i + 1], spra[i + 3], spra[i], spra[i + 2])
+           for i in range(0, 256, 4) if spra[i] < 0xEF}
+    full = multi = 0
+    for slot in range(24):
+        kind, mid = ram[0x500 + slot], ram[0x548 + slot]
+        if not kind or not mid or mid >= len(ptrs):
+            continue
+        m = ms.parse(b7, ptrs[mid])
+        if m is None:
+            continue
+        x0, y0, base = ram[0x530 + slot], ram[0x518 + slot], ram[0x6C8 + slot]
+        pred = [((t + base) & 0xFF, (x0 + dx) & 0xFF, (y0 + dy) & 0xFF, a)
+                for dx, dy, t, a in ms.emit(m, ram[0x560 + slot])]
+        best = (0, 0, 0)
+        for o in oam:
+            for q in pred:
+                if (o[0], o[3]) != (q[0], q[3]):
+                    continue
+                sx, sy = (o[1] - q[1]) & 0xFF, (o[2] - q[2]) & 0xFF
+                n = sum(((r[0], (r[1] + sx) & 0xFF, (r[2] + sy) & 0xFF, r[3]) in oam)
+                        for r in pred)
+                if n > best[0]:
+                    best = (n, sx - 256 if sx > 127 else sx, sy - 256 if sy > 127 else sy)
+        verdict = ("ALL, at offset (%d, %d)" % best[1:] if best[0] == len(pred) and pred
+                   else f"{best[0]} of {len(pred)}")
+        far = max(abs(best[1]), abs(best[2])) > NEAR_FRAME
+        note = ("  (one sprite: proves nothing)" if len(pred) == 1
+                else "  (too far to be this object's own last frame - another object with "
+                     "the same shape)" if far and best[0] == len(pred) else "")
+        if len(pred) > 1 and best[0] == len(pred) and not far:
+            full += 1
+        multi += len(pred) > 1
+        print(f"slot {slot:2d} type ${kind:02X} metasprite {mid:3d} base ${base:02X}: "
+              f"{len(pred)} sprites, found {verdict}{note}")
+    print(f"\n{full} of {multi} multi-sprite objects found whole in OAM. Objects not drawn "
+          "this frame (sprite cycling) are expected to miss.")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -48,6 +106,8 @@ def main() -> int:
     ap.add_argument("--id", type=int)
     ap.add_argument("--objects", action="store_true",
                     help="which object type wears which metasprite")
+    ap.add_argument("--verify", metavar="STATE",
+                    help="predict live objects' sprites and find them in a savestate's OAM")
     args = ap.parse_args()
 
     rm = load(ROOT, exclude={OUT.name})
@@ -60,6 +120,9 @@ def main() -> int:
             bad.append((i, p))
         else:
             good[p] = m
+
+    if args.verify:
+        return verify(b7, ptrs, Path(args.verify))
 
     if args.id is not None:
         p = ptrs[args.id]
