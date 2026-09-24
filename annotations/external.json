@@ -234,6 +234,15 @@
       "claim": "The special password TGL starts the game in a special mode.",
       "status": "consistent",
       "rom": "Bank 3 $857A accepts T G L and blanks, skipping the checksum and setting $2F = 0, $30 = 2. The game itself shows the word: press Start on the last ending-credits screen and bank 0 $899F takes one more pass that renders the script PASSWORD TGL ($8BA3). What mode $30 = 2 is has not been read."
+    },
+    {
+      "id": "sound-test",
+      "source": "owner",
+      "pages": "-",
+      "topic": "Hidden features",
+      "claim": "Holding A and B while pressing Reset opens a sound test.",
+      "status": "confirmed",
+      "rom": "Reset runs bank 0 $8332 (JMP entry $800C, called at $FF50). It clears $30 and $2F, reads the pads ($C01E -> $D64C) and at $8341 does LDA $F7 / CMP #$C0 / BNE: held buttons exactly A+B, nothing else. Then it far-calls bank 3 $801B -> $822A, which resets the stack and never returns: it prints SOUND TEST at PPU $2088 and the sound number $15 (starting at 1) in decimal at $20CD. Each frame it takes newly pressed buttons ($C0E4): Right +1 and Left -1, wrapping between 1 and 71 ($47), Down plays sound $15 ($C030 -> bank 0 $97CC), Up far-calls bank 0 $8000 ($97A0, the sound init - it silences everything). 71 is the last song-table entry: the table at $9B04 has 72, and 0 is skipped. This is the only way in - the far-call bytes 03 1A 80 occur once. The same check runs at power-on, since that takes the same path. NOT tried on hardware; read from the code. The key-repeat counter in $14 is dead code: $C0E4 only returns once a button is newly pressed, so every press steps once."
     }
   ]
 }

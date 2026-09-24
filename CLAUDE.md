@@ -668,6 +668,11 @@ Do not re-derive these; do check anything that depends on them.
   - Lead worth chasing: bank 0 `$8107-$8128` gives a powered-up start (life `$80`, every
     weapon level 2, `$4A`/`$4B` = 2) when `$F7` bit 4 and `$30` bit 1 are both clear — the
     conditions are read, the meaning is not.
+- **The sound test (owner's claim, CONFIRMED from the code).** Reset and power-on run bank 0
+  `$8332` (entry `$800C`, from `$FF50`); `$8341` tests `$F7 == $C0` — A and B held, nothing
+  else — and far-calls bank 3 `$801B` → `$822A`: SOUND TEST, sound number 1-71 at PPU `$20CD`,
+  Right/Left step (wrapping), Down plays (`$C030`), Up silences (bank 0 `$97A0`). The one
+  far call to it in the ROM. Not tried on hardware. `annotations/external.json` has it.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
