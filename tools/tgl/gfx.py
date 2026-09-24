@@ -46,6 +46,12 @@ What checks this, and what does not
    (18 before bank 0's table was found). That is the hardware's own answer, not
    this project agreeing with itself.
 
+**Bank 3's second table has 48 entries, not 47 - CORRECTION.** ``$D7F9`` forms the pointer
+as ``base + 2 x block id`` with bank 3's base at ``$8020``, so ids 16-63 are ``$8040-$809F``:
+the 48th entry, ``$809E``, is ``$A3F2``, the start of a block the chain had already found
+and left as a lead because no table named it. The ``$0000``/``$FFFF`` words are the ids
+with no block (bank 2 ids 13-14, bank 3 ids 0 and 15).
+
 What is NOT claimed: that these tables are all of them. ``$D842`` also names bases for banks
 4-7 (``$8003``, ``$8048``, ``$8040``, ``$C000``); no caller found passes those banks.
 """
@@ -58,7 +64,7 @@ TABLES: dict[int, list[tuple[int, int]]] = {
     0: [(0x8030, 2)],
     1: [(0x8010, 22)],
     2: [(0x8024, 13), (0x8042, 21)],
-    3: [(0x8022, 6), (0x8040, 47)],
+    3: [(0x8022, 6), (0x8040, 48)],
 }
 
 

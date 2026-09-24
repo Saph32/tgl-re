@@ -27,8 +27,13 @@ L3_8018:
 L3_801B:
         jmp     L3_822A
 
-; ---- UNCLAIMED (gap) $801E-$8021, 4 bytes
-        .byte   $FF,$FF,$00,$00
+; ---- bank3.pad_801E (padding) $801E-$801F, 2 bytes
+; Fill: 2 x $FF
+        .byte   $FF,$FF
+
+; ---- bank3.tbl_8020 (data) $8020-$8021, 2 bytes
+; Tile-block id 0: no block
+        .byte   $00,$00
 
 ; ---- bank3.gfxtbl_8022 (pointer_table) $8022-$802D, 12 bytes
 ; Tile block pointers (6 entries)
@@ -49,20 +54,18 @@ L3_802E:
 ; ---- bank3.code_803D (code) $803D-$803D, 1 bytes
         rts
 
-; ---- UNCLAIMED (gap) $803E-$803F, 2 bytes
+; ---- bank3.tbl_803E (data) $803E-$803F, 2 bytes
+; Tile-block id 15: no block ($FFFF)
         .byte   $FF,$FF
 
-; ---- bank3.gfxtbl_8040 (pointer_table) $8040-$809D, 94 bytes
-; Tile block pointers (47 entries)
+; ---- bank3.gfxtbl_8040 (pointer_table) $8040-$809F, 96 bytes
+; Tile block pointers (48 entries)
         .byte   $2D,$99,$91,$99,$91,$99,$73,$9A,$A5,$9A,$09,$9B,$4D,$9B,$06,$9C
         .byte   $4A,$9C,$6D,$9C,$B1,$9C,$DD,$9D,$41,$9E,$76,$A4,$F8,$A4,$71,$A6
         .byte   $D1,$A7,$C4,$A9,$88,$AA,$97,$AB,$FB,$AB,$7D,$AC,$E1,$AC,$87,$AE
         .byte   $CA,$AF,$00,$B1,$F5,$B1,$BF,$B3,$03,$B4,$03,$B4,$47,$B4,$7F,$B5
         .byte   $FD,$B5,$81,$B6,$81,$B6,$E0,$B6,$43,$B7,$3B,$B9,$0B,$BA,$35,$BB
-        .byte   $B9,$BB,$3D,$BC,$39,$BD,$1D,$BE,$9E,$BE,$56,$BF,$6E,$A3
-
-; ---- UNCLAIMED (gap) $809E-$809F, 2 bytes
-        .byte   $F2,$A3
+        .byte   $B9,$BB,$3D,$BC,$39,$BD,$1D,$BE,$9E,$BE,$56,$BF,$6E,$A3,$F2,$A3
 
 ; ---- bank3.code_80A0 (code) $80A0-$80AA, 11 bytes
 L3_80A0:
@@ -918,7 +921,8 @@ L3_8701:
         ldx     $13
         jmp     L7_C03F
 
-; ---- UNCLAIMED (gap) $870D-$8710, 4 bytes
+; ---- bank3.tbl_870D (data) $870D-$8710, 4 bytes
+; OAM template: one sprite
         .byte   $54,$00,$00,$50
 
 ; ---- bank3.code_8711 (code) $8711-$8722, 18 bytes
@@ -1505,7 +1509,8 @@ L3_8B11:
         bne     L3_8B11
         rts
 
-; ---- UNCLAIMED (gap) $8B1B-$8B22, 8 bytes
+; ---- bank3.tbl_8B1B (data) $8B1B-$8B22, 8 bytes
+; OAM template: two sprites
         .byte   $30,$00,$00,$30,$B8,$00,$00,$30
 
 ; ---- bank3.code_8B23 (code) $8B23-$8B5B, 57 bytes
@@ -2801,7 +2806,8 @@ L3_94F8:
 L3_950E:
         rts
 
-; ---- UNCLAIMED (gap) $950F-$9511, 3 bytes
+; ---- bank3.tbl_950F (data) $950F-$9511, 3 bytes
+; Per-type value read by bank 3 $93FA
         .byte   $03,$02,$00
 
 ; ---- bank3.tbl_9512 (data) $9512-$9519, 8 bytes

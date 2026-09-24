@@ -247,7 +247,9 @@ Do not re-derive these; do check anything that depends on them.
   (`$01` and `$02` are common; `$A4`, `$ED` and `$FD` also occur). Compression is 1.08x —
   a run packer, not an LZ. 101 blocks in banks 1, 2 and 3: 36,961 ROM bytes → 39,753 bytes
   = 2,485 tiles. Pointer tables: bank 1 `$8010` (22), bank 2 `$8024` + `$8042` (13 + 21),
-  bank 3 `$8022` + `$8040` (6 + 47); `$FFFF` and `$0000` words separate the groups.
+  bank 3 `$8022` + `$8040` (6 + **48** — CORRECTION, it said 47: `$D7F9` reads
+  `base + 2 × id` with bank 3's base `$8020`, so ids 16-63 are `$8040-$809F` and the 48th names
+  the lead block `$A3F2`); `$FFFF` and `$0000` words are ids with no block.
   - **Three independent checks, and none of them was tuned.** *The partition:* a block's
     decoded length ends exactly on the next pointer — 21/22 in bank 1, 29/29 in bank 2,
     50/50 in bank 3. The terminator rule came from four blocks and then predicted the other
@@ -659,6 +661,10 @@ Do not re-derive these; do check anything that depends on them.
   - **Aiming, `$F863`**: 16 directions from `$F95E`, stepped by `tan` thresholds at `$F95B`.
   - `22-unreferenced-code.json` holds code nothing is known to reach (bank 0 `$95F9`, bank 3
     `$8B6B`, bank 7 `$CF2B`, `$D69B`), all leads. The DMC sample at `$FFC0` is claimed.
+  - **Per-type tables sit after their handler's code.** `LDY $0500,X / LDA base,Y` with the
+    base inside the handler, so only the handler's own types (from bank 6's dispatch) reach
+    data: `$A5A0` ($5A-$5C), `$A766` ($50-$51), `$A3DA` ($55-$57), `$9031` ($24-$26) and more.
+    `$FD4B` is the player's attack by `$4A` (1-4, capped at `$FD0E`).
   - Lead worth chasing: bank 0 `$8107-$8128` gives a powered-up start (life `$80`, every
     weapon level 2, `$4A`/`$4B` = 2) when `$F7` bit 4 and `$30` bit 1 are both clear — the
     conditions are read, the meaning is not.

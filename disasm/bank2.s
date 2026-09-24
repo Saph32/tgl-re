@@ -36,7 +36,8 @@ L2_8021:
         .byte   $F8,$8B,$AC,$93,$8B,$95,$9F,$95,$84,$96,$04,$9D,$FC,$A4,$C9,$A5
         .byte   $41,$A6,$44,$A7,$94,$A6,$01,$A7,$2D,$A7
 
-; ---- UNCLAIMED (gap) $803E-$8041, 4 bytes
+; ---- bank2.tbl_803E (data) $803E-$8041, 4 bytes
+; Tile-block ids 13-14: no block
         .byte   $00,$00,$00,$00
 
 ; ---- bank2.gfxtbl_8042 (pointer_table) $8042-$806B, 42 bytes
@@ -706,7 +707,8 @@ L2_8579:
         sta     $17
         rts
 
-; ---- UNCLAIMED (gap) $8588-$858D, 6 bytes
+; ---- bank2.tbl_8588 (data) $8588-$858D, 6 bytes
+; Table read by $8573
         .byte   $0C,$0B,$01,$2C,$24,$28
 
 ; ---- bank2.code_858E (code) $858E-$8662, 213 bytes

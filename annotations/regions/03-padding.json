@@ -46,6 +46,17 @@
       "description": "16 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader."
     },
     {
+      "id": "bank3.pad_801E",
+      "offset": 49198,
+      "size": 2,
+      "kind": "padding",
+      "name": "Fill: 2 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 32798,
+      "sha1": "a19f987b885f5a96069f4bc7f12b9e84ceba7dfa",
+      "description": "Between bank 3's JMP table ($8000-$801D) and the tile-block table base $8020."
+    },
+    {
       "id": "bank3.pad_BFD7",
       "offset": 65511,
       "size": 40,

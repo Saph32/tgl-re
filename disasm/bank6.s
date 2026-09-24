@@ -1301,7 +1301,8 @@ L6_8A8C:
 L6_8A94:
         jmp     L6_87B2
 
-; ---- UNCLAIMED (gap) $8A97-$8A99, 3 bytes
+; ---- bank6.tbl_8A97 (data) $8A97-$8A99, 3 bytes
+; Value by weapon level ($3D = 1-3)
         .byte   $08,$04,$01
 
 ; ---- bank6.code_8A9A (code) $8A9A-$8ADD, 68 bytes
@@ -1650,7 +1651,8 @@ L6_8D5F:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $8D68-$8D6F, 8 bytes
+; ---- bank6.tbl_8D68 (data) $8D68-$8D6F, 8 bytes
+; Types $18-$19: per-type values, and two by $AD9A
         .byte   $01,$03,$02,$00,$16,$27,$E0,$20
 
 ; ---- bank6.code_8D70 (code) $8D70-$8E5E, 239 bytes
@@ -4325,7 +4327,8 @@ L6_A2A9:
         sta     $0560,X
         jmp     L6_A317
 
-; ---- UNCLAIMED (gap) $A2C4-$A2C5, 2 bytes
+; ---- bank6.tbl_A2C4 (data) $A2C4-$A2C5, 2 bytes
+; Types $14-$15: value for $0548
         .byte   $00,$02
 
 ; ---- bank6.tbl_A2C6 (data) $A2C6-$A2CA, 5 bytes
@@ -4374,8 +4377,11 @@ L6_A302:
         sta     $0788,X
         rts
 
-; ---- UNCLAIMED (gap) $A30F-$A316, 8 bytes
-        .byte   $9D,$60,$05,$98,$9D,$48,$05,$60
+; ---- bank6.code_A30F (code) $A30F-$A316, 8 bytes
+        sta     $0560,X
+        tya
+        sta     $0548,X
+        rts
 
 ; ---- bank6.code_A317 (code) $A317-$A3D9, 195 bytes
 L6_A317:
@@ -4466,7 +4472,8 @@ L6_A3BE:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $A3DA-$A3DF, 6 bytes
+; ---- bank6.tbl_A3DA (data) $A3DA-$A3DF, 6 bytes
+; Types $55-$57: two per-type values
         .byte   $04,$18,$30,$0F,$03,$00
 
 ; ---- bank6.tbl_A3E0 (data) $A3E0-$A3E9, 10 bytes
@@ -4607,7 +4614,8 @@ L6_A4F2:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $A4F8-$A4FA, 3 bytes
+; ---- bank6.tbl_A4F8 (data) $A4F8-$A4FA, 3 bytes
+; Ends of two tables read by $A497
         .byte   $35,$36,$35
 
 ; ---- bank6.tbl_A4FB (data) $A4FB-$A500, 6 bytes
@@ -4685,7 +4693,8 @@ L6_A597:
         jsr     L6_A5B0
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $A5A0-$A5AB, 12 bytes
+; ---- bank6.tbl_A5A0 (data) $A5A0-$A5AB, 12 bytes
+; Types $5A-$5C: four per-type values
         .byte   $03,$02,$00,$03,$02,$02,$01,$04,$02,$08,$50,$18
 
 ; ---- bank6.tbl_A5AC (data) $A5AC-$A5AF, 4 bytes
@@ -4879,7 +4888,8 @@ L6_A755:
         jsr     L7_C0C6
         jmp     L7_C0D2
 
-; ---- UNCLAIMED (gap) $A766-$A76D, 8 bytes
+; ---- bank6.tbl_A766 (data) $A766-$A76D, 8 bytes
+; Types $50-$51: four per-type values
         .byte   $01,$02,$02,$00,$01,$02,$3C,$1E
 
 ; ---- bank6.code_A76E (code) $A76E-$A7F3, 134 bytes
@@ -5179,8 +5189,12 @@ L6_A991:
         ldy     $0518,X
         jmp     L7_C07E
 
-; ---- UNCLAIMED (gap) $A9B8-$A9BE, 7 bytes
-        .byte   $31,$21,$FE,$02,$FF,$01,$00
+; ---- bank6.tbl_A9B8 (data) $A9B8-$A9B9, 2 bytes
+; Types $36-$37: value for $0560
+        .byte   $31,$21
+
+; ---- UNCLAIMED (gap) $A9BA-$A9BE, 5 bytes
+        .byte   $FE,$02,$FF,$01,$00
 
 ; ---- bank6.tbl_A9BF (level) $A9BF-$AA0E, 80 bytes
 ; Tile rectangles: 5 x 4x4, by $0638
@@ -5619,7 +5633,8 @@ L6_AD82:
 L6_AD87:
         jmp     L6_9F4F
 
-; ---- UNCLAIMED (gap) $AD8A-$AD8C, 3 bytes
+; ---- bank6.tbl_AD8A (data) $AD8A-$AD8C, 3 bytes
+; Values by $07B8, read with Y from 1
         .byte   $03,$00,$01
 
 ; ---- bank6.tbl_AD8D (data) $AD8D-$AD90, 4 bytes

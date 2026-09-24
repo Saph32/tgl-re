@@ -6906,7 +6906,8 @@ L7_FD44:
         sta     $0698
         rts
 
-; ---- UNCLAIMED (gap) $FD4B-$FD52, 8 bytes
+; ---- bank7.tbl_FD4B (data) $FD4B-$FD52, 8 bytes
+; Player attack by attack level, and a value by mode
         .byte   $01,$02,$03,$05,$03,$05,$41,$06
 
 ; ---- bank7.code_FD53 (code) $FD53-$FDC9, 119 bytes
