@@ -720,9 +720,11 @@ authoritative, up-to-date version of this list; what follows is what does not li
 1. **Name the enemy types.** The manual names nine (`docs/external.html`); a match by eye
    against `docs/enemies.html` is a lead. A savestate with known enemies on screen would
    settle it, and `parse-metasprites.py --verify` would check their shapes.
-2. **The remaining gaps** — about 130 bytes in small stretches (`build.py --gaps`); bank 6
-   `$A5A0` (12) and `$A3DA` (6) have no reader found. Which rooms take the special path
-   (`$30` bits 5-6) in the room drawer.
+2. **The last 35 unclaimed bytes**, none with a reader found: bank 0 `$82BD` (8) and
+   `$BF04` (3), bank 5 `$84C3` (8), bank 6 `$A9BA` (5) and `$B902` (2), bank 7 `$EEC4` (8)
+   and `$EF6B` (1, one past `$EF55`'s 22 entries). Then the leads: `build.py` counts them,
+   and past 97% most of the coverage is leads. Which rooms take the room drawer's special
+   path (`$30` bits 5-6).
 3. **The five bank 5 spawn scripts that end on a jump**, and corridor 16's.
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,

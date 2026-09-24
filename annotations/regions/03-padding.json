@@ -24,6 +24,17 @@
       "description": "37 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
     },
     {
+      "id": "bank1.pad_800F",
+      "offset": 16415,
+      "size": 1,
+      "kind": "padding",
+      "name": "Fill: 1 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 32783,
+      "sha1": "85e53271e14006f0265921d02d4d736cdc580b0b",
+      "description": "Between bank 1's JMP table ($8000-$800E, five entries) and its tile-block table base $8010."
+    },
+    {
       "id": "bank1.pad_BFCF",
       "offset": 32735,
       "size": 48,

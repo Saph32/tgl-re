@@ -2039,7 +2039,8 @@ L0_9859:
         .byte   $07,$00,$07,$00,$07,$00,$06,$00,$06,$00,$05,$00,$05,$00,$05,$00
         .byte   $05,$00,$04,$00,$04,$00,$04,$00
 
-; ---- UNCLAIMED (gap) $9932-$9932, 1 bytes
+; ---- bank0.hdr_9932 (data) $9932-$9932, 1 bytes
+; Song header $00 at $9932: code follows
         .byte   $00
 
 ; ---- bank0.code_9933 (code) $9933-$9938, 6 bytes
@@ -2049,7 +2050,8 @@ L0_9935:
         sta     $0301
         rts
 
-; ---- UNCLAIMED (gap) $9939-$9939, 1 bytes
+; ---- bank0.hdr_9939 (data) $9939-$9939, 1 bytes
+; Song header $00 at $9939: code follows
         .byte   $00
 
 ; ---- bank0.code_993A (code) $993A-$993D, 4 bytes
@@ -2057,7 +2059,8 @@ L0_993A:
         lda     #$01
         bne     L0_9935
 
-; ---- UNCLAIMED (gap) $993E-$993E, 1 bytes
+; ---- bank0.hdr_993E (data) $993E-$993E, 1 bytes
+; Song header $00 at $993E: code follows
         .byte   $00
 
 ; ---- bank0.code_993F (code) $993F-$9941, 3 bytes
@@ -2115,7 +2118,8 @@ L0_993F:
         .byte   $01,$06,$01,$3F,$06,$00,$00,$02,$00,$D8,$9A,$25,$E2,$27,$29,$2C
         .byte   $31,$82
 
-; ---- UNCLAIMED (gap) $9ADF-$9ADF, 1 bytes
+; ---- bank0.hdr_9ADF (data) $9ADF-$9ADF, 1 bytes
+; Song header $00 at $9ADF: code follows
         .byte   $00
 
 ; ---- bank0.code_9AE0 (code) $9AE0-$9B03, 36 bytes

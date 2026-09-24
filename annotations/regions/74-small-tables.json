@@ -13,6 +13,50 @@
       "description": "$8396: LDY #$0D / LDA $8472,Y / STA $0180,Y / DEY / BNE - 13 palette bytes to $0181-$018D for the intro story screen ($86E8, 'LONG AGO AN ALIEN RACE...'). Then $83F7: LDA $847F,Y with Y = 0-2 or 3-5 into $14, and $C036 ($D5F8) fills eight attribute bytes at PPU $23C0 + row with it - 05 0A 0F then 5F AF FF, stepping each band of text from palette 0 up to palette 3. The two tables overlap by one byte ($847F is both the 13th colour and the first attribute value), and together they end exactly on the code at $8485."
     },
     {
+      "id": "bank0.hdr_9932",
+      "offset": 6466,
+      "size": 1,
+      "kind": "data",
+      "name": "Song header $00 at $9932: code follows",
+      "confidence": "confirmed",
+      "cpu_addr": 39218,
+      "sha1": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "description": "Song table entry 70 points here. $97E4 reads a header's first byte, and when it is $00 it pushes the pointer and RTSes, so execution continues at $9933 - the 'song' is code (registered in dispatch.json extra_seeds). This byte is that marker."
+    },
+    {
+      "id": "bank0.hdr_9939",
+      "offset": 6473,
+      "size": 1,
+      "kind": "data",
+      "name": "Song header $00 at $9939: code follows",
+      "confidence": "confirmed",
+      "cpu_addr": 39225,
+      "sha1": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "description": "Song table entry 71 points here. $97E4 reads a header's first byte, and when it is $00 it pushes the pointer and RTSes, so execution continues at $993A - the 'song' is code (registered in dispatch.json extra_seeds). This byte is that marker."
+    },
+    {
+      "id": "bank0.hdr_993E",
+      "offset": 6478,
+      "size": 1,
+      "kind": "data",
+      "name": "Song header $00 at $993E: code follows",
+      "confidence": "confirmed",
+      "cpu_addr": 39230,
+      "sha1": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "description": "Song table entry 31 and 68 points here. $97E4 reads a header's first byte, and when it is $00 it pushes the pointer and RTSes, so execution continues at $993F - the 'song' is code (registered in dispatch.json extra_seeds). This byte is that marker."
+    },
+    {
+      "id": "bank0.hdr_9ADF",
+      "offset": 6895,
+      "size": 1,
+      "kind": "data",
+      "name": "Song header $00 at $9ADF: code follows",
+      "confidence": "confirmed",
+      "cpu_addr": 39647,
+      "sha1": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
+      "description": "Song table entry 69 points here. $97E4 reads a header's first byte, and when it is $00 it pushes the pointer and RTSes, so execution continues at $9AE0 - the 'song' is code (registered in dispatch.json extra_seeds). This byte is that marker."
+    },
+    {
       "id": "bank1.tbl_8229",
       "offset": 16953,
       "size": 4,

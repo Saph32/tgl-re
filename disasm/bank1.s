@@ -17,7 +17,8 @@ L1_8009:
 L1_800C:
         jmp     L1_82B5
 
-; ---- UNCLAIMED (gap) $800F-$800F, 1 bytes
+; ---- bank1.pad_800F (padding) $800F-$800F, 1 bytes
+; Fill: 1 x $FF
         .byte   $FF
 
 ; ---- bank1.gfxtbl_8010 (pointer_table) $8010-$803B, 44 bytes
