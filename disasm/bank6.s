@@ -1338,7 +1338,8 @@ L6_8AC4:
 L6_8ADD:
         rts
 
-; ---- UNCLAIMED (gap) $8ADE-$8AEC, 15 bytes
+; ---- bank6.tbl_8ADE (data) $8ADE-$8AEC, 15 bytes
+; Five 3-byte tables by weapon level ($3D = 1-3)
         .byte   $FA,$F6,$F8,$76,$76,$02,$00,$03,$06,$01,$00,$00,$18,$38,$3C
 
 ; ---- bank6.code_8AED (code) $8AED-$8B6E, 130 bytes
@@ -1995,7 +1996,8 @@ L6_902B:
         jsr     L7_C0C9
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $9031-$9039, 9 bytes
+; ---- bank6.tbl_9031 (data) $9031-$9039, 9 bytes
+; Types $24-$26: three per-type values
         .byte   $03,$02,$00,$20,$40,$80,$01,$01,$05
 
 ; ---- bank6.code_903A (code) $903A-$907C, 67 bytes
@@ -3601,9 +3603,21 @@ L6_9CE8:
         jsr     L7_C0C6
         jmp     L7_C0D2
 
-; ---- UNCLAIMED (gap) $9CEE-$9D09, 28 bytes
-        .byte   $01,$02,$00,$03,$00,$04,$08,$0C,$10,$0C,$08,$04,$00,$FC,$F8,$F4
-        .byte   $F0,$F4,$F8,$FC,$03,$01,$00,$05,$08,$08,$04,$00
+; ---- bank6.tbl_9CEE (data) $9CEE-$9CF1, 4 bytes
+; Types $10-$13: value for $0560
+        .byte   $01,$02,$00,$03
+
+; ---- bank6.tbl_9CF2 (data) $9CF2-$9D01, 16 bytes
+; Offset wave, 16 entries
+        .byte   $00,$04,$08,$0C,$10,$0C,$08,$04,$00,$FC,$F8,$F4,$F0,$F4,$F8,$FC
+
+; ---- bank6.tbl_9D02 (data) $9D02-$9D05, 4 bytes
+; Types $10-$13: value for $07D0
+        .byte   $03,$01,$00,$05
+
+; ---- bank6.tbl_9D06 (data) $9D06-$9D09, 4 bytes
+; Types $10-$13: value by animation frame
+        .byte   $08,$08,$04,$00
 
 ; ---- bank6.code_9D0A (code) $9D0A-$9DF1, 232 bytes
 L6_9D0A:
@@ -3821,9 +3835,13 @@ L6_9E98:
         jsr     L7_C102
         jmp     L6_9F03
 
-; ---- UNCLAIMED (gap) $9EDF-$9EF0, 18 bytes
-        .byte   $04,$05,$06,$07,$08,$08,$08,$00,$03,$01,$01,$03,$01,$00,$03,$04
-        .byte   $05,$06
+; ---- bank6.tbl_9EDF (data) $9EDF-$9EEC, 14 bytes
+; Two 7-byte tables indexed by $4B
+        .byte   $04,$05,$06,$07,$08,$08,$08,$00,$03,$01,$01,$03,$01,$00
+
+; ---- bank6.tbl_9EED (data) $9EED-$9EF0, 4 bytes
+; Table indexed by $4A
+        .byte   $03,$04,$05,$06
 
 ; ---- bank6.code_9EF1 (code) $9EF1-$9FB3, 195 bytes
 L6_9EF1:
@@ -4448,8 +4466,12 @@ L6_A3BE:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $A3DA-$A3E9, 16 bytes
-        .byte   $04,$18,$30,$0F,$03,$00,$68,$68,$67,$68,$68,$67,$68,$67,$68,$67
+; ---- UNCLAIMED (gap) $A3DA-$A3DF, 6 bytes
+        .byte   $04,$18,$30,$0F,$03,$00
+
+; ---- bank6.tbl_A3E0 (data) $A3E0-$A3E9, 10 bytes
+; Table by 10-frame animation counter
+        .byte   $68,$68,$67,$68,$68,$67,$68,$67,$68,$67
 
 ; ---- bank6.code_A3EA (code) $A3EA-$A4F7, 270 bytes
 L6_A3EA:
@@ -4663,8 +4685,12 @@ L6_A597:
         jsr     L6_A5B0
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $A5A0-$A5AF, 16 bytes
-        .byte   $03,$02,$00,$03,$02,$02,$01,$04,$02,$08,$50,$18,$00,$80,$C0,$40
+; ---- UNCLAIMED (gap) $A5A0-$A5AB, 12 bytes
+        .byte   $03,$02,$00,$03,$02,$02,$01,$04,$02,$08,$50,$18
+
+; ---- bank6.tbl_A5AC (data) $A5AC-$A5AF, 4 bytes
+; Sprite flip bits by animation frame
+        .byte   $00,$80,$C0,$40
 
 ; ---- bank6.code_A5B0 (code) $A5B0-$A765, 438 bytes
 L6_A5B0:
@@ -5477,7 +5503,8 @@ L6_AC6C:
 L6_AC8E:
         rts
 
-; ---- UNCLAIMED (gap) $AC8F-$AC9E, 16 bytes
+; ---- bank6.tbl_AC8F (data) $AC8F-$AC9E, 16 bytes
+; Tile rectangle 4 x 4
         .byte   $80,$80,$80,$80,$80,$80,$80,$80,$60,$7D,$7E,$7F,$68,$20,$20,$6F
 
 ; ---- bank6.code_AC9F (code) $AC9F-$ACB9, 27 bytes
@@ -6466,7 +6493,8 @@ L6_B449:
         ldy     $0518,X
         jmp     L7_C07E
 
-; ---- UNCLAIMED (gap) $B454-$B477, 36 bytes
+; ---- bank6.tbl_B454 (data) $B454-$B477, 36 bytes
+; Tile rectangles 2 x 4, five entries
         .byte   $FD,$FD,$FD,$FD,$FD,$FD,$FD,$FD,$E0,$E1,$F0,$F1,$FD,$FD,$B0,$B1
         .byte   $C0,$C1,$D0,$D1,$72,$8C,$73,$8D,$74,$8E,$75,$8F,$68,$82,$6B,$85
         .byte   $6E,$88,$71,$8B
@@ -6662,7 +6690,8 @@ L6_B5EF:
         ldy     $0518,X
         jmp     L7_C07E
 
-; ---- UNCLAIMED (gap) $B60F-$B632, 36 bytes
+; ---- bank6.tbl_B60F (data) $B60F-$B632, 36 bytes
+; Tile rectangle 6 x 6
         .byte   $FD,$76,$97,$97,$90,$FD,$77,$96,$96,$96,$96,$91,$97,$96,$96,$96
         .byte   $96,$97,$97,$96,$96,$96,$96,$97,$78,$96,$96,$96,$96,$92,$FD,$79
         .byte   $97,$97,$93,$FD
@@ -6837,7 +6866,8 @@ L6_B787:
         lda     #$02
         jmp     L6_B449
 
-; ---- UNCLAIMED (gap) $B79D-$B7BC, 32 bytes
+; ---- bank6.tbl_B79D (data) $B79D-$B7BC, 32 bytes
+; Tile rectangles 4 x 2, four entries
         .byte   $20,$F8,$F9,$20,$20,$FA,$FB,$20,$90,$B0,$D0,$F0,$A0,$C0,$E0,$F1
         .byte   $B4,$B5,$B6,$B7,$C4,$C5,$C6,$C7,$20,$20,$20,$20,$20,$20,$20,$20
 
@@ -7346,11 +7376,22 @@ L6_BBA3:
         sta     $0608,X
         rts
 
-; ---- UNCLAIMED (gap) $BBBB-$BBEB, 49 bytes
-        .byte   $A1,$A3,$AB,$AC,$80,$9D,$9E,$9E,$9F,$80,$9D,$A1,$A2,$A2,$A3,$9F
-        .byte   $A5,$A6,$A7,$A8,$A8,$A9,$A5,$20,$20,$20,$20,$A9,$AA,$AB,$20,$20
-        .byte   $AC,$AD,$80,$AA,$AE,$AE,$AD,$80,$64,$96,$C8,$FA,$FA,$FA,$FA,$FA
-        .byte   $FA
+; ---- bank6.tbl_BBBB (data) $BBBB-$BBBE, 4 bytes
+; Tile rectangle 2 x 2
+        .byte   $A1,$A3,$AB,$AC
+
+; ---- bank6.tbl_BBBF (data) $BBBF-$BBD6, 24 bytes
+; Tile rectangle 6 x 4 (or its first 3 rows)
+        .byte   $80,$9D,$9E,$9E,$9F,$80,$9D,$A1,$A2,$A2,$A3,$9F,$A5,$A6,$A7,$A8
+        .byte   $A8,$A9,$A5,$20,$20,$20,$20,$A9
+
+; ---- bank6.tbl_BBD7 (data) $BBD7-$BBE2, 12 bytes
+; Tile rectangle 6 x 2
+        .byte   $AA,$AB,$20,$20,$AC,$AD,$80,$AA,$AE,$AE,$AD,$80
+
+; ---- bank6.tbl_BBE3 (data) $BBE3-$BBEB, 9 bytes
+; Table indexed by $B9, the scroll speed high byte
+        .byte   $64,$96,$C8,$FA,$FA,$FA,$FA,$FA,$FA
 
 ; ---- bank6.code_BBEC (code) $BBEC-$BD08, 285 bytes
 L6_BBEC:

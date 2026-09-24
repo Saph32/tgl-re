@@ -906,10 +906,21 @@ L7_CF05:
         sta     $0200,X
         jmp     L7_CE5B
 
-; ---- UNCLAIMED (gap) $CF2B-$CF4B, 33 bytes
-        .byte   $A5,$83,$29,$02,$D0,$D3,$86,$38,$A6,$80,$A5,$84,$9D,$00,$02,$A5
-        .byte   $85,$9D,$03,$02,$A5,$87,$9D,$01,$02,$A5,$86,$9D,$02,$02,$4C,$5B
-        .byte   $CE
+; ---- bank7.code_CF2B (code) $CF2B-$CF4B, 33 bytes
+        lda     $83
+        and     #$02
+        bne     $CF04
+        stx     $38
+        ldx     $80
+        lda     $84
+        sta     $0200,X
+        lda     $85
+        sta     $0203,X
+        lda     $87
+        sta     $0201,X
+        lda     $86
+        sta     $0202,X
+        jmp     $CE5B
 
 ; ---- bank7.code_CF4C (code) $CF4C-$CFC3, 120 bytes
 L7_CF4C:
@@ -1611,9 +1622,17 @@ L7_D68B:
         sta     $2005
         rts
 
-; ---- UNCLAIMED (gap) $D69B-$D6AD, 19 bytes
-        .byte   $86,$01,$A2,$00,$86,$00,$81,$00,$E6,$00,$D0,$FA,$E6,$01,$C4,$01
-        .byte   $B0,$F4,$60
+; ---- bank7.code_D69B (code) $D69B-$D6AD, 19 bytes
+        stx     $01
+        ldx     #$00
+        stx     $00
+        sta     ($00,X)
+        inc     $00
+        bne     $D6A1
+        inc     $01
+        cpy     $01
+        bcs     $D6A1
+        rts
 
 ; ---- bank7.code_D6AE (code) $D6AE-$D841, 404 bytes
 L7_D6AE:
@@ -5990,7 +6009,8 @@ L7_F6C3:
         jsr     L7_CE88
         jmp     L7_F612
 
-; ---- UNCLAIMED (gap) $F6DB-$F6E4, 10 bytes
+; ---- bank7.tbl_F6DB (data) $F6DB-$F6E4, 10 bytes
+; Key awarded by corridors 1-10
         .byte   $01,$02,$03,$04,$00,$05,$00,$06,$07,$00
 
 ; ---- bank7.code_F6E5 (code) $F6E5-$F771, 141 bytes
@@ -6342,10 +6362,14 @@ L7_F958:
         ldy     $38
         rts
 
-; ---- UNCLAIMED (gap) $F95B-$F97D, 35 bytes
-        .byte   $AB,$6A,$32,$02,$03,$03,$04,$0E,$0D,$0D,$0C,$06,$05,$05,$04,$0A
-        .byte   $0B,$0B,$0C,$02,$01,$01,$00,$0E,$0F,$0F,$00,$06,$07,$07,$08,$0A
-        .byte   $09,$09,$08
+; ---- bank7.tbl_F95B (data) $F95B-$F95D, 3 bytes
+; Aiming thresholds: tan(33.75, 22.5, 11.25 degrees) x 256
+        .byte   $AB,$6A,$32
+
+; ---- bank7.tbl_F95E (data) $F95E-$F97D, 32 bytes
+; Aiming: octant and step to one of 16 directions
+        .byte   $02,$03,$03,$04,$0E,$0D,$0D,$0C,$06,$05,$05,$04,$0A,$0B,$0B,$0C
+        .byte   $02,$01,$01,$00,$0E,$0F,$0F,$00,$06,$07,$07,$08,$0A,$09,$09,$08
 
 ; ---- bank7.code_F97E (code) $F97E-$F985, 8 bytes
 L7_F97E:
@@ -7211,8 +7235,12 @@ L7_FF8D:
         tax
         rts
 
-; ---- UNCLAIMED (gap) $FFA9-$FFD0, 40 bytes
+; ---- bank7.pad_FFA9 (padding) $FFA9-$FFBF, 23 bytes
+; Fill: 23 x $FF
         .fill   23,$FF
+
+; ---- bank7.dmc_FFC0 (data) $FFC0-$FFD0, 17 bytes
+; DMC sample: 17 zero bytes (a timer, not a sound)
         .fill   17,$00
 
 ; ---- bank7.code_FFD1 (code) $FFD1-$FFE3, 19 bytes
@@ -7229,7 +7257,8 @@ L7_FFDC:
         lda     $EF16,Y
         jmp     L7_D852
 
-; ---- UNCLAIMED (gap) $FFE4-$FFF1, 14 bytes
+; ---- bank7.pad_FFE4 (padding) $FFE4-$FFF1, 14 bytes
+; Fill: 14 x $FF
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 ; ---- bank7.bank_table_FFF2 (data) $FFF2-$FFF9, 8 bytes

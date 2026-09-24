@@ -311,7 +311,8 @@ L2_827F:
 L2_8291:
         rts
 
-; ---- UNCLAIMED (gap) $8292-$82A0, 15 bytes
+; ---- bank2.tbl_8292 (data) $8292-$82A0, 15 bytes
+; Two tables by $51, eight apart
         .byte   $0D,$0D,$08,$0C,$0C,$0D,$0D,$0C,$0B,$09,$0B,$04,$04,$09,$09
 
 ; ---- bank2.tbl_82A1 (data) $82A1-$82A8, 8 bytes
@@ -1017,9 +1018,13 @@ L2_87B1:
         lda     #$08
         jmp     L2_870D
 
-; ---- UNCLAIMED (gap) $87BB-$87CD, 19 bytes
-        .byte   $32,$00,$35,$35,$35,$31,$00,$00,$30,$34,$33,$03,$0C,$30,$C0,$01
-        .byte   $04,$10,$40
+; ---- bank2.tbl_87BB (data) $87BB-$87C5, 11 bytes
+; Sound played on picking up items 12-22
+        .byte   $32,$00,$35,$35,$35,$31,$00,$00,$30,$34,$33
+
+; ---- bank2.tbl_87C6 (data) $87C6-$87CD, 8 bytes
+; Weapon level masks and increments
+        .byte   $03,$0C,$30,$C0,$01,$04,$10,$40
 
 ; ---- bank2.tbl_87CE (data) $87CE-$87D3, 6 bytes
 ; Table, 6 bytes
@@ -2429,7 +2434,8 @@ L2_8AF7:
         .byte   $82,$82,$22,$0C,$24,$24,$08,$24,$42,$42,$44,$30,$48,$48,$30,$48
         .byte   $84,$84,$00,$00
 
-; ---- UNCLAIMED (gap) $BFEF-$BFFE, 16 bytes
+; ---- bank2.pad_BFEF (padding) $BFEF-$BFFE, 16 bytes
+; Fill: 16 x $FF
         .fill   16,$FF
 
 ; ---- bank2.bank_id_BFFF (data) $BFFF-$BFFF, 1 bytes

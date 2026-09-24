@@ -1551,9 +1551,16 @@ L3_8B59:
 ; ---- bank3.code_8B6A (code) $8B6A-$8B6A, 1 bytes
         rts
 
-; ---- UNCLAIMED (gap) $8B6B-$8B7D, 19 bytes
-        .byte   $A9,$20,$85,$15,$A9,$20,$85,$14,$A9,$00,$85,$17,$A9,$14,$85,$16
-        .byte   $20,$84,$C0
+; ---- bank3.code_8B6B (code) $8B6B-$8B7D, 19 bytes
+        lda     #$20
+        sta     $15
+        lda     #$20
+        sta     $14
+        lda     #$00
+        sta     $17
+        lda     #$14
+        sta     $16
+        jsr     $C084
 
 ; ---- bank3.code_8B7E (code) $8B7E-$8CEE, 369 bytes
 L3_8B7E:
@@ -2958,7 +2965,8 @@ L3_966D:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- UNCLAIMED (gap) $9673-$9685, 19 bytes
+; ---- bank3.tbl_9673 (data) $9673-$9685, 19 bytes
+; Eight small tables for the object handler at $952E
         .byte   $02,$00,$0F,$07,$00,$40,$84,$85,$00,$40,$00,$3A,$36,$36,$7B,$19
         .byte   $19,$86,$87
 

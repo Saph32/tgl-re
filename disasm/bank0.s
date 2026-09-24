@@ -25,7 +25,8 @@ L0_8015:
 L0_8018:
         jmp     L0_8034
 
-; ---- UNCLAIMED (gap) $801B-$802F, 21 bytes
+; ---- bank0.pad_801B (padding) $801B-$802F, 21 bytes
+; Fill: 21 x $FF
         .fill   21,$FF
 
 ; ---- bank0.gfxtbl_8030 (pointer_table) $8030-$8033, 4 bytes
@@ -620,7 +621,8 @@ L0_8469:
 L0_8472:
         rts
 
-; ---- UNCLAIMED (gap) $8473-$8484, 18 bytes
+; ---- bank0.tbl_8473 (data) $8473-$8484, 18 bytes
+; Story screen: palette, then the text-reveal attribute values
         .byte   $0F,$0F,$0F,$00,$0F,$0F,$10,$0F,$0F,$30,$0F,$0F,$05,$0A,$0F,$5F
         .byte   $AF,$FF
 
@@ -1697,10 +1699,29 @@ L0_95F2:
         sta     $0382,X
         rts
 
-; ---- UNCLAIMED (gap) $95F9-$9626, 46 bytes
-        .byte   $BD,$27,$03,$F0,$F4,$0A,$A8,$B9,$AB,$99,$85,$1E,$B9,$AC,$99,$85
-        .byte   $1F,$BC,$A5,$03,$20,$27,$96,$C8,$85,$1E,$BD,$20,$03,$18,$65,$1E
-        .byte   $E9,$1F,$B0,$02,$A9,$00,$9D,$82,$03,$98,$9D,$A5,$03,$60
+; ---- bank0.code_95F9 (code) $95F9-$9626, 46 bytes
+        lda     $0327,X
+        beq     $95F2
+        asl     A
+        tay
+        lda     $99AB,Y
+        sta     $1E
+        lda     $99AC,Y
+        sta     $1F
+        ldy     $03A5,X
+        jsr     $9627
+        iny
+        sta     $1E
+        lda     $0320,X
+        clc
+        adc     $1E
+        sbc     #$1F
+        bcs     $961F
+        lda     #$00
+        sta     $0382,X
+        tya
+        sta     $03A5,X
+        rts
 
 ; ---- bank0.code_9627 (code) $9627-$9770, 330 bytes
 L0_9627:

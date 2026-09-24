@@ -1,0 +1,49 @@
+{
+  "_comment": "Hand-authored. Code that decodes cleanly and fits its neighbours but that nothing in the ROM is known to reach: no operand, no pointer, no target-minus-one pair and no fall-through names it. Each is a LEAD - dead code, or reached some way not yet found.",
+  "regions": [
+    {
+      "id": "bank0.code_95F9",
+      "offset": 5641,
+      "size": 46,
+      "kind": "code",
+      "name": "Unreferenced volume-envelope variant",
+      "confidence": "lead",
+      "cpu_addr": 38393,
+      "sha1": "7709f935fae652ad5452d11be55eeb20688a06a4",
+      "description": "Starts LDA $0327,X / BEQ $95F2 and then follows the routine just above it ($95B2-$95F1, which enters the same test after checking $0320 bit 4) step for step: the volume-envelope pointer from $99AB + 2 x index into $1E/$1F, JSR $9627 to fetch the next envelope byte, and the result into $0382,X and $03A5,X. The difference is the arithmetic: this one subtracts $1F and clamps at zero (SBC #$1F / BCS / LDA #$00) where the traced routine ORs in the channel's high nibble. No byte pair $F8 95 or $F9 95 exists in bank 0, no song entry points at $95F8, and no JSR/JMP names it. A LEAD: probably a superseded version left in the ROM."
+    },
+    {
+      "id": "bank3.code_8B6B",
+      "offset": 52091,
+      "size": 19,
+      "kind": "code",
+      "name": "Unreferenced entry: $C084 on a 32 x 32 area at $1400, then $8B7E",
+      "confidence": "lead",
+      "cpu_addr": 35691,
+      "sha1": "cf6b07827b254e0ed80e951023c369d900e18ed0",
+      "description": "LDA #$20 / STA $15 / LDA #$20 / STA $14 / LDA #$00 / STA $17 / LDA #$14 / STA $16 / JSR $C084 ($E453), then falls into $8B7E. $8B7E has callers of its own (JSR at $82EE, $8380 and $87B5, JMP at $82FD); nothing names $8B6B, and the pairs $6B 8B / $6A 8B occur nowhere. It follows an RTS, so it is not a fall-through either. A LEAD."
+    },
+    {
+      "id": "bank7.code_CF2B",
+      "offset": 118587,
+      "size": 33,
+      "kind": "code",
+      "name": "Unreferenced single-sprite emitter variant",
+      "confidence": "lead",
+      "cpu_addr": 53035,
+      "sha1": "68a3bf1e89bb4d10ef7f91a1d6f0598641b63259",
+      "description": "Same shape as $CF05, reached through the fixed-bank entry $C0DC: LDA $83 / AND #$02 / BNE $CF04 (the RTS just before $CF05), save X in $38, then write one hardware sprite at $0200 + $80 from $84 (Y), $87 (tile), $86 (attributes), $85 (X) and JMP $CE5B. $CF05 first parks the sprite off screen (Y = $F8) and writes Y last; this one writes Y first. The byte pairs $2B CF and $2A CF occur nowhere in the ROM and no instruction names $CF2B. A LEAD."
+    },
+    {
+      "id": "bank7.code_D69B",
+      "offset": 120491,
+      "size": 19,
+      "kind": "code",
+      "name": "Unreferenced memory fill",
+      "confidence": "lead",
+      "cpu_addr": 54939,
+      "sha1": "ec78ff1e86bd5c5afcde04ee4a649e76b32196a0",
+      "description": "STX $01 / LDX #$00 / STX $00, then STA ($00,X) / INC $00 / BNE back / INC $01 / CPY $01 / BCS back / RTS: fill whole pages with A, from page X through page Y. Sits between traced code and the inline jump table helper at $D6AE. The byte pairs $9B D6 and $9A D6 occur only inside a graphics block, and no instruction names $D69B. A LEAD - the reset path clears RAM by other means."
+    }
+  ]
+}

@@ -2,6 +2,28 @@
   "_comment": "Hand-authored. Unused $FF fill at the ends of banks.",
   "regions": [
     {
+      "id": "bank0.pad_801B",
+      "offset": 43,
+      "size": 21,
+      "kind": "padding",
+      "name": "Fill: 21 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 32795,
+      "sha1": "25d6b60697aa16522f7a103c2b7da04af863a96e",
+      "description": "Between the end of bank 0's JMP table ($8000-$801A, nine entries) and the tile-block pointer table at $8030 that $D842 names. All $FF; no reader. Space for seven more JMP entries, unused."
+    },
+    {
+      "id": "bank0.pad_BFDA",
+      "offset": 16362,
+      "size": 37,
+      "kind": "padding",
+      "name": "Fill: 37 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 49114,
+      "sha1": "e94cc40e6f72938b10d2577c6be7f27b91b1bbf5",
+      "description": "37 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+    },
+    {
       "id": "bank1.pad_BFCF",
       "offset": 32735,
       "size": 48,
@@ -13,15 +35,15 @@
       "description": "48 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
     },
     {
-      "id": "bank6.pad_BFD1",
-      "offset": 114657,
-      "size": 46,
+      "id": "bank2.pad_BFEF",
+      "offset": 49151,
+      "size": 16,
       "kind": "padding",
-      "name": "Fill: 46 x $FF",
+      "name": "Fill: 16 x $FF",
       "confidence": "confirmed",
-      "cpu_addr": 49105,
-      "sha1": "3135417a5c2d783a2a38a321997cd9e020e69a92",
-      "description": "46 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+      "cpu_addr": 49135,
+      "sha1": "52e0e9d4f46c97ca5bcb0708d18633698d60fa5f",
+      "description": "16 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader."
     },
     {
       "id": "bank3.pad_BFD7",
@@ -35,15 +57,37 @@
       "description": "40 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
     },
     {
-      "id": "bank0.pad_BFDA",
-      "offset": 16362,
-      "size": 37,
+      "id": "bank6.pad_BFD1",
+      "offset": 114657,
+      "size": 46,
       "kind": "padding",
-      "name": "Fill: 37 x $FF",
+      "name": "Fill: 46 x $FF",
       "confidence": "confirmed",
-      "cpu_addr": 49114,
-      "sha1": "e94cc40e6f72938b10d2577c6be7f27b91b1bbf5",
-      "description": "37 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+      "cpu_addr": 49105,
+      "sha1": "3135417a5c2d783a2a38a321997cd9e020e69a92",
+      "description": "46 bytes of $FF running from the end of the bank's last claimed structure to $BFFE, the byte before the bank-identity byte at $BFFF that the reset path checks. No reader has been found; $FF is the erased-EPROM value, so this reads as unused space."
+    },
+    {
+      "id": "bank7.pad_FFA9",
+      "offset": 131001,
+      "size": 23,
+      "kind": "padding",
+      "name": "Fill: 23 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 65449,
+      "sha1": "f6b9e7e0a6bfca143ae67dad7f77b29e755256ab",
+      "description": "Between the end of the traced code at $FFA8 and the DMC sample at $FFC0. All $FF; no reader."
+    },
+    {
+      "id": "bank7.pad_FFE4",
+      "offset": 131060,
+      "size": 14,
+      "kind": "padding",
+      "name": "Fill: 14 x $FF",
+      "confidence": "confirmed",
+      "cpu_addr": 65508,
+      "sha1": "cd518f635f41f18e181adf579db8e1c3952ba27b",
+      "description": "Between the traced code ending at $FFE3 and the bank-switch table at $FFF2. All $FF; no reader."
     }
   ]
 }

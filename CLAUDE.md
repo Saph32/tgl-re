@@ -646,6 +646,18 @@ Do not re-derive these; do check anything that depends on them.
     **Coverage past 97.3% is mostly these leads** — accounted for, not understood.
   - Registering a jump table in `dispatch.json` does not claim its bytes; `73-weapon-tables`
     claims `$8653`, `$86E7` and bank 7 `$F7C9` by hand.
+  - **The small gaps were mostly the overlap trick again**: a read base one byte before the
+    data (the RTS ending the code), because Y starts at 1 (`$3D` weapon level, `$4A`/`$4B`,
+    `$51`) or at a type number. `find-tables.py` cannot see these; read the handler.
+  - **Corridor keys, bank 7 `$F6DB`**: corridors 1-10 award keys 1 2 3 4 0 5 0 6 7 0, and
+    corridor n gives exactly the key labyrinth area n+1 needs — an independent check on the
+    map's key pattern.
+  - **Aiming, `$F863`**: 16 directions from `$F95E`, stepped by `tan` thresholds at `$F95B`.
+  - `22-unreferenced-code.json` holds code nothing is known to reach (bank 0 `$95F9`, bank 3
+    `$8B6B`, bank 7 `$CF2B`, `$D69B`), all leads. The DMC sample at `$FFC0` is claimed.
+  - Lead worth chasing: bank 0 `$8107-$8128` gives a powered-up start (life `$80`, every
+    weapon level 2, `$4A`/`$4B` = 2) when `$F7` bit 4 and `$30` bit 1 are both clear — the
+    conditions are read, the meaning is not.
 - **The reset path verifies the mapper.** `$FF23-$FF43` loops Y from 6 down to 0: select
   bank Y, `CPY $BFFF`, and fall through only if the bank answered with its own number.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
