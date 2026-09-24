@@ -2887,272 +2887,383 @@ L5_A792:
         rts
 
 ; ---- bank5.tbl_A7A7 (data) $A7A7-$A7AF, 9 bytes
-; Area to structure-set offset
+; Structure-pointer offset, special path
         .byte   $16,$16,$18,$16,$16,$16,$18,$18,$16
 
-; ---- bank5.tbl_A7B0 (pointer_table) $A7B0-$A7F5, 70 bytes
-; Structure pointers (35 entries)
+; ---- bank5.tbl_A7B0 (pointer_table) $A7B0-$A7C9, 26 bytes
+; Room structure pointers (13)
         .byte   $F6,$A7,$D3,$AA,$D3,$AA,$6D,$AB,$6D,$AB,$07,$AC,$07,$AC,$01,$AC
-        .byte   $01,$AC,$8A,$AA,$8A,$AA,$97,$A8,$A0,$A8,$FB,$A7,$EE,$A9,$EE,$A9
-        .byte   $D9,$AA,$D9,$AA,$0D,$AC,$0D,$AC,$73,$AB,$73,$AB,$EE,$A9,$EE,$A9
-        .byte   $A6,$A8,$16,$A9,$FE,$A8,$18,$A9,$0C,$A9,$32,$A9,$26,$A9,$18,$A9
-        .byte   $18,$A9,$26,$A9,$38,$A9
+        .byte   $01,$AC,$8A,$AA,$8A,$AA,$97,$A8,$A0,$A8
+
+; ---- bank5.tbl_A7CA (pointer_table) $A7CA-$A7E1, 24 bytes
+; Room door-set pointers (12)
+        .byte   $FB,$A7,$EE,$A9,$EE,$A9,$D9,$AA,$D9,$AA,$0D,$AC,$0D,$AC,$73,$AB
+        .byte   $73,$AB,$EE,$A9,$EE,$A9,$A6,$A8
+
+; ---- bank5.tbl_A7E2 (pointer_table) $A7E2-$A7F5, 20 bytes
+; Room item-list pointers (10)
+        .byte   $16,$A9,$FE,$A8,$18,$A9,$0C,$A9,$32,$A9,$26,$A9,$18,$A9,$18,$A9
+        .byte   $26,$A9,$38,$A9
 
 ; ---- bank5.struct_A7F6 (level) $A7F6-$A7FA, 5 bytes
-; Structure 1x1 to +$00
+; Room structure: 1 x 1 pattern, tiled
         .byte   $05,$00,$01,$01,$70
 
 ; ---- bank5.struct_A7FB (level) $A7FB-$A80A, 16 bytes
-; Structure 3x4 to +$00
+; Room item: 3 x 4 at +$00
         .byte   $10,$00,$03,$04,$C1,$C1,$CA,$B7,$CB,$C2,$B8,$B9,$C3,$BA,$BB,$C4
 
 ; ---- bank5.struct_A80B (level) $A80B-$A81A, 16 bytes
-; Structure 3x4 to +$0D
+; Room item: 3 x 4 at +$0D
         .byte   $10,$0D,$03,$04,$CC,$C1,$C1,$C9,$CD,$B7,$C8,$B8,$B9,$C5,$BA,$BB
 
 ; ---- bank5.struct_A81B (level) $A81B-$A824, 10 bytes
-; Structure 3x2 to +$A0
+; Room item: 3 x 2 at +$A0
         .byte   $0A,$A0,$03,$02,$D1,$D2,$C6,$C1,$C1,$D3
 
 ; ---- bank5.struct_A825 (level) $A825-$A82E, 10 bytes
-; Structure 3x2 to +$AD
+; Room item: 3 x 2 at +$AD
         .byte   $0A,$AD,$03,$02,$C7,$CE,$D1,$D0,$C1,$C1
 
 ; ---- bank5.struct_A82F (level) $A82F-$A856, 40 bytes
-; Structure 12x3 to +$02
+; Room item: 12 x 3 at +$02
         .byte   $28,$02,$0C,$03,$A8,$B7,$A9,$B7,$A9,$B7,$A9,$B7,$A9,$B7,$A9,$AA
         .byte   $C2,$B8,$B9,$B8,$B9,$B8,$B9,$B8,$B9,$B8,$B9,$C9,$C3,$BA,$BB,$BA
         .byte   $BB,$BA,$BB,$BA,$BB,$BA,$BB,$C8
 
 ; ---- bank5.struct_A857 (level) $A857-$A86E, 24 bytes
-; Structure 2x10 to +$10
+; Room item: 2 x 10 at +$10
         .byte   $18,$10,$02,$0A,$CF,$AF,$B3,$B0,$C1,$C0,$B3,$B0,$C1,$C0,$B3,$B0
         .byte   $C1,$C0,$B3,$B0,$C1,$C0,$B1,$B2
 
 ; ---- bank5.struct_A86F (level) $A86F-$A886, 24 bytes
-; Structure 2x10 to +$1E
+; Room item: 2 x 10 at +$1E
         .byte   $18,$1E,$02,$0A,$BD,$CF,$BE,$B3,$BF,$C1,$B5,$B3,$B6,$C1,$B5,$B3
         .byte   $B6,$C1,$B5,$B3,$B6,$C1,$B4,$B1
 
 ; ---- bank5.struct_A887 (level) $A887-$A896, 16 bytes
-; Structure 12x1 to +$B2
+; Room item: 12 x 1 at +$B2
         .byte   $10,$B2,$0C,$01,$AC,$BC,$AD,$BC,$AD,$BC,$AD,$BC,$AD,$BC,$AD,$AE
 
-; ---- bank5.struct_A897 (level) $A897-$A89E, 8 bytes
-; Structure 2x2 to +$00
-        .byte   $08,$00,$02,$02,$77,$78,$75,$76
+; ---- bank5.struct_A897 (level) $A897-$A89F, 9 bytes
+; Room structure: 2 x 2 pattern, tiled
+        .byte   $08,$00,$02,$02,$77,$78,$75,$76,$00
 
-; ---- UNCLAIMED (gap) $A89F-$A89F, 1 bytes
-        .byte   $00
+; ---- bank5.struct_A8A0 (level) $A8A0-$A8A5, 6 bytes
+; Room structure: 1 x 1 pattern, tiled
+        .byte   $05,$00,$01,$01,$6F,$00
 
-; ---- bank5.struct_A8A0 (level) $A8A0-$A8A4, 5 bytes
-; Structure 1x1 to +$00
-        .byte   $05,$00,$01,$01,$6F
+; ---- bank5.struct_A8A6 (level) $A8A6-$A8AB, 6 bytes
+; Room item: 16 x 3 at +$00, tiles at $A8BE
+        .byte   $06,$00,$10,$83,$BE,$A8
 
-; ---- UNCLAIMED (gap) $A8A5-$A9ED, 329 bytes
-        .byte   $00,$06,$00,$10,$83,$BE,$A8,$06,$B0,$10,$81,$CE,$A8,$06,$30,$02
-        .byte   $88,$EE,$A8,$06,$3E,$02,$88,$EE,$A8,$A6,$A7,$A6,$A7,$A6,$A7,$A6
-        .byte   $A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A5,$A4,$A5,$A4,$A5,$A4,$A5
-        .byte   $A4,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A7,$A6,$A7,$A6,$A7,$A6,$A7
-        .byte   $A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A4,$A5,$A6,$A7,$A4,$A5,$A6
-        .byte   $A7,$A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7,$44,$A9,$48,$A9,$4C,$A9,$55
-        .byte   $A9,$5E,$A9,$69,$A9,$00,$00,$44,$A9,$48,$A9,$4C,$A9,$55,$A9,$5E
-        .byte   $A9,$00,$00,$44,$A9,$70,$A9,$74,$A9,$81,$A9,$8E,$A9,$92,$A9,$00
-        .byte   $00,$99,$A9,$A8,$A9,$B7,$A9,$BC,$A9,$C1,$A9,$00,$00,$99,$A9,$A8
-        .byte   $A9,$00,$00,$99,$A9,$A8,$A9,$D8,$A9,$DD,$A9,$C1,$A9,$00,$00,$44
-        .byte   $88,$05,$0D,$44,$88,$01,$72,$43,$01,$06,$71,$74,$74,$74,$74,$63
-        .byte   $4C,$01,$06,$73,$7B,$7B,$7B,$7B,$64,$94,$08,$01,$62,$7C,$7C,$7C
-        .byte   $7C,$7C,$7C,$62,$54,$02,$02,$A0,$A2,$A1,$A3,$34,$88,$01,$6C,$42
-        .byte   $02,$05,$6F,$68,$6A,$0D,$6A,$0D,$6A,$0D,$6F,$66,$4C,$02,$05,$67
-        .byte   $6F,$0D,$69,$0D,$69,$0D,$69,$65,$6F,$94,$88,$01,$6B,$44,$02,$02
-        .byte   $A0,$A2,$A1,$A3,$15,$06,$02,$F1,$F2,$F2,$F2,$F2,$F3,$FD,$FE,$FE
-        .byte   $FE,$FE,$FF,$47,$02,$06,$82,$83,$84,$85,$86,$86,$87,$87,$82,$83
-        .byte   $84,$85,$45,$02,$86,$CC,$A9,$49,$02,$86,$CC,$A9,$66,$04,$02,$86
-        .byte   $0D,$0D,$86,$87,$0D,$0D,$87,$60,$61,$80,$81,$00,$00,$00,$00,$60
-        .byte   $61,$80,$81,$45,$02,$86,$E2,$A9,$49,$02,$86,$E2,$A9,$82,$83,$84
-        .byte   $85,$00,$00,$00,$00,$82,$83,$84,$85
+; ---- bank5.struct_A8AC (level) $A8AC-$A8B1, 6 bytes
+; Room item: 16 x 1 at +$B0, tiles at $A8CE
+        .byte   $06,$B0,$10,$81,$CE,$A8
+
+; ---- bank5.struct_A8B2 (level) $A8B2-$A8B7, 6 bytes
+; Room item: 2 x 8 at +$30, tiles at $A8EE
+        .byte   $06,$30,$02,$88,$EE,$A8
+
+; ---- bank5.struct_A8B8 (level) $A8B8-$A8BD, 6 bytes
+; Room item: 2 x 8 at +$3E, tiles at $A8EE
+        .byte   $06,$3E,$02,$88,$EE,$A8
+
+; ---- bank5.struct_A8BE (level) $A8BE-$A8ED, 48 bytes
+; Room item tiles (16 x 3)
+        .byte   $A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7
+        .byte   $A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4,$A5,$A4
+        .byte   $A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6,$A7,$A6
+
+; ---- bank5.struct_A8EE (level) $A8EE-$A8FD, 16 bytes
+; Room item tiles (2 x 8)
+        .byte   $A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7,$A4,$A5,$A6,$A7
+
+; ---- bank5.struct_A8FE (level) $A8FE-$A90B, 14 bytes
+; Room item list: 6 pointers
+        .byte   $44,$A9,$48,$A9,$4C,$A9,$55,$A9,$5E,$A9,$69,$A9,$00,$00
+
+; ---- bank5.struct_A90C (level) $A90C-$A917, 12 bytes
+; Room item list: 5 pointers
+        .byte   $44,$A9,$48,$A9,$4C,$A9,$55,$A9,$5E,$A9,$00,$00
+
+; ---- bank5.struct_A918 (level) $A918-$A925, 14 bytes
+; Room item list: 6 pointers
+        .byte   $44,$A9,$70,$A9,$74,$A9,$81,$A9,$8E,$A9,$92,$A9,$00,$00
+
+; ---- bank5.struct_A926 (level) $A926-$A931, 12 bytes
+; Room item list: 5 pointers
+        .byte   $99,$A9,$A8,$A9,$B7,$A9,$BC,$A9,$C1,$A9,$00,$00
+
+; ---- bank5.struct_A932 (level) $A932-$A937, 6 bytes
+; Room item list: 2 pointers
+        .byte   $99,$A9,$A8,$A9,$00,$00
+
+; ---- bank5.struct_A938 (level) $A938-$A943, 12 bytes
+; Room item list: 5 pointers
+        .byte   $99,$A9,$A8,$A9,$D8,$A9,$DD,$A9,$C1,$A9,$00,$00
+
+; ---- bank5.struct_A944 (level) $A944-$A947, 4 bytes
+; Room item: 8 x 5, one tile repeated at +$44
+        .byte   $44,$88,$05,$0D
+
+; ---- bank5.struct_A948 (level) $A948-$A94B, 4 bytes
+; Room item: 8 x 1, one tile repeated at +$44
+        .byte   $44,$88,$01,$72
+
+; ---- bank5.struct_A94C (level) $A94C-$A954, 9 bytes
+; Room item: 1 x 6 at +$43
+        .byte   $43,$01,$06,$71,$74,$74,$74,$74,$63
+
+; ---- bank5.struct_A955 (level) $A955-$A95D, 9 bytes
+; Room item: 1 x 6 at +$4C
+        .byte   $4C,$01,$06,$73,$7B,$7B,$7B,$7B,$64
+
+; ---- bank5.struct_A95E (level) $A95E-$A968, 11 bytes
+; Room item: 8 x 1 at +$94
+        .byte   $94,$08,$01,$62,$7C,$7C,$7C,$7C,$7C,$7C,$62
+
+; ---- bank5.struct_A969 (level) $A969-$A96F, 7 bytes
+; Room item: 2 x 2 at +$54
+        .byte   $54,$02,$02,$A0,$A2,$A1,$A3
+
+; ---- bank5.struct_A970 (level) $A970-$A973, 4 bytes
+; Room item: 8 x 1, one tile repeated at +$34
+        .byte   $34,$88,$01,$6C
+
+; ---- bank5.struct_A974 (level) $A974-$A980, 13 bytes
+; Room item: 2 x 5 at +$42
+        .byte   $42,$02,$05,$6F,$68,$6A,$0D,$6A,$0D,$6A,$0D,$6F,$66
+
+; ---- bank5.struct_A981 (level) $A981-$A98D, 13 bytes
+; Room item: 2 x 5 at +$4C
+        .byte   $4C,$02,$05,$67,$6F,$0D,$69,$0D,$69,$0D,$69,$65,$6F
+
+; ---- bank5.struct_A98E (level) $A98E-$A991, 4 bytes
+; Room item: 8 x 1, one tile repeated at +$94
+        .byte   $94,$88,$01,$6B
+
+; ---- bank5.struct_A992 (level) $A992-$A998, 7 bytes
+; Room item: 2 x 2 at +$44
+        .byte   $44,$02,$02,$A0,$A2,$A1,$A3
+
+; ---- bank5.struct_A999 (level) $A999-$A9A7, 15 bytes
+; Room item: 6 x 2 at +$15
+        .byte   $15,$06,$02,$F1,$F2,$F2,$F2,$F2,$F3,$FD,$FE,$FE,$FE,$FE,$FF
+
+; ---- bank5.struct_A9A8 (level) $A9A8-$A9B6, 15 bytes
+; Room item: 2 x 6 at +$47
+        .byte   $47,$02,$06,$82,$83,$84,$85,$86,$86,$87,$87,$82,$83,$84,$85
+
+; ---- bank5.struct_A9B7 (level) $A9B7-$A9BB, 5 bytes
+; Room item: 2 x 6 at +$45, tiles at $A9CC
+        .byte   $45,$02,$86,$CC,$A9
+
+; ---- bank5.struct_A9BC (level) $A9BC-$A9C0, 5 bytes
+; Room item: 2 x 6 at +$49, tiles at $A9CC
+        .byte   $49,$02,$86,$CC,$A9
+
+; ---- bank5.struct_A9C1 (level) $A9C1-$A9CB, 11 bytes
+; Room item: 4 x 2 at +$66
+        .byte   $66,$04,$02,$86,$0D,$0D,$86,$87,$0D,$0D,$87
+
+; ---- bank5.struct_A9CC (level) $A9CC-$A9D7, 12 bytes
+; Room item tiles (2 x 6)
+        .byte   $60,$61,$80,$81,$00,$00,$00,$00,$60,$61,$80,$81
+
+; ---- bank5.struct_A9D8 (level) $A9D8-$A9DC, 5 bytes
+; Room item: 2 x 6 at +$45, tiles at $A9E2
+        .byte   $45,$02,$86,$E2,$A9
+
+; ---- bank5.struct_A9DD (level) $A9DD-$A9E1, 5 bytes
+; Room item: 2 x 6 at +$49, tiles at $A9E2
+        .byte   $49,$02,$86,$E2,$A9
+
+; ---- bank5.struct_A9E2 (level) $A9E2-$A9ED, 12 bytes
+; Room item tiles (2 x 6)
+        .byte   $82,$83,$84,$85,$00,$00,$00,$00,$82,$83,$84,$85
 
 ; ---- bank5.struct_A9EE (level) $A9EE-$A9FD, 16 bytes
-; Structure 3x4 to +$00
+; Room item: 3 x 4 at +$00
         .byte   $10,$00,$03,$04,$F0,$F0,$EF,$F8,$F8,$ED,$F2,$F2,$F3,$F5,$F5,$F6
 
 ; ---- bank5.struct_A9FE (level) $A9FE-$AA0D, 16 bytes
-; Structure 3x4 to +$0D
+; Room item: 3 x 4 at +$0D
         .byte   $10,$0D,$03,$04,$EE,$F0,$F0,$EB,$F8,$F8,$F1,$F2,$F2,$F4,$F5,$F5
 
 ; ---- bank5.struct_AA0E (level) $AA0E-$AA17, 10 bytes
-; Structure 3x2 to +$A0
+; Room item: 3 x 2 at +$A0
         .byte   $0A,$A0,$03,$02,$F7,$F7,$EA,$F0,$F0,$EF
 
 ; ---- bank5.struct_AA18 (level) $AA18-$AA21, 10 bytes
-; Structure 3x2 to +$AD
+; Room item: 3 x 2 at +$AD
         .byte   $0A,$AD,$03,$02,$E8,$F7,$F7,$EE,$F0,$F0
 
 ; ---- bank5.struct_AA22 (level) $AA22-$AA49, 40 bytes
-; Structure 12x3 to +$02
+; Room item: 12 x 3 at +$02
         .byte   $28,$02,$0C,$03,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8
         .byte   $00,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$F2,$00,$00,$F5,$F5,$F5
         .byte   $F5,$F5,$F5,$F5,$F5,$F5,$F5,$00
 
 ; ---- bank5.struct_AA4A (level) $AA4A-$AA61, 24 bytes
-; Structure 2x10 to +$10
+; Room item: 2 x 10 at +$10
         .byte   $18,$10,$02,$0A,$F0,$F0,$F0,$EF,$F0,$EF,$F0,$EF,$F0,$EF,$F0,$EF
         .byte   $F0,$EF,$F0,$EF,$F0,$EF,$F0,$F0
 
 ; ---- bank5.struct_AA62 (level) $AA62-$AA79, 24 bytes
-; Structure 2x10 to +$1E
+; Room item: 2 x 10 at +$1E
         .byte   $18,$1E,$02,$0A,$F0,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0,$EE,$F0
         .byte   $EE,$F0,$EE,$F0,$EE,$F0,$F0,$F0
 
 ; ---- bank5.struct_AA7A (level) $AA7A-$AA89, 16 bytes
-; Structure 12x1 to +$B2
+; Room item: 12 x 1 at +$B2
         .byte   $10,$B2,$0C,$01,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7,$F7
 
 ; ---- bank5.struct_AA8A (level) $AA8A-$AA8E, 5 bytes
-; Structure 1x1 to +$00
+; Room structure: 1 x 1 pattern, tiled
         .byte   $05,$00,$01,$01,$4F
 
-; ---- UNCLAIMED (gap) $AA8F-$AAD2, 68 bytes
-        .byte   $05,$37,$83,$01,$7F,$05,$A7,$83,$01,$87,$12,$45,$07,$02,$4F,$6D
-        .byte   $6C,$4F,$4F,$6C,$4F,$6D,$4F,$89,$89,$6D,$4F,$6C,$28,$64,$09,$04
-        .byte   $7D,$6C,$89,$89,$89,$89,$6D,$4F,$7E,$7D,$4F,$6C,$89,$89,$6D,$6C
-        .byte   $4F,$7E,$4F,$6C,$6D,$6C,$6D,$89,$6C,$6D,$4F,$4F,$4F,$6C,$4F,$4F
-        .byte   $6C,$6D,$4F,$4F
+; ---- bank5.struct_AA8F (level) $AA8F-$AA93, 5 bytes
+; Room item: 3 x 1, one tile repeated at +$37
+        .byte   $05,$37,$83,$01,$7F
 
-; ---- bank5.struct_AAD3 (level) $AAD3-$AAD7, 5 bytes
-; Structure 1x1 to +$00
-        .byte   $05,$00,$01,$01,$4F
+; ---- bank5.struct_AA94 (level) $AA94-$AA98, 5 bytes
+; Room item: 3 x 1, one tile repeated at +$A7
+        .byte   $05,$A7,$83,$01,$87
 
-; ---- UNCLAIMED (gap) $AAD8-$AAD8, 1 bytes
-        .byte   $00
+; ---- bank5.struct_AA99 (level) $AA99-$AAAA, 18 bytes
+; Room item: 7 x 2 at +$45
+        .byte   $12,$45,$07,$02,$4F,$6D,$6C,$4F,$4F,$6C,$4F,$6D,$4F,$89,$89,$6D
+        .byte   $4F,$6C
+
+; ---- bank5.struct_AAAB (level) $AAAB-$AAD2, 40 bytes
+; Room item: 9 x 4 at +$64
+        .byte   $28,$64,$09,$04,$7D,$6C,$89,$89,$89,$89,$6D,$4F,$7E,$7D,$4F,$6C
+        .byte   $89,$89,$6D,$6C,$4F,$7E,$4F,$6C,$6D,$6C,$6D,$89,$6C,$6D,$4F,$4F
+        .byte   $4F,$6C,$4F,$4F,$6C,$6D,$4F,$4F
+
+; ---- bank5.struct_AAD3 (level) $AAD3-$AAD8, 6 bytes
+; Room structure: 1 x 1 pattern, tiled
+        .byte   $05,$00,$01,$01,$4F,$00
 
 ; ---- bank5.struct_AAD9 (level) $AAD9-$AAE8, 16 bytes
-; Structure 3x4 to +$00
+; Room item: 3 x 4 at +$00
         .byte   $10,$00,$03,$04,$C5,$C4,$C1,$C4,$C5,$C3,$C6,$C7,$C9,$C8,$C9,$00
 
 ; ---- bank5.struct_AAE9 (level) $AAE9-$AAF8, 16 bytes
-; Structure 3x4 to +$0D
+; Room item: 3 x 4 at +$0D
         .byte   $10,$0D,$03,$04,$C0,$C5,$C4,$C2,$C4,$C5,$C8,$C6,$C7,$00,$C8,$C9
 
 ; ---- bank5.struct_AAF9 (level) $AAF9-$AAFE, 6 bytes
-; Structure 2x1 to +$B0
+; Room item: 2 x 1 at +$B0
         .byte   $06,$B0,$02,$01,$C0,$C1
 
 ; ---- bank5.struct_AAFF (level) $AAFF-$AB04, 6 bytes
-; Structure 2x1 to +$BE
+; Room item: 2 x 1 at +$BE
         .byte   $06,$BE,$02,$01,$C0,$C1
 
 ; ---- bank5.struct_AB05 (level) $AB05-$AB2C, 40 bytes
-; Structure 12x3 to +$02
+; Room item: 12 x 3 at +$02
         .byte   $28,$02,$0C,$03,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4,$C5,$C4
         .byte   $C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C7,$C6,$C9,$C8,$C9,$C8
         .byte   $C9,$C8,$C9,$C8,$C9,$C8,$C9,$C8
 
 ; ---- bank5.struct_AB2D (level) $AB2D-$AB44, 24 bytes
-; Structure 2x10 to +$20
+; Room item: 2 x 10 at +$20
         .byte   $18,$20,$02,$0A,$C5,$C7,$C4,$C1,$C5,$C3,$C4,$C1,$C5,$C3,$C4,$C1
         .byte   $C5,$C3,$C4,$C1,$C5,$C3,$C4,$C1
 
 ; ---- bank5.struct_AB45 (level) $AB45-$AB5C, 24 bytes
-; Structure 2x10 to +$2E
+; Room item: 2 x 10 at +$2E
         .byte   $18,$2E,$02,$0A,$C6,$C4,$C0,$C5,$C2,$C4,$C0,$C5,$C2,$C4,$C0,$C5
         .byte   $C2,$C4,$C0,$C5,$C2,$C4,$C0,$C5
 
 ; ---- bank5.struct_AB5D (level) $AB5D-$AB6C, 16 bytes
-; Structure 12x1 to +$B2
+; Room item: 12 x 1 at +$B2
         .byte   $10,$B2,$0C,$01,$C0,$C1,$C0,$C1,$C0,$C1,$C0,$C1,$C0,$C1,$C0,$C1
 
-; ---- bank5.struct_AB6D (level) $AB6D-$AB71, 5 bytes
-; Structure 1x1 to +$00
-        .byte   $05,$00,$01,$01,$40
-
-; ---- UNCLAIMED (gap) $AB72-$AB72, 1 bytes
-        .byte   $00
+; ---- bank5.struct_AB6D (level) $AB6D-$AB72, 6 bytes
+; Room structure: 1 x 1 pattern, tiled
+        .byte   $05,$00,$01,$01,$40,$00
 
 ; ---- bank5.struct_AB73 (level) $AB73-$AB82, 16 bytes
-; Structure 3x4 to +$00
+; Room item: 3 x 4 at +$00
         .byte   $10,$00,$03,$04,$C1,$C1,$C7,$C1,$C7,$CE,$D5,$CE,$CD,$CE,$CD,$00
 
 ; ---- bank5.struct_AB83 (level) $AB83-$AB92, 16 bytes
-; Structure 3x4 to +$0D
+; Room item: 3 x 4 at +$0D
         .byte   $10,$0D,$03,$04,$C5,$C1,$C1,$CE,$C5,$C1,$CC,$CE,$D4,$00,$CC,$CE
 
 ; ---- bank5.struct_AB93 (level) $AB93-$AB9F, 13 bytes
-; Structure 3x3 to +$90
+; Room item: 3 x 3 at +$90
         .byte   $0D,$90,$03,$03,$C8,$00,$00,$C1,$C4,$00,$29,$C1,$C4
 
 ; ---- bank5.struct_ABA0 (level) $ABA0-$ABAC, 13 bytes
-; Structure 3x3 to +$9D
+; Room item: 3 x 3 at +$9D
         .byte   $0D,$9D,$03,$03,$00,$00,$C9,$00,$C2,$C1,$C2,$C1,$29
 
 ; ---- bank5.struct_ABAD (level) $ABAD-$ABCE, 34 bytes
-; Structure 10x3 to +$03
+; Room item: 10 x 3 at +$03
         .byte   $22,$03,$0A,$03,$C2,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$C4,$C5,$D7
         .byte   $D7,$D7,$D7,$D7,$D7,$D7,$D7,$C7,$CE,$CE,$CE,$CE,$CE,$CE,$CE,$CE
         .byte   $CE,$CE
 
 ; ---- bank5.struct_ABCF (level) $ABCF-$ABE0, 18 bytes
-; Structure 2x7 to +$30
+; Room item: 2 x 7 at +$30
         .byte   $12,$30,$02,$07,$C3,$C8,$D2,$D3,$D2,$D3,$D2,$D3,$D2,$D3,$C1,$CB
         .byte   $00,$CD
 
 ; ---- bank5.struct_ABE1 (level) $ABE1-$ABF2, 18 bytes
-; Structure 2x7 to +$3E
+; Room item: 2 x 7 at +$3E
         .byte   $12,$3E,$02,$07,$C9,$C3,$D0,$D1,$D0,$D1,$D0,$D1,$D0,$D1,$CA,$C1
         .byte   $CC,$00
 
 ; ---- bank5.struct_ABF3 (level) $ABF3-$AC00, 14 bytes
-; Structure 10x1 to +$B3
+; Room item: 10 x 1 at +$B3
         .byte   $0E,$B3,$0A,$01,$C2,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$D6,$C4
 
-; ---- bank5.struct_AC01 (level) $AC01-$AC05, 5 bytes
-; Structure 1x1 to +$00
-        .byte   $05,$00,$01,$01,$86
+; ---- bank5.struct_AC01 (level) $AC01-$AC06, 6 bytes
+; Room structure: 1 x 1 pattern, tiled
+        .byte   $05,$00,$01,$01,$86,$00
 
-; ---- UNCLAIMED (gap) $AC06-$AC06, 1 bytes
-        .byte   $00
-
-; ---- bank5.struct_AC07 (level) $AC07-$AC0B, 5 bytes
-; Structure 1x1 to +$00
-        .byte   $05,$00,$01,$01,$56
-
-; ---- UNCLAIMED (gap) $AC0C-$AC0C, 1 bytes
-        .byte   $00
+; ---- bank5.struct_AC07 (level) $AC07-$AC0C, 6 bytes
+; Room structure: 1 x 1 pattern, tiled
+        .byte   $05,$00,$01,$01,$56,$00
 
 ; ---- bank5.struct_AC0D (level) $AC0D-$AC1C, 16 bytes
-; Structure 3x4 to +$00
+; Room item: 3 x 4 at +$00
         .byte   $10,$00,$03,$04,$CC,$CC,$CB,$C8,$C8,$C9,$C0,$C0,$C1,$C1,$C1,$00
 
 ; ---- bank5.struct_AC1D (level) $AC1D-$AC2C, 16 bytes
-; Structure 3x4 to +$0D
+; Room item: 3 x 4 at +$0D
         .byte   $10,$0D,$03,$04,$CA,$CC,$CC,$C7,$C8,$C8,$C1,$C0,$C0,$00,$C1,$C1
 
 ; ---- bank5.struct_AC2D (level) $AC2D-$AC36, 10 bytes
-; Structure 3x2 to +$A0
+; Room item: 3 x 2 at +$A0
         .byte   $0A,$A0,$03,$02,$C5,$C5,$C6,$CC,$CC,$CB
 
 ; ---- bank5.struct_AC37 (level) $AC37-$AC40, 10 bytes
-; Structure 3x2 to +$AD
+; Room item: 3 x 2 at +$AD
         .byte   $0A,$AD,$03,$02,$C4,$C5,$C5,$CA,$CC,$CC
 
 ; ---- bank5.struct_AC41 (level) $AC41-$AC68, 40 bytes
-; Structure 12x3 to +$02
+; Room item: 12 x 3 at +$02
         .byte   $28,$02,$0C,$03,$CC,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$C8,$CC
         .byte   $00,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0,$00,$00,$C1,$C1,$C1
         .byte   $C1,$C1,$C1,$C1,$C1,$C1,$C1,$00
 
 ; ---- bank5.struct_AC69 (level) $AC69-$AC80, 24 bytes
-; Structure 2x10 to +$10
+; Room item: 2 x 10 at +$10
         .byte   $18,$10,$02,$0A,$CC,$CC,$CC,$CB,$CC,$CB,$CC,$CB,$CC,$CB,$CC,$CB
         .byte   $CC,$CB,$CC,$CB,$CC,$CB,$CC,$CC
 
 ; ---- bank5.struct_AC81 (level) $AC81-$AC98, 24 bytes
-; Structure 2x10 to +$1E
+; Room item: 2 x 10 at +$1E
         .byte   $18,$1E,$02,$0A,$CC,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC,$CA,$CC
         .byte   $CA,$CC,$CA,$CC,$CA,$CC,$CC,$CC
 
 ; ---- bank5.struct_AC99 (level) $AC99-$ACA8, 16 bytes
-; Structure 12x1 to +$B2
+; Room item: 12 x 1 at +$B2
         .byte   $10,$B2,$0C,$01,$CC,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$CC
 
 ; ---- bank5.code_ACA9 (code) $ACA9-$AD90, 232 bytes

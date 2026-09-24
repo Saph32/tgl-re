@@ -28,22 +28,44 @@
       "offset": 92087,
       "size": 9,
       "kind": "data",
-      "name": "Area to structure-set offset",
+      "name": "Structure-pointer offset, special path",
       "confidence": "confirmed",
       "cpu_addr": 42919,
       "sha1": "e0f19936fe3dba6f0775e2fd293ee5b209ad31eb",
-      "description": "Nine bytes, values $16 and $18, read by $A78E as LDA $A7A7,Y with Y = $51, the area number. The value is used directly as a byte offset into the pointer table at $A7B0 ($A791 does TAY, then $A792 reads $A7B0,Y and $A7B1,Y), so it selects a pointer, not an index. Bounded structurally: $A7A7 + 9 is $A7B0, where the pointer table begins. NOT ESTABLISHED, and it matters: the game has more than nine areas, and nothing found so far stops $51 exceeding 8 on this path, which would read into the pointer table as if it were an offset. Only offsets $16 and $18 occur, and both select the same pointer, $AA8A."
+      "description": "Nine bytes, values $16 and $18, read at $A78E as LDA $A7A7,Y with Y = $51, on the path $A749 takes when $30 bit 5 or 6 is set. The value is a byte offset into the structure pointers at $A7B0 ($A791 TAY, then $A792/$A797), so it selects structure 11 ($A897) or 12 ($A8A0). CORRECTION: this region said both offsets select $AA8A; that is entries 9-10, offsets $12 and $14. Bounded structurally: $A7A7 + 9 is $A7B0. NOT ESTABLISHED: what $51 holds on this path."
     },
     {
       "id": "bank5.tbl_A7B0",
       "offset": 92096,
-      "size": 70,
+      "size": 26,
       "kind": "pointer_table",
-      "name": "Structure pointers (35 entries)",
+      "name": "Room structure pointers (13)",
       "confidence": "confirmed",
       "cpu_addr": 42928,
-      "sha1": "7976c4dc26b51cde5f6cc98c5509e0f35b9ae313",
-      "description": "Thirty-five little-endian pointers, read by $A792/$A797 through the offset table above, and overlapped by a second view at $A7CA that $A79C reads with X fixed at $16. Bounded structurally: the lowest target above the table's own start is $A7F6, and a thirty-sixth entry would reach it. 21 distinct targets. THEY POINT AT STRUCTURE RECORDS - [next][dest][width][height][tiles] - which bank 5 $8155 blits into the 16 by 12 tile buffer at $0740, chaining through byte 0. 13 of the 21 targets start a chain; 48 links and 801 bytes come out of them, disjoint and colliding with nothing, and they are claimed one region per record by tools/parse-structs.py. CORRECTION to what this region said when it was first written: it said 'the pool is NOT partitioned' on the strength of chaining through byte 0 alone, which drifts. The rule that works is the record's own two size claims agreeing, next == 4 + width * height, and with it the chains stop on their own exactly where the pool ends. STILL NOT ESTABLISHED: the other eight targets, contiguous at $A8A6-$A938, whose first record fails that test. They are selected by table entries the area path never reaches - only offsets $16 and $18 occur there - so whatever reads them has not been found."
+      "sha1": "d6db16d30190e8659699ef0b0991771cd9f1b629",
+      "description": "Read at $A792/$A797 with Y = 2 x $50 (the labyrinth area, 0-10) or, on the special path, the offset from $A7A7 (entries 11 and 12). Each names a structure - [list offset][dest][w][h][pattern] - that $8155 tiles over the 16 x 12 room buffer at $0740. CORRECTION: this was one 35-entry table 'overlapped by a second view at $A7CA'. It is three tables back to back, split where their readers' indices end: 13 entries here, 12 door sets at $A7CA, 10 item lists at $A7E2 - 26 + 24 + 20 = 70 bytes, the same extent. The eight targets once called unexplained ($A8A6-$A938) are door set 11 and the item lists. tools/parse-structs.py walks all three."
+    },
+    {
+      "id": "bank5.tbl_A7CA",
+      "offset": 92122,
+      "size": 24,
+      "kind": "pointer_table",
+      "name": "Room door-set pointers (12)",
+      "confidence": "confirmed",
+      "cpu_addr": 42954,
+      "sha1": "7e3f6d673c3a64400e7042b20c8dbef939c0df47",
+      "description": "Read at $A79C/$A7A1 with X = 2 x $50 (areas 0-10) or $16 on the special path (entry 11), into $14/$15. A door set is eight length-headed items: four always drawn ($81B0, via $8379), then one per exit N, W, E, S ($81C5-$8226), drawn when that exit is closed or its neighbour is empty - the walls across unused openings. Entry 11's set has four items only; $30 bit 5 skips the exit walls on that path. Areas 1-2, 3-4, 5-6, 7-8 and 9-10 share sets, like everything else per area."
+    },
+    {
+      "id": "bank5.tbl_A7E2",
+      "offset": 92146,
+      "size": 20,
+      "kind": "pointer_table",
+      "name": "Room item-list pointers (10)",
+      "confidence": "confirmed",
+      "cpu_addr": 42978,
+      "sha1": "86efcd159ceed5a2e633914f0b910e155ea69035",
+      "description": "Read at $A762/$A767 with Y = 2 x $51 on the special path, into $16/$17; the labyrinth path uses $A916, an empty list, and $A76C-$A788 substitutes $A938 when 2 x $51 is $0A or $10 and the room's byte 2 (AND #$7F) is $0B or more but not $15. Each list is $0000-terminated pointers to bare items, drawn by $8227."
     }
   ]
 }

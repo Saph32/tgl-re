@@ -393,25 +393,29 @@ Do not re-derive these; do check anything that depends on them.
   - **And then the trace confirmed both independently.** After seeding them, `gen-code-regions`
     leaves gaps of **exactly 18 and 20 bytes** where the tables sit — 9×2 and 10×2 — with
     traced code on both sides and the illegal-opcode count still zero.
-- **Bank 5's structure records are decoded.** A record is `[next][dest][width][height]
-  [tiles]` and the consumer is bank 5 `$8155`: it blits `width × height` tiles into a
-  **16-wide, 192-byte buffer at `$0740`** (wrapping on `TXA / AND #$0F`, ending on
-  `CPX #$C0`, so 16 × 12), then `$81A4` reads byte 0 as an offset and calls `$8379` when the
-  byte there is non-zero. So byte 0 chains, and **a screen is several structures blitted
-  over each other**.
-  - Reached by `$A78E` reading `$A7A7,Y` with Y = `$51` for a byte *offset*, then
-    `$A792`/`$A797` reading a pointer at `$A7B0` + that offset.
-  - **The terminator is the record's own two size claims agreeing**, `next == 4 + w×h`.
-    That is not a preference: chaining through byte 0 alone walks `$AC0D`'s chain past
-    `$AC99` (12×1, sixteen bytes, ending exactly at `$ACA8`) straight into `$ACA9`, which
-    is *traced code*, and reads it as a 10×101 record. The self-consistency rule stops
-    there by itself.
-  - 13 of the 21 distinct targets start a chain: **48 links, 801 bytes, disjoint, colliding
-    with nothing**. **CORRECTION** to what the previous commit said — it recorded "the pool
-    is not partitioned", which was true only of the byte-0-alone rule.
-  - **Still open:** the other eight targets, contiguous at `$A8A6-$A938`, fail the test.
-    They are selected by table entries the area path never reaches (only offsets `$16` and
-    `$18` occur), so whatever reads them has not been found.
+- **Bank 5's room drawing is decoded — CORRECTION to "structure records chain".** Bank 5
+  `$8155` fills a **16 × 12 tile buffer at `$0740`**, and `$A749` picks three pointers first:
+  a **structure** (`$A7B0`, 13), a **door set** (`$A7CA`, 12) and an **item list** (`$A7E2`,
+  10). Labyrinth rooms use entry `2 × $50`; when `$30` bit 5 or 6 is set, `$A7A7[$51]`,
+  door set 11 and `$A7E2[2 × $51]`.
+  - A structure is `[list offset][dest][w][h][pattern]` and the pattern is **tiled** over the
+    whole buffer (rows repeat until the column wraps, rows until `CPX #$C0`) — a 1 × 1
+    structure is a floor. The list offset names four `[length][item]`s drawn by `$8379`,
+    or lands on a `$00` for none.
+  - A door set is eight `[length][item]`s: four always, then one per exit N W E S, drawn
+    when the exit is closed or the neighbour is empty — the walls across unused openings.
+  - An item (`$A6EB`) is `[dest][w][h][tiles]`, `$00` transparent; width bit 7 = one tile
+    repeated, height bit 7 = a pointer to the tiles instead. Item lists are `$0000`-ended
+    pointers to bare items. Then the room layout goes on top (`$8243`).
+  - **Checks:** all 48 length bytes agree with their items, and `$A7F6-$ACA8` is partitioned
+    exactly (two sharings folded: a tile slice, and the empty list `$A916` being list 3's
+    terminator). **Hardware:** `parse-structs.py --verify` rebuilds the labyrinth savestate's
+    room and matches **191/192** cells against the nametable (the miss is under an object);
+    without the west-exit wall it is 156.
+  - The old reading chained through byte 0 while `next == 4 + w×h`; that worked only
+    because list offsets usually point just past the pattern and length-headed items look
+    like records. It left `$A8A6-$A938` unexplained — door set 11 and the item lists.
+    `$A7A7`'s offsets select `$A897`/`$A8A0`, not `$AA8A` as its annotation said.
 - **Metasprites: objects are assembled from many sprite tiles, and the table is SPLIT.**
   Low bytes `$C28D`, high bytes `$C319`, 140 entries, indexed by an object's `$0548,X`.
   `$CC2F` reads it, `$CC46` draws. **This is the second split table in the ROM** — the first
@@ -710,9 +714,9 @@ authoritative, up-to-date version of this list; what follows is what does not li
 1. **Name the enemy types.** The manual names nine (`docs/external.html`); a match by eye
    against `docs/enemies.html` is a lead. A savestate with known enemies on screen would
    settle it, and `parse-metasprites.py --verify` would check their shapes.
-2. **The remaining gaps**, largest first: bank 5 `$A8A5` (the structure targets that fail
-   the self-consistency test), bank 6 `$A9B8`, bank 0 `$A161`, bank 6 `$BEAE`, bank 0
-   `$A8AE`, bank 5 `$AA8F` — each under 100 bytes but bank 5's. `build.py --gaps`.
+2. **The remaining gaps** — about 130 bytes in small stretches (`build.py --gaps`); bank 6
+   `$A5A0` (12) and `$A3DA` (6) have no reader found. Which rooms take the special path
+   (`$30` bits 5-6) in the room drawer.
 3. **The five bank 5 spawn scripts that end on a jump**, and corridor 16's.
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
