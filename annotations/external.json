@@ -180,14 +180,14 @@
       "topic": "Items",
       "claim": "Items: Energy Tank (fills energy), Blue Lander (raises maximum energy), Red Lander (raises Power Chip maximum), Gun (attack), Power Heart (partial energy), Blue Chip (20 chips), Red Chip (50 chips), Shield (defence), Consecutive firing (standard weapon), and Blue, Red, Yellow and Green Pyramids (entrance, indestructible, score, changes into blue).",
       "status": "confirmed",
-      "rom": "Bank 2 icons 12-17 match six of them one for one: 12 Energy Tank, 13 Red Lander, 14 Gun, 15 Shield, 16 Consecutive firing, 17 Blue Lander. Those are exactly the icons bank 3's 'YOU GOT ITEM' reward list ($817A) hands out. Power Heart, the chips and the pyramids have no icon there - they are objects in the world. The chip values (20, 50) and each item's effect are unchecked.",
+      "rom": "Bank 2 icons 12-17 are six of them: 12 Energy Tank, 13 Blue Lander, 14 Gun, 15 Shield, 16 Consecutive firing, 17 Red Lander. CORRECTION: this said 13 Red Lander and 17 Blue Lander. The two icons are the same picture in different colour indices (13 uses colour 2, 17 colour 3), so a match by shape cannot tell them apart; the reward screen's palette ($80AF: $30, $21, $16) draws 13 blue and 17 red, and the pick-up routine bank 2 $86BC agrees with the manual's effects: item 13 ($C033 -> $DF8C) adds 8 to max life $47 and refills it, item 17 ($8772) raises the chip-maximum level $46 (max 10, table $87D4) and refills the chips. Other effects read there: 12 refills life, 14 raises attack $4A, 15 raises shield $4B, 16 raises the fire-rate level $6B (max 5). Power Heart, the chips and the pyramids have no icon - they are objects in the world. The chip values (20, 50) are unchecked.",
       "item_icons": {
         "12": "Energy Tank",
-        "13": "Red Lander",
+        "13": "Blue Lander",
         "14": "Gun",
         "15": "Shield",
         "16": "Consecutive firing",
-        "17": "Blue Lander"
+        "17": "Red Lander"
       }
     },
     {
@@ -233,7 +233,7 @@
       "topic": "Password",
       "claim": "The special password TGL starts the game in a special mode.",
       "status": "consistent",
-      "rom": "Bank 3 $857A accepts T G L and blanks, skipping the checksum and setting $2F = 0, $30 = 2. The game itself shows the word: press Start on the last ending-credits screen and bank 0 $899F takes one more pass that renders the script PASSWORD TGL ($8BA3). What mode $30 = 2 is has not been read."
+      "rom": "Bank 3 $857A accepts T G L and blanks, skipping the checksum and setting $2F = 0, $30 = 2. The game itself shows the word: press Start on the last ending-credits screen and bank 0 $899F takes one more pass that renders the script PASSWORD TGL ($8BA3). $30 = 2 is the corridors-only game: see the tgl-mode fact."
     },
     {
       "id": "sound-test",
@@ -243,6 +243,15 @@
       "claim": "Holding A and B while pressing Reset opens a sound test.",
       "status": "confirmed",
       "rom": "Reset runs bank 0 $8332 (JMP entry $800C, called at $FF50). It clears $30 and $2F, reads the pads ($C01E -> $D64C) and at $8341 does LDA $F7 / CMP #$C0 / BNE: held buttons exactly A+B, nothing else. Then it far-calls bank 3 $801B -> $822A, which resets the stack and never returns: it prints SOUND TEST at PPU $2088 and the sound number $15 (starting at 1) in decimal at $20CD. Each frame it takes newly pressed buttons ($C0E4): Right +1 and Left -1, wrapping between 1 and 71 ($47), Down plays sound $15 ($C030 -> bank 0 $97CC), Up far-calls bank 0 $8000 ($97A0, the sound init - it silences everything). 71 is the last song-table entry: the table at $9B04 has 72, and 0 is skipped. This is the only way in - the far-call bytes 03 1A 80 occur once. The same check runs at power-on, since that takes the same path. NOT tried on hardware; read from the code. The key-repeat counter in $14 is dead code: $C0E4 only returns once a button is newly pressed, so every press steps once."
+    },
+    {
+      "id": "tgl-mode",
+      "source": "owner",
+      "pages": "-",
+      "topic": "Password",
+      "claim": "The TGL password plays only the corridors, never the labyrinth, and after each corridor gives items according to the score.",
+      "status": "confirmed",
+      "rom": "$30 bit 1 (the back door sets $30 = 2). A new game ($EB18) clears $51 and $77 and starts corridor 0, the opening flight. At a corridor's end $ECE7 tests $30 bit 1: clear, the game returns to the labyrinth ($EB08); set, it far-calls bank 3 $80A0, the YOU GOT ITEM screen, then $ECFC sets $51 = $ED08[$77], increments $77 and starts that corridor. $ED08 is 1, 11, 12, 2, 13, 3, 14, 4, 15, 5, 16, 6, 17, 7, 18, 8, 19, 9, 20, 10, 21 - every corridor once. After 21 the ordinary ending runs. The reward: each corridor start copies the score to $04B9 ($EF86); when the boss comes bank 3 $91A7 turns it into the points gained so far, and during the fight $9305 takes 10 points off every 64 frames. The reward screen adds that to a running total at $04B3 (bank 6 $805A) and prints it; $15 = the total in units of 10,000 points (capped at 255). $80E7 then gives, in order from the saved position $76, every entry of the 73-entry list at $817A whose threshold is at most $15, each through bank 2 $86BC - the ordinary pick-up routine - and prints its threshold followed by 0000. At most five per screen; the rest wait. docs/password.html tabulates the list. Read from the code, NOT played."
     }
   ]
 }

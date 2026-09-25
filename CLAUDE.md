@@ -543,8 +543,10 @@ Do not re-derive these; do check anything that depends on them.
   - **Weapon names, from the manual's pictures** (`annotations/external.json`): the 12
     weapon icons match the manual one for one, so `$3C` 1-12 = MultiBullets, Back Fire, Wave
     Attack, Bullet Shield, Grenade, Fireball, Area Blaster, Repeller, Hyper Laser, Saber
-    Laser, Cutter Laser, Enemy Eraser; icons 12-17 = Energy Tank, Red Lander, Gun, Shield,
-    Consecutive firing, Blue Lander. So "EE" / `$04AF` is the Enemy Eraser's stock.
+    Laser, Cutter Laser, Enemy Eraser; icons 12-17 = Energy Tank, **Blue** Lander, Gun, Shield,
+    Consecutive firing, **Red** Lander — CORRECTION, 13 and 17 were swapped: the two are one
+    picture in different colour indices, and the effects in bank 2 `$86BC` (13: max life +8;
+    17: chip maximum `$46`) and the reward screen's palette both say 13 is blue. So "EE" / `$04AF` is the Enemy Eraser's stock.
   - **Weapons.** Cursor `$3C` (0 none, 1-12), five to a row; `$FD77` puts its level (two
     bits each in `$04AC-$04AE`) in `$3D` and skips unowned ones. Chips per use:
     `$45 = [$FDD3 + 3 × weapon + level]`, 11 × 3 bytes that fill `$FDD7-$FDF7` exactly;
@@ -668,6 +670,17 @@ Do not re-derive these; do check anything that depends on them.
   - Lead worth chasing: bank 0 `$8107-$8128` gives a powered-up start (life `$80`, every
     weapon level 2, `$4A`/`$4B` = 2) when `$F7` bit 4 and `$30` bit 1 are both clear — the
     conditions are read, the meaning is not.
+- **The TGL game: corridors only (owner's claim, CONFIRMED from the code).** `$30` bit 1.
+  A new game (`$EB18`) starts corridor 0; at each corridor end `$ECE7` sends a normal game
+  back to the labyrinth but the TGL game to bank 3 `$80A0` (YOU GOT ITEM), then
+  `$51 = $ED08[$77++]` — 1, 11, 12, 2, 13, 3, … 10, 21, every corridor once — and after 21
+  the ending. **Rewards by score:** corridor start copies the score to `$04B9` (`$EF86`), the
+  boss turns it into points gained (bank 3 `$91A7`) and ticks 10 off every 64 frames of the
+  fight (`$9305`); bank 6 `$805A` adds it to a running total `$04B3` and sets `$15` = total /
+  10,000 displayed points. `$80E7` gives each `$817A` entry from `$76` on whose threshold ≤
+  `$15`, via the pick-up routine `$86BC`, at most five a screen. **Scores are stored in tens**:
+  the HUD prints a fixed 0 after the six digits (labyrinth savestate: `001684` → `16840`).
+  `docs/password.html` tabulates all 73. Not played.
 - **The sound test (owner's claim, CONFIRMED from the code).** Reset and power-on run bank 0
   `$8332` (entry `$800C`, from `$FF50`); `$8341` tests `$F7 == $C0` — A and B held, nothing
   else — and far-calls bank 3 `$801B` → `$822A`: SOUND TEST, sound number 1-71 at PPU `$20CD`,

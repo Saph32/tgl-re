@@ -792,6 +792,66 @@ def _tiles_svg(tiles: bytes, per_row: int = 32, px: int = 22) -> str:
 ICON_CODECS = ("raw_2bpp_icon", "raw_1bpp_low_plane", "raw_1bpp_shared_plane")
 
 
+def _tgl_mode(rm) -> str:
+    """The TGL back door's game: corridors only, in the order of bank 7 $ED08, with the
+    bank 3 $817A reward list handed out between them."""
+    b3, b7 = rm.prg_bank(3), rm.prg_bank(7)
+    order = list(b7[0xED08 - 0xC000:0xED08 - 0xC000 + 21])
+    pairs = [(b3[0x017A + 2 * k], b3[0x017B + 2 * k]) for k in range(73)]
+    ext = _external()
+    facts = ext["facts"] if ext else []
+    names = next((f.get("weapon_names") for f in facts if f.get("weapon_names")), [])
+    items = next((f.get("item_icons") for f in facts if f.get("item_icons")), {})
+    label = lambda i: names[i] if i < 12 and i < len(names) else items.get(str(i), f"icon {i}")
+    ic = dict(_icons(rm))["items"]
+
+    p = ["<h2>The TGL game: corridors only</h2>",
+         '<p class="sub">What <code>$30 = 2</code> does. Bit 1 of <code>$30</code> is tested '
+         "wherever the game would go back to the labyrinth, and every time it sends the player "
+         "to the next corridor instead &mdash; with a reward screen in between.</p>"]
+    p.append('<div class="note"><strong>The loop.</strong> A new game (<code>$EB18</code>) '
+             "clears <code>$51</code> and <code>$77</code> and starts corridor 0, the opening "
+             "flight. When a corridor ends, <code>$ECE7</code> tests <code>$30</code> bit 1: "
+             "in a normal game it returns to the labyrinth, in the TGL game it far-calls the "
+             "reward screen (bank 3 <code>$80A0</code>), then <code>$ECFC</code> takes "
+             "<code>$51 = $ED08[$77]</code>, increments <code>$77</code> and starts that "
+             "corridor. After corridor 21 the normal ending runs. The HUD shows the corridor "
+             "number instead of the area (<code>$E169</code>).</div>")
+    p.append("<h3>Corridor order, <code>$ED08</code></h3>")
+    p.append('<p class="desc">' + " &rarr; ".join(str(c) for c in order) +
+             f" &mdash; each of 1-21 exactly once ({'checked' if sorted(order) == list(range(1, 22)) else 'NOT a permutation'}"
+             "): the second-half corridor of a pair is played before the first of the next.</p>")
+
+    p.append("<h3>What the score buys, <code>$817A</code></h3>")
+    p.append('<div class="note"><strong>The score it counts is corridor score, less a boss '
+             "clock.</strong> Each corridor start copies the score into <code>$04B9</code> "
+             "(<code>$EF86</code>); when the boss appears bank 3 <code>$91A7</code> turns that "
+             "into the points gained so far, and during the fight <code>$9305</code> takes 10 "
+             "points off every 64 frames, down to zero. The reward screen adds the result to a "
+             "running total at <code>$04B3</code> (bank 6 <code>$805A</code>) and prints it. "
+             "<code>$15</code> is that total in units of 10,000 points (capped at 255), and "
+             "<code>$80E7</code> hands out every entry from <code>$76</code> onward whose "
+             "threshold is at most <code>$15</code> &mdash; through bank 2 <code>$86BC</code>, "
+             "the ordinary pick-up routine. <code>$76</code> persists, so each entry is given "
+             "once per game; at most five fit on a screen (the loop stops at PPU row "
+             "<code>$23xx</code>), and the rest wait for the next corridor.</div>")
+    rows = []
+    for k, (t, i) in enumerate(pairs):
+        rows.append(f"<tr><td>{k + 1}</td><td>{t * 10000:,}</td>"
+                    f"<td>{_icons_svg([ic[i]], px=2) if i < 18 else ''}</td>"
+                    f"<td>{_h(label(i))}</td><td>{i}</td></tr>")
+    p.append("<table><thead><tr><th>#</th><th>Total score at least</th><th></th><th>Item</th>"
+             f"<th>Icon</th></tr></thead><tbody>{''.join(rows)}</tbody></table>")
+    p.append('<p class="meta">Scores are as the game prints them: the HUD shows the six '
+             "score digits followed by a fixed 0 (labyrinth savestate: RAM 001684, screen "
+             "<code>16840</code>), and the reward screen prints each threshold followed by the "
+             "text <code>0000</code> (<code>$802E</code>). Weapons 0-10 go up a level (or become "
+             "chips at level 3); 11 adds 20 Enemy Erasers; 12 refills life; 13 raises max life "
+             "by 8; 14 attack; 15 shield; 16 fire rate (<code>$6B</code>, max 5); 17 the chip "
+             "maximum (<code>$46</code>, max 10). NOT tried on hardware.</p>")
+    return "".join(p)
+
+
 def _icons(rm):
     """(label, list of 64-byte 2bpp icons) for bank 2's two icon sets.
 
@@ -1699,8 +1759,9 @@ document.getElementById("selfcheck").innerHTML = bad
              "18 and 19 attack and shield; 20 and 21 the score; 22 is the checksum; 23 is read "
              "by nothing. <code>$83AE</code> runs the other way &mdash; the game&rsquo;s own "
              "password generator.</div>")
+    p.append(_tgl_mode(rm))
     p.append('<div class="note warn"><strong>Not established.</strong> What '
-             "<code>$30 = 2</code> makes the game do. What <code>$04A0-$04A8</code> hold. Why "
+             "<code>$04A0-$04A8</code> hold. Why "
              "byte index <code>$17</code> is exempt from the XOR and never read. And whether a real in-game password "
              "round-trips: everything here is the ROM's arithmetic transcribed, checked "
              "against itself, never against a password a real save produced.</div>")

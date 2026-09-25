@@ -607,6 +607,17 @@
       "description": "$D865 (entry $C054) draws a 2x2 block with its attribute. When A AND 3 is non-zero it reads the four tiles from $D8E0 + A ... $D8E3 + A (LDA $D8E0,Y with Y = A); when it is zero it uses A, A+1 ... directly. So A itself is the byte offset into this table and any A with a low bit set names a group; the groups can overlap. The extent is structural - the last byte of $D865's code is at $D8E0 and $D92D is code - and which groups are actually used depends on callers not enumerated here."
     },
     {
+      "id": "bank7.tbl_ED08",
+      "offset": 126232,
+      "size": 21,
+      "kind": "data",
+      "name": "TGL game: corridor order",
+      "confidence": "confirmed",
+      "cpu_addr": 60680,
+      "sha1": "639d63089a3c13c7c5239b2de61ab06ac6f85c73",
+      "description": "$ECFC: LDY $77 / INC $77 / LDA $ED08,Y / STA $51 / JMP $EC94 - the next corridor, reached only when $30 bit 1 is set (the TGL password's corridors-only game) after the reward screen. $77 starts at 0 ($EB18). 1, 11, 12, 2, 13, 3, 14, 4, 15, 5, 16, 6, 17, 7, 18, 8, 19, 9, 20, 10, 21: every corridor 1-21 exactly once, which is the check on the 21 entries; after 21 $ECBD takes the ending path instead of reading a 22nd."
+    },
+    {
       "id": "bank7.tbl_EF16",
       "offset": 126758,
       "size": 11,

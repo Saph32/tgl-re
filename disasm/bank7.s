@@ -4705,7 +4705,7 @@ L7_ECF6:
         jmp     L7_EC94
 
 ; ---- bank7.tbl_ED08 (data) $ED08-$ED1C, 21 bytes
-; Table, 21 bytes (structural extent)
+; TGL game: corridor order
         .byte   $01,$0B,$0C,$02,$0D,$03,$0E,$04,$0F,$05,$10,$06,$11,$07,$12,$08
         .byte   $13,$09,$14,$0A,$15
 
