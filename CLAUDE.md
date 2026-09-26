@@ -670,6 +670,16 @@ Do not re-derive these; do check anything that depends on them.
   - Lead worth chasing: bank 0 `$8107-$8128` gives a powered-up start (life `$80`, every
     weapon level 2, `$4A`/`$4B` = 2) when `$F7` bit 4 and `$30` bit 1 are both clear — the
     conditions are read, the meaning is not.
+- **Fleepa, and objects drawn in pieces (owner's savestate `...fish.fcs`, corridor 1's
+  boss).** Slot 23 is type `$40`; bank 6's handler `$9081` is only a far call to bank 3
+  `$952E`, which draws metasprite 131 and then more through `$CC34` (132/133 twice mirrored,
+  123/25 by `$07B8`, 134/135 24 px lower) — **41/41 sprites** rebuilt from the ROM match OAM.
+  **CORRECTION:** the enemies page showed type `$40` as metasprites 25 and 42 because
+  `metasprite.reachable()` did not know inline arguments: it decoded `$9081`'s far-call bytes
+  as instructions and ran into the next handler. It now skips inline arguments, follows far
+  calls (105 types resolve, was 95), cuts tables at claimed regions, and lists `$CC34`
+  pieces; 14 types draw pieces, only Fleepa's composite is built (`composite_952E`).
+  Bank 3 `$9151` = boss type by corridor.
 - **The TGL game: corridors only (owner's claim, CONFIRMED from the code).** `$30` bit 1.
   A new game (`$EB18`) starts corridor 0; at each corridor end `$ECE7` sends a normal game
   back to the labyrinth but the TGL game to bank 3 `$80A0` (YOU GOT ITEM), then

@@ -2308,7 +2308,7 @@ L3_90F7:
         .byte   $88,$02,$88,$88,$88,$00,$00
 
 ; ---- bank3.tbl_9151 (data) $9151-$9167, 23 bytes
-; Table, 23 bytes (structural extent)
+; Boss object type, by corridor
         .byte   $06,$40,$45,$2E,$46,$23,$47,$06,$49,$18,$19,$2D,$41,$4C,$25,$24
         .byte   $2F,$06,$48,$4D,$26,$4D,$4F
 
@@ -2972,7 +2972,7 @@ L3_966D:
         jmp     L7_C0D8
 
 ; ---- bank3.tbl_9673 (data) $9673-$9685, 19 bytes
-; Eight small tables for the object handler at $952E
+; Fleepa (types $40/$41): eight small tables for $952E
         .byte   $02,$00,$0F,$07,$00,$40,$84,$85,$00,$40,$00,$3A,$36,$36,$7B,$19
         .byte   $19,$86,$87
 

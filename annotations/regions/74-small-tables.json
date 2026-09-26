@@ -211,6 +211,17 @@
       "description": "$8B0F: LDX #$08 / LDA $8B1A,X / STA $0203,X / DEX / BNE ($8B11) - copies these 8 bytes to $0204-$020B, hardware sprites 1 and 2: Y $30, tile 0, attributes 0, X $30, and Y $B8, same tile and X."
     },
     {
+      "id": "bank3.tbl_9151",
+      "offset": 53601,
+      "size": 23,
+      "kind": "data",
+      "name": "Boss object type, by corridor",
+      "confidence": "lead",
+      "cpu_addr": 37201,
+      "sha1": "3760bf65219a1bca31c9b828ec47f1ebec3f2b84",
+      "description": "Bank 3 $91B8: LDY $51 / LDA $913A,Y -> $71, then (skipped for corridor 21 by CPY #$15 / BEQ) LDA $9151,Y ($91C3) -> $72, the type bank 3 $92E5 spawns for the boss phase and $92EE waits on. Values by corridor 0-22: 06 40 45 2E 46 23 47 06 49 18 19 2D 41 4C 25 24 2F 06 48 4D 26 4D 4F. Corridor 1's $40 is CONFIRMED against hardware: the owner's savestate of the corridor 1 boss fight (Fleepa) has $51 = 1, $72 = $40 and slot 23 of type $C0, drawn exactly as type $40's handler draws it (41/41 sprites). Types $40 and $41 share that handler, so corridor 12's $41 is presumably Fleepa again - a lead. The other entries are not tied to names. The 23 is a structural extent (to the next table), and the last entries may never be read; a LEAD on the extent."
+    },
+    {
       "id": "bank3.tbl_950F",
       "offset": 54559,
       "size": 3,
@@ -226,11 +237,11 @@
       "offset": 54915,
       "size": 19,
       "kind": "data",
-      "name": "Eight small tables for the object handler at $952E",
+      "name": "Fleepa (types $40/$41): eight small tables for $952E",
       "confidence": "confirmed",
       "cpu_addr": 38515,
       "sha1": "7127f97ca63c6141f978262a7aef6160a5eb09d1",
-      "description": "Read by bank 3 $952E (bank 3 JMP entry $8015): LDA $9633,Y and $9635,Y with Y = the object type ($9533, $9539) - $9633-$9672 is the handler's own code, so the data lies at Y = $40-$41; ORA $9677,Y with Y = ($41 AND $10) / 16 (sprite flip 00/40); $9679,Y with Y = $16 (two tiles); $967B, $967E and $9681,Y with Y = $07B8,X (three entries each: attributes, a tile offset added to $87, a tile); and $9684,Y with Y = $17, 0 or 1 ($964B). 2+2+2+2+3+3+3+2 = 19 bytes, exactly the gap, ending on the tile block at $9686. Which objects run this handler is NOT established."
+      "description": "Read by bank 3 $952E (bank 3 JMP entry $8015): LDA $9633,Y and $9635,Y with Y = the object type ($9533, $9539) - $9633-$9672 is the handler's own code, so the data lies at Y = $40-$41; ORA $9677,Y with Y = ($41 AND $10) / 16 (sprite flip 00/40); $9679,Y with Y = $16 (two tiles); $967B, $967E and $9681,Y with Y = $07B8,X (three entries each: attributes, a tile offset added to $87, a tile); and $9684,Y with Y = $17, 0 or 1 ($964B). 2+2+2+2+3+3+3+2 = 19 bytes, exactly the gap, ending on the tile block at $9686. CORRECTION to 'which objects run this handler is not established': types $40 and $41, whose bank 6 handler $9081 is only a far call to bank 3 $8015 -> $952E. Type $40 is Fleepa, corridor 1's boss (owner's savestate). Four of these tables are the pieces $952E draws on top of metasprite 131 through $CC34: $9679 (132/133, drawn twice mirrored), $967B/$967E/$9681 (attributes, base-tile offset and id 123 or 25 by $07B8) and $9684 (134/135, 24 pixels lower). Rebuilt from them, all 41 of Fleepa's sprites in the savestate's OAM match."
     },
     {
       "id": "bank5.tbl_A377",

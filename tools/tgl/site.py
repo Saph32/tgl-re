@@ -1116,7 +1116,7 @@ def _graphics_page(rm) -> str:
 
     # ---- which object wears which
     b6 = rm.prg_bank(6)
-    rows = msp.object_map(b6, b7)
+    rows = msp.object_map_rm(rm)
     valid = {i for i, q in enumerate(ptrs) if msp.parse(b7, q)}
     reached6 = set()
     for r in rows:
@@ -2084,8 +2084,9 @@ def _enemies_page(rm):
     from tgl import metasprite as msp
     b6 = rm.prg_bank(6)
     mptrs = msp.pointers(b7)
-    frames = {}
-    for row in msp.object_map(b6, b7):
+    frames, pieces = {}, {}
+    for row in msp.object_map_rm(rm):
+        pieces[row["type"]] = sorted({i for v in row["pieces"].values() for i in v})
         ids = set(row["ids"])
         for v in row["tables"].values():
             ids |= set(v)
@@ -2140,6 +2141,24 @@ def _enemies_page(rm):
             bank, ptr, tiles = block_tiles(v["gfx"])
             run = runs.get(v["gfx"], tiles)
             shots = []
+            if t in msp.COMPOSITES:
+                b3 = rm.prg_bank(3)
+                a86 = b3[0x9633 + t - 0x8000]           # $952E: LDA $9633,Y -> $0560
+                for s7 in range(3):
+                    parts = msp.composite_952E(b3, 0, s7, 0, a86)
+                    shots.append(f'<span title="whole object, $07B8 = {s7}: metasprites '
+                                 + ", ".join(str(q[0]) for q in parts) + '">'
+                                 + _assembled_svg(msp.emit_parts(b7, parts), run, pals)
+                                 + "</span>")
+                shots.append('<br><span class="meta">drawn in pieces by bank 3 '
+                             "<code>$952E</code> &mdash; the whole object, then its parts:"
+                             "</span><br>")
+            if pieces.get(t) and t not in msp.COMPOSITES:
+                shots.append('<span class="meta">also draws metasprite'
+                             f'{"s" * (len(pieces[t]) > 1)} '
+                             + ", ".join(str(i) for i in pieces[t])
+                             + " on top through <code>$CC34</code> &mdash; not composed "
+                             "here, so the pictures below are parts</span><br>")
             for i in frames.get(t, [])[:8]:
                 m = msp.parse(b7, mptrs[i])
                 used = [x for x in m["tiles"] if x != 0xFF]
@@ -2164,8 +2183,8 @@ def _enemies_page(rm):
              "<th>Attack</th><th>Flags</th><th>Death</th><th>In scripts</th><th>Assembled, and the block it comes from</th>"
              f"</tr></thead><tbody>{''.join(rows)}</tbody></table></div>")
     p.append('<div class="note"><strong>Assembled from the ROM, and checked.</strong> Each '
-             "picture is a metasprite the type's behaviour code assigns (bank 6, through "
-             "<code>$0548</code>), drawn the way <code>$CC46</code>/<code>$CDD7</code> draw it: "
+             "picture is a metasprite the type's behaviour code assigns (bank 6, and the banks "
+             "its far calls reach, through <code>$0548</code>), drawn the way <code>$CC46</code>/<code>$CDD7</code> draw it: "
              "8&times;16 sprites, each the tile pair <code>t AND $FE</code> and the next, "
              "relative to the base tile where the type's block was loaded; mirrored records "
              "drawn twice; flips by attribute bits 6 and 7. Colours are bank 5 "

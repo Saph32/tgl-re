@@ -52,7 +52,23 @@ OUT = ROOT / "annotations" / "regions" / "70-metasprites.json"
 NEAR_FRAME = 16
 
 
-def verify(b7: bytes, ptrs: list[int], state: Path) -> int:
+def match(spr, x0: int, y0: int, base: int, oam: set):
+    """Best placement of predicted sprites against OAM: ((hits, dx, dy), predicted)."""
+    pred = [((t + base) & 0xFF, (x0 + dx) & 0xFF, (y0 + dy) & 0xFF, a) for dx, dy, t, a in spr]
+    best = (0, 0, 0)
+    for o in oam:
+        for q in pred:
+            if (o[0], o[3]) != (q[0], q[3]):
+                continue
+            sx, sy = (o[1] - q[1]) & 0xFF, (o[2] - q[2]) & 0xFF
+            n = sum(((r[0], (r[1] + sx) & 0xFF, (r[2] + sy) & 0xFF, r[3]) in oam)
+                    for r in pred)
+            if n > best[0]:
+                best = (n, sx - 256 if sx > 127 else sx, sy - 256 if sy > 127 else sy)
+    return best, pred
+
+
+def verify(b7: bytes, ptrs: list[int], state: Path, b3: bytes | None = None) -> int:
     import importlib.util
     spec = importlib.util.spec_from_file_location("savestate", ROOT / "tools" / "savestate.py")
     ss = importlib.util.module_from_spec(spec)
@@ -70,18 +86,19 @@ def verify(b7: bytes, ptrs: list[int], state: Path) -> int:
         if m is None:
             continue
         x0, y0, base = ram[0x530 + slot], ram[0x518 + slot], ram[0x6C8 + slot]
-        pred = [((t + base) & 0xFF, (x0 + dx) & 0xFF, (y0 + dy) & 0xFF, a)
-                for dx, dy, t, a in ms.emit(m, ram[0x560 + slot])]
-        best = (0, 0, 0)
-        for o in oam:
-            for q in pred:
-                if (o[0], o[3]) != (q[0], q[3]):
-                    continue
-                sx, sy = (o[1] - q[1]) & 0xFF, (o[2] - q[2]) & 0xFF
-                n = sum(((r[0], (r[1] + sx) & 0xFF, (r[2] + sy) & 0xFF, r[3]) in oam)
-                        for r in pred)
-                if n > best[0]:
-                    best = (n, sx - 256 if sx > 127 else sx, sy - 256 if sy > 127 else sy)
+        cands = [ms.emit(m, ram[0x560 + slot])]
+        pieced = ""
+        if (kind & 0x7F) in ms.COMPOSITES and b3 is not None:
+            # Drawn in pieces: $07B8,X is in RAM; $16 and $17 are scratch, so try both.
+            cands = [ms.emit_parts(b7, ms.composite_952E(b3, s16, ram[0x7B8 + slot] % 3,
+                                                         s17, ram[0x560 + slot]))
+                     for s16 in (0, 1) for s17 in (0, 1)]
+            pieced = " (drawn in pieces by bank 3 $952E)"
+        best, pred = (0, 0, 0), []
+        for cand in cands:
+            b, pr = match(cand, x0, y0, base, oam)
+            if b[0] > best[0] or not pred:
+                best, pred = b, pr
         verdict = ("ALL, at offset (%d, %d)" % best[1:] if best[0] == len(pred) and pred
                    else f"{best[0]} of {len(pred)}")
         far = max(abs(best[1]), abs(best[2])) > NEAR_FRAME
@@ -91,7 +108,7 @@ def verify(b7: bytes, ptrs: list[int], state: Path) -> int:
         if len(pred) > 1 and best[0] == len(pred) and not far:
             full += 1
         multi += len(pred) > 1
-        print(f"slot {slot:2d} type ${kind:02X} metasprite {mid:3d} base ${base:02X}: "
+        print(f"slot {slot:2d} type ${kind:02X} metasprite {mid:3d} base ${base:02X}{pieced}: "
               f"{len(pred)} sprites, found {verdict}{note}")
     print(f"\n{full} of {multi} multi-sprite objects found whole in OAM. Objects not drawn "
           "this frame (sprite cycling) are expected to miss.")
@@ -122,7 +139,7 @@ def main() -> int:
             good[p] = m
 
     if args.verify:
-        return verify(b7, ptrs, Path(args.verify))
+        return verify(b7, ptrs, Path(args.verify), rm.prg_bank(3))
 
     if args.id is not None:
         p = ptrs[args.id]
@@ -155,7 +172,7 @@ def main() -> int:
 
     if args.objects:
         b6 = rm.prg_bank(BANK6 := 6)
-        rows = ms.object_map(b6, b7)
+        rows = ms.object_map_rm(rm)
         valid = {i for i, q in enumerate(ptrs) if ms.parse(b7, q)}
         reached = set()
         for r in rows:
