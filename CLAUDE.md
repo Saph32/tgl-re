@@ -678,7 +678,16 @@ Do not re-derive these; do check anything that depends on them.
   `metasprite.reachable()` did not know inline arguments: it decoded `$9081`'s far-call bytes
   as instructions and ran into the next handler. It now skips inline arguments, follows far
   calls (105 types resolve, was 95), cuts tables at claimed regions, and lists `$CC34`
-  pieces; 14 types draw pieces, only Fleepa's composite is built (`composite_952E`).
+  pieces. **Every pieced type now has a composite** (`metasprite.PIECED`, drawn on
+  `docs/enemies.html` in several poses): `$23` (body + 127, 40 px above), `$24`-`$26` (two
+  arms 110 56 px below, spread by `$15`), `$2D`-`$2F` (frame body + blinking 124), `$40`/`$41`
+  Fleepa, `$46` (136 + head 137/138), `$4C`/`$4D` (109 + itself flipped 32 px below), `$4F`
+  (81 + two legs: claw 82 and a shaft of single sprites via `$CF05`), `$55`-`$57` (105 + 103/104).
+  Pieces move `$84`/`$85` (y/x), `$86` and `$87`; bases are relative to `$07E8`, the block
+  base `$CF8D` copies from `$06C8` at spawn. Only Fleepa is checked against hardware; `--verify`
+  tries every pose for the rest. `$01` (player's exhaust) and `$35` (a two-part door at fixed
+  screen positions) use absolute tiles and are listed, not drawn. The page's tile runs now
+  follow bank 4's corridor streams too, so corridor bosses are no longer drawn with holes.
   Bank 3 `$9151` = boss type by corridor.
 - **The TGL game: corridors only (owner's claim, CONFIRMED from the code).** `$30` bit 1.
   A new game (`$EB18`) starts corridor 0; at each corridor end `$ECE7` sends a normal game

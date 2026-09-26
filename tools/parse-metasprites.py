@@ -68,7 +68,14 @@ def match(spr, x0: int, y0: int, base: int, oam: set):
     return best, pred
 
 
-def verify(b7: bytes, ptrs: list[int], state: Path, b3: bytes | None = None) -> int:
+# The poses verify tries for each pieced type - every value its code allows.
+VERIFY_POSES = {0x23: range(3), 0x24: range(17), 0x25: range(17), 0x26: range(17),
+                0x2D: range(8), 0x2E: range(8), 0x2F: range(8), 0x46: range(16),
+                0x4F: range(0x30, 0x71), 0x55: range(10), 0x56: range(10), 0x57: range(10)}
+
+
+def verify(b7: bytes, ptrs: list[int], state: Path, b3: bytes | None = None,
+           banks: dict | None = None) -> int:
     import importlib.util
     spec = importlib.util.spec_from_file_location("savestate", ROOT / "tools" / "savestate.py")
     ss = importlib.util.module_from_spec(spec)
@@ -88,12 +95,18 @@ def verify(b7: bytes, ptrs: list[int], state: Path, b3: bytes | None = None) -> 
         x0, y0, base = ram[0x530 + slot], ram[0x518 + slot], ram[0x6C8 + slot]
         cands = [ms.emit(m, ram[0x560 + slot])]
         pieced = ""
-        if (kind & 0x7F) in ms.COMPOSITES and b3 is not None:
+        ty = kind & 0x7F
+        if ty in (0x40, 0x41) and b3 is not None:
             # Drawn in pieces: $07B8,X is in RAM; $16 and $17 are scratch, so try both.
             cands = [ms.emit_parts(b7, ms.composite_952E(b3, s16, ram[0x7B8 + slot] % 3,
                                                          s17, ram[0x560 + slot]))
                      for s16 in (0, 1) for s17 in (0, 1)]
             pieced = " (drawn in pieces by bank 3 $952E)"
+        elif ty in ms.PIECED and banks:
+            # The pose is transient or derived; try every value the code allows.
+            cands = [ms.pieced_sprites(banks, ty, ram[0x560 + slot], pose)
+                     for pose in VERIFY_POSES.get(ty, ms.PIECED[ty][1])]
+            pieced = " (drawn in pieces; every pose tried)"
         best, pred = (0, 0, 0), []
         for cand in cands:
             b, pr = match(cand, x0, y0, base, oam)
@@ -139,7 +152,8 @@ def main() -> int:
             good[p] = m
 
     if args.verify:
-        return verify(b7, ptrs, Path(args.verify), rm.prg_bank(3))
+        return verify(b7, ptrs, Path(args.verify), rm.prg_bank(3),
+                      {k: rm.prg_bank(k) for k in range(8)})
 
     if args.id is not None:
         p = ptrs[args.id]

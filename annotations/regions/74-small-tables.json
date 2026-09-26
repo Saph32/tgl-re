@@ -226,11 +226,11 @@
       "offset": 54559,
       "size": 3,
       "kind": "data",
-      "name": "Per-type value read by bank 3 $93FA",
-      "confidence": "lead",
+      "name": "Types $2D-$2F: spawn attributes",
+      "confidence": "confirmed",
       "cpu_addr": 38159,
       "sha1": "84cb43105b5dfed22cc3f753c13e81185685eaaa",
-      "description": "$93FA (bank 3 JMP entry $8012): LDY $0500,X / LDA $94E2,Y ($93FF) -> $0560. $94E2-$950E is this handler's own code, so the data lies at Y = $2D and up; three bytes, ending on the table at $9512. Which objects run the handler is NOT established."
+      "description": "$93FA (bank 3 JMP entry $8012) is the handler of types $2D, $2E and $2F - bank 6 $907A is only a far call to it: LDY $0500,X / LDA $94E2,Y ($93FF) -> $0560, the object's attribute byte. $94E2-$950E is the handler's own code, and $94E2 + $2D-$2F lands exactly here: three bytes, ending on the table at $9512. CORRECTION to 'which objects run the handler is NOT established' - found while building the pieced-object composites, where it gives these types their palette."
     },
     {
       "id": "bank3.tbl_9673",

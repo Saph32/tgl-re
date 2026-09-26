@@ -2807,7 +2807,7 @@ L3_950E:
         rts
 
 ; ---- bank3.tbl_950F (data) $950F-$9511, 3 bytes
-; Per-type value read by bank 3 $93FA
+; Types $2D-$2F: spawn attributes
         .byte   $03,$02,$00
 
 ; ---- bank3.tbl_9512 (data) $9512-$9519, 8 bytes

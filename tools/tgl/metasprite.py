@@ -346,14 +346,146 @@ def composite_952E(b3: bytes, s16: int, s7b8: int, s17: int, a86: int = 0):
             (B(0x9684 + s17), a86, 0, 24)]
 
 
-COMPOSITES = {0x40: "composite_952E", 0x41: "composite_952E"}
+# The general form. A part is ("ms", id, attributes, base offset, dx, dy) or ("one", tile
+# offset, attributes, dx, dy) - the latter a single sprite through $CF05 (via $C0DB), which
+# writes $84-$87 straight to OAM. Offsets are from the object's position ($0530 x, $0518 y)
+# and from its loaded block's base tile ($07E8, which $CF8D sets equal to $06C8 at spawn;
+# handlers move $06C8 per frame, $07E8 stays). Each builder takes the banks, the object's
+# attribute byte and one pose. ONLY $952E IS CHECKED AGAINST HARDWARE (41/41 sprites, the
+# owner's corridor 1 savestate); the others are transcribed from the code, unchecked.
+
+def _fleepa(banks, a86, pose):
+    return [("ms", i, at, db, 0, dy) for i, at, db, dy in
+            composite_952E(banks[3], 0, pose, 0, a86)]
+
+
+def _t23(banks, a86, pose):
+    """Bank 6 $8D70, type $23. $8E01: frame Y = $0638,X - body $8E5F,Y with base
+    $07E8 + $8E62,Y (through $A1E7); $8E30: $84 -= $28, $87 = $07E8, id $7F - 40 px above."""
+    B = lambda a: banks[6][a - 0x8000]
+    return [("ms", B(0x8E5F + pose), a86, B(0x8E62 + pose), 0, 0),
+            ("ms", 0x7F, a86, 0, 0, -40)]
+
+
+def _t24(banks, a86, pose):
+    """Bank 6 $8E68, types $24-$26: body $6D (109, $8E8A). $8F75: $84 += $38, then id $6E at
+    x = $0530 - 8 - $15, and again with $86 EOR $40 at $0530 + 8 + $15 - two arms 56 px
+    below, spread by $15, which $8F53-$8F73 steps between 0 and $10. The pose is $15."""
+    return [("ms", 0x6D, a86, 0, 0, 0),
+            ("ms", 0x6E, a86, 0, -8 - pose, 56),
+            ("ms", 0x6E, a86 ^ 0x40, 0, 8 + pose, 56)]
+
+
+def _t2d(banks, a86, pose):
+    """Bank 3 $93FA, types $2D-$2F (bank 6 $907A far-calls it). $94D5: frame Y from $C0A5
+    (0-7) - body $9512,Y with base $07E8 + $951A,Y. $94F0: $87 = $07E8 (+$0E when $41 bit 2
+    is set - a blink), id $7C on top. The pose is the frame."""
+    B = lambda a: banks[3][a - 0x8000]
+    return [("ms", B(0x9512 + pose), a86, B(0x951A + pose), 0, 0),
+            ("ms", 0x7C, a86, 0, 0, 0)]
+
+
+def _t46(banks, a86, pose):
+    """Bank 6 $9188, type $46: body $88 (136) with attributes 1 ($91A1). $92BE, for type
+    $C6: $86 = $9312,Y | 1 with Y = $0680 / 4, and id $9316,Y' with Y' = $9306,($0680 AND 7),
+    by JMP $C093. The pose is $0680 (0-15)."""
+    B = lambda a: banks[6][a - 0x8000]
+    return [("ms", 0x88, 1, 0, 0, 0),
+            ("ms", B(0x9316 + B(0x9306 + (pose & 7))), B(0x9312 + (pose >> 2)) | 1, 0, 0, 0)]
+
+
+def _t4c(banks, a86, pose):
+    """Bank 6 $9188, types $4C/$4D: body $6D (109, $919D). $92E2: $84 += $1F plus the carry
+    CMP #$C6 left set - 32 - then $86 EOR $80 and id $6D again: the body upside down under
+    itself, a reflection."""
+    return [("ms", 0x6D, a86, 0, 0, 0), ("ms", 0x6D, a86 ^ 0x80, 0, 0, 32)]
+
+
+def _t4f(banks, a86, pose):
+    """Bank 1 $82B5, type $4F (bank 6 $9605 far-calls it): body $51 (81). $83A2 draws two legs
+    through $8457: A = $E4 (-28) with Y = $07B8, then $86 EOR $40 and A = $1C (+28) with
+    Y = $07D0, each depth clamped to $30-$70 by $8440. A leg is a claw, id $52 at
+    x + A +/- (Y - $30) / 4 (towards the middle), y + Y, and a shaft of single sprites, tile
+    $06C8 + $1E, from y + 24 (x - 8 on the right) stepping 16 down and 4 inwards while the
+    depth, less 16 a step, is $31 or more ($84A9). The pose is the depth, both sides equal."""
+    out = [("ms", 0x51, a86, 0, 0, 0)]
+    for dx, attr in ((-28, a86 & 3), (28, (a86 & 3) ^ 0x40)):
+        v = (pose - 0x30) >> 2
+        step = 4 if dx < 0 else -4
+        out.append(("ms", 0x52, attr, 0, dx + (v if dx < 0 else -v), pose))
+        x, y, d = dx - (8 if dx > 0 else 0), 24, pose
+        while d >= 0x31:
+            out.append(("one", 0x1E, attr, x, y))
+            x, y, d = x + step, y + 16, d - 16
+    return out
+
+
+def _t55(banks, a86, pose):
+    """Bank 6 $A349, types $55-$57: body $69 (105, $A366). $A3BE: $86 AND #$03 (flips
+    cleared), id $A3E0,Y with Y = $0638,X, the 10-frame counter. The pose is that frame."""
+    B = lambda a: banks[6][a - 0x8000]
+    return [("ms", 0x69, a86, 0, 0, 0), ("ms", B(0xA3E0 + pose), a86 & 3, 0, 0, 0)]
+
+
+# type -> (builder, poses the page draws, what the pose is)
+PIECED = {
+    **{t: (_fleepa, (0, 1, 2), "$07B8") for t in (0x40, 0x41)},
+    0x23: (_t23, (0, 1, 2), "frame $0638"),
+    **{t: (_t24, (0, 8, 16), "arm spread $15") for t in (0x24, 0x25, 0x26)},
+    **{t: (_t2d, (0, 4), "frame") for t in (0x2D, 0x2E, 0x2F)},
+    0x46: (_t46, (0, 4, 8, 12), "$0680"),
+    **{t: (_t4c, (0,), "") for t in (0x4C, 0x4D)},
+    0x4F: (_t4f, (0x30, 0x50, 0x70), "leg depth"),
+    **{t: (_t55, (0, 2), "frame $0638") for t in (0x55, 0x56, 0x57)},
+}
+COMPOSITES = PIECED       # the old name
+# The attribute byte each handler gives the object at spawn ($0560): a constant, or
+# (bank, base) read as LDA base,Y with Y = the type.
+SPAWN_ATTR = {
+    **{t: (3, 0x9633) for t in (0x40, 0x41)},            # bank 3 $9533
+    0x23: 0x00,                                           # bank 6 $8D7B
+    **{t: (6, 0x900D) for t in (0x24, 0x25, 0x26)},      # bank 6 $8E6D
+    **{t: (3, 0x94E2) for t in (0x2D, 0x2E, 0x2F)},      # bank 3 $93FF
+    0x46: 0x01,                                           # bank 6 $91A1
+    **{t: (6, 0x8FE6) for t in (0x4C, 0x4D)},            # bank 6 $9197
+    0x4F: 0x02,                                           # bank 1 $82C5
+    **{t: (6, 0x9D9F) for t in (0x55, 0x56, 0x57)},      # bank 6 $A34E
+}
+
+
+def spawn_attr(banks: dict, ty: int) -> int:
+    v = SPAWN_ATTR.get(ty, 0)
+    return v if isinstance(v, int) else banks[v[0]][v[1] + ty - 0x8000]
+# Pieced, but not drawable from the type's own tile block - with the reason.
+UNDRAWN = {
+    0x01: "the player's ship: bank 3 $8E95 adds id $1D in corridors with base $8ED8,Y, an "
+          "absolute tile chosen by the scroll speed $B9 and $41 - an exhaust flame",
+    0x35: "bank 5 $A118: id $8B twice at fixed screen positions ($80 +/- $0638, y $6F), "
+          "absolute base $D1, attributes $E2 and $22 - two halves parting; the type has no "
+          "tile block of its own",
+}
 
 
 def emit_parts(bank7: bytes, parts) -> list[tuple[int, int, int, int]]:
-    """All hardware sprites of a pieced object, tiles relative to the object's base tile."""
+    """All hardware sprites of a pieced object, tiles relative to the object's base tile.
+    Takes ("ms", id, attr, dbase, dx, dy), ("one", tile, attr, dx, dy) and the older
+    (id, attr, dbase, dy)."""
     ptrs = pointers(bank7)
     out = []
-    for i, attr, dbase, dy in parts:
+    for part in parts:
+        if part[0] == "one":
+            _, t, a, dx, dy = part
+            out.append((dx, dy, t & 0xFF, a))
+            continue
+        if part[0] == "ms":
+            _, i, attr, dbase, dx0, dy0 = part
+        else:
+            (i, attr, dbase, dy0), dx0 = part, 0
         for dx, y, t, a in emit(parse(bank7, ptrs[i]), attr):
-            out.append((dx, y + dy, (t + dbase) & 0xFF, a))
+            out.append((dx + dx0, y + dy0, (t + dbase) & 0xFF, a))
     return out
+
+
+def pieced_sprites(banks: dict, ty: int, a86: int, pose) -> list[tuple[int, int, int, int]]:
+    """The hardware sprites of type ``ty`` in one pose, relative to position and block."""
+    return emit_parts(banks[7], PIECED[ty][0](banks, a86, pose))

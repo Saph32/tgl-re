@@ -2007,12 +2007,20 @@ def _chr_runs(rm):
         bank, i = enemy.block_source(k)
         d = rm.prg_bank(bank)
         p = bases[bank] + 2 * i - 0x8000
-        return gfx.decode(d, (d[p] | d[p + 1] << 8) - 0x8000)[0]
+        ptr = d[p] | d[p + 1] << 8
+        if not 0x8000 <= ptr < 0xC000:          # ids with no block ($0000 / $FFFF)
+            return b""
+        return gfx.decode(d, ptr - 0x8000)[0]
 
     runs = {}
     specials = {b5[0x26A4 + 3 * r] | b5[0x26A5 + 3 * r] << 8 for r in range(13)}
-    for s in [enemy.GFX_DEFAULT] + sorted(specials):
-        recs, _ = enemy.walk_gfx_stream(b5, s)
+    # Corridor art comes from bank 4 streams (command 7); without them a corridor boss
+    # reading past its own block - Fleepa, for one - is drawn with holes.
+    _, corr = enemy.area_spawns(rm.prg_bank(4))
+    streams = [(b5, s) for s in [enemy.GFX_DEFAULT] + sorted(specials)]
+    streams += [(rm.prg_bank(4), s) for s in sorted({x for v in corr.values() for x in v})]
+    for data, s in streams:
+        recs, _ = enemy.walk_gfx_stream(data, s)
         for i, (_, blk, _) in enumerate(recs):
             run = b"".join(tiles(b) for _, b, _ in recs[i:])
             if len(run) > len(runs.get(blk, b"")):
@@ -2085,6 +2093,7 @@ def _enemies_page(rm):
     b6 = rm.prg_bank(6)
     mptrs = msp.pointers(b7)
     frames, pieces = {}, {}
+    allb = {k: rm.prg_bank(k) for k in range(8)}
     for row in msp.object_map_rm(rm):
         pieces[row["type"]] = sorted({i for v in row["pieces"].values() for i in v})
         ids = set(row["ids"])
@@ -2141,19 +2150,23 @@ def _enemies_page(rm):
             bank, ptr, tiles = block_tiles(v["gfx"])
             run = runs.get(v["gfx"], tiles)
             shots = []
-            if t in msp.COMPOSITES:
-                b3 = rm.prg_bank(3)
-                a86 = b3[0x9633 + t - 0x8000]           # $952E: LDA $9633,Y -> $0560
-                for s7 in range(3):
-                    parts = msp.composite_952E(b3, 0, s7, 0, a86)
-                    shots.append(f'<span title="whole object, $07B8 = {s7}: metasprites '
-                                 + ", ".join(str(q[0]) for q in parts) + '">'
+            if t in msp.PIECED:
+                build, poses, what = msp.PIECED[t]
+                a86 = msp.spawn_attr(allb, t)
+                for pose in poses:
+                    parts = build(allb, a86, pose)
+                    ids = ", ".join(str(q[1]) if q[0] == "ms" else "single" for q in parts)
+                    shots.append(f'<span title="{_h(what)} {pose}: {ids}">'
                                  + _assembled_svg(msp.emit_parts(b7, parts), run, pals)
                                  + "</span>")
-                shots.append('<br><span class="meta">drawn in pieces by bank 3 '
-                             "<code>$952E</code> &mdash; the whole object, then its parts:"
+                hw = " &mdash; checked against a savestate, 41/41 sprites"                     if t in (0x40, 0x41) else " &mdash; read from the code, not yet checked "                     "against a savestate"
+                shots.append('<br><span class="meta">drawn in pieces'
+                             + (f" ({_h(what)} {', '.join(str(x) for x in poses)})"
+                                if what else "") + hw + "; the parts:</span><br>")
+            elif t in msp.UNDRAWN:
+                shots.append(f'<span class="meta">drawn in pieces: {_h(msp.UNDRAWN[t])}'
                              "</span><br>")
-            if pieces.get(t) and t not in msp.COMPOSITES:
+            elif pieces.get(t):
                 shots.append('<span class="meta">also draws metasprite'
                              f'{"s" * (len(pieces[t]) > 1)} '
                              + ", ".join(str(i) for i in pieces[t])
@@ -2171,6 +2184,8 @@ def _enemies_page(rm):
                 f'<code>${ptr:04X}</code></span><br>' + _tiles_svg(tiles, per_row=16, px=14))
         elif v["gfx"] is not None and v["gfx"] >= 0x80:
             art = '<span class="meta">per object (<code>$07B8,X</code>)</span>'
+        if t in msp.UNDRAWN and msp.UNDRAWN[t] not in art:
+            art += (f'<span class="meta">drawn in pieces: {_h(msp.UNDRAWN[t])}</span>')
         pts = enemy.score(b7, v["score_class"])
         rows.append(f'<tr><td><code>${t:02X}</code></td><td class="mono">{v["hp"]}</td>'
                     f'<td class="mono">{"per object" if pts is None else pts}</td>'
