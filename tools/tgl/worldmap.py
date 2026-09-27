@@ -19,7 +19,10 @@ ENTRANCE = 0x82       # byte 0 of a corridor entrance
 EMPTY = 0x80
 
 # Byte 0 bits 5-6, stored in $5D by $8121.
-KINDS = {0x00: "plain", 0x20: "sub-id", 0x40: "special", 0x60: "entrance"}
+# CORRECTION: these were "sub-id", "special" and "entrance" - read off $A3BB and $A663 (see
+# tgl/labyrinth.py): kind $20 holds an item, $40 a miniboss, $60 a loop gate. Byte 0 bit 7,
+# not the kind, makes a record a special screen (corridor entrances among them).
+KINDS = {0x00: "plain", 0x20: "item", 0x40: "miniboss", 0x60: "loop gate"}
 
 
 def records(b5: bytes, end: int = MAP_END):

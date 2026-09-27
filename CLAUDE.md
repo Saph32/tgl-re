@@ -81,8 +81,9 @@ wrong finding away.
   savestate's room both from the ROM and from its own nametable/CHR/palette RAM and compares
   pixels (labyrinth state: 191/192 cells identical, the miss under an object). A room's area
   is byte 2's low nibble when byte 0 bit 7 is clear (`$EEE0` on entry via `$EC5B`); bit-7
-  rooms (entrances, key doors) keep the loaded area (`$EC12`) and are drawn with their
-  neighbours'. Background only: no objects, no key doors.
+  records are special screens (see below), drawn with their neighbours' area plus scene
+  `$10` + screen type through the special path, as a new game meets them (unchecked).
+  Background only: no objects, no key doors. `tools/tgl/labyrinth.py` holds the room rules.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -696,6 +697,27 @@ Do not re-derive these; do check anything that depends on them.
   screen positions) use absolute tiles and are listed, not drawn. The page's tile runs now
   follow bank 4's corridor streams too, so corridor bosses are no longer drawn with holes.
   Bank 3 `$9151` = boss type by corridor.
+- **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
+  - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
+    screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.
+    Corridor entrance (byte 2 bit 7): screen 8 sealed gate (two type-`$35` halves — the
+    "two-part door"), 5 once cleared with reward `$EF40[c]`, 0 for corridor 21 until 1-10
+    are cleared. Otherwise byte 2's nibble: 1 progress recorder (message 4, keeps `$52/$53`
+    in `$7C/$7D`), 3 message = sub-id (story 0-3, seal hints 12-20), 2/6 the round
+    creature's shops (`$A04E`, `$A067`; prices in chips), 7 a shop after buying.
+  - **Key doors** (`$82DD`): each open exit where either side has byte 0 bit 7 gets a door
+    (metatile 8, fixed cells) and `$58-$5B` = the neighbour's key; `$8FF5` opens with key 0 or
+    bit k-1 of `$04B0`. 176 doors.
+  - **Items:** kind `$20` rooms; item `$A377[sub-id]` on the layout's metatile 6, whose fifth
+    byte `$10` spawns list-`$AF61` entry 1 = type `$31`; the sub-id is its flag (`$04A0`
+    array, `$EFE0`/`$EFE9`). **Check: metatile 6 is in each of the 34 item rooms exactly once
+    and in no other room.** **Minibosses:** kind `$40`, `$A6A3 + $A682[sub-id]` = type +
+    stream, boss phase `$70 = 1`. **Loop gates:** kind `$60`, `$A3DB` opens metatiles 4/5 when
+    the last moves (`$04F0` history) sum to zero.
+  - **CORRECTIONS:** `worldmap.KINDS` said "sub-id / special / entrance" for `$20/$40/$60`;
+    `$A377` and `$EF40` said "what `$55` selects is not established"; the special-room
+    records at `$A6A3` said `$72`'s use was not established; the first labyrinth map drew the
+    58 special screens as rooms.
 - **The TGL game: corridors only (owner's claim, CONFIRMED from the code).** `$30` bit 1.
   A new game (`$EB18`) starts corridor 0; at each corridor end `$ECE7` sends a normal game
   back to the labyrinth but the TGL game to bank 3 `$80A0` (YOU GOT ITEM), then

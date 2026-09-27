@@ -15,6 +15,11 @@ Everything comes from the ROM, through the tools that already carry the checks:
   with byte 0 bit 7 set (corridor entrances ``$82``, key-door rooms ``$A3``) takes the
   ``$EC12`` path, which keeps the area already loaded, so it is drawn with its neighbours'
   area (the most common one; a LEAD where they disagree);
+* **special screens** - a record with byte 0 bit 7 is not a labyrinth room: ``$EE1D`` picks
+  a screen type from byte 2 (``tgl.labyrinth.screen``), loads scene ``$10`` + that type on
+  top of the area's, and the room drawer takes its special path. Drawn as a new game meets
+  them: every corridor sealed, no flags set. UNCHECKED against hardware - no savestate
+  stands in one;
 * **tiles, metatiles, palettes** - ``tgl.scene``: the area's scenes (the common scenes 0 and
   32, then area + 5) give the background CHR, the eight metatile set windows and the palette
   list; a cell byte is set (bits 5-7) + metatile (bits 0-4), a metatile four tiles plus a
@@ -40,6 +45,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from PIL import Image
 
+from tgl import labyrinth as lab
 from tgl import scene as sc
 from tgl import worldmap as wm
 from tgl.model import load
@@ -89,9 +95,11 @@ def room_areas(recs) -> dict:
 class AreaArt:
     """One area's tiles, metatile sets and palettes, with a cache of drawn metatiles."""
 
-    def __init__(self, rm, area: int):
+    def __init__(self, rm, area: int, screen: int | None = None):
         b5 = self.b5 = rm.prg_bank(5)
         seq = sc.area_scenes(area)
+        if screen is not None:
+            seq = seq + [0x10 + screen]           # $EE6B: $5C = $10 | $51, loaded on top
         self.chr = sc.background_chr(rm, seq)
         self.sets = sc.effective_sets(b5, seq)
         slots = [None] * 8
@@ -132,11 +140,16 @@ class AreaArt:
         return img
 
 
-def room_ram(recs, grid, r, area: int) -> bytearray:
-    """The RAM build_room reads, as the game would hold it in room r."""
+def room_ram(recs, grid, r, area: int, screen: int | None = None) -> bytearray:
+    """The RAM build_room reads, as the game would hold it in room r. A special screen
+    ($EE1D) sets $50 = 0, $51 = the screen type and $30 bit 5, the room drawer's special
+    path."""
     ram = bytearray(0x800)
     empty = next(x["addr"] for x in recs if x["b"][0] == wm.EMPTY)
-    ram[0x50], ram[0x51], ram[0x30] = area, 0, 0
+    if screen is None:
+        ram[0x50], ram[0x51], ram[0x30] = area, 0, 0
+    else:
+        ram[0x50], ram[0x51], ram[0x30] = 0, screen, 0x20
     ram[0xE4], ram[0xE5] = r["addr"] & 0xFF, r["addr"] >> 8
     for zp, (dr, dc) in ((0xE0, (-1, 0)), (0xE2, (0, -1)), (0xE6, (0, 1)), (0xE8, (1, 0))):
         n = grid.get((r["row"] + dr, r["col"] + dc))
@@ -210,19 +223,24 @@ def main() -> int:
     recs, _ = wm.records(b5)
     grid = {(r["row"], r["col"]): r for r in recs}
     areas = room_areas(recs)
-    arts = {a: AreaArt(rm, a) for a in sorted(set(areas.values()))}
+    arts: dict = {}
     img = Image.new("RGB", (wm.COLUMNS * ROOM_W, wm.ROWS * ROOM_H), EMPTY_RGB)
-    drawn = 0
+    drawn = specials = 0
     for (row, col), area in sorted(areas.items()):
         r = grid[(row, col)]
-        buf = ps.build_room(b5, room_ram(recs, grid, r, area))
-        img.paste(render_room(arts[area], buf), (col * ROOM_W, row * ROOM_H))
+        scr = lab.screen(r) if lab.is_special(r) else None     # as a new game meets it
+        specials += scr is not None
+        if (area, scr) not in arts:
+            arts[(area, scr)] = AreaArt(rm, area, scr)
+        buf = ps.build_room(b5, room_ram(recs, grid, r, area, scr))
+        img.paste(render_room(arts[(area, scr)], buf), (col * ROOM_W, row * ROOM_H))
         drawn += 1
     args.out.parent.mkdir(parents=True, exist_ok=True)
     img.save(args.out, optimize=True)
     half = args.out.with_name(args.out.stem + "-half.png")
     img.resize((img.width // 2, img.height // 2), Image.LANCZOS).save(half, optimize=True)
-    print(f"{drawn} rooms in {len(arts)} areas; wrote {args.out.relative_to(ROOT)} "
+    print(f"{drawn} rooms ({specials} special screens, drawn as a new game meets them) in "
+          f"{len({a for a, _ in arts})} areas; wrote {args.out.relative_to(ROOT)} "
           f"({img.width} x {img.height}) and {half.name}")
     return 0
 

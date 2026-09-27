@@ -5003,7 +5003,7 @@ L7_EEE0:
         .byte   $05,$0C,$0C,$08,$08,$1C
 
 ; ---- bank7.tbl_EF40 (data) $EF40-$EF54, 21 bytes
-; Value copied to $55, by room index
+; Corridor reward item, by corridor
         .byte   $19,$07,$09,$0C,$00,$0B,$06,$0A,$03,$06,$0B,$04,$08,$0F,$0D,$11
         .byte   $01,$09,$05,$0F,$0E
 

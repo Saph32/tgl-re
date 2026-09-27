@@ -361,9 +361,10 @@ TOPICS = [
      lambda rs: [r for r in rs if r.get("source") == ENEMY_SOURCE],
      "127 object types with hit points, attack and art; 47 spawn scripts; and the loader "
      "that decompresses enemy tiles as rooms are entered."),
-    ("labyrinth.html", "Labyrinth tilesets",
+    ("labyrinth.html", "Labyrinth",
      lambda rs: [r for r in rs if r.get("source") == SCENE_SOURCE],
-     "Every labyrinth area's metatiles, drawn from the ROM with the tiles and palettes it "
+     "The whole labyrinth, how its rooms are encoded, where entrances, key doors, items and "
+     "minibosses are, and every area's metatiles, drawn from the ROM with the tiles and palettes it "
      "loads - checked against a savestate cell for cell."),
     ("status.html", "Status screen",
      lambda rs: [r for r in rs if r["id"] in STATUS_REGIONS],
@@ -2427,6 +2428,277 @@ def _external_page(rm):
     return "".join(p)
 
 
+def _labyrinth_rooms(rm) -> str:
+    """How a room is encoded, and where the entrances, key doors, items and minibosses are."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import labyrinth as lab
+    from tgl import worldmap as wm
+
+    b5, b7 = rm.prg_bank(5), rm.prg_bank(7)
+    recs, _ = wm.records(b5)
+    ext = _external()
+    facts = ext["facts"] if ext else []
+    names = next((f.get("weapon_names") for f in facts if f.get("weapon_names")), [])
+    icons = next((f.get("item_icons") for f in facts if f.get("item_icons")), {})
+
+    def item(i):
+        if i is None:
+            return "&mdash;"
+        n = names[i] if i < 12 and i < len(names) else icons.get(str(i))
+        return f"{_h(n)} <span class=\"meta\">({i})</span>" if n else \
+            f"<span class=\"meta\">value {i}, not an icon &mdash; not established</span>"
+
+    pos = lambda d: f"{d['col']}, {d['row']}"
+    specials = lab.special_rooms(b5, b7, recs)
+    import importlib.util
+    mods = {}
+    for n in ("parse-structs", "render-labyrinth"):
+        spec = importlib.util.spec_from_file_location(
+            n.replace("-", "_"), Path(__file__).resolve().parents[1] / f"{n}.py")
+        mods[n] = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mods[n])
+    rl, ps = mods["render-labyrinth"], mods["parse-structs"]
+    areas, grid = rl.room_areas(recs), lab.grid(recs)
+    build = lambda r: ps.build_room(b5, rl.room_ram(recs, grid, r, areas[(r["row"], r["col"])]))
+    items = lab.item_rooms(b5, recs, build)
+    bosses = lab.miniboss_rooms(b5, recs)
+    loops = lab.loop_rooms(recs)
+    doors = lab.key_doors(recs)
+    msgs = []
+    for i in range(21):
+        a = b5[0x160F + 2 * i] | b5[0x1610 + 2 * i] << 8
+        s, k = [], a
+        while b5[k - 0x8000] and len(s) < 400:
+            c = b5[k - 0x8000]
+            s.append(" " if c in (1, 0x0D) else chr(c) if 32 <= c < 127 else "")
+            k += 1
+        msgs.append(" ".join("".join(s).replace("[", ".").replace("<", ",")
+                             .replace("^", '"').replace("]", "!").replace(";", ";").split()))
+
+    p = ['<h2 id="rooms">How a room is encoded</h2>',
+         '<p class="sub">The labyrinth is one 24 &times; 24 grid of map records in bank 5 '
+         "(<code>$8A6E</code>), walked 24 to a row by <code>$80F5</code>. A record is "
+         "<code>(byte 0 AND $0F) + 1</code> bytes, and its first three bytes say what the "
+         "rest holds.</p>"]
+    p.append("<table><thead><tr><th>Byte</th><th>Bits</th><th>Meaning</th><th>Read by</th>"
+             "</tr></thead><tbody>"
+             "<tr><td rowspan=4>0</td><td>0-3</td><td>length &minus; 1; <code>$80</code> "
+             "exactly is an empty cell</td><td><code>$8103</code></td></tr>"
+             "<tr><td>4</td><td>a room-layout pointer is present</td><td><code>$8243</code>"
+             "</td></tr>"
+             "<tr><td>5-6</td><td>room kind: <code>$00</code> plain, <code>$20</code> item "
+             "(with a sub-id), <code>$40</code> miniboss (with a sub-id), <code>$60</code> "
+             "loop gate</td><td><code>$8121</code> &rarr; <code>$5D</code></td></tr>"
+             "<tr><td>7</td><td><strong>a special screen, not a room</strong> &mdash; "
+             "corridor entrances, shops, messages, the progress recorder; every opening into "
+             "it gets a key door</td><td><code>$EC5B</code>, <code>$82DD</code></td></tr>"
+             "<tr><td rowspan=3>1</td><td>0-2</td><td>the key that reveals the cell on the "
+             "status-screen map, and the key a door into it needs</td><td><code>$8860</code>, "
+             "<code>$82DD</code></td></tr>"
+             "<tr><td>3</td><td>the room has enemies (a spawn script follows)</td>"
+             "<td><code>$8121</code> &rarr; <code>$57</code></td></tr>"
+             "<tr><td>4-7</td><td>open exits S, E, W, N (bits 4-7)</td><td><code>$82DD</code>"
+             ", <code>$8071</code></td></tr>"
+             "<tr><td>2</td><td>all</td><td>bit 7 clear: the labyrinth <strong>area</strong> "
+             "(low nibble), loaded into <code>$50</code> on entering (<code>$EEE0</code>). "
+             "Bit 7 set: a <strong>corridor entrance</strong>, the low seven bits its number. "
+             "In a special screen without bit 7: the screen type</td><td><code>$EECC</code>, "
+             "<code>$EE1D</code></td></tr>"
+             "<tr><td>3&hellip;</td><td></td><td>in this order, each only if its flag says so: "
+             "the <strong>sub-id</strong> (kinds <code>$20</code>/<code>$40</code> &rarr; "
+             "<code>$5E</code>), the <strong>spawn script</strong> id (byte 1 bit 3 &rarr; "
+             "<code>$57</code>, 0 read as 1), the two-byte <strong>layout pointer</strong> "
+             "(byte 0 bit 4)</td><td><code>$8121</code>, <code>$8243</code></td></tr>"
+             "</tbody></table>")
+    p.append('<div class="note"><strong>Drawing a room</strong> (<code>$8155</code>, then '
+             "<code>$8243</code>): the area picks a <em>structure</em> &mdash; a pattern tiled "
+             "over the 16 &times; 12 cell buffer, plus four overlay pieces &mdash; and a <em>door "
+             "set</em>, whose last four pieces wall off each exit that is closed or leads to an "
+             "empty cell. The record's layout then goes on top: one of 19 room shapes filled "
+             "with a metatile, plus up to seven runs of other metatiles. The sub-id is also the "
+             "room's <strong>flag</strong> in the bit array at <code>$04A0</code> "
+             "(<code>$EFE0</code> tests, <code>$EFE9</code> sets): a taken item or a beaten "
+             "miniboss stays gone. <strong>Checks:</strong> all 370 non-empty records are "
+             "exactly as long as their flags say; the room rebuilt from the ROM matches the "
+             "labyrinth savestate's screen in 191 of 192 cells, to the pixel.</div>")
+
+    # ---------------------------------------------------------------- annotated map
+    kinds = {}
+    for d in specials:
+        kinds[(d["row"], d["col"])] = ("E", "#e8b84a") if "corridor" in d else \
+            {1: ("P", "#8fd18f"), 2: ("$", "#f07dd8"), 6: ("$", "#f07dd8"),
+             3: ("?", "#9ec7ff")}.get(d["screen"], ("S", "#ccc"))
+    for d in items:
+        kinds[(d["row"], d["col"])] = ("I", "#5fe0e0")
+    for d in bosses:
+        kinds[(d["row"], d["col"])] = ("M", "#ff6b5e")
+    for d in loops:
+        kinds[(d["row"], d["col"])] = ("L", "#c0a0ff")
+    svg = ['<svg viewBox="0 0 2400 1800" style="position:absolute;inset:0;width:100%;'
+           'height:100%" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,'
+           'monospace" font-weight="700">']
+    for d in doors:
+        r, c = d["row"], d["col"]
+        x, y = c * 100 + 50, r * 75 + 37.5
+        dx, dy = {"N": (0, -37), "S": (0, 37), "W": (-50, 0), "E": (50, 0)}[d["side"]]
+        svg.append(f'<rect x="{x + dx - 7}" y="{y + dy - 7}" width="14" height="14" '
+                   f'fill="#ffd21f" stroke="#000" stroke-width="2"/>')
+    for (r, c), (ch, col) in kinds.items():
+        label = ch
+        d = next((s for s in specials if (s["row"], s["col"]) == (r, c)), None)
+        if d and "corridor" in d:
+            label = str(d["corridor"])
+        svg.append(f'<circle cx="{c * 100 + 50}" cy="{r * 75 + 37.5}" r="22" fill="{col}" '
+                   f'stroke="#000" stroke-width="3"/><text x="{c * 100 + 50}" '
+                   f'y="{r * 75 + 46}" font-size="{24 if len(label) > 1 else 26}" '
+                   f'text-anchor="middle">{_h(label)}</text>')
+    svg.append("</svg>")
+    p.append('<h2 id="where">Where everything is</h2>')
+    p.append('<div style="position:relative;width:100%;aspect-ratio:4/3">'
+             '<img src="labyrinth-map-half.png" alt="The labyrinth with its rooms marked" '
+             'style="position:absolute;inset:0;width:100%;height:100%">' + "".join(svg) +
+             "</div>")
+    p.append('<p class="meta">Numbers: corridor entrances. <strong>I</strong> item room, '
+             "<strong>M</strong> miniboss, <strong>L</strong> loop gate, <strong>$</strong> "
+             "shop, <strong>?</strong> message, <strong>P</strong> progress recorder. Yellow "
+             f"squares: the {len(doors)} key doors, on the side of the room they are in. "
+             "Special screens are drawn as a new game meets them &mdash; every corridor still "
+             "sealed.</p>")
+
+    # ---------------------------------------------------------------- entrances
+    ents = sorted((d for d in specials if "corridor" in d), key=lambda d: d["corridor"])
+    p.append('<h2 id="entrances">Corridor entrances</h2>')
+    p.append('<div class="note">A corridor entrance is a record with byte 0 bit 7 (a special '
+             "screen) and byte 2 bit 7; the low seven bits are the corridor. The records "
+             "carry the numbers <strong>1 to 21, each exactly once</strong>. On entering, "
+             "<code>$EE1D</code> chooses the screen: while the corridor is uncleared (bit "
+             "c&minus;1 of <code>$04A9</code>, <code>$EFAC</code>) it is screen 8, the sealed "
+             "gate &mdash; <code>$9F44</code> shows <em>Corridor</em> and the number and sets "
+             "out two type-<code>$35</code> objects, the two halves of the seal; corridor 21's "
+             "is screen 0, a bare gate, until corridors 1-10 are all cleared. A room change "
+             "with no exit direction (<code>$A4</code> = 4) inside an entrance screen starts "
+             "the corridor (<code>$EC5B</code> &rarr; <code>$EC8C</code>: <code>$51</code> = "
+             "byte 2 AND <code>$7F</code>); what sets that on the gate is not read yet. Once "
+             "cleared the entrance becomes screen 5, which also sets "
+             "out a reward item, <code>$EF40</code>[corridor]. The status-screen map marks an "
+             "entrance while its corridor is uncleared (<code>$C07B</code>).</div>")
+    p.append("<table><thead><tr><th>Corridor</th><th>Map (x, y)</th><th>Key to enter</th>"
+             "<th>Seal hint</th><th>Reward once cleared</th></tr></thead><tbody>" + "".join(
+                 f"<tr><td>{d['corridor']}</td><td>{pos(d)}</td><td>{d['key'] or 'none'}</td>"
+                 f"<td class=\"desc\">{_h(msgs[10 + d['corridor']]) if 2 <= d['corridor'] <= 10 else ('fire at the gate (message 2)' if d['corridor'] == 1 else '')}</td>"
+                 f"<td>{item(d['reward'])}</td></tr>" for d in ents) + "</tbody></table>")
+    p.append('<p class="meta">Seal hints are dialogue messages 12-20 (corridors 2-10), '
+             "given by message screens; each seal is its own piece of code, not read yet. "
+             "Corridor 4's is the one the ROM shows plainly: the shop controllers call "
+             "<code>$A2E7</code>, which looks for the player walking back and forth in the "
+             "move history, and then show message 11 and set bit 3 of <code>$04B1</code>. "
+             "Whether a cleared corridor's reward can be taken more than once is not "
+             "established.</p>")
+
+    # ---------------------------------------------------------------- key doors
+    p.append('<h2 id="doors">Key doors</h2>')
+    p.append('<div class="note"><strong>Where:</strong> <code>$82DD</code> looks at each of '
+             "the room's open exits in turn, and if <em>this</em> record's byte 0 or the "
+             "<em>neighbour's</em> has bit 7 set &mdash; either side is a special screen &mdash; "
+             "it writes a door (metatile 8) into that opening of the cell buffer: row 3 column "
+             "7 (north), row 7 column 2 (west), row 7 column 13 (east), row 10 column 7 "
+             "(south). <strong>Which key:</strong> the same pass stores the neighbour's byte 1 "
+             "AND 7 in <code>$58-$5B</code> (N W E S). So <strong>every door into a special "
+             "screen needs that screen's key</strong>, and the doors out of it need the keys "
+             "of the rooms around it. <strong>Opening:</strong> bank 3 <code>$8FF5</code> "
+             "lets the player through when the key is 0 or bit k&minus;1 of <code>$04B0</code> "
+             "&mdash; the key inventory &mdash; is set; <code>$9045</code> otherwise holds "
+             "them at the edge of the screen. The dialogue calls these the rooms' "
+             "&ldquo;Warp panel&rdquo; doors.</div>")
+    by_key = {}
+    for d in doors:
+        by_key[d["key"]] = by_key.get(d["key"], 0) + 1
+    p.append(_stats([(f"key {k}" if k else "no key", str(n)) for k, n in sorted(by_key.items())]))
+
+    # ---------------------------------------------------------------- items
+    p.append('<h2 id="items">Items</h2>')
+    p.append('<div class="note"><strong>Item rooms</strong> are kind <code>$20</code> '
+             "records that are rooms (byte 0 bit 7 clear). <code>$A3BB</code> takes the "
+             "sub-id; the item is <code>$A377</code>[sub-id], an icon number. The room's "
+             "layout puts <strong>metatile 6</strong> where the item stands &mdash; it looks "
+             "like the block tile, metatile 4, but its fifth byte is <code>$10</code>, and "
+             "when the rows are drawn that nibble spawns entry 1 of spawn list "
+             "<code>$AF61</code>: type <code>$31</code>, the item object, which "
+             "<code>$84CB</code> gives icon <code>$55</code>. Taking it (bank 2 "
+             "<code>$8669</code>) sets the sub-id's flag, and from then on <code>$A425</code> "
+             "turns metatile 6 into floor before the room is drawn. The dialogue: &ldquo;I "
+             "put some weapons in these boxes.&rdquo; <strong>Check:</strong> rebuilding "
+             "every room from the ROM, metatile 6 occurs <strong>exactly once in each of the "
+             f"{len(items)} item rooms and in no other room</strong>.</div>")
+    cells = lambda d: ", ".join(f"({i % 16}, {i // 16})" for i in d["cells"]) or "&mdash;"
+    p.append("<table><thead><tr><th>Map (x, y)</th><th>Sub-id</th><th>Item</th>"
+             "<th>Cell (column, row)</th></tr></thead><tbody>" + "".join(
+                 f"<tr><td>{pos(d)}</td><td>{d['sub']}</td><td>{item(d['item'])}</td>"
+                 f"<td class=\"mono\">{cells(d)}</td></tr>" for d in items) +
+             "</tbody></table>")
+    shops = [d for d in specials if d["screen"] in (2, 6)]
+    p.append('<h3>The round creature&rsquo;s shops</h3>')
+    p.append('<p class="desc">Special screens 2 and 6. Screen 6 (<code>$A076</code>) sells one '
+             "ware from <code>$A067</code> + 3 &times; <code>$A377</code>[sub-id]: "
+             "[price lo][price hi][icon]. Screen 2 (<code>$9FE9</code>) lays out three from "
+             "<code>$A04E</code> + 5 &times; <code>$A377</code>[sub-id]: [price lo][price hi] "
+             "and three values given to the three type-<code>$33</code> wares; its message "
+             "says only one can be bought. Once bought (flag set) either becomes screen 7, "
+             "&ldquo;Any luck?&rdquo;. Prices are in Power Chips.</p>")
+    p.append("<table><thead><tr><th>Map (x, y)</th><th>Screen</th><th>Key</th><th>Price</th>"
+             "<th>Wares</th></tr></thead><tbody>" + "".join(
+                 f"<tr><td>{pos(d)}</td><td>{d['screen']}</td><td>{d['key'] or 'none'}</td>"
+                 f"<td class=\"mono\">{d['price']}</td><td>{'; '.join(item(w) for w in d['wares'])}"
+                 "</td></tr>" for d in shops) + "</tbody></table>")
+
+    # ---------------------------------------------------------------- minibosses
+    p.append('<h2 id="minibosses">Minibosses</h2>')
+    p.append('<div class="note"><strong>Miniboss rooms</strong> are kind <code>$40</code>. '
+             "<code>$A663</code> tests the sub-id's flag and, while it is clear, reads a "
+             "three-byte record at <code>$A6A3 + $A682</code>[sub-id]: the boss's object type "
+             "(into <code>$72</code>) and a graphics-load stream (<code>$28</code>/"
+             "<code>$29</code>), then sets <code>$70 = 1</code> &mdash; the same boss phase "
+             "the corridors use (bank 3 <code>$9184</code>), which spawns type "
+             "<code>$72</code> and waits for it. The flag is set when it is beaten, so it "
+             "does not come back. Sub-ids run 11-32; 13 records serve the 22 rooms.</div>")
+    p.append("<table><thead><tr><th>Map (x, y)</th><th>Sub-id</th><th>Object type</th>"
+             "<th>Graphics stream</th></tr></thead><tbody>" + "".join(
+                 f"<tr><td>{pos(d)}</td><td>{d['sub']}</td><td><a href=\"enemies.html\">"
+                 f"<code>${d['type']:02X}</code></a></td><td><code>${d['stream']:04X}</code>"
+                 "</td></tr>" for d in bosses) + "</tbody></table>")
+
+    # ---------------------------------------------------------------- the rest
+    p.append('<h2 id="other">Other special screens, and loop gates</h2>')
+    cnt = {}
+    for d in specials:
+        cnt[d["screen"]] = cnt.get(d["screen"], 0) + 1
+    p.append("<table><thead><tr><th>Screen</th><th>What it is</th><th>Records</th></tr>"
+             "</thead><tbody>" + "".join(
+                 f"<tr><td>{s}</td><td>{_h(t)}</td><td class=\"mono\">{cnt.get(s, 0)}</td>"
+                 "</tr>" for s, t in lab.SCREENS.items()) + "</tbody></table>")
+    mscreens = sorted((d for d in specials if d["screen"] == 3), key=lambda d: d["message"])
+    p.append('<p class="desc"><strong>Messages</strong> (screen 3, <code>$9FC4</code>): a type-'
+             "<code>$34</code> object shows dialogue message number <em>sub-id</em>.</p>")
+    p.append("<table><thead><tr><th>Map (x, y)</th><th>Message</th><th>Text</th></tr></thead>"
+             "<tbody>" + "".join(
+                 f"<tr><td>{pos(d)}</td><td>{d['message']}</td><td class=\"desc\">"
+                 f"{_h(msgs[d['message']][:220])}{'&hellip;' if len(msgs[d['message']]) > 220 else ''}"
+                 "</td></tr>" for d in mscreens) + "</tbody></table>")
+    p.append('<p class="desc"><strong>The progress recorder</strong> (screen 1, '
+             "<code>$9FB6</code>): message 4, &ldquo;Do you want me to record your "
+             "progress?&rdquo;, and it keeps the map position (<code>$52</code>/<code>$53</code> "
+             "&rarr; <code>$7C</code>/<code>$7D</code>) &mdash; where a password game "
+             "resumes.</p>")
+    p.append('<p class="desc"><strong>Loop gates</strong> (kind <code>$60</code>, '
+             f"{len(loops)} rooms, <code>$A3DB</code>): every move pushes its direction onto a "
+             "ten-deep history at <code>$04F0</code>. Entering one of these rooms adds up the "
+             "latest moves as (x, y) steps from <code>$A41B</code>; if any run of them sums to "
+             "zero &mdash; the player walked a loop back into this room &mdash; the room's "
+             "metatiles 4 and 5 become 3, opening its blocks.</p>")
+    return "".join(p)
+
+
 def _metatiles_svg(chr_tiles, b5, ptr, base, pals, backdrop, px=2, per_row=16):
     """32 metatiles of one set window, as the PPU draws them: four tiles each (TL TR BL BR
     = bytes 0-3, $FF blank), coloured by attribute (byte 4 AND 3, via $0199), colour 0 the
@@ -2493,10 +2765,11 @@ def _labyrinth_page(rm):
                     out[k] = v
         return out
 
-    p = ["<h1>Labyrinth tilesets</h1>",
-         '<p class="sub">Every labyrinth area&rsquo;s metatiles &mdash; the 16&times;16 blocks '
-         "rooms are built from &mdash; drawn from the ROM with the tiles and palettes that "
-         "area loads.</p>"]
+    p = ["<h1>Labyrinth</h1>",
+         '<p class="sub">The whole labyrinth drawn from the ROM; how a room is encoded; where '
+         'the <a href="#entrances">corridor entrances</a>, <a href="#doors">key doors</a>, '
+         '<a href="#items">items</a> and <a href="#minibosses">minibosses</a> are; and every '
+         "area&rsquo;s metatiles &mdash; the 16&times;16 blocks rooms are built from.</p>"]
     p.append('<div class="note"><strong>How an area gets its look.</strong> Labyrinth area '
              "<em>n</em> is <strong>scene <em>n</em> + 5</strong> (bank 7 <code>$EEE0</code> "
              "stores <code>$50 + 5</code> in <code>$5C</code>), loaded after the common "
@@ -2527,12 +2800,17 @@ def _labyrinth_page(rm):
              '<div class="note">Drawn by <code>tools/render-labyrinth.py</code>, which '
              "<code>build.py</code> runs. A room takes its area from byte 2's low nibble when "
              "byte 0 bit 7 is clear &mdash; what <code>$EEE0</code> loads into <code>$50</code> "
-             "on entering it &mdash; and its neighbours' area otherwise: corridor entrances and "
-             "key-door rooms keep the area already loaded (<code>$EC12</code>). "
-             "<strong>Against hardware:</strong> <code>--verify</code> renders the labyrinth "
-             "savestate's room from the ROM and from the savestate's own nametable, CHR RAM "
-             "and palette RAM: 191 of 192 cells identical to the pixel, the other under an "
-             "object.</div>")
+             "on entering it. A record with byte 0 bit 7 is a <em>special screen</em> (see below): "
+             "it keeps the area already loaded (<code>$EC12</code>), so it is drawn with its "
+             "neighbours' area, plus scene <code>$10</code> + its screen type, through the room "
+             "drawer's special path &mdash; as a new game meets it, every corridor sealed. "
+             "<strong>CORRECTION:</strong> the first version of this map drew those 58 records "
+             "as ordinary rooms. <strong>Against hardware:</strong> <code>--verify</code> "
+             "renders the labyrinth savestate's room from the ROM and from the savestate's own "
+             "nametable, CHR RAM and palette RAM: 191 of 192 cells identical to the pixel, the "
+             "other under an object. No savestate stands in a special screen, so those are "
+             "unchecked.</div>")
+    p.append(_labyrinth_rooms(rm))
 
     groups: list[tuple[list[int], tuple]] = []
     for area in range(11):
@@ -2647,7 +2925,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Status screen - {rm.meta["title"]}' if name == "status.html"
                  else f'Enemies - {rm.meta["title"]}' if name == "enemies.html"
                  else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
-                 else f'Labyrinth tilesets - {rm.meta["title"]}' if name == "labyrinth.html"
+                 else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

@@ -307,19 +307,22 @@ def main() -> int:
                     + ", ".join(f"${p:04X}" for p in odd) + ") end [byte] 01 02, which the "
                     "code reads as a long wait and then a jump whose operand overlaps the "
                     "next script. tools/parse-enemies.py --scripts decodes them all."))
-    R.append(region(5, "tbl", SPECIAL_IDX, 22, "data", "Special rooms: sub-id to record",
+    R.append(region(5, "tbl", SPECIAL_IDX, 22, "data", "Miniboss rooms: sub-id to record",
                     "$A66B: LDY $5E / LDA $A682,Y, for rooms of kind $40 - and $A682 itself is code, the STA $27 two instructions on, so sub-ids 0-10 could not be used. The sub-ids those "
                     "rooms carry run 11-32, so the bytes read are $A68D-$A6A2 - starting "
                     "exactly after the code, ending exactly before the records. Values are "
                     "offsets 0-36 in steps of 3."))
     R.append(region(5, "tbl", SPECIAL_REC, 3 * len(specials), "data",
-                    f"Special rooms: {len(specials)} x [type][stream]",
+                    f"Miniboss rooms: {len(specials)} x [type][stream]",
                     "$A671-$A67D: the first byte to $72, the next two to $28/$29 as a "
                     "graphics-load stream, then $27 = $80 starts the load. Types: "
-                    + ", ".join(f"${t:02X}" for t, _ in specials) + ". What $72 does is "
-                    "NOT established; bank 3 compares it with $4D."))
+                    + ", ".join(f"${t:02X}" for t, _ in specials) + ". $72 is the boss type: $A663 also sets $70 = 1, the boss phase bank 3 $9184 "
+                    "runs for corridors too, which spawns type $72 ($92E5) and waits for it "
+                    "($92EE) - so these are the labyrinth's minibosses, set out only while the "
+                    "room's sub-id flag is clear (JSR $C0E1). CORRECTION: named 'special rooms' "
+                    "with $72's use not established; see docs/labyrinth.html#minibosses."))
     R.append(region(5, "data", SPECIAL_STREAMS, SPECIAL_END - SPECIAL_STREAMS, "data",
-                    "Special rooms: graphics-load streams",
+                    "Miniboss rooms: graphics-load streams",
                     "Seven streams in the same [flags | slot][block][tile] format, named by "
                     "the records at $A6A3. They tile this stretch exactly and end on the "
                     "code at $A6EB; the tile positions inside them pack block by block like "

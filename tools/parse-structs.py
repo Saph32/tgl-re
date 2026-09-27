@@ -253,6 +253,11 @@ def build_room(b5: bytes, ram: bytes) -> list[int]:
     d_ix = 0x16 if special else 2 * ram[0x50]
     s, doors = W(STRUCTS + s_ix), W(DOORS + d_ix)
     plist = W(LISTS + 2 * ram[0x51]) if special else 0xA916
+    room0 = ram[0xE4] | ram[0xE5] << 8
+    if special and 2 * ram[0x51] in (0x0A, 0x10):      # $A76C-$A788: corridors 11-20
+        c = B(room0 + 2) & 0x7F
+        if c >= 0x0B and c != 0x15:
+            plist = 0xA938
     off, dest, w, h = (B(s + k) for k in range(4))
     for pos in range(dest, 192):
         buf[pos] = B(s + 4 + ((pos - dest) // 16 % h) * w + ((pos % 16) - (dest % 16)) % w)

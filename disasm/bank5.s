@@ -2553,7 +2553,7 @@ L5_A33F:
         rts
 
 ; ---- bank5.tbl_A377 (data) $A377-$A3BA, 68 bytes
-; Value copied to $55, by map sub-id
+; Item or shop stock, by map sub-id
         .byte   $00,$0D,$0B,$0B,$0D,$11,$0F,$0C,$0B,$0C,$0C,$03,$0D,$05,$11,$0E
         .byte   $11,$0B,$0F,$00,$0E,$02,$0F,$0F,$11,$04,$0F,$11,$0B,$02,$0D,$0F
         .byte   $0B,$00,$00,$0A,$01,$0D,$0C,$10,$11,$0D,$0A,$03,$04,$00,$05,$07
@@ -2755,18 +2755,18 @@ L5_A66B:
         rts
 
 ; ---- bank5.tbl_A68D (data) $A68D-$A6A2, 22 bytes
-; Special rooms: sub-id to record
+; Miniboss rooms: sub-id to record
         .byte   $00,$12,$09,$03,$0C,$03,$12,$18,$03,$1B,$03,$21,$12,$0F,$12,$0F
         .byte   $1E,$06,$06,$12,$24,$15
 
 ; ---- bank5.tbl_A6A3 (data) $A6A3-$A6C9, 39 bytes
-; Special rooms: 13 x [type][stream]
+; Miniboss rooms: 13 x [type][stream]
         .byte   $1D,$CA,$A6,$1E,$CA,$A6,$1F,$CA,$A6,$55,$CD,$A6,$56,$CD,$A6,$57
         .byte   $CD,$A6,$58,$D3,$A6,$47,$D9,$A6,$5A,$DF,$A6,$5B,$DF,$A6,$5C,$DF
         .byte   $A6,$5D,$E2,$A6,$5E,$E8,$A6
 
 ; ---- bank5.data_A6CA (data) $A6CA-$A6EA, 33 bytes
-; Special rooms: graphics-load streams
+; Miniboss rooms: graphics-load streams
         .byte   $80,$12,$80,$00,$26,$80,$81,$18,$9C,$00,$1A,$80,$81,$14,$94,$00
         .byte   $34,$80,$81,$35,$A0,$80,$29,$80,$00,$05,$80,$81,$4B,$90,$80,$4B
         .byte   $80
