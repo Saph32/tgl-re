@@ -366,12 +366,17 @@ TOPICS = [
      "The whole labyrinth, how its rooms are encoded, where entrances, key doors, items and "
      "minibosses are, and every area's metatiles, drawn from the ROM with the tiles and palettes it "
      "loads - checked against a savestate cell for cell."),
+    ("demo.html", "Demo",
+     lambda rs: [r for r in rs if r["id"] in DEMO_REGIONS],
+     "What plays when the title screen is left alone: a powered-up state, a random corridor "
+     "and button presses invented from a 31-entry table - not a recording."),
     ("status.html", "Status screen",
      lambda rs: [r for r in rs if r["id"] in STATUS_REGIONS],
      "Select during play: the world map, seven keys, twelve weapons and what each one costs "
      "to fire."),
 ]
 
+DEMO_REGIONS = ("bank7.tbl_DB22", "bank7.tbl_DB32")
 PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.ppuscript_8B67")
 # Everything tools/parse-enemies.py generates. Selected by source file rather than a list
 # of ids, because the set grows whenever another spawn script or stream is found.
@@ -2428,6 +2433,203 @@ def _external_page(rm):
     return "".join(p)
 
 
+def _pad_svg(v: int, px: int = 2, note: str = "") -> str:
+    """An NES pad with the buttons of byte v held (bit 7 A ... bit 0 Right, as $D626 reads)."""
+    on, off = "var(--accent, #e0457b)", "var(--line, #9993)"
+    c = lambda bit: on if v & bit else off
+    return (f'<svg viewBox="0 0 64 26" width="{64 * px}" xmlns="http://www.w3.org/2000/svg" '
+            f'role="img" aria-label="{_h(note)}"><rect x=".5" y=".5" width="63" height="25" '
+            'rx="5" fill="none" stroke="currentColor" stroke-opacity=".35"/>'
+            f'<rect x="8" y="5" width="6" height="6" fill="{c(0x08)}"/>'
+            f'<rect x="8" y="15" width="6" height="6" fill="{c(0x04)}"/>'
+            f'<rect x="3" y="10" width="6" height="6" fill="{c(0x02)}"/>'
+            f'<rect x="13" y="10" width="6" height="6" fill="{c(0x01)}"/>'
+            '<rect x="8" y="10" width="6" height="6" fill="currentColor" fill-opacity=".15"/>'
+            f'<rect x="24" y="14" width="7" height="3" rx="1.5" fill="{c(0x20)}"/>'
+            f'<rect x="33" y="14" width="7" height="3" rx="1.5" fill="{c(0x10)}"/>'
+            f'<circle cx="48" cy="15" r="4" fill="{c(0x40)}"/>'
+            f'<circle cx="57" cy="12" r="4" fill="{c(0x80)}"/>'
+            '<text x="48" y="7" font-size="5" text-anchor="middle" fill="currentColor">B</text>'
+            '<text x="57" y="5" font-size="5" text-anchor="middle" fill="currentColor">A</text>'
+            "</svg>")
+
+
+def _demo_page(rm):
+    """The attract-mode demo: how it starts, the state it builds, and the input it invents."""
+    from tgl import disasm
+
+    b0, b7 = rm.prg_bank(0), rm.prg_bank(7)
+
+    def listing(bank, data, base, start, end, marks=None):
+        a, out = start, []
+        while a < end:
+            i = disasm.decode(data, a - base, a)
+            note = (marks or {}).get(a, "")
+            out.append(f"${a:04X}  {i.text():<18}" + (f"; {note}" if note else ""))
+            a += i.size
+        return "<pre>" + _h("\n".join(out)) + "</pre>"
+
+    def stores(data, base, start, end):
+        """(target, value) for every LDA #imm ... STA abs/zp in a straight run."""
+        a, acc, out = start, None, []
+        while a < end:
+            i = disasm.decode(data, a - base, a)
+            if i.mnemonic == "LDA" and i.mode == "imm":
+                acc = i.operand
+            elif i.mnemonic in ("STA",) and i.mode in ("zp", "abs") and acc is not None:
+                out.append((i.operand, acc))
+            elif i.mnemonic not in ("STA",):
+                if i.mnemonic != "LDA":
+                    pass
+            a += i.size
+        return out
+
+    names = {0x47: ("maximum life", "$47"), 0x04AC: ("weapon levels 1-4", "$04AC"),
+             0x04AD: ("weapon levels 5-8", "$04AD"), 0x04AE: ("weapon levels 9-12", "$04AE"),
+             0x4A: ("attack", "$4A"), 0x4B: ("shield", "$4B"), 0x46: ("chip-maximum level", "$46"),
+             0x6B: ("fire rate", "$6B")}
+    normal = dict(stores(b0, 0x8000, 0x80D4, 0x8107))
+    normal.setdefault(0x04AC, 0)
+    normal.setdefault(0x04AD, 0)
+    normal.setdefault(0x04AE, 0)
+    normal.setdefault(0x46, 0)
+    normal.setdefault(0x6B, 0)
+    demo = dict(stores(b0, 0x8000, 0x8113, 0x8137))
+
+    def show(k, v):
+        if k in (0x04AC, 0x04AD, 0x04AE):
+            return f"${v:02X} &mdash; " + ("every weapon level " + str(v & 3) if v and
+                                          len({(v >> s) & 3 for s in (0, 2, 4, 6)}) == 1
+                                          else "none owned" if not v else "mixed")
+        return f"{v} (${v:02X})"
+
+    p = ["<h1>Demo</h1>",
+         '<p class="sub">Leave the title screen alone and the game plays itself. It is not a '
+         "recording: the game builds a powered-up state, picks a random corridor, and feeds "
+         "the ship button presses from a small table, held for random lengths of time.</p>"]
+    p.append(_stats([("patterns", "31"), ("held for", "24-40 frames"), ("corridors", "0-15"),
+                     ("lasts", "about 2 min")]))
+
+    p.append('<h2 id="start">How it starts</h2>')
+    p.append('<div class="note">Not on a timer: <strong>the title music starts it.</strong> The '
+             "title loop (bank 0 <code>$835A</code>) returns as soon as <code>$0300</code> is "
+             "non-zero, and song 1, the title theme, sets it itself: command <code>$94</code> "
+             "&mdash; &ldquo;set global flag&rdquo;, which ORs its operand into "
+             "<code>$0300</code> (<code>$93DA</code>) &mdash; stands at <code>$9D06</code>, at "
+             "the end of the first channel's melody, just before its jump back to the start. "
+             "The title's own countdown (<code>$F0</code>/<code>$F1</code>) leads somewhere "
+             "else: to the story screen, &ldquo;LONG AGO&hellip;&rdquo;, and back.</div>")
+    p.append('<ol class="desc">'
+             "<li>The title loop returns to the reset path, which calls the game setup, bank 0 "
+             "<code>$805B</code> (entry <code>$8003</code>) &mdash; the same routine a real new "
+             "game uses.</li>"
+             "<li>With Start <em>not</em> held (<code>$F7</code> bit 4) and outside the TGL game "
+             "(<code>$30</code> bit 1), the setup builds the demo state and sets <code>$30</code> "
+             "bit 7, the demo flag.</li>"
+             "<li><code>$EB18</code> starts the game in a random corridor: "
+             "<code>$51</code> = <code>$F9D1</code> AND <code>$0F</code>, so 0-15, where 0 is the "
+             "opening flight.</li>"
+             "<li>Every frame the ship's input is replaced (below).</li></ol>")
+
+    p.append('<h2 id="state">The state it builds</h2>')
+    p.append('<p class="desc">Bank 0 <code>$8107-$8145</code>. The values are read from the '
+             "ROM's own <code>LDA #</code> operands as this page is built; &ldquo;new game&rdquo; "
+             "is what the same routine leaves when Start is held.</p>")
+    rows = "".join(f"<tr><td>{_h(names[k][0])}</td><td><code>{names[k][1]}</code></td>"
+                   f"<td class=\"mono\">{show(k, normal.get(k, 0))}</td>"
+                   f"<td class=\"mono\"><strong>{show(k, v)}</strong></td></tr>"
+                   for k, v in demo.items() if k in names)
+    p.append("<table><thead><tr><th>What</th><th>RAM</th><th>New game</th><th>Demo</th></tr>"
+             f"</thead><tbody>{rows}"
+             "<tr><td>selected weapon</td><td><code>$3C</code></td><td class=\"mono\">none</td>"
+             "<td class=\"mono\"><strong>random 0-11</strong> (<code>$F9D1</code> AND "
+             "<code>$0F</code>, 12-15 &rarr; 1)</td></tr>"
+             "<tr><td>Power Chips</td><td><code>$4C</code>/<code>$4D</code></td>"
+             "<td class=\"mono\">0</td><td class=\"mono\"><strong>full</strong> "
+             "(<code>$815F</code>)</td></tr>"
+             "<tr><td>demo flag</td><td><code>$30</code> bit 7</td><td class=\"mono\">clear</td>"
+             "<td class=\"mono\"><strong>set</strong></td></tr></tbody></table>")
+    p.append(listing(0, b0, 0x8000, 0x8107, 0x8176, {
+        0x8107: "Start held? then a real new game", 0x810F: "the TGL game? likewise",
+        0x8137: "random weapon", 0x8141: "the demo flag", 0x8143: "... ORed into $30",
+        0x816B: "random", 0x8170: "$F4: where the pattern table starts"}))
+
+    p.append('<h2 id="input">The input it invents</h2>')
+    p.append('<div class="note"><strong>Neither recorded keypresses nor an AI.</strong> '
+             "<code>$DAE1</code> (fixed-bank entry <code>$C02D</code>, called by the player's "
+             "handler, bank 3 <code>$8CF3</code>) runs every frame. With <code>$30</code> bit 7 "
+             "set it counts a hold timer <code>$F2</code> down; when it runs out it draws a new "
+             "one, <code>$F9D1</code> AND <code>$0F</code> + <code>$18</code> &mdash; 24 to 40 "
+             "frames &mdash; steps <code>$F4</code> = (<code>$F4</code> AND <code>$1F</code>) + 1 "
+             "and loads the pattern <code>$DB32</code>,<code>$F4</code> into <code>$F3</code>. "
+             "Then, every frame, it writes <code>$F3</code> into all four controller bytes: "
+             "<code>$F7</code>/<code>$F8</code> (held) and <code>$F5</code>/<code>$F6</code> (just "
+             "pressed) &mdash; so the fire buttons count as freshly pressed on every frame. The "
+             "real controller has already been read by then; only its Start button matters "
+             "(<code>$F493</code>).</div>")
+    p.append(listing(7, b7, 0xC000, 0xDAE1, 0xDB22, {
+        0xDAE1: "not the demo: straight to the direction", 0xDAE5: "the demo's own countdown",
+        0xDAED: "time up: back to the title", 0xDAF0: "hold timer", 0xDAF4: "random ...",
+        0xDAF9: "... + $18 (+ carry): 24-40 frames", 0xDAFD: "next pattern, 1-32",
+        0xDB06: "the pattern", 0xDB0B: "into both pads, held and new", 0xDB15: "d-pad to $32"}))
+    cells = []
+    for y in range(1, 33):
+        v = b7[0xDB32 + y - 0xC000]
+        label = "+".join(n for bit, n in ((0x80, "A"), (0x40, "B"), (0x20, "Select"),
+                                          (0x10, "Start"), (0x08, "Up"), (0x04, "Down"),
+                                          (0x02, "Left"), (0x01, "Right")) if v & bit)
+        odd = y == 32
+        cells.append(f'<figure style="margin:0;text-align:center{";opacity:.75" if odd else ""}">'
+                     f"{_pad_svg(v, 2, label)}<figcaption class=\"meta\">{y}: {_h(label)}"
+                     f"{'<br>(reads $DB52)' if odd else ''}</figcaption></figure>")
+    p.append('<h3>The 32 patterns, in order</h3>')
+    p.append('<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));'
+             f'gap:10px">{"".join(cells)}</div>')
+    p.append('<p class="meta">Entries 1-31 are <code>$DB33-$DB51</code>, and every one holds A '
+             "and B &mdash; the gun and the selected weapon &mdash; with a direction or none. The "
+             "index runs 1 to 32, so <code>$DB32</code> itself is never read, and entry 32 is "
+             "<code>$DB52</code>: the first byte of the tile decoder, the opcode "
+             "<code>$A5</code>, which as buttons is A + Select + Down + Right. Select opens "
+             "nothing, because <code>$F493</code> skips the pause and status-screen check "
+             "during the demo. The starting entry is random (<code>$F4</code> = "
+             "<code>$F9D1</code> AND <code>$1F</code>, bank 0 <code>$8170</code>), and "
+             "<code>$F9D1</code> mixes the frame counter with RAM and ROM bytes, so no two "
+             "demos play alike.</p>")
+    dirs = [b7[0xDB22 + k - 0xC000] for k in range(16)]
+    grid = {}
+    for k, d in enumerate(dirs):
+        if d not in grid:
+            grid[d] = k
+    arrow = {0: "&#8601;", 1: "&#8592;", 2: "&#8598;", 3: "&#8595;", 4: "&middot;",
+             5: "&#8593;", 6: "&#8600;", 7: "&#8594;", 8: "&#8599;"}
+    p.append('<p class="desc">Last, <code>$DB15</code> turns the d-pad into a direction for the '
+             "ship, <code>$32</code> = <code>$DB22</code>[d-pad], for the demo and a player "
+             "alike: a 3 &times; 3 grid, 4 the centre, opposite presses cancelling.</p>")
+    p.append('<table style="width:auto"><tbody>' + "".join(
+        "<tr>" + "".join(f'<td class="mono" style="text-align:center">{arrow[d]} {d}</td>'
+                         for d in row) + "</tr>" for row in ((2, 5, 8), (1, 4, 7), (0, 3, 6)))
+             + "</tbody></table>")
+
+    p.append('<h2 id="end">How it ends</h2>')
+    p.append('<ul class="desc">'
+             "<li><strong>Its countdown runs out</strong> &mdash; <code>$F0</code>/<code>$F1</code>, "
+             "set up with <code>$F0</code> = <code>$1C</code>: at most "
+             "<code>$1C</code> &times; 256 frames, about two minutes (<code>$DAED</code>).</li>"
+             "<li><strong>The stage ends</strong> &mdash; any stage change with the demo flag set "
+             "(<code>$EBA2</code>).</li>"
+             "<li><strong>A real Start press</strong> (<code>$F4A3</code>).</li></ul>"
+             '<p class="desc">Each is <code>JMP $FF4A</code>: back into the reset path and '
+             "the title screen.</p>")
+    p.append('<div class="note warn"><strong>Not established.</strong> Everything here is read '
+             "from the code; no savestate has been taken during a demo. Whether a demo ship can "
+             "die, and what happens then, is not read.</div>")
+
+    p.append('<h2 id="regions">Regions</h2>')
+    for r in [x for x in rm.regions if x["id"] in DEMO_REGIONS]:
+        p.append(_region_card(rm, r))
+    return "".join(p)
+
+
 def _labyrinth_rooms(rm) -> str:
     """How a room is encoded, and where the entrances, key doors, items and minibosses are."""
     import sys
@@ -2900,6 +3102,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["enemies.html"] = _enemies_page(rm)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
         pages["status.html"] = _status_page(rm)
+    if any(r["id"] in DEMO_REGIONS for r in rm.regions):
+        pages["demo.html"] = _demo_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
@@ -2926,6 +3130,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Enemies - {rm.meta["title"]}' if name == "enemies.html"
                  else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
                  else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
+                 else f'Demo - {rm.meta["title"]}' if name == "demo.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)
