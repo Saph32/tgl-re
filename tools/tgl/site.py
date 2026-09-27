@@ -366,6 +366,11 @@ TOPICS = [
      "The whole labyrinth, how its rooms are encoded, where entrances, key doors, items and "
      "minibosses are, and every area's metatiles, drawn from the ROM with the tiles and palettes it "
      "loads - checked against a savestate cell for cell."),
+    ("corridors.html", "Corridors",
+     lambda rs: [r for r in rs if r.get("source") == SCREEN_SOURCE],
+     "The vertically scrolling stages, for every corridor alike: the event stream that "
+     "encodes a stage, how it is decoded a row at a time, what spawns enemies and what "
+     "sets the scroll speed."),
     ("demo.html", "Demo",
      lambda rs: [r for r in rs if r["id"] in DEMO_REGIONS],
      "What plays when the title screen is left alone: a powered-up state, a random corridor "
@@ -376,6 +381,7 @@ TOPICS = [
      "to fire."),
 ]
 
+SCREEN_SOURCE = "60-screen.json"
 DEMO_REGIONS = ("bank7.tbl_DB22", "bank7.tbl_DB32")
 PASSWORD_REGIONS = ("bank3.data_8513", "bank0.text_8BA3", "bank0.ppuscript_8B67")
 # Everything tools/parse-enemies.py generates. Selected by source file rather than a list
@@ -2433,6 +2439,240 @@ def _external_page(rm):
     return "".join(p)
 
 
+def _corridors_page(rm):
+    """Generic corridor mechanics: the stage encoding, how it is decoded, spawns, scroll."""
+    import sys
+    from collections import Counter
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import screen as sc
+
+    b4 = rm.prg_bank(4)
+    g = sc.walk(b4)
+    recs = g["records"]
+    census = Counter(c for _, c, _ in recs)
+    W = lambda a: b4[a - 0x8000] | b4[a - 0x7FFF] << 8
+    speeds = Counter()
+    for a, c, _ in recs:
+        if c == 0:
+            v = W(a + 1)
+            speeds[(v & 0x7FFF, bool(v & 0x8000))] += 1
+    parts = sc.pool_parts(b4, recs)
+    kinds = Counter(max(m["parts"], key=lambda q: q[1])[2] for m in parts)
+    decoded = sum(m["end"] - m["addr"] for m in parts)
+    trig = [W(a + 1 + n) for a, c, n in recs if c != 3]
+    trig = [t for t in trig if t < sc.TERMINAL_TRIGGER]
+    regions = [r for r in rm.regions if r.get("source") == SCREEN_SOURCE]
+
+    p = ["<h1>Corridors</h1>",
+         '<p class="sub">How the vertically scrolling stages work, for every corridor alike: '
+         "how a stage is encoded, how the game decodes it a row at a time, what makes enemies "
+         "appear and what sets the scroll speed. Everything here comes from bank 4's data and "
+         "the bank 7 code that reads it.</p>"]
+    p.append(_stats([("corridors", "21 (+ the opening, 0)"), ("records", f"{len(recs):,}"),
+                     ("row tables", str(kinds["rowtable"])),
+                     ("overlay structures", str(kinds["structure"])),
+                     ("longest stage", f"{max(trig):,} rows")]))
+
+    # ------------------------------------------------------------------ overview
+    p.append('<h2 id="overview">Where a corridor comes from</h2>')
+    p.append('<div class="note">Entering corridor <em>c</em> (<code>$51</code>) loads three '
+             "things. <strong>Its tileset</strong>: scene 1 and then scene "
+             "<code>$EF55</code>[c] (bank 5, the same scene system the labyrinth uses &mdash; "
+             "background tiles, eight metatile sets, palettes). <strong>Its music</strong>: "
+             "<code>$EF2A</code>[c]. <strong>Its stage</strong>: <code>$EF9B</code> switches to "
+             "bank 4 and calls its only entry, <code>$8000</code>, which returns the block "
+             "address from the 25-entry table at <code>$8013</code>, indexed by c + 2. The "
+             "block is an <em>event stream</em>, and it is the whole stage: nothing else in "
+             "the ROM says what a corridor looks like or what attacks in it.</div>")
+
+    # ------------------------------------------------------------------ loop
+    p.append('<h2 id="loop">How a stage is decoded: one row at a time</h2>')
+    p.append('<ol class="desc">'
+             "<li><strong>Scroll</strong> (<code>$E530</code>, every frame): the screen moves "
+             "by the current speed <code>$B8</code>/<code>$B9</code>, in 1/256 pixel per frame; "
+             "the whole pixels this frame land in <code>$B7</code>.</li>"
+             "<li><strong>Count pixels</strong> (<code>$E69B</code>): <code>$AF</code> adds them "
+             "up, and every <strong>16 pixels</strong> &mdash; one metatile row &mdash; it rolls "
+             "over and the <strong>row counter</strong> <code>$B0</code>/<code>$B1</code> goes up "
+             "by one (<code>$E6B3</code>). The row counter is the stage's clock: every event "
+             "is keyed to it.</li>"
+             "<li><strong>Fire events</strong> (<code>$E6CE</code>): while the row counter "
+             "equals the pending trigger <code>$B2</code>/<code>$B3</code>, the next record's "
+             "command runs (dispatched through <code>$E6F3</code>) and <code>$E89D</code> "
+             "reads the trigger after it. Several records can share a row.</li>"
+             "<li><strong>Build the new row</strong> (<code>$E8AB</code>): 16 metatile ids "
+             "from the background strip into <code>$04C0</code>, then each of the eight "
+             "overlay slots writes its structure's next row over them.</li>"
+             "<li><strong>Draw it and spawn from it</strong>: bank 5 <code>$83B3</code> draws "
+             "the 16 metatiles (five bytes each) and writes each one's fifth byte back into "
+             "<code>$04C0</code>; bank 5 <code>$89FB</code> then spawns a ground object for "
+             "every cell whose fifth byte has a high nibble (below).</li>"
+             "<li><strong>Tick the waves</strong>: <code>$E98F</code> sets <code>$A0</code> bit "
+             "2, which is what a corridor spawn script's waits count; <code>$E655</code> "
+             "clears it next frame.</li></ol>")
+
+    # ------------------------------------------------------------------ stream
+    p.append('<h2 id="stream">The event stream</h2>')
+    p.append('<p class="desc">A block starts with a two-byte trigger (the row its first record '
+             "fires on, normally 0). Every record is then "
+             "<code>[command][operands][next trigger lo][next trigger hi]</code>: each record "
+             "carries the row at which the record <em>after</em> it fires, so triggers never "
+             "decrease within a block &mdash; one of the checks the parser relies on. Command 3 "
+             "jumps (a block is a graph, not a list); the stream simply stops being read when "
+             "the scroll stops, because the row counter stops.</p>")
+    rows = [
+        (0, "2", "<strong>scroll speed</strong>: target <code>$BA</code>/<code>$BB</code>; "
+                 "with bit 7 of the high byte, also the current speed at once"),
+        (1, "2", "<strong>background</strong>: pointer to a row table, into <code>$B4</code>/"
+                 "<code>$B5</code>; restarts the strip (<code>$A1</code> = 0)"),
+        (2, "1 or 3", "<strong>wave script</strong>: bits 0-1 into <code>$60</code>; with bit 1, a "
+                      "pointer to a bank 4 spawn script (<code>$66</code>/<code>$67</code>, "
+                      "<code>$7F</code> = 4), started at once"),
+        (3, "2", "<strong>jump</strong>: continue at the target, whose first two bytes are a "
+                 "fresh trigger"),
+        (4, "2", "<strong>palettes</strong>: pointer to a palette list, applied by "
+                 "<code>$D92D</code>"),
+        (5, "0 (1 in corridor 21)", "<strong>boss phase</strong>: <code>$70</code> = 1; "
+                 "corridor 21 names the boss type (<code>$72</code>) here, the others take it "
+                 "from bank 3 <code>$9151</code>[c]. Used more than once per corridor, so it is "
+                 "not only the final boss &mdash; which fights each use starts is not read"),
+        (6, "variable", "<strong>overlays</strong>: place up to n structures into the eight "
+                        "overlay slots (below)"),
+        (7, "2", "<strong>enemy art</strong>: waits for the previous load, then a graphics-load "
+                 "stream into <code>$28</code>/<code>$29</code>"),
+        (8, "pairs", "<strong>palette slots</strong>: <code>[slot][palette]</code> pairs into "
+                     "<code>$0199</code>+slot while the slot is below 8"),
+        (9, "2", "<strong>jump while <code>$70</code></strong>: command 3, taken only during "
+                 "the boss phase"),
+    ]
+    p.append("<table><thead><tr><th>Cmd</th><th>Operands</th><th>Effect</th><th>Uses</th>"
+             "</tr></thead><tbody>" + "".join(
+                 f"<tr><td>{c}</td><td class=\"mono\">{o}</td><td>{e}</td>"
+                 f"<td class=\"mono\">{census.get(c, 0)}</td></tr>" for c, o, e in rows)
+             + "</tbody></table>")
+    p.append('<p class="meta">&ldquo;Uses&rdquo; counts records across all 25 blocks. Command 8 '
+             "is never used. A typical opening, corridor 1's, at row 0: palettes (4), row table "
+             "(1), speed <code>$0100</code> (0), enemy art (7), wave script (2); then a run of "
+             "overlay placements (6) as it scrolls; and near the end a new target speed of "
+             "<code>$0080</code> &mdash; the scroll eases down to half a pixel per frame "
+             "&mdash; then boss art (7) and the boss phase (5).</p>")
+
+    # ------------------------------------------------------------------ background
+    p.append('<h2 id="background">The background: a repeating strip, with structures on top'
+             "</h2>")
+    p.append('<div class="note"><strong>The strip.</strong> A row table is <code>[rows lo]'
+             "[rows hi][count]</code>. <code>$E8AB</code> takes row <code>$A1</code> &mdash; "
+             "counting 0 to count&minus;1 and round again &mdash; as 16 metatile ids at rows + "
+             "16 &times; <code>$A1</code>. So a corridor's floor is a short loop of rows (one to a "
+             "handful), repeated for as long as the stage runs, and a command 1 can switch to "
+             "another strip mid-stage. A metatile id is the labyrinth's: set (bits 5-7) and "
+             "metatile (bits 0-4) in the scene's eight sets.</div>")
+    p.append('<div class="note"><strong>Overlays.</strong> Everything that is not floor &mdash; '
+             "walls, buildings, craters, bridges &mdash; is a structure written over the strip "
+             "by one of <strong>eight overlay slots</strong> (<code>$0400</code>-"
+             "<code>$045F</code>, one byte per slot per field). Each new row, every active slot "
+             "writes its structure's next row at its column; after the last row it can repeat, "
+             "shifted sideways, and then goes idle (column <code>$80</code>).</div>")
+    p.append("<h3>A command 6 record</h3>")
+    p.append("<table><thead><tr><th>Byte</th><th>Present when</th><th>Meaning</th></tr></thead>"
+             "<tbody>"
+             "<tr><td>flags</td><td>always</td><td>bits 0-2 the slot; bits 4-7 below</td></tr>"
+             "<tr><td>delay</td><td>bit 7 clear</td><td>rows to wait before starting "
+             "(<code>$0430</code>); bit 7 set means 0</td></tr>"
+             "<tr><td>repeat gap</td><td>bits 7 and 5 clear</td><td>rows between repeats "
+             "(<code>$0408</code>); otherwise the delay again</td></tr>"
+             "<tr><td>x step</td><td>bit 6 clear</td><td>columns to shift by on each repeat "
+             "(<code>$0438</code>); bit 6 set means 0</td></tr>"
+             "<tr><td>repeats</td><td>bit 5 clear</td><td>how many times to draw it "
+             "(<code>$0410</code>); bit 5 set means once</td></tr>"
+             "<tr><td>column</td><td>always</td><td>where it starts (<code>$0400</code>); "
+             "0-15 on screen, beyond that off to the side</td></tr>"
+             "<tr><td>data</td><td>always</td><td>bit 4 clear: a pointer to a structure; bit 4 "
+             "set: <code>[pointer][width][height]</code> inline, the rows elsewhere</td></tr>"
+             "</tbody></table>")
+    p.append('<p class="desc"><strong>A structure</strong> is <code>[width][height]</code> '
+             "and then its rows, read by <code>$E90F</code> as codes: <code>$00 n</code> skips "
+             "n columns (the floor shows through), <code>$01</code> ends the row early, and any "
+             "other byte is a metatile id written at the current column. A row is done once "
+             "<em>width</em> ids have been written. A slot moving off either edge "
+             "(column <code>$20</code>-<code>$EF</code>) is switched off.</p>")
+
+    # ------------------------------------------------------------------ scroll
+    p.append('<h2 id="scroll">Scroll speed</h2>')
+    p.append('<div class="note">The current speed is <code>$B8</code>/<code>$B9</code>, a '
+             "16-bit number of <strong>1/256 pixel per frame</strong>. Every frame "
+             "<code>$E66A</code> moves it <strong>2/256 towards the target</strong> "
+             "<code>$BA</code>/<code>$BB</code> &mdash; so changes of speed are smooth ramps, "
+             "128 frames per pixel-per-frame &mdash; and only command 0 sets the target. With bit "
+             "7 of its high byte set, command 0 sets the current speed too, with no ramp. A speed "
+             "of 0 (used four times, two of them at once) halts the scenery, and since rows then "
+             "stop coming, so does the event stream. Rows arrive every 16 &times; 256 &divide; "
+             "speed frames: at <code>$0100</code>, one pixel per frame, a row every 16 "
+             "frames.</div>")
+    sp = sorted(speeds.items(), key=lambda kv: (kv[0][0], kv[0][1]))
+    p.append("<table style=\"width:auto\"><thead><tr><th>Speed</th><th>Pixels per frame</th>"
+             "<th>How</th><th>Records</th></tr></thead><tbody>" + "".join(
+                 f"<tr><td class=\"mono\">${v:04X}</td><td class=\"mono\">{v / 256:g}</td>"
+                 f"<td>{'at once (bit 7)' if now else 'ramped'}</td><td class=\"mono\">{n}</td>"
+                 "</tr>" for (v, now), n in sp) + "</tbody></table>")
+
+    # ------------------------------------------------------------------ spawns
+    p.append('<h2 id="spawns">What makes enemies appear</h2>')
+    p.append('<ul class="desc">'
+             "<li><strong>Waves</strong> &mdash; command 2 with bit 1 starts a spawn script in "
+             "bank 4, run by the same interpreter as the labyrinth's (<code>$F78F</code>): "
+             "spawn a type, spawn a formation (a type-<code>$29</code> spawner that releases "
+             "<em>count</em> of a type every <em>interval</em>), wait, jump, end. In a corridor "
+             "a wait counts <em>rows</em>, not frames: it only ticks when <code>$A0</code> bit 2 "
+             "says a new row came in &mdash; so waves stay pinned to the scenery whatever the "
+             "speed. See <a href=\"enemies.html\">Enemies</a> for the scripts.</li>"
+             "<li><strong>Ground objects</strong> &mdash; placed by the scenery itself. A "
+             "metatile's fifth byte has a high nibble on cells that carry something; when "
+             "<code>$89FB</code> sees one in the new row, it looks up that nibble in the spawn "
+             "list of the metatile's set (<code>$803C</code>[the set's list number]) and spawns "
+             "that object type at the cell's column. So whatever row or structure puts such a "
+             "metatile on screen also places its object &mdash; no spawn script is involved."
+             "</li>"
+             "<li><strong>Bosses</strong> &mdash; command 5 sets <code>$70</code> = 1. Bank 3 "
+             "<code>$9184</code> then runs the boss phase: it spawns the boss type "
+             "(<code>$9151</code>[corridor], or command 5's operand in corridor 21) and waits for "
+             "it; the score counted for the TGL game's rewards is taken here, and the boss "
+             "clock runs while it lives. Command 9 is the stream's only way to test "
+             "<code>$70</code>.</li>"
+             "<li><strong>The art they need</strong> &mdash; command 7 queues a graphics-load "
+             "stream (<code>$E99F</code> decompresses its blocks into sprite CHR); an object "
+             "whose block has not arrived yet waits (<code>$CF5F</code>).</li></ul>")
+
+    # ------------------------------------------------------------------ data
+    p.append('<h2 id="data">Bank 4, decoded</h2>')
+    p.append('<div class="note">Bank 4 is 100% claimed: the 25 event streams, and the data they '
+             f"point at &mdash; {kinds['rowtable']} row tables and {kinds['rows']} groups of "
+             f"background rows, {kinds['structure']} structures, {kinds['overlay']} runs of "
+             f"inline overlay rows and {kinds['palettes']} palette lists, {decoded:,} bytes "
+             "&mdash; plus the bank's spawn scripts and graphics streams (tools/parse-enemies.py). "
+             "<strong>CORRECTION:</strong> the data half was claimed as a lead with its contents "
+             "not established; reading the handlers that consume it decodes all but 30 bytes, "
+             "and every decoded piece lands inside it, none outside. Four pieces overlap on "
+             "purpose (inline overlays pointing into rows) and are claimed as shared. What is "
+             "left: an unused row table and its row, two unused 1 &times; 2 structures, one byte, "
+             "a never-matching trigger, and the bank's closing fill.</div>")
+    p.append('<div class="note warn"><strong>Not established.</strong> What bit 0 of '
+             "<code>$60</code> does (command 2). How the overlay column maps to the screen when "
+             "the playfield is wider than 16 metatiles. Nothing here has been checked against a "
+             "savestate taken in a corridor beyond the tileset (CHR 141/142, sets 6/6) and "
+             "Fleepa.</div>")
+    by = Counter(r["kind"] for r in regions)
+    p.append(f'<details><summary>All {len(regions)} bank 4 regions from '
+             f"tools/parse-screen.py ({', '.join(f'{n} {k}' for k, n in by.items())})</summary>"
+             "<table><thead><tr><th>CPU</th><th>Bytes</th><th>Name</th><th>Confidence</th></tr>"
+             "</thead><tbody>" + "".join(
+                 f'<tr><td><a href="bank4.html#{_h(r["id"])}"><code>${r["cpu_addr"]:04X}</code>'
+                 f'</a></td><td class="mono">{r["size"]}</td><td>{_h(r["name"])}</td>'
+                 f'<td>{_h(r["confidence"])}</td></tr>' for r in regions) +
+             "</tbody></table></details>")
+    return "".join(p)
+
+
 def _pad_svg(v: int, px: int = 2, note: str = "") -> str:
     """An NES pad with the buttons of byte v held (bit 7 A ... bit 0 Right, as $D626 reads)."""
     on, off = "var(--accent, #e0457b)", "var(--line, #9993)"
@@ -3102,6 +3342,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["enemies.html"] = _enemies_page(rm)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
         pages["status.html"] = _status_page(rm)
+    if any(r.get("source") == SCREEN_SOURCE for r in rm.regions):
+        pages["corridors.html"] = _corridors_page(rm)
     if any(r["id"] in DEMO_REGIONS for r in rm.regions):
         pages["demo.html"] = _demo_page(rm)
 
@@ -3131,6 +3373,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
                  else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
                  else f'Demo - {rm.meta["title"]}' if name == "demo.html"
+                 else f'Corridors - {rm.meta["title"]}' if name == "corridors.html"
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)

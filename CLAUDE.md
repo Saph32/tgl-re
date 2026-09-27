@@ -337,8 +337,15 @@ Do not re-derive these; do check anything that depends on them.
     operand length would break it. And the terminator falls out of the data: triggers split
     into 209 values at or below `$0791` and exactly four above (`$1100`, `$270F`, `$3700`,
     `$3800`), a gap of 2,415, each sitting where an unguarded walk runs off.
-  - **The pool is a lead.** 7,639 bytes the stream points at rather than reads, with 212
-    pointers in from commands 1, 2, 4, 6 and 7. Extent claimed, contents not.
+  - **The pool is decoded — CORRECTION to "the pool is a lead".** Command 1 → a row table
+    `[rows][count]` (`$E8AB` repeats the rows, 16 metatile ids each, row `$A1` cycling);
+    command 6 → eight overlay slots (`$0400-$045F`) drawing structures `[w][h][rows]` over
+    it, row codes `$00 n` skip / `$01` end / else a metatile (`$E90F`); command 4 → a palette
+    list (`$D92D`). 13 row tables, 142 structures, 7 palette lists: every decoded piece lands
+    in the pool; 30 bytes are left (an unused row table + row, two unused 1×2 structures,
+    one byte, a never-matching trigger, fill). **Scroll:** speed `$B8/$B9` in 1/256 px/frame,
+    ramped 2/256 per frame toward command 0's target `$BA/$BB` (bit 7 = at once); a row
+    every 16 px (`$AF`), row counter `$B0/$B1` = the stage clock. `docs/corridors.html`.
 - **The password system, and the TGL back door.** Bank 3 runs the password screen (the
   savestate's latch reads `$83`). The field is 32 characters at `$0411-$0430`, each stored
   as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and `$880F` builds `$16` as

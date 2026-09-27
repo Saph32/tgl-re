@@ -50,9 +50,12 @@ parseable here because each block belongs to a known area.
 
 The second pool
 ---------------
-Command 4 and command 6 both carry pointers to data elsewhere in the bank. 149 distinct
-targets turn up, and they account for the bytes the stream walk does not reach. WHAT THOSE
-BLOCKS CONTAIN is not established - only that they are referenced, and where from.
+Commands 1, 4 and 6 carry pointers to data elsewhere in the bank. CORRECTION: this said what
+those blocks contain was not established. They are row tables (command 1), palette lists
+(command 4) and overlay structures (command 6) - see ``pool_parts`` at the end of this file
+and docs/corridors.html. Command names below were renamed from register-level descriptions
+("set scroll limit", "set $B4/$B5", "mode bits", "call $D92D", "set $70", "spawn list",
+"register writes") to what the handlers do.
 """
 
 from __future__ import annotations
@@ -78,24 +81,24 @@ AREA_21 = 0x15            # the area whose command 5 takes an operand
 TERMINAL_TRIGGER = 0x0800
 
 COMMANDS = {
-    0: ("set scroll limit", "$E707: two bytes into $BA/$BB; if the second has bit 7 set it "
+    0: ("scroll speed", "$E707: two bytes into $BA/$BB; if the second has bit 7 set it "
                             "is masked and also copied to $B8/$B9."),
-    1: ("set $B4/$B5", "$E721: two bytes into $B4/$B5, and clears $A1."),
-    2: ("mode bits", "$E733: operand 0's low two bits go into $60. If bit 1 is set it takes "
+    1: ("background row table", "$E721: two bytes into $B4/$B5, and clears $A1."),
+    2: ("wave script", "$E733: operand 0's low two bits go into $60. If bit 1 is set it takes "
                      "two more bytes into $66/$67 and sets $68, $69 and $7F."),
     3: ("jump", "$E760: a two-byte pointer. Reads a fresh trigger through it and continues "
                 "at target+2. Unconditional, so nothing after it is reachable linearly."),
-    4: ("call $D92D", "$E78A: a two-byte pointer into $18/$19, then JSR $D92D. The target "
+    4: ("palette list", "$E78A: a two-byte pointer into $18/$19, then JSR $D92D. The target "
                       "is in the second pool."),
-    5: ("set $70", "$E79F: sets $70. Takes ONE operand into $72 in area 21 and NONE "
+    5: ("boss phase", "$E79F: sets $70. Takes ONE operand into $72 in area 21 and NONE "
                    "otherwise - $51 is compared with #$15 and the miss path does DEY."),
-    6: ("spawn list", "$E7B6: a count, then that many records. Each opens with a flag byte "
+    6: ("overlays", "$E7B6: a count, then that many records. Each opens with a flag byte "
                       "whose bits 7, 6, 5 and 4 each suppress or add operands, and ends "
                       "with either four inline bytes or a two-byte pointer into the second "
                       "pool."),
-    7: ("wait then set $28/$29", "$E85E: spins while $27 is non-zero, then two bytes into "
+    7: ("enemy art", "$E85E: spins while $27 is non-zero, then two bytes into "
                                  "$28/$29 and sets $27 and $7E."),
-    8: ("register writes", "$E881: [index][value] pairs into $0199,X while the index is "
+    8: ("palette slots", "$E881: [index][value] pairs into $0199,X while the index is "
                            "below 8; a byte of $08 or more ends the run and is consumed."),
     9: ("conditional jump", "$E893: if $70 is non-zero it falls into command 3's body and "
                             "jumps; otherwise it skips the two bytes. Either way two "
@@ -250,3 +253,94 @@ def walk(bank4: bytes) -> dict:
                 break
     return {"pointers": ptrs, "starts": sorted(starts), "records": records,
             "covered": covered, "pool": sorted(pool), "stops": stops}
+
+
+# ------------------------------------------------------------------------- the pool, decoded
+# CORRECTION: the pool was claimed as a lead - "extent claimed, contents not". Reading the
+# handlers that consume it decodes it (see docs/corridors.html):
+#
+# * command 1 ($E721) -> $B4/$B5: a ROW TABLE [rows lo][rows hi][count]. $E8AB takes row
+#   $A1 (cycling 0..count-1) as 16 metatile ids from rows + 16 x $A1 into $04C0 - the
+#   background, a strip of rows that repeats;
+# * command 6 ($E7B6) -> one of eight OVERLAY slots, either through a pointer to a
+#   STRUCTURE [width][height][rows] or with [pointer][width][height] inline (flag bit 4).
+#   Overlay rows are codes, read by $E90F: $00 n skips n columns, $01 ends the row early,
+#   anything else is a metatile id written at the current column; a row ends when `width`
+#   ids have been written;
+# * command 4 ($E78A) -> a PALETTE LIST for $D92D: up to eight palette indices, $FE ends.
+
+def overlay_rows(bank4: bytes, p: int, w: int, h: int) -> int:
+    """Bytes taken by h overlay rows of width w from p, as $E90F reads them."""
+    o = p
+    for _ in range(h):
+        left = w
+        while left:
+            b = _b(bank4, o)
+            if b == 0:
+                o += 2
+            elif b == 1:
+                o += 1
+                break
+            else:
+                o += 1
+                left -= 1
+    return o - p
+
+
+def pool_parts(bank4: bytes, records) -> list[dict]:
+    """Every pool structure the command records point at, overlapping ones merged."""
+    W = lambda x: _b(bank4, x) | (_b(bank4, x + 1) << 8)
+    raw = []                                 # (addr, size, kind, label, user)
+    for a, c, _ in records:
+        if c == 1:
+            t = W(a + 1)
+            rows, n = W(t), _b(bank4, t + 2)
+            raw.append((t, 3, "rowtable", f"row table: {n} row{'s' * (n != 1)} at ${rows:04X}",
+                        f"${a:04X}"))
+            raw.append((rows, 16 * n, "rows", f"{n} background row{'s' * (n != 1)}",
+                        f"${t:04X}"))
+        elif c == 4:
+            t = W(a + 1)
+            n = 0
+            while n < 8 and _b(bank4, t + n) != 0xFE:
+                n += 1
+            raw.append((t, n + (n < 8), "palettes", "palette list", f"${a:04X}"))
+        elif c == 6:
+            k, o = _b(bank4, a + 1), a + 2
+            for _ in range(k):
+                f = _b(bank4, o)
+                o += 1
+                if not f & 0x80:
+                    o += 1
+                    if not f & 0x20:
+                        o += 1
+                if not f & 0x40:
+                    o += 1
+                if not f & 0x20:
+                    o += 1
+                o += 1
+                if f & 0x10:
+                    p, w, h = W(o), _b(bank4, o + 2), _b(bank4, o + 3)
+                    raw.append((p, overlay_rows(bank4, p, w, h), "overlay",
+                                f"overlay rows, {w} x {h} (inline)", f"${a:04X}"))
+                    o += 4
+                else:
+                    t = W(o)
+                    w, h = _b(bank4, t), _b(bank4, t + 1)
+                    raw.append((t, 2 + overlay_rows(bank4, t + 2, w, h), "structure",
+                                f"structure {w} x {h}", f"${a:04X}"))
+                    o += 2
+    raw.sort()
+    merged: list[dict] = []
+    for a, n, kind, label, user in raw:
+        if merged and a < merged[-1]["end"]:
+            m = merged[-1]
+            m["end"] = max(m["end"], a + n)
+            if (a, label) not in m["seen"]:
+                m["seen"].add((a, label))
+                m["parts"].append((a, n, kind, label))
+            m["users"].add(user)
+            continue
+        merged.append({"addr": a, "end": a + n, "kind": kind, "seen": {(a, label)},
+                       "parts": [(a, n, kind, label)], "users": {user}})
+    return merged
