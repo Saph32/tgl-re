@@ -618,6 +618,28 @@
       "description": "$D865 (entry $C054) draws a 2x2 block with its attribute. When A AND 3 is non-zero it reads the four tiles from $D8E0 + A ... $D8E3 + A (LDA $D8E0,Y with Y = A); when it is zero it uses A, A+1 ... directly. So A itself is the byte offset into this table and any A with a low bit set names a group; the groups can overlap. The extent is structural - the last byte of $D865's code is at $D8E0 and $D92D is code - and which groups are actually used depends on callers not enumerated here."
     },
     {
+      "id": "bank7.tbl_DB22",
+      "offset": 121650,
+      "size": 16,
+      "kind": "data",
+      "name": "D-pad to direction ($32)",
+      "confidence": "confirmed",
+      "cpu_addr": 56098,
+      "sha1": "fa06e8a1b09c04b1f3ebebbcb4dc28a62f3c4986",
+      "description": "$DB15: LDA $F7 / ORA $F8 / AND #$0F / TAY / LDA $DB22,Y / STA $32 - the held d-pad of either controller (Up 8, Down 4, Left 2, Right 1) to a direction code 0-8. Values: none 4, R 7, L 1, L+R 4, D 3, D+R 6, D+L 0, U 5, U+R 8, U+L 2 - a 3 x 3 grid read row by row, 4 the centre, opposite presses cancelling. Runs every frame through $DAE1 ($C02D), for the demo and for a player alike."
+    },
+    {
+      "id": "bank7.tbl_DB32",
+      "offset": 121666,
+      "size": 32,
+      "kind": "data",
+      "name": "Demo: the button patterns the attract mode holds",
+      "confidence": "confirmed",
+      "cpu_addr": 56114,
+      "sha1": "056376f8219f3dc44469baf9715d2048de096133",
+      "description": "$DAE1 ($C02D, called by the player's handler, bank 3 $8CF3): while $30 bit 7 (the demo) is set, every time the hold timer $F2 runs out it takes $F2 = random AND $0F + $18 (24-40 frames, $F9D1), steps $F4 = ($F4 AND $1F) + 1 and loads $F3 = $DB32,Y with Y = $F4; every frame it writes $F3 into $F7/$F8 (held) and $F5/$F6 (new), replacing whatever the controllers said. So the demo is NOT a recording of a real game: it cycles through these patterns, starting at a random one ($F4 = random AND $1F, bank 0 $8170), each held for a random time. Y runs 1-32, so $DB32 itself (Y = 0) is never read and the real patterns are $DB33-$DB51, 31 of them, every one holding A and B (fire and the weapon) plus a direction or none. Y = 32 reads $DB52 - the first byte of the tile decoder, the opcode $A5 - which as buttons is A + Select + Down + Right; Select does nothing in the demo because $F493 skips the pause/status check when $30 bit 7 is set. The extent stays at the find-tables bound; the table proper is $DB33-$DB51."
+    },
+    {
       "id": "bank7.tbl_ED08",
       "offset": 126232,
       "size": 21,

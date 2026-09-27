@@ -675,9 +675,8 @@ Do not re-derive these; do check anything that depends on them.
     base inside the handler, so only the handler's own types (from bank 6's dispatch) reach
     data: `$A5A0` ($5A-$5C), `$A766` ($50-$51), `$A3DA` ($55-$57), `$9031` ($24-$26) and more.
     `$FD4B` is the player's attack by `$4A` (1-4, capped at `$FD0E`).
-  - Lead worth chasing: bank 0 `$8107-$8128` gives a powered-up start (life `$80`, every
-    weapon level 2, `$4A`/`$4B` = 2) when `$F7` bit 4 and `$30` bit 1 are both clear — the
-    conditions are read, the meaning is not.
+  - ~~Lead: a powered-up start at bank 0 `$8107`~~ — **it is the demo's setup** (see the demo
+    entry below).
 - **Fleepa, and objects drawn in pieces (owner's savestate `...fish.fcs`, corridor 1's
   boss).** Slot 23 is type `$40`; bank 6's handler `$9081` is only a far call to bank 3
   `$952E`, which draws metasprite 131 and then more through `$CC34` (132/133 twice mirrored,
@@ -729,6 +728,16 @@ Do not re-derive these; do check anything that depends on them.
   `$15`, via the pick-up routine `$86BC`, at most five a screen. **Scores are stored in tens**:
   the HUD prints a fixed 0 after the six digits (labyrinth savestate: `001684` → `16840`).
   `docs/password.html` tabulates all 73. Not played.
+- **The demo (attract mode), from the code.** The title song sets `$0300` (command `$94`,
+  flag `$10`, at `$9D06`) after one pass of its melody; the title loop (`$835A`) returns, and
+  the game setup bank 0 `$805B` without Start held builds a demo state at `$8107-$8145`: life
+  `$80`, all weapons level 2, attack/shield 2, chip level 6 full, fire rate 2, random `$3C`,
+  `$30` bit 7. `$EB18` picks corridor `$F9D1 AND $0F`. **Input is not recorded:** `$DAE1`
+  (`$C02D`, from the player's handler) overwrites `$F5-$F8` each frame with `$DB33-$DB51`
+  (31 patterns, all A+B plus a direction), stepping from a random start every 24-40 random
+  frames; index 32 reads the decoder's first byte `$A5` (A+Select+Down+Right). Ends on the
+  `$F0/$F1` timer (~`$1C` × 256 frames), the stage ending (`$EBA2`) or a real Start (`$F4A3`),
+  each `JMP $FF4A`. Not checked on hardware.
 - **The sound test (owner's claim, CONFIRMED from the code).** Reset and power-on run bank 0
   `$8332` (entry `$800C`, from `$FF50`); `$8341` tests `$F7 == $C0` — A and B held, nothing
   else — and far-calls bank 3 `$801B` → `$822A`: SOUND TEST, sound number 1-71 at PPU `$20CD`,

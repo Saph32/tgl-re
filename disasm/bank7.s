@@ -2295,11 +2295,11 @@ L7_DB15:
         rts
 
 ; ---- bank7.tbl_DB22 (data) $DB22-$DB31, 16 bytes
-; Table, 16 bytes
+; D-pad to direction ($32)
         .byte   $04,$07,$01,$04,$03,$06,$00,$03,$05,$08,$02,$05,$04,$07,$01,$04
 
 ; ---- bank7.tbl_DB32 (data) $DB32-$DB51, 32 bytes
-; Table, 32 bytes (structural extent)
+; Demo: the button patterns the attract mode holds
         .byte   $C2,$C6,$C0,$CA,$C6,$C1,$C2,$C1,$C4,$C5,$C8,$C6,$C0,$C9,$C5,$C2
         .byte   $C4,$C0,$C5,$C2,$CA,$C4,$C0,$C1,$C0,$C5,$C1,$CA,$C9,$C0,$C5,$C9
 
