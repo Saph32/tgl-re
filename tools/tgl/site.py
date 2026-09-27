@@ -2515,6 +2515,25 @@ def _labyrinth_page(rm):
              "cells of the room on screen are metatiles of the live sets. "
              "<code>tools/parse-scenes.py --verify</code> repeats the set and room checks.</div>")
 
+    p.append('<h2 id="map">The whole labyrinth</h2>'
+             '<p class="sub">All 24 &times; 24 map cells, every room drawn the way the game '
+             "draws it &mdash; structure, door set and exit walls, then the room layout &mdash; "
+             "with its area's tiles, metatiles and palettes. Background only: no objects, no "
+             'key doors. <a href="labyrinth-map.png">Full size</a> (6144 &times; 4608, one '
+             "pixel per pixel).</p>"
+             '<a href="labyrinth-map.png"><img src="labyrinth-map-half.png" '
+             'alt="The whole labyrinth, every room rendered" style="width:100%;height:auto">'
+             "</a>"
+             '<div class="note">Drawn by <code>tools/render-labyrinth.py</code>, which '
+             "<code>build.py</code> runs. A room takes its area from byte 2's low nibble when "
+             "byte 0 bit 7 is clear &mdash; what <code>$EEE0</code> loads into <code>$50</code> "
+             "on entering it &mdash; and its neighbours' area otherwise: corridor entrances and "
+             "key-door rooms keep the area already loaded (<code>$EC12</code>). "
+             "<strong>Against hardware:</strong> <code>--verify</code> renders the labyrinth "
+             "savestate's room from the ROM and from the savestate's own nametable, CHR RAM "
+             "and palette RAM: 191 of 192 cells identical to the pixel, the other under an "
+             "object.</div>")
+
     groups: list[tuple[list[int], tuple]] = []
     for area in range(11):
         key = sc.scene(b5, sc.LAB_FIRST_SCENE + area)

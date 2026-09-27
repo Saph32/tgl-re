@@ -95,6 +95,10 @@ def main() -> int:
             print(f"error: {exc}", file=sys.stderr)
             return 1
         print(f"\nwrote docs/: rom.json, {', '.join(written)}")
+        # The labyrinth map is a picture, not a page: tools/render-labyrinth.py draws it.
+        import subprocess
+        subprocess.run([sys.executable, str(ROOT / "tools" / "render-labyrinth.py")],
+                       check=True)
 
     return 0
 

@@ -76,6 +76,13 @@ wrong finding away.
   all 140 entries. Generated; `tools/tgl/metasprite.py` holds the format.
 - `tools/parse-structs.py` — walks bank 5's structure records into
   `annotations/regions/66-structs.json`. Generated.
+- `tools/render-labyrinth.py` — draws the whole labyrinth, every room, into
+  `docs/labyrinth-map.png` (and `-half`); `build.py` runs it. `--verify STATE` renders a
+  savestate's room both from the ROM and from its own nametable/CHR/palette RAM and compares
+  pixels (labyrinth state: 191/192 cells identical, the miss under an object). A room's area
+  is byte 2's low nibble when byte 0 bit 7 is clear (`$EEE0` on entry via `$EC5B`); bit-7
+  rooms (entrances, key doors) keep the loaded area (`$EC12`) and are drawn with their
+  neighbours'. Background only: no objects, no key doors.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
