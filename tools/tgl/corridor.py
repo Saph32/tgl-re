@@ -230,3 +230,166 @@ class Art:
     def strip(self, ids_rows):
         """Background rows (16 ids each), drawn the same way up as structures."""
         return self.structure([[(x, v) for x, v in enumerate(r)] for r in ids_rows])
+
+
+# ------------------------------------------------------------------ the whole stage
+# The row builder, simulated: bank 7 $E6CE (fire the records whose trigger is this row),
+# then $E8AB (the strip's next row, then the eight overlay slots, $E8E5-$E969).
+
+def simulate(bank4: bytes, c: int, rows_after: int = 16, limit: int = 4000) -> dict:
+    """Every background row the stage builds, as 16 metatile ids each, plus the palette
+    slot changes by row. Command 9 is taken once a command 5 has set $70 (the boss phase);
+    the simulation stops `rows_after` rows after the last record fires."""
+    B = lambda a: _b(bank4, a)
+    W = lambda a: _w(bank4, a)
+    start = screen.entry_pointers(bank4)[c - screen.FIRST_AREA]
+    ptr, trig = start + 2, W(start)
+    boss = False
+    table = None
+    a1 = 0
+    col = [0x80] * 8
+    delay = [0] * 8
+    gap = [0] * 8
+    step = [0] * 8
+    reps = [0] * 8
+    width = [0] * 8
+    height = [0] * 8
+    base = [0] * 8
+    cur = [0] * 8
+    left = [0] * 8
+    events, out, last_fire = [], [], 0
+
+    def fire(row):
+        nonlocal ptr, trig, boss, table, a1, last_fire
+        guard = 0
+        while trig == row and ptr and guard < 64:
+            guard += 1
+            a, cmd = ptr, B(ptr)
+            n = screen.operand_len(bank4, a, c)
+            if cmd > 9 or n is None:
+                ptr = None
+                return
+            last_fire = row
+            if cmd in (3, 9) and (cmd == 3 or boss):
+                t = W(a + 1)
+                trig, ptr = W(t), t + 2
+                continue
+            if cmd == 1:
+                table, a1 = W(a + 1), 0
+            elif cmd == 5:
+                boss = True
+            elif cmd in (4, 8, 0):
+                events.append((row, a, cmd))
+            elif cmd == 6:
+                for d in placements(bank4, [{"addr": a, "cmd": 6, "row": row}]):
+                    x = d["slot"]
+                    col[x], delay[x], gap[x] = d["column"], d["delay"], d["gap"]
+                    step[x], reps[x] = d["step"], d["repeats"]
+                    width[x], height[x], base[x] = d["w"], d["h"], d["data"]
+                    cur[x], left[x] = base[x], height[x]
+            nxt = W(a + 1 + n)
+            ptr, trig = a + 1 + n + 2, nxt
+
+    row = trig
+    while row < limit:
+        fire(row)
+        ids = [0] * 16
+        if table is not None:
+            n = B(table + 2)
+            if a1 >= n:
+                a1 = 0
+            src = W(table) + 16 * a1
+            ids = [B(src + i) for i in range(16)]
+            a1 += 1
+        for x in range(8):
+            if col[x] == 0x80:
+                continue
+            if delay[x]:
+                delay[x] -= 1
+                continue
+            o, cx, k = cur[x], col[x], width[x]
+            while k:
+                b = B(o)
+                if b == 0:
+                    cx = (cx + B(o + 1)) & 0xFF
+                    o += 2
+                    continue
+                o += 1
+                if b == 1:
+                    break
+                if cx < 16:
+                    ids[cx] = b
+                cx = (cx + 1) & 0xFF
+                k -= 1
+            cur[x] = o
+            left[x] -= 1
+            if left[x]:
+                continue
+            if reps[x]:
+                reps[x] -= 1
+                if not reps[x]:
+                    col[x] = 0x80
+                    continue
+            col[x] = (col[x] + step[x]) & 0xFF
+            if 0x20 <= col[x] < 0xF0:
+                col[x] = 0x80
+                continue
+            delay[x], cur[x], left[x] = gap[x], base[x], height[x]
+        out.append(ids)
+        if ptr is None or trig >= screen.TERMINAL_TRIGGER or trig < row:
+            if row >= last_fire + rows_after:
+                break
+        row += 1
+    return {"first": out and trig or 0, "start": W(start), "rows": out, "events": events,
+            "last_fire": last_fire}
+
+
+def stage_image(rm, c: int, rgb):
+    """The whole stage, row 0 at the bottom, background only; palette changes applied at
+    their rows. Returns (image, simulation)."""
+    from PIL import Image
+    b4, b5, b7 = rm.prg_bank(4), rm.prg_bank(5), rm.prg_bank(7)
+    sim = simulate(b4, c)
+    seq = scenes(b7, c)
+    slots = palette_slots(b5, b4, seq, [], upto_row=-1)
+    ev = sorted(sim["events"])
+    arts, rows = {}, sim["rows"]
+    img = Image.new("RGB", (256, 16 * len(rows)))
+    e = 0
+    for i, ids in enumerate(rows):
+        r = sim["start"] + i
+        while e < len(ev) and ev[e][0] <= r:
+            _, a, cmd = ev[e]
+            if cmd == 4:
+                for k, v in enumerate(sc.palette_list(b4, _w(b4, a + 1))):
+                    if v != 0xFF:
+                        slots[k] = v
+            elif cmd == 8:
+                o = a + 1
+                while _b(b4, o) < 8:
+                    slots[_b(b4, o)] = _b(b4, o + 1)
+                    o += 2
+            e += 1
+        key = tuple(slots[:4])
+        if key not in arts:
+            arts[key] = Art(rm, seq, slots, rgb)
+        art = arts[key]
+        y = 16 * (len(rows) - 1 - i)
+        for x, v in enumerate(ids):
+            img.paste(art.metatile(v), (16 * x, y))
+    return img, sim
+
+
+def film(img, rows_per_column: int = 120, gap: int = 8, back=(15, 15, 20)):
+    """The stage cut into columns of rows_per_column rows, left to right, each read bottom
+    to top - row 0 at the bottom of the first column."""
+    from PIL import Image
+    h = 16 * rows_per_column
+    n = (img.height + h - 1) // h
+    out = Image.new("RGB", (n * (256 + gap) - gap, h), back)
+    for k in range(n):
+        bottom = img.height - k * h
+        top = max(0, bottom - h)
+        piece = img.crop((0, top, 256, bottom))
+        out.paste(piece, (k * (256 + gap), h - piece.height))
+    return out

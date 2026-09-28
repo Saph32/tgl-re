@@ -2694,7 +2694,7 @@ def _png_uri(img, scale: int = 2) -> str:
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
-def _corridor_page(rm, c: int) -> str:
+def _corridor_page(rm, c: int, out: Path | None = None) -> str:
     """One corridor: its tileset, background strips and every structure it places."""
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -2745,6 +2745,36 @@ def _corridor_page(rm, c: int) -> str:
              "bottom</strong>: new rows enter at the top and scroll down (checked on the same "
              "savestate &mdash; the background rows and the 1 &times; 2 pillars stack that way). "
              "Dark cells are columns a structure skips, where the floor shows through.</p>")
+
+    # ---- the whole stage, simulated row by row
+    stage, sim = cr.stage_image(rm, c, NES_RGB)
+    full = f"stage-{c:02d}.png"
+    if out is not None:
+        stage.save(out / full, optimize=True)
+    fl = cr.film(stage)
+    fl = fl.resize((fl.width // 2, fl.height // 2))
+    film_name = f"stage-{c:02d}-film.png"
+    if out is not None:
+        fl.save(out / film_name, optimize=True)
+    p.append('<h2 id="stage">The whole stage</h2>')
+    p.append(f'<p class="desc">{len(sim["rows"]):,} rows, from row {sim["start"]} to '
+             f'{sim["start"] + len(sim["rows"]) - 1:,}, cut into columns of 120 rows: read '
+             "each column from the bottom up, left to right &mdash; row 0 is at the bottom of "
+             f'the first. <a href="{full}">The stage as one image</a> (256 &times; '
+             f"{stage.height:,}, full size, bottom to top).</p>")
+    p.append(f'<a href="{full}"><img src="{film_name}" alt="corridor {c}, the whole '
+             'stage" style="max-width:100%;height:auto"></a>')
+    p.append('<p class="meta">Background only &mdash; no enemies, ground objects or bosses. '
+             "Simulated the way <code>$E6CE</code> and <code>$E8AB</code> build it: at each row "
+             "the records whose trigger has come fire, then the strip's next row goes down and "
+             "each active overlay slot writes its structure's next row over it, with its delay, "
+             "repeats, gap, sideways step and edge cut-off. Palette changes (commands 4 and 8) "
+             "take effect at their row. Command 9 is taken once a command 5 has started the "
+             "boss phase. The picture stops 16 rows after the last record fires; the game keeps "
+             "repeating the strip until the boss is beaten. <strong>Checked</strong> on "
+             "corridor 15's savestate, stopped at row 41: the 13 settled rows on screen match "
+             "the simulation cell for cell, the newest row is caught mid-write (each cell holds "
+             "the new row or the one it replaces), and one cell in column 0 differs.</p>")
 
     p.append('<h2 id="strips">Background strips</h2>')
     for t in tables:
@@ -3454,7 +3484,7 @@ def build_site(rm, out: Path) -> list[str]:
     if any(r.get("source") == SCREEN_SOURCE for r in rm.regions):
         pages["corridors.html"] = _corridors_page(rm)
         for c in CORRIDOR_PAGES:
-            pages[_corridor_page_name(c)] = _corridor_page(rm, c)
+            pages[_corridor_page_name(c)] = _corridor_page(rm, c, out)
     if any(r["id"] in DEMO_REGIONS for r in rm.regions):
         pages["demo.html"] = _demo_page(rm)
 

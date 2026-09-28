@@ -353,6 +353,12 @@ Do not re-derive these; do check anything that depends on them.
     rows 8→3 hold strip rows 0,1,2,3,4,0 upward and the 1×2 pillars stack row 1 over row 0 —
     so pictures put a structure's first row at the bottom. Metatile ids are ambiguous on
     screen (identical tiles, different ids), so screen checks compare tiles, not ids.
+    **Whole stages:** `corridor.simulate` replays `$E6CE`/`$E8AB` row by row (records firing
+    at their row, the strip, eight overlay slots with delay/repeats/gap/step/edge cut-off,
+    command 9 taken after a command 5); `stage_image` draws it with palette changes at their
+    rows; `docs/stage-NN.png` (+ `-film.png`, columns of 120 rows). **Hardware:** corridor 15
+    at row 41 — the 13 settled screen rows equal the simulation cell for cell; the newest row
+    is mid-write (each cell new or old); one column-0 cell differs, not established why.
 - **The password system, and the TGL back door.** Bank 3 runs the password screen (the
   savestate's latch reads `$83`). The field is 32 characters at `$0411-$0430`, each stored
   as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and `$880F` builds `$16` as
