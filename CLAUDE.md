@@ -346,6 +346,13 @@ Do not re-derive these; do check anything that depends on them.
     one byte, a never-matching trigger, fill). **Scroll:** speed `$B8/$B9` in 1/256 px/frame,
     ramped 2/256 per frame toward command 0's target `$BA/$BB` (bit 7 = at once); a row
     every 16 px (`$AF`), row counter `$B0/$B1` = the stage clock. `docs/corridors.html`.
+    **Per corridor:** `tools/tgl/corridor.py` walks one corridor's block (records with the row
+    each fires on), its placements, strips and palette slots, and draws them with PIL;
+    `docs/corridor-00.html`…`-21.html` show every strip and structure. **Hardware (corridor 15
+    savestate):** all 8 palette slots predicted exactly; new rows enter at the top — nametable
+    rows 8→3 hold strip rows 0,1,2,3,4,0 upward and the 1×2 pillars stack row 1 over row 0 —
+    so pictures put a structure's first row at the bottom. Metatile ids are ambiguous on
+    screen (identical tiles, different ids), so screen checks compare tiles, not ids.
 - **The password system, and the TGL back door.** Bank 3 runs the password screen (the
   savestate's latch reads `$83`). The field is 32 characters at `$0411-$0430`, each stored
   as its **grid index** — `$88F2` is `LDA $16 / STA $0411,X`, and `$880F` builds `$16` as

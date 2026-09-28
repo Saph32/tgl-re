@@ -2473,6 +2473,9 @@ def _corridors_page(rm):
                      ("overlay structures", str(kinds["structure"])),
                      ("longest stage", f"{max(trig):,} rows")]))
 
+    p.append('<p class="desc"><strong>Each corridor, with its structures drawn:</strong> ' + " &middot; ".join(
+        f'<a href="{_corridor_page_name(c)}">{c}</a>' for c in CORRIDOR_PAGES) + "</p>")
+
     # ------------------------------------------------------------------ overview
     p.append('<h2 id="overview">Where a corridor comes from</h2>')
     p.append('<div class="note">Entering corridor <em>c</em> (<code>$51</code>) loads three '
@@ -2670,6 +2673,112 @@ def _corridors_page(rm):
                  f'</a></td><td class="mono">{r["size"]}</td><td>{_h(r["name"])}</td>'
                  f'<td>{_h(r["confidence"])}</td></tr>' for r in regions) +
              "</tbody></table></details>")
+    return "".join(p)
+
+
+CORRIDOR_PAGES = range(0, 22)         # corridor 0 is the opening flight; 1-21 the stages
+
+
+def _corridor_page_name(c: int) -> str:
+    return f"corridor-{c:02d}.html"
+
+
+def _png_uri(img, scale: int = 2) -> str:
+    import base64
+    import io
+    from PIL import Image
+    if scale != 1:
+        img = img.resize((img.width * scale, img.height * scale), Image.NEAREST)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+def _corridor_page(rm, c: int) -> str:
+    """One corridor: its tileset, background strips and every structure it places."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from tgl import corridor as cr
+
+    b3, b4, b5, b7 = (rm.prg_bank(k) for k in (3, 4, 5, 7))
+    recs = cr.records(b4, c)
+    seq = cr.scenes(b7, c)
+    slots = cr.palette_slots(b5, b4, seq, recs)
+    art = cr.Art(rm, seq, slots, NES_RGB)
+    pl = cr.placements(b4, recs)
+    tables = cr.row_tables(b4, recs)
+    rows_end = max([r["row"] for r in recs if r["row"] < 0x0800] or [0])
+    speeds = [(r["row"], cr._w(b4, r["addr"] + 1)) for r in sorted(recs, key=lambda r: r["row"])
+              if r["cmd"] == 0]
+    song = b7[cr.MUSIC - 0xC000 + c]
+    boss = b3[0x9151 - 0x8000 + c] if c != 21 else None
+    title = "Corridor 0 &mdash; the opening flight" if c == 0 else f"Corridor {c}"
+
+    prev_ = f'<a href="{_corridor_page_name(c - 1)}">&larr; corridor {c - 1}</a>' if c > 0 else ""
+    next_ = (f'<a href="{_corridor_page_name(c + 1)}">corridor {c + 1} &rarr;</a>'
+             if c + 1 in CORRIDOR_PAGES else "")
+    p = [f'<p class="meta"><a href="corridors.html">Corridors</a> &middot; {prev_} '
+         f"{'&middot; ' if prev_ and next_ else ''}{next_}</p>",
+         f"<h1>{title}</h1>",
+         '<p class="sub">Everything this corridor&rsquo;s event stream draws: its background '
+         "strips and every structure it places, in its own tiles and palettes. How the stream "
+         'works is on the <a href="corridors.html">Corridors</a> page.</p>']
+    uniq = {}
+    for d in pl:
+        uniq.setdefault((d["data"], d["w"], d["h"], d["inline"]), []).append(d)
+    p.append(_stats([("tileset", f"scenes {seq[0]}, {seq[1]}"), ("music", f"song {song}"),
+                     ("records", str(len(recs))), ("background strips", str(len(tables))),
+                     ("structures", str(len(uniq))), ("placements", str(len(pl))),
+                     ("last event", f"row {rows_end:,}")]))
+    sp = ", ".join(f"row {r}: ${v & 0x7FFF:04X} ({(v & 0x7FFF) / 256:g} px/frame"
+                   f"{', at once' if v & 0x8000 else ''})" for r, v in speeds)
+    p.append(f'<p class="desc"><strong>Scroll speed:</strong> {sp or "never set"}. '
+             + (f"<strong>Boss type</strong> (bank 3 <code>$9151</code>[{c}]): "
+                f'<a href="enemies.html"><code>${boss:02X}</code></a>. ' if boss is not None else
+                "<strong>Boss type:</strong> named by the stream's command 5 operand. ")
+             + f"Stream: bank 4 <code>${cr.screen.entry_pointers(b4)[c - cr.screen.FIRST_AREA]:04X}"
+             "</code>.</p>")
+    p.append('<p class="meta">Colours are the palette slots after row 0 &mdash; the scenes\' '
+             "lists, then the stream's command 4/8 records at row 0; a later command 4 can change "
+             "them. Checked on corridor 15's savestate: all 8 slots predicted exactly. Pictures "
+             "are drawn the way the screen shows them, <strong>the structure's first row at the "
+             "bottom</strong>: new rows enter at the top and scroll down (checked on the same "
+             "savestate &mdash; the background rows and the 1 &times; 2 pillars stack that way). "
+             "Dark cells are columns a structure skips, where the floor shows through.</p>")
+
+    p.append('<h2 id="strips">Background strips</h2>')
+    for t in tables:
+        img = art.strip(t["ids"])
+        p.append(f'<div class="card"><h3>Row table <code>${t["table"]:04X}</code> &mdash; '
+                 f'{t["count"]} row{"s" * (t["count"] != 1)}, from row {t["row"]}</h3>'
+                 f'<p class="meta">Rows at <code>${t["rows"]:04X}</code>, repeated bottom to top '
+                 f'for as long as the table is in force.</p>'
+                 f'<img src="{_png_uri(img)}" alt="background strip ${t["table"]:04X}" '
+                 'style="image-rendering:pixelated;max-width:100%;height:auto"></div>')
+
+    p.append('<h2 id="structures">Structures</h2>')
+    for (data, w, h, inline), uses in sorted(uniq.items(), key=lambda kv: min(u["row"] for u in kv[1])):
+        rows = cr.cells(b4, data, w, h)
+        img = art.structure(rows)
+        head = (f"inline rows at <code>${data:04X}</code>" if inline
+                else f"structure <code>${uses[0]['structure']:04X}</code>")
+        trs = "".join(
+            f"<tr><td class=\"mono\">{u['row']}</td><td class=\"mono\">{u['slot']}</td>"
+            f"<td class=\"mono\">{u['column']}</td><td class=\"mono\">{u['delay']}</td>"
+            f"<td class=\"mono\">{u['repeats'] if u['repeats'] else 256}</td>"
+            f"<td class=\"mono\">{u['gap']}</td>"
+            f"<td class=\"mono\">{u['step'] - 256 if u['step'] > 127 else u['step']}</td></tr>"
+            for u in sorted(uses, key=lambda u: (u["row"], u["slot"])))
+        p.append(f'<div class="card"><h3>{w} &times; {h} &mdash; {head}</h3>'
+                 f'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">'
+                 f'<img src="{_png_uri(img)}" alt="{w} by {h} structure" '
+                 'style="image-rendering:pixelated;max-width:100%;height:auto">'
+                 '<table style="width:auto"><thead><tr><th>Row</th><th>Slot</th><th>Column</th>'
+                 '<th>Delay</th><th>Repeats</th><th>Gap</th><th>Step</th></tr></thead>'
+                 f"<tbody>{trs}</tbody></table></div></div>")
+    p.append('<p class="meta">Row: the stage row the command 6 record fires on. Delay: rows '
+             "before the first copy. Repeats: copies drawn (0 in the data means 256). Gap: rows "
+             "between copies. Step: columns each copy moves sideways.</p>")
     return "".join(p)
 
 
@@ -3344,6 +3453,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["status.html"] = _status_page(rm)
     if any(r.get("source") == SCREEN_SOURCE for r in rm.regions):
         pages["corridors.html"] = _corridors_page(rm)
+        for c in CORRIDOR_PAGES:
+            pages[_corridor_page_name(c)] = _corridor_page(rm, c)
     if any(r["id"] in DEMO_REGIONS for r in rm.regions):
         pages["demo.html"] = _demo_page(rm)
 
@@ -3358,9 +3469,17 @@ def build_site(rm, out: Path) -> list[str]:
 
     # Guard: every page must be reachable from the overview. A generated page that nothing
     # links to is a page nobody will ever open, and until this check existed one shipped.
+    # Reachable, not necessarily linked directly: the corridor pages hang off corridors.html.
+    reach, todo = {"index.html"}, ["index.html"]
+    while todo:
+        body = pages[todo.pop()]
+        for name in pages:
+            if name not in reach and f'href="{name}' in body:
+                reach.add(name)
+                todo.append(name)
     for name in pages:
-        if name != "index.html" and f'href="{name}"' not in pages["index.html"]:
-            raise AnnotationError(f"{name} is not linked from index.html")
+        if name not in reach:
+            raise AnnotationError(f"{name} is not reachable from index.html")
 
     for name, body in pages.items():
         title = (rm.meta["title"] if name == "index.html"
@@ -3374,6 +3493,8 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
                  else f'Demo - {rm.meta["title"]}' if name == "demo.html"
                  else f'Corridors - {rm.meta["title"]}' if name == "corridors.html"
+                 else f'Corridor {int(name[9:11])} - {rm.meta["title"]}'
+                 if name.startswith("corridor-")
                  else f'PRG bank {name[4:-5]} - {rm.meta["title"]}')
         (out / name).write_text(_doc(rm, title, name, body), encoding="utf-8")
         written.append(name)
