@@ -197,7 +197,7 @@
       "topic": "Enemies",
       "claim": "Named enemies, with artwork: Zibzub, Crawdaddy, Eyegore, Optomon, Grimgrin, Bombarder, Teramute, Fleepa, Clawbot.",
       "status": "unchecked",
-      "rom": "One tied so far, by a savestate: FLEEPA is object type $40 - the owner's savestate of corridor 1's boss fight has one live object besides the player, slot 23, type $C0 ($40 with the initialised bit), which bank 6 $9081 hands to bank 3 $952E. That handler draws it in pieces (metasprite 131, then 132/133 twice mirrored, 123/25 and 134/135), and rebuilding those from the ROM matches all 41 of its hardware sprites in the savestate's OAM (parse-metasprites.py --verify). Type $41 shares the handler. The others are not yet tied to object types; a match by eye against docs/enemies.html is a lead and is not recorded as one."
+      "rom": "One tied so far, by a savestate: FLEEPA is object type $40 - the owner's savestate of corridor 1's boss fight has one live object besides the player, slot 23, type $C0 ($40 with the initialised bit), which bank 6 $9081 hands to bank 3 $952E. That handler draws it in pieces (metasprite 131, then 132/133 twice mirrored, 123/25 and 134/135), and rebuilding those from the ROM matches all 41 of its hardware sprites in the savestate's OAM (parse-metasprites.py --verify). Type $41 shares the handler. The other eight are named by the owner (fact 'enemy-names'), all as corridor bosses."
     },
     {
       "id": "drops",
@@ -270,6 +270,36 @@
       "claim": "Leaving the title screen alone starts a demo, which plays with some levels and items already set up. (The owner asked whether it replays recorded keypresses.)",
       "status": "confirmed",
       "rom": "How it starts: the title loop (bank 0 $835A) returns when $0300 becomes non-zero, and the title song (song 1) sets it itself - command $94 'set global flag $10' at $9D06 ends the first channel's melody before it loops. The reset path then runs the game setup, bank 0 $805B ($8003); without Start held (and outside the TGL game) it builds the demo state at $8107-$8145: max life $80, every weapon owned at level 2 ($AA in $04AC-$04AE), attack and shield 2, chip level $46 = 6 with full chips, fire rate $6B = 2, a random selected weapon ($3C, 0-11), and $30 bit 7 - the demo flag. $EB18 then starts a random corridor, 0-15 ($F9D1 AND $0F). The input is NOT recorded keypresses, and not an AI either: $DAE1 overwrites the controller bytes every frame with patterns from the table at $DB33, each held for a random 24-40 frames, starting at a random entry - so the ship fires constantly and wanders, and no two demos are alike. It ends after about $1C x 256 frames ($F0/$F1, about two minutes), when the stage ends ($EBA2), or when a real Start is pressed ($F4A3) - each by JMP $FF4A (the timer at $DAED), back to the title. Read from the code; not checked against a savestate."
+    },
+    {
+      "id": "enemy-names",
+      "source": "owner",
+      "pages": "-",
+      "topic": "Enemies",
+      "claim": "Object types $18/$19 are Eyegore, $23 Zibzub, $24-$26 Clawbot, $2D-$2F Optomon, $40/$41 Fleepa, $45 Crawdaddy, $46 Teramute, $47 Glider, $48/$49 Grimgrin, $4C/$4D Bombarder, $4F It.",
+      "status": "consistent",
+      "rom": "Every one of these types is a corridor boss: they are exactly the values of bank 3 $9151 (boss type by corridor) apart from $06 - Eyegore corridors 9 and 10, Zibzub 5, Clawbot 14, 15 and 20, Optomon 3, 11 and 16, Fleepa 1 and 12, Crawdaddy 2, Teramute 4, Glider 6, Grimgrin 8 and 18, Bombarder 13 and 19 (and corridor 21's table slot), It table index 22. Same-name types share a bank 6 handler (the three Clawbots, the two Eyegores, Optomons, Grimgrins), which fits one name per handler. The manual's nine names (fact 'enemies') are all accounted for; Glider and It are not in the manual. Only Fleepa is tied by hardware (fact 'fleepa-corridor-1'); the rest rest on the owner's word and that structure. Types are decimal in this map's keys.",
+      "enemy_names": {
+        "24": "Eyegore",
+        "25": "Eyegore",
+        "35": "Zibzub",
+        "36": "Clawbot",
+        "37": "Clawbot",
+        "38": "Clawbot",
+        "45": "Optomon",
+        "46": "Optomon",
+        "47": "Optomon",
+        "64": "Fleepa",
+        "65": "Fleepa",
+        "69": "Crawdaddy",
+        "70": "Teramute",
+        "71": "Glider",
+        "72": "Grimgrin",
+        "73": "Grimgrin",
+        "76": "Bombarder",
+        "77": "Bombarder",
+        "79": "It"
+      }
     }
   ]
 }

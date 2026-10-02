@@ -716,7 +716,7 @@ Do not re-derive these; do check anything that depends on them.
   screen positions) use absolute tiles and are listed, not drawn. The page's tile runs now
   follow bank 4's corridor streams too, so corridor bosses are no longer drawn with holes.
   Bank 3 `$9151` = boss type by corridor.
-- **Boss behaviour (read from the code; only Fleepa's setup checked against a savestate).** The
+- **Boss behaviour (read from the code; only Fleepa's setup checked against a savestate).** Names from the owner (`external.json` fact `enemy-names`, status consistent): `$18`/`$19` Eyegore, `$23` Zibzub, `$24`-`$26` Clawbot, `$2D`-`$2F` Optomon, `$40`/`$41` Fleepa, `$45` Crawdaddy, `$46` Teramute, `$47` Glider, `$48`/`$49` Grimgrin, `$4C`/`$4D` Bombarder, `$4F` It - every one a corridor boss; the manual's nine names are all placed, Glider and It are not in the manual; only Fleepa is hardware-tied. Non-boss enemies are still unnamed. The
   boss type is `$9151[corridor]` (bank 3 `$91C3`) -> `$72`, spawned by bank 3 `$92E5`; each type's
   code is its bank 6 handler (the split table at `$80DE`/`$815D`), some of which only far-call
   into bank 3 or 1. There is **no shared boss engine**: each handler is its own state machine
@@ -842,8 +842,8 @@ authoritative, up-to-date version of this list; what follows is what does not li
 
 ## Next, in order
 
-1. **Name the enemy types.** The manual names nine (`docs/external.html`); a match by eye
-   against `docs/enemies.html` is a lead. A savestate with known enemies on screen would
+1. **Name the remaining (non-boss) enemy types.** The bosses are named (see the boss entry);
+   the manual's nine names are all placed. A savestate with known enemies on screen would
    settle it, and `parse-metasprites.py --verify` would check their shapes.
 2. **The last 35 unclaimed bytes**, none with a reader found: bank 0 `$82BD` (8) and
    `$BF04` (3), bank 5 `$84C3` (8), bank 6 `$A9BA` (5) and `$B902` (2), bank 7 `$EEC4` (8)

@@ -416,6 +416,13 @@ def _external():
     return d
 
 
+def _enemy_names() -> dict:
+    """Object type -> the owner's name for it (external.json fact enemy-names)."""
+    ext = _external() or {"facts": []}
+    m = next((f.get("enemy_names") for f in ext["facts"] if f.get("enemy_names")), {})
+    return {int(k): v for k, v in m.items()}
+
+
 def _topic_pages(rm):
     """(filename, nav label, blurb, count text) for each topic page that has content.
 
@@ -2154,6 +2161,7 @@ def _enemies_page(rm):
              "(art). The art is the tile block the type names, decoded with the codec &mdash; "
              "the tiles, not assembled into a sprite. &ldquo;In scripts&rdquo; counts the "
              "spawn scripts that create the type.</p>")
+    ename = _enemy_names()
     rows = []
     for t in range(1, 128):
         v = enemy.per_type(b7, t)
@@ -2199,7 +2207,9 @@ def _enemies_page(rm):
         if t in msp.UNDRAWN and msp.UNDRAWN[t] not in art:
             art += (f'<span class="meta">drawn in pieces: {_h(msp.UNDRAWN[t])}</span>')
         pts = enemy.score(b7, v["score_class"])
-        rows.append(f'<tr><td><code>${t:02X}</code></td><td class="mono">{v["hp"]}</td>'
+        rows.append(f'<tr><td><code>${t:02X}</code>'
+                    + (f'<br><strong>{_h(ename[t])}</strong>' if t in ename else '')
+                    + f'</td><td class="mono">{v["hp"]}</td>'
                     f'<td class="mono">{"per object" if pts is None else pts}</td>'
                     f'<td class="mono">{v["attack"]}</td>'
                     f'<td><code>${v["flags"]:02X}</code></td>'
@@ -2734,7 +2744,8 @@ def _corridor_page(rm, c: int, out: Path | None = None) -> str:
                    f"{', at once' if v & 0x8000 else ''})" for r, v in speeds)
     p.append(f'<p class="desc"><strong>Scroll speed:</strong> {sp or "never set"}. '
              + (f"<strong>Boss type</strong> (bank 3 <code>$9151</code>[{c}]): "
-                f'<a href="enemies.html"><code>${boss:02X}</code></a>. ' if boss is not None else
+                f'<a href="enemies.html"><code>${boss:02X}</code>'
+                f'{" " + _h(_enemy_names()[boss]) if boss in _enemy_names() else ""}</a>. ' if boss is not None else
                 "<strong>Boss type:</strong> named by the stream's command 5 operand. ")
              + f"Stream: bank 4 <code>${cr.screen.entry_pointers(b4)[c - cr.screen.FIRST_AREA]:04X}"
              "</code>.</p>")
