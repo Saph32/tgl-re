@@ -806,7 +806,7 @@ Do not re-derive these; do check anything that depends on them.
   running the real corridors**: `tools/tgl/bossrun.py` / `tools/render-bosses.py` load a corridor
   with `$EC94` called as a subroutine from a corridor savestate (return address = the savestate's
   own PC), keep `$0590`, `$47` and lives `$6B` topped up and capture 60 frames after `$70` = 4:
-  `docs/boss-0.png`, `-7`, `-17` (+ `-sprites.png`, `boss-objects.json`). Harness fixes this needed
+  `docs/boss-0.png`, `-7`, `-17` (+ `boss-objects.json`). Harness fixes this needed
   (`tools/tgl/cpu.py`): sprite-0 hit at the beam's cycle for OAM[0] (the raster-split wait at
   `$DAB6` spins on `$2002` bit 6), scroll writes logged by cycle so the HUD split renders, and the
   NMI handler's own `$2002` read must not clear the vblank flag a main-code wait is polling

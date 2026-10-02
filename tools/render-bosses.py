@@ -3,9 +3,9 @@
 
     python tools/render-bosses.py --state "D:/emu/.../Guardian Legend, The.ingame.fcs"
 
-Writes ``docs/boss-C.png`` (the playfield, 256 x 192, as the game draws it) and
-``docs/boss-C-sprites.png`` (the same frame with the background left out) for C = 0, 7, 17,
-and ``docs/boss-objects.json`` (the live objects at that moment). Corridor 0's boss is the
+Writes ``docs/boss-C.png`` (the playfield, 256 x 192, as the game draws it) for C = 0, 7, 17
+and ``docs/boss-objects.json`` (the live objects at that moment, and whether the frame with the
+background left out is empty - it is, for all three, so no second picture is written). Corridor 0's boss is the
 Defense System, corridors 7 and 17's the Eyeball Growth (names from the owner). **Needs a
 savestate, which is not in the repository**, so this is not part of ``build.py``; the images
 are committed. See ``tgl/bossrun.py`` for how the run is set up and ``tgl/cpu.py`` for what
@@ -46,9 +46,10 @@ def main() -> int:
     meta = {}
     for c in args.corridors:
         r = bossrun.run_to_boss(rm, state, c, NES_RGB)
-        for key, name in (("full", f"boss-{c}.png"), ("sprites", f"boss-{c}-sprites.png")):
-            r[key].crop((0, 0, 256, PLAYFIELD_H)).save(args.out / name, optimize=True)
-        meta[str(c)] = {"frames": r["frames"], "row": r["row"], "objects": r["objects"]}
+        r["full"].crop((0, 0, 256, PLAYFIELD_H)).save(args.out / f"boss-{c}.png", optimize=True)
+        empty = r["sprites"].crop((0, 0, 256, PLAYFIELD_H)).convert("RGB").getbbox() is None
+        meta[str(c)] = {"frames": r["frames"], "row": r["row"], "objects": r["objects"],
+                        "sprites_empty": empty}
         print(f"corridor {c}: boss phase after {r['frames']} frames, row {r['row']}, "
               f"{len(r['objects'])} objects")
     old = {}

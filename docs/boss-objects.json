@@ -155,7 +155,8 @@
     "metasprite": 33,
     "base": 0
    }
-  ]
+  ],
+  "sprites_empty": true
  },
  "7": {
   "frames": 5106,
@@ -313,7 +314,8 @@
     "metasprite": 105,
     "base": 0
    }
-  ]
+  ],
+  "sprites_empty": true
  },
  "17": {
   "frames": 5847,
@@ -471,6 +473,7 @@
     "metasprite": 109,
     "base": 0
    }
-  ]
+  ],
+  "sprites_empty": true
  }
 }

@@ -454,19 +454,15 @@ def _stage_boss_section(rm, out=None) -> str:
             m = meta.get(str(c), {})
             objs = m.get("objects", [])
             kinds = sorted({x["type"] for x in objs} & {0x06, 0x36, 0x37, 0x7E, 0x7F})
+            empty = bool(m.get("sprites_empty"))
             o.append(f'<p><img src="boss-{c}.png" width="512" height="384" alt="{name}, the '
                      f'screen when the boss phase starts" style="image-rendering:pixelated;'
-                     f'max-width:100%;height:auto"> <img src="boss-{c}-sprites.png" width="512" '
-                     f'height="384" alt="{name}, sprites only" style="image-rendering:pixelated;'
                      f'max-width:100%;height:auto"></p>')
-            from PIL import Image as _Im
-            empty = _Im.open(out / f"boss-{c}-sprites.png").convert("RGB").getbbox() is None
-            o.append('<p class="meta">Left: the playfield 60 frames after the controller '
+            o.append('<p class="meta">The playfield 60 frames after the controller '
                      "(type <code>$06</code>) exists with the scroll stopped, row "
-                     f"{m.get('row', '?')}, as the game draws it. Right: the same frame with the "
-                     "background left out. "
-                     + ("<strong>It is empty: everything you see on the left is background "
-                        "tiles.</strong> The objects of the boss &mdash; "
+                     f"{m.get('row', '?')}, as the game draws it. "
+                     + ("<strong>With the background left out the frame is empty: everything "
+                        "here is background tiles.</strong> The objects of the boss &mdash; "
                         + (", ".join(f"<code>${t:02X}</code>" for t in kinds) or "none found")
                         + " &mdash; are alive but never drawn: their handlers "
                           "(<code>$A8D8</code>, <code>$B851</code>) update hit boxes and fire, "
