@@ -118,3 +118,79 @@ def build(rm, rgb):
                 continue
             draw(data, x, y + 1 + dy, cols, fh, fv)
     return bg, img, {"tiles": ntiles, "missing": sorted(missing), "attrs": len(attrs)}
+
+
+# ---------------------------------------------------------------------------------------
+# Running the real code (tgl.cpu): the cutscene at bank 2 $8836, and both endings.
+#
+# Everything below starts from a savestate of a corridor and changes only what the code
+# before the entry point would have changed - see tgl/cpu.py for what that does NOT cover.
+
+def _machine(rm, state: dict, corridor: int, mode: int, pc: int, bank: int):
+    """A machine in a corridor savestate, set up as if corridor ``corridor`` had just ended.
+
+    Changed from the savestate: ``$51`` = the corridor, ``$30`` = ``mode`` ($48 normal game,
+    $4A TGL game: bit 6 and bit 3 as ``$F2C3`` sets them in a corridor, bit 1 the TGL flag),
+    the stage-clear state ``$F506`` leaves (scroll speed and target 0, ``$60`` bits 0-1 and
+    ``$A0`` bit 0 clear), and the palette of that corridor's last row - its scenes' lists and
+    its stream's palette records - in both the ``$0180`` shadow and PPU palette RAM.
+    """
+    from . import corridor as cr
+    from .cpu import Machine
+    b4, b5, b7 = rm.prg_bank(4), rm.prg_bank(5), rm.prg_bank(7)
+    m = Machine(rm)
+    m.load_savestate(state)
+    m.s, m.p, m.a, m.x, m.y = 0xF0, 0x24, 0, 0, 0
+    r = m.ram
+    r[0x51], r[0x30] = corridor, mode
+    r[0x60] &= 0xFC
+    r[0xA0] &= 0xFE
+    r[0xB8] = r[0xB9] = r[0xBA] = r[0xBB] = 0
+    recs = cr.records(b4, corridor) if corridor <= 21 else []
+    slots = cr.palette_slots(b5, b4, cr.scenes(b7, corridor), recs, upto_row=10 ** 6)
+    for k, sl in enumerate(slots):
+        if sl is None:
+            continue
+        cols = b5[0x330A + 3 * sl:0x330A + 3 * sl + 3]
+        r[0x181 + 3 * k:0x184 + 3 * k] = cols
+        base = 4 * k + 1 if k < 4 else 16 + 4 * (k - 4) + 1
+        m.pal[base:base + 3] = cols
+    m.bank = bank
+    r[4] = bank
+    m.pc = pc
+    return m
+
+
+def cutscene(rm, state: dict, rgb, every: int = 4, max_frames: int = 3000):
+    """The cutscene after corridor 21: bank 0 ``$8012`` then bank 2 ``$801B`` (``$8836``),
+    run from ``$ECCA`` to the ``INC $51`` at ``$ECDC``. Returns (frames, total frames).
+
+    Frame 0 is the first frame after entry, then every ``every``-th."""
+    m = _machine(rm, state, 21, 0x48, 0xECCA, 6)
+    out, n = [], 0
+    for n in range(max_frames):
+        if m.run_frame(stops={0xECDC}) == 0xECDC:
+            break
+        if n % every == 0:
+            out.append(m.render(rgb))
+    else:
+        raise RuntimeError("cutscene did not finish")
+    return out, n + 1
+
+
+def ending_screens(rm, state: dict, rgb):
+    """The two endings, run from ``$F66B`` (corridor 22's final-score screen) to the far call
+    into the credits at ``$8AFF``: {'normal': image, 'tgl': image}."""
+    res = {}
+    for name, mode in (("normal", 0x48), ("tgl", 0x4A)):
+        m = _machine(rm, state, 22, mode, 0xF66B, 6)
+        for _ in range(3000):
+            stop = m.run_frame(stops={0xF6AC, 0x8AFF})
+            if stop == 0x8AFF:
+                break
+            if stop == 0xF6AC:
+                m.step()
+        else:
+            raise RuntimeError(f"{name} ending did not reach the credits")
+        res[name] = m.render(rgb)
+    return res

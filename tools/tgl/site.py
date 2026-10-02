@@ -3134,7 +3134,7 @@ ENDING_STEPS = [
      "<code>$F506</code>. <strong>21</strong> &rarr; <code>$ECC7</code>: <code>$F506</code>, "
      "far call bank 0 <code>$8012</code> (&rarr; <code>$88F5</code>, a starfield of blank tiles "
      "and star tiles from the script at <code>$88B7</code>), then far call bank 2 "
-     "<code>$801B</code> (&rarr; <code>$8836</code>, a wordless animation of the ship, no text) and "
+     "<code>$801B</code> (&rarr; <code>$8836</code>, a wordless scene: see below) and "
      "<code>INC $51</code> &rarr; <strong>22</strong>, loaded through <code>$EC94</code>. "
      "<strong>22</strong> &rarr; <code>$ECE1</code>: <code>$F506</code> first, and it never "
      "returns, so corridor 22 is never marked cleared."),
@@ -3163,7 +3163,8 @@ ENDING_STEPS = [
      "<code>$0180</code>. <strong>A TGL game</strong> (<code>$30</code> bit 1 before it was "
      "cleared) takes <code>$8A3D</code>: attributes, the word CONGRATULATIONS at "
      "<code>$210C</code>, a white backdrop colour and no picture. Both then run "
-     "<code>$EDB7</code>, start song <code>$0F</code> and far-call bank 0 <code>$8015</code>."),
+     "<code>$EDB7</code>, start song <code>$0F</code> and far-call bank 0 <code>$8015</code>. "
+     "<strong>The two endings are drawn below</strong>, from running this code."),
     ("9. The credits", "bank 0 <code>$8915</code> &rarr; <code>$8927</code>",
      "Eight credit screens after MISSION COMPLETE, each held for the seconds in "
      "<code>$8BB2</code> (<code>$F0</code> counts them), then it waits for Start "
@@ -3216,6 +3217,54 @@ def _ending_page(rm, out=None):
                  "range <code>$8F-$FB</code>; nothing here read <code>$2000</code>. That the "
                  "result is a coherent portrait is the evidence. Tile <code>$20</code>, the "
                  "frame's empty cells, is drawn blank.</div>")
+    if out is not None and (out / "ending-normal.png").exists():
+        p.append('<h2 id="endings">Normal ending and TGL ending</h2>')
+        p.append('<p class="sub">The game checks <code>$30</code> bit 1, the TGL flag, once, at '
+                 "bank 2 <code>$8A69</code>, and clears <code>$30</code> straight after, so "
+                 "everything past that point &mdash; the credits included &mdash; is the same for "
+                 "both. The difference is the screen it draws first. Both images are the screen "
+                 "when the routine far-calls the credits, from running the ROM code (below).</p>")
+        p.append('<table><thead><tr><th>Normal game</th><th>TGL game</th></tr></thead><tbody><tr>'
+                 '<td><img src="ending-normal.png" width="384" alt="Normal ending: final score, '
+                 'portrait, planet and stars" style="image-rendering:pixelated;max-width:100%">'
+                 '</td><td><img src="ending-tgl.png" width="384" alt="TGL ending: final score and '
+                 'CONGRATULATIONS on black" style="image-rendering:pixelated;max-width:100%">'
+                 "</td></tr><tr><td>YOUR FINAL SCORE, the portrait frame, the planet and stars, "
+                 "25 palette bytes from <code>$8BDF</code>, song <code>$0F</code>.</td>"
+                 "<td>YOUR FINAL SCORE and CONGRATULATIONS on black: <code>$8A3D</code> writes "
+                 "only attributes and the text, sets <code>$0181</code> to white "
+                 "(<code>$30</code>), and skips the picture, the sprites and the palette copy. "
+                 "The last glyph, tile <code>$5B</code>, draws as a full stop with the font "
+                 "loaded at that point, so the word ends &ldquo;CONGRATULATIONS.&rdquo;</td>"
+                 "</tr></tbody></table>")
+    if out is not None and (out / "cutscene-film.png").exists():
+        p.append('<h2 id="cutscene">The scene after corridor 21</h2>')
+        p.append('<p class="sub">Bank 2 <code>$8836</code>, run for 689 frames (11.5 seconds) from '
+                 "<code>$ECCA</code> to the <code>INC $51</code> at <code>$ECDC</code>. The code "
+                 "draws a starfield (the script at bank 0 <code>$88B7</code>), loads the planet's "
+                 "tiles and the ship's (<code>$F6E5</code>, <code>$F717</code>), then "
+                 "steps a phase counter <code>$0638</code> (+<code>$40</code> a frame, one step "
+                 "per four frames): the ship eases toward y = 0 (steps 0-15), moves down "
+                 "slightly (16-31), turns through eight metasprites <code>$88A6</code> "
+                 "(32-63), then at 64-127 spawns explosions (type 7, sounds <code>$22</code>/"
+                 "<code>$23</code>) and flashes the backdrop <code>$32</code> two frames in "
+                 "seven; from step 96 it erases the planet's tiles in a shuffled order "
+                 "(<code>$88AE</code>), and from step 128 accelerates the ship up the screen "
+                 "until it leaves.</p>")
+        p.append('<p><img src="cutscene-film.png" width="780" alt="24 frames of the scene" '
+                 'style="max-width:100%;height:auto"></p>')
+        p.append('<p><img src="cutscene.gif" width="512" height="480" alt="The scene, animated" '
+                 'style="image-rendering:pixelated;max-width:100%;height:auto"></p>')
+        p.append('<div class="note warn"><strong>Run, not recorded.</strong> These pictures come '
+                 "from <code>tools/render-ending.py</code>, which runs the ROM&rsquo;s own code on "
+                 "a small NES model (<code>tools/tgl/cpu.py</code>: no cycle accuracy, no IRQ, no "
+                 "audio, one scroll value per frame) starting from a savestate of corridor 15, "
+                 "with <code>$51</code>, <code>$30</code>, the stage-clear state and the "
+                 "palette of corridor 21's last row put in. Sprites and tiles are what the "
+                 "code made of the savestate's RAM and CHR. The savestate is not in the "
+                 "repository, so the images are committed rather than built. The layout of "
+                 "the scene (what moves when) is the code's; exact pixels, colours and "
+                 "timing are the model's and have not been compared with hardware.</div>")
     p.append('<div class="note warn"><strong>Not established.</strong> What the cutscene at bank 2 '
              "<code>$8836</code> shows beyond a ship animating over stars (it is wordless and "
              "was only skimmed). What sprites 0 and 1 are (they start off screen). "

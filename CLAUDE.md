@@ -779,8 +779,21 @@ Do not re-derive these; do check anything that depends on them.
   in that range, so the background reads table 1 (a fit, not a read of `$2000`); fills at
   `$8A88` are `[count][hi][lo][value]` runs (`$D5CC`); the frame lands at column 17, row 15.
   Result: a framed portrait of a woman with brown hair, a planet, stars and part of a ship -
-  sprites 0/1 start off screen. NOT established: the cutscene at `$8836` on screen, and
-  nothing here has been seen on hardware.
+  sprites 0/1 start off screen. **The cutscene and both endings were RUN**, not
+  reconstructed: `tools/tgl/cpu.py` is a 6502 + NES-memory + PPU-register harness (no cycle
+  accuracy, no IRQ/audio, one scroll value per frame) that executes the ROM's own code from a
+  corridor savestate; `tools/render-ending.py --state ...` writes `docs/cutscene.gif`,
+  `cutscene-film.png`, `ending-normal.png`, `ending-tgl.png` (needs the owner's savestate, so
+  the images are committed, not built). **TGL vs normal ending (owner's claim, CONFIRMED):**
+  `$30` bit 1 is tested once, at bank 2 `$8A69`, and `$30` is cleared right after, so only that
+  screen differs: normal = portrait picture + sprites + the 25 palette bytes; TGL (`$8A3D`) =
+  YOUR FINAL SCORE + CONGRATULATIONS. (tile `$5B` is a full stop) on black with `$0181` = white.
+  The picture rebuilt by hand from the tables equals the run's, apart from the score text. The
+  scene after corridor 21 (`$8836`): a planet with an alien core, the ship approaching, a
+  barrage of explosions (backdrop flashing `$32`), the planet's tiles erased in a shuffled order
+  (`$88AE`), the ship flying off. A harness lesson: the vblank flag must stay set ~2,273
+  cycles or `$EDF4` hangs; `$F506` is not a subroutine that returns in every case, so runs
+  start at `$ECCA`/`$F66B`. NOT established: any of this against hardware.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.
