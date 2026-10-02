@@ -84,6 +84,13 @@ wrong finding away.
   records are special screens (see below), drawn with their neighbours' area plus scene
   `$10` + screen type through the special path, as a new game meets them (unchecked).
   Background only: no objects, no key doors. `tools/tgl/labyrinth.py` holds the room rules.
+- `tools/tgl/ram.py` + `annotations/ram.json` — **the RAM map** (`docs/ram.html`). `ram.py` decodes
+  every traced instruction and cross-references every access to $0000-$07FF (read / write /
+  modify, banks, first sites; an indexed access counts on its base). `ram.json` is hand-authored:
+  one entry per named byte or range with a status (`confirmed`, `checked`, `lead`) and where the
+  meaning was read, plus the object-slot fields and the bits of `$30` and `$A0`. The page shows the
+  generated counts beside the names and lists the busiest unnamed bytes - the to-do list. **Absence
+  of accesses is not evidence a byte is unused**: untraced code is not seen.
 - `tools/parse-text.py` — parses the dialogue script and the screen scripts into
   `annotations/regions/30-text.json`. `--dump` prints the decoded text. Generated; do not
   hand-edit.
@@ -872,14 +879,11 @@ Do not re-derive these; do check anything that depends on them.
   On a mismatch it fetches a code from `$FF3A,Y`, stores it at `$0180`, calls `$DED2` and
   spins at `JMP $FF37` forever. The seven `$BFFF` bytes are annotated one per bank.
 
-## Named so far, and nowhere to write it down
+## Named so far
 
-There is no RAM map yet. These came out of the code read so far and should go into one as
-soon as it exists: `$04` (live PRG bank), `$05` (the DMC timer's rate index, reloaded into `DMC_FREQ` by the IRQ
-handler and tuned between `$81` and `$89` to land the raster split), `$10`/`$11` (saved A/Y across a far call), `$12`/`$13` (the far-call inline
-pointer), `$26` (`PPUSTATUS` snapshot taken in NMI), `$2B` (frame counter, incremented in
-NMI and read by the IRQ handler), `$2F` (branched on at `$FF53` in the boot path; set to 0 by the TGL back door), `$30`
-(the game-mode byte — bit 4 tested in NMI, set to 2 by the TGL back door), `$FC` (added to `$0200` in NMI), `$FE` (`PPUMASK` shadow). The status screen adds a batch — `$3B-$3E`, `$45`, `$4A-$4F`, `$52`/`$53`, `$04A9-$04B0`, `$F5-$F8` — tabled in `docs/status.html`.
+The RAM map exists: `annotations/ram.json`, drawn on `docs/ram.html` beside a generated
+cross-reference. Add a name there (with its evidence and a status), not here. The first version
+names about half the touched bytes; the page's "busiest unnamed bytes" table is what to read next.
 
 ## Known limits of the searches run so far
 
@@ -928,4 +932,4 @@ authoritative, up-to-date version of this list; what follows is what does not li
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).
-6. Start a RAM map. The object slot fields are most of page 5.
+6. Grow the RAM map: name the busiest unnamed bytes it lists (`$1A/$1B`, `$1E`, `$0358`, ...).

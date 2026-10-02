@@ -1,0 +1,1098 @@
+{
+  "_comment": "Hand-authored RAM map. One entry per named byte or range; every entry says how it is known. status: 'confirmed' = read from the code that uses it (evidence names the routine); 'checked' = also checked against a savestate or a run; 'lead' = a reading of the code or of one use, not established. The generated cross-reference (tools/tgl/ram.py) is shown beside each entry and is not claimed here.",
+  "ranges": [
+    {
+      "from": "$0000",
+      "to": "$00FF",
+      "name": "Zero page",
+      "what": "Scratch, pointers, game state, the pads, the scroll engine's counters."
+    },
+    {
+      "from": "$0100",
+      "to": "$01FF",
+      "name": "PPU queue, stack and small buffers",
+      "what": "The PPU write queue grows up from $0100; the CPU stack grows down from $01FF. The score, the palette shadow and the status screen's buffers sit in the middle."
+    },
+    {
+      "from": "$0200",
+      "to": "$02FF",
+      "name": "OAM shadow",
+      "what": "Sprite memory, DMA'd to the PPU every frame (bank 7 NMI)."
+    },
+    {
+      "from": "$0300",
+      "to": "$03FF",
+      "name": "Sound state",
+      "what": "The sound engine of bank 0: flags, a busy mask, the APU register shadow and seven soft channels."
+    },
+    {
+      "from": "$0400",
+      "to": "$04FF",
+      "name": "Stage and progress state",
+      "what": "Corridor overlay slots, the loaded metatile sets, per-area flags, weapon levels, keys, the row of metatiles being built, and the labyrinth move history."
+    },
+    {
+      "from": "$0500",
+      "to": "$07FF",
+      "name": "Object slots",
+      "what": "24 slots x 32 fields: field f of slot s is at $0500 + $18 f + s. See the field table."
+    }
+  ],
+  "entries": [
+    {
+      "addr": "$04",
+      "name": "live_bank",
+      "what": "The PRG bank currently selected. Every bank-switch routine writes it.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D705-$D762"
+    },
+    {
+      "addr": "$05",
+      "name": "dmc_rate",
+      "what": "The DMC timer's rate index, reloaded into $4010 by the IRQ and tuned between $81 and $89 to land the raster split.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DCF3, $DAC3-$DACF"
+    },
+    {
+      "addr": "$10",
+      "end": "$11",
+      "name": "scratch",
+      "what": "Scratch. The far-call trampoline saves A and Y here.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D76F"
+    },
+    {
+      "addr": "$12",
+      "end": "$13",
+      "name": "farcall_ptr",
+      "what": "The far-call trampoline's pointer to its three inline bytes (bank, target low, target high).",
+      "status": "confirmed",
+      "evidence": "bank 7 $D790"
+    },
+    {
+      "addr": "$14",
+      "end": "$15",
+      "name": "args",
+      "what": "Arguments and scratch. For the $D5CC queue-a-fill helper, $15 is the count byte (bit 7: step 32) and $14 the fill value. For a spawn, $15 is the type.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D5CC-$D61B; bank 5 $8A30"
+    },
+    {
+      "addr": "$16",
+      "end": "$17",
+      "name": "src_ptr",
+      "what": "A source pointer: the screen-script renderer's script, the inline-string helpers' return address, a structure's tiles.",
+      "status": "confirmed",
+      "evidence": "bank 0 $8495; bank 7 $D576"
+    },
+    {
+      "addr": "$18",
+      "end": "$19",
+      "name": "ppu_addr",
+      "what": "A PPU address (low, high) for the queue producers; also reused as an object's x/y or an index in some handlers.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D5CC, $D53F; $F59E-$F5A4"
+    },
+    {
+      "addr": "$1A",
+      "end": "$1B",
+      "name": "ptr2",
+      "status": "lead",
+      "what": "A second pointer or PPU address pair: the status screen's map walk builds the map address into it, and the rectangle blit's loop positions use it.",
+      "evidence": "bank 5 $882D; bank 7 $D99C-$D9A4 (read, not followed through)"
+    },
+    {
+      "addr": "$20",
+      "end": "$21",
+      "name": "queue_len",
+      "what": "The PPU queue's fill state: $21 is the byte offset of the next entry, $20 counts flushes.",
+      "status": "lead",
+      "evidence": "bank 7 $E619-$E654, $D6C0-$D6E0 (read, not followed through)"
+    },
+    {
+      "addr": "$26",
+      "name": "ppustatus_snapshot",
+      "what": "PPUSTATUS read once per NMI.",
+      "status": "confirmed",
+      "evidence": "bank 7 NMI"
+    },
+    {
+      "addr": "$2B",
+      "name": "frame_counter",
+      "what": "Counts NMIs. The wait-frames routine $FFD1 clears it and the wait loops $DA9A/$DAD8 spin on it.",
+      "status": "checked",
+      "evidence": "bank 7 $DA9A-$DAE0, $FFD1; the NES model's frame loop depends on it"
+    },
+    {
+      "addr": "$2F",
+      "name": "boot_flag",
+      "what": "Branched on in the boot path; set to 0 by a new game and by the TGL back door.",
+      "status": "lead",
+      "evidence": "bank 7 $FF53, $EB30; bank 3 $857A"
+    },
+    {
+      "addr": "$30",
+      "name": "game_mode",
+      "what": "Mode bits - see the table below.",
+      "status": "confirmed",
+      "evidence": "many; the bits are listed with their writers"
+    },
+    {
+      "addr": "$3B",
+      "name": "weapon_value",
+      "what": "A per-weapon value from bank 6 $FDCA; compared in the damage routine. Meaning not established.",
+      "status": "lead",
+      "evidence": "bank 7 $FDCA; $D3A9"
+    },
+    {
+      "addr": "$3C",
+      "name": "weapon",
+      "what": "The selected weapon: 0 none, 1-12.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FD77; bank 6 weapon tables"
+    },
+    {
+      "addr": "$3D",
+      "name": "weapon_level",
+      "what": "The selected weapon's level, 0-3.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FD77; bank 6 $86AF"
+    },
+    {
+      "addr": "$3E",
+      "name": "uses_left",
+      "what": "Chips / $45, or $04AF for weapon 12.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FD77-$FDF7"
+    },
+    {
+      "addr": "$40",
+      "name": "score_dirty",
+      "what": "Set when the score changes; the HUD routine redraws the score once and clears it.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DFC9 (INC), $E0FC-$E10B"
+    },
+    {
+      "addr": "$41",
+      "name": "frame_tick",
+      "what": "Incremented once per game frame by the main loops; handlers mask it for periodic actions (a shot every 16 or 32 frames).",
+      "status": "confirmed",
+      "evidence": "bank 7 $E10D, $F420; bank 6 $8CF6, bank 3 $94C5"
+    },
+    {
+      "addr": "$45",
+      "name": "chips_per_use",
+      "what": "Chips spent per shot of the selected weapon.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FDD3 table"
+    },
+    {
+      "addr": "$46",
+      "name": "chip_level",
+      "what": "Set to 6 by the demo setup and read by the status screen. Meaning not established.",
+      "status": "lead",
+      "evidence": "bank 0 $812C"
+    },
+    {
+      "addr": "$47",
+      "name": "life_max",
+      "what": "Maximum life. The score bonus and the Energy Tank add 8, capped at $FF; the demo starts at $80.",
+      "status": "checked",
+      "evidence": "bank 7 $DFA1-$DFAA; bank 2 $86BC; the score-bonus run"
+    },
+    {
+      "addr": "$48",
+      "name": "life",
+      "what": "Current life; the score bonus sets it to $47.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DFA9"
+    },
+    {
+      "addr": "$4A",
+      "end": "$4B",
+      "name": "attack_shield",
+      "what": "Attack and shield levels (1-4); $FD4B gives the player's attack from $4A.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FD0E, $FD4B; bank 5 status screen"
+    },
+    {
+      "addr": "$4C",
+      "end": "$4D",
+      "name": "chips",
+      "what": "Chips held (16-bit, the dividend in $FD77). The score bonus refills them from $4E/$4F.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DF8C-$DF99, $FD77"
+    },
+    {
+      "addr": "$4E",
+      "end": "$4F",
+      "name": "chip_max",
+      "what": "The number printed after CHIP MAX.",
+      "status": "confirmed",
+      "evidence": "bank 5 status screen; bank 7 $E24B"
+    },
+    {
+      "addr": "$50",
+      "name": "area",
+      "what": "The labyrinth area, 0-10, which the HUD prints after AREA. Leaving corridor n sets it to n folded onto 1-10.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E169, $F2A0-$F2AC, $EEE0"
+    },
+    {
+      "addr": "$51",
+      "name": "corridor",
+      "what": "The corridor, 0-22; also the screen type of a labyrinth special screen ($EE1D) and the stream-table index. 22 is the final corridor.",
+      "status": "checked",
+      "evidence": "bank 7 $ECDC (INC), $EC92, $EE6B; bank 3 $91B8; corridor savestate $51 = 15"
+    },
+    {
+      "addr": "$52",
+      "end": "$53",
+      "name": "map_col_row",
+      "what": "The player's map column and row in the labyrinth, stepped by $8071 and shown as X/Y in the HUD.",
+      "status": "checked",
+      "evidence": "bank 2 $8071, $8998; labyrinth savestate X 8 Y 12"
+    },
+    {
+      "addr": "$55",
+      "name": "item_icon",
+      "what": "The item a labyrinth item room holds: $A377[sub-id], an icon number.",
+      "status": "confirmed",
+      "evidence": "bank 5 $A3BB, $84CB"
+    },
+    {
+      "addr": "$57",
+      "name": "spawn_script",
+      "what": "The spawn script id of the current room (1-47).",
+      "status": "checked",
+      "evidence": "bank 5 $8243; labyrinth savestate $57 = 1"
+    },
+    {
+      "addr": "$58",
+      "end": "$5B",
+      "name": "door_keys",
+      "what": "The key each exit's door needs, N W E S (the neighbour's byte 1 AND 7).",
+      "status": "confirmed",
+      "evidence": "bank 5 $82DD; bank 3 $8FF5"
+    },
+    {
+      "addr": "$5C",
+      "name": "scene",
+      "what": "The scene number loaded next (tiles, metatile sets, palettes).",
+      "status": "confirmed",
+      "evidence": "bank 7 $EF79; bank 5 $ACA9"
+    },
+    {
+      "addr": "$5D",
+      "name": "room_kind",
+      "what": "A labyrinth room's kind: $00 plain, $20 item, $40 miniboss, $60 loop gate.",
+      "status": "confirmed",
+      "evidence": "bank 5 $8121, $8243"
+    },
+    {
+      "addr": "$5E",
+      "name": "room_sub",
+      "what": "A room's sub-id; the flag index for items and minibosses.",
+      "status": "confirmed",
+      "evidence": "bank 5 $8243, $A3BB, $A663"
+    },
+    {
+      "addr": "$60",
+      "name": "flags_60",
+      "what": "Bit flags; the stage-clear routine clears bits 0-1. Meaning not established.",
+      "status": "lead",
+      "evidence": "bank 7 $F516; bank 3 $9210"
+    },
+    {
+      "addr": "$66",
+      "end": "$67",
+      "name": "spawn_ptr",
+      "what": "The running spawn script's pointer ($7F is its bank).",
+      "status": "confirmed",
+      "evidence": "bank 7 $F78F, $E733"
+    },
+    {
+      "addr": "$6A",
+      "name": "toggle",
+      "what": "Bit 0 flips every call of bank 6 $AD9A; the bosses use it for alternating shots. Not random.",
+      "status": "confirmed",
+      "evidence": "bank 6 $AD9A"
+    },
+    {
+      "addr": "$6B",
+      "name": "lives_or_life",
+      "what": "Set to 2 by the demo and by the password decoder with the max life; the HUD shows a heart and a count. Which of those it is was not settled.",
+      "status": "lead",
+      "evidence": "bank 0 $8132; bank 3 password payload"
+    },
+    {
+      "addr": "$70",
+      "name": "boss_phase",
+      "what": "The boss phase: 0 none; 1 set up; 2 wait for the scroll; 3 spawn; 4 fight; 6 the explosion count; back to 0.",
+      "status": "checked",
+      "evidence": "bank 3 $917F-$93EE; observed 1 -> 2 -> 3 -> 4 -> 6 -> 0 in the corridor 0 run"
+    },
+    {
+      "addr": "$71",
+      "name": "corridor_boss_flags",
+      "what": "$913A[corridor]: bit 7 = turn live enemies into explosions when the boss phase starts, bit 3 copied into $60.",
+      "status": "confirmed",
+      "evidence": "bank 3 $91B8-$9214"
+    },
+    {
+      "addr": "$72",
+      "name": "boss_type",
+      "what": "The boss object type to spawn: $9151[corridor], or command 5's operand in corridor 21.",
+      "status": "checked",
+      "evidence": "bank 3 $91C3; bank 4 $E7AF; Fleepa savestate $72 = $40"
+    },
+    {
+      "addr": "$73",
+      "end": "$74",
+      "name": "boss_timer",
+      "what": "The boss routine's frame counter (lo, hi); 90 frames after the explosions.",
+      "status": "confirmed",
+      "evidence": "bank 3 $93A3-$93A9"
+    },
+    {
+      "addr": "$75",
+      "name": "boss_slot",
+      "what": "The object slot a boss was spawned into.",
+      "status": "confirmed",
+      "evidence": "bank 3 $92EA"
+    },
+    {
+      "addr": "$77",
+      "name": "tgl_index",
+      "what": "Index into $ED08, the TGL game's corridor order.",
+      "status": "confirmed",
+      "evidence": "bank 7 $ECFB-$ED01"
+    },
+    {
+      "addr": "$78",
+      "name": "life_at_start",
+      "what": "$47 as the corridor began (read back by the continue path).",
+      "status": "lead",
+      "evidence": "bank 7 $EF8F-$EF91"
+    },
+    {
+      "addr": "$7C",
+      "end": "$7D",
+      "name": "saved_pos",
+      "what": "The map position the progress recorder keeps ($52/$53).",
+      "status": "lead",
+      "evidence": "bank 5 screen type 1"
+    },
+    {
+      "addr": "$7F",
+      "name": "script_bank",
+      "what": "The bank the running spawn script lives in (5 for rooms, 4 for corridor waves).",
+      "status": "confirmed",
+      "evidence": "bank 7 $E733"
+    },
+    {
+      "addr": "$84",
+      "end": "$87",
+      "name": "draw_regs",
+      "what": "What the metasprite drawer reads: $84 y, $85 x, $86 attributes, $87 base tile. $CC34 draws a record at these.",
+      "status": "checked",
+      "evidence": "bank 7 $CBFC-$CE23; the Fleepa and Grimgrin OAM matches"
+    },
+    {
+      "addr": "$88",
+      "end": "$89",
+      "name": "ms_ptr",
+      "what": "The metasprite record being drawn.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CC37-$CC3F"
+    },
+    {
+      "addr": "$A0",
+      "name": "stage_flags",
+      "what": "Stage event bits - see the table below.",
+      "status": "confirmed",
+      "evidence": "bank 3 $93E8, $9009; bank 7 $E659, $EB8C"
+    },
+    {
+      "addr": "$A1",
+      "name": "row_phase",
+      "what": "Which row of the current row table the next background row is: the table's rows repeat, cycling this.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E8AB"
+    },
+    {
+      "addr": "$A4",
+      "name": "exit_dir",
+      "what": "Which way the player left a labyrinth room: 0 north, 2 west, 6 east, 8 south (4 = none).",
+      "status": "confirmed",
+      "evidence": "bank 3 $8FCD-$8FED; bank 7 $EB3A"
+    },
+    {
+      "addr": "$AA",
+      "end": "$AE",
+      "name": "scroll_fx",
+      "what": "Scroll helpers: $AC/$AD give a ground object the scroll's y velocity (lo, hi) at spawn, $AE its x velocity; $AA a column base for it.",
+      "status": "lead",
+      "evidence": "bank 5 $8A42-$8A67"
+    },
+    {
+      "addr": "$AF",
+      "name": "row_pixels",
+      "what": "Pixels scrolled within the current 16-pixel background row.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E530; bank 5 $89FB"
+    },
+    {
+      "addr": "$B0",
+      "end": "$B1",
+      "name": "row_counter",
+      "what": "The stage clock: background rows since the corridor began. Stream records fire when it equals their trigger.",
+      "status": "checked",
+      "evidence": "bank 7 $E6CE; corridor 15 savestate row 41"
+    },
+    {
+      "addr": "$B6",
+      "end": "$B7",
+      "name": "scroll_acc",
+      "what": "The scroll position accumulator (fraction, whole) the speed is subtracted from.",
+      "status": "lead",
+      "evidence": "bank 7 $E530-$E53F"
+    },
+    {
+      "addr": "$B8",
+      "end": "$B9",
+      "name": "scroll_speed",
+      "what": "The scroll speed in 1/256 pixel a frame, ramped 2/256 a frame toward $BA/$BB.",
+      "status": "checked",
+      "evidence": "bank 7 $E5BD-$E6F0; corridor 15 savestate $B8 = $0180"
+    },
+    {
+      "addr": "$BA",
+      "end": "$BB",
+      "name": "scroll_target",
+      "what": "The speed command 0 sets the scroll toward (bit 7 of the high byte: at once).",
+      "status": "confirmed",
+      "evidence": "bank 4 command 0"
+    },
+    {
+      "addr": "$BC",
+      "end": "$BD",
+      "name": "stream_ptr",
+      "what": "The pointer into the corridor's event stream (bank 4).",
+      "status": "confirmed",
+      "evidence": "bank 7 $E79F-$E89D"
+    },
+    {
+      "addr": "$E0",
+      "end": "$E3",
+      "name": "room_north_west",
+      "what": "The map records of the north ($E0) and west ($E2) neighbours of the current room.",
+      "status": "checked",
+      "evidence": "bank 5 $82DD; labyrinth savestate"
+    },
+    {
+      "addr": "$E4",
+      "end": "$E5",
+      "name": "room_ptr",
+      "what": "The current room's map record.",
+      "status": "checked",
+      "evidence": "labyrinth savestate $E4 = $8E4C"
+    },
+    {
+      "addr": "$E6",
+      "end": "$E9",
+      "name": "room_east_south",
+      "what": "The east ($E6) and south ($E8) neighbours' records.",
+      "status": "checked",
+      "evidence": "bank 5 $82DD; labyrinth savestate"
+    },
+    {
+      "addr": "$F0",
+      "end": "$F1",
+      "name": "demo_timer",
+      "what": "The demo's timer; it also counts the credits screens.",
+      "status": "confirmed",
+      "evidence": "bank 0 $8943; the demo's setup"
+    },
+    {
+      "addr": "$F5",
+      "end": "$F6",
+      "name": "pads_new",
+      "what": "Buttons newly pressed, pads 1 and 2 (A = $80 ... Right = $01).",
+      "status": "confirmed",
+      "evidence": "bank 7 $D626-$D678"
+    },
+    {
+      "addr": "$F7",
+      "end": "$F8",
+      "name": "pads_held",
+      "what": "Buttons held. A and B held at reset ($F7 = $C0) starts the sound test.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D678; bank 0 $8341"
+    },
+    {
+      "addr": "$FE",
+      "name": "ppumask_shadow",
+      "what": "The PPUMASK value the game wants.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D4D9-$D4DF"
+    },
+    {
+      "addr": "$FF",
+      "name": "ppuctrl_shadow",
+      "what": "The PPUCTRL value the game wants; bit 7 is the NMI enable the wait loops test.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D4E3-$D4EC, $EDC5"
+    },
+    {
+      "addr": "$0100",
+      "end": "$011D",
+      "name": "ppu_queue",
+      "what": "The PPU write queue, staged here: [count][ppu_hi][ppu_lo][data...]. The count byte's top two bits give the type - under $80 a run with increment 1, $80-$BF increment 32, $C0 and up an attribute read-modify-write. (The stack shares this page and grows down from $01FF.)",
+      "status": "confirmed",
+      "evidence": "bank 7 $D5F8-$D623, $D6C0-$D6F7; 24 producers"
+    },
+    {
+      "addr": "$011E",
+      "end": "$0135",
+      "name": "password_work",
+      "what": "The password decoder's 24 output bytes, borrowing the PPU queue's staging area.",
+      "status": "confirmed",
+      "evidence": "bank 3 $8516"
+    },
+    {
+      "addr": "$0150",
+      "end": "$015B",
+      "name": "map_row_buffer",
+      "what": "The status screen's map row buffer: a quadrant mask per tile, flushed every second row.",
+      "status": "confirmed",
+      "evidence": "bank 5 $891F"
+    },
+    {
+      "addr": "$0170",
+      "end": "$0175",
+      "name": "score",
+      "what": "The score, six decimal digits, one a byte, in tens: a fixed 0 is printed after them. $0170 is the 1,000,000s digit.",
+      "status": "checked",
+      "evidence": "bank 7 $DFCF-$E00A, $E110-$E15E; labyrinth savestate 001684 shown as 16840"
+    },
+    {
+      "addr": "$0176",
+      "end": "$0177",
+      "name": "status_saved",
+      "what": "The weapon selected, and sprite 0's Y, saved while the status screen is up.",
+      "status": "confirmed",
+      "evidence": "bank 5 status screen"
+    },
+    {
+      "addr": "$017C",
+      "end": "$017E",
+      "name": "bonus_threshold",
+      "what": "The next score-bonus threshold, three digits, compared with $0170-$0172. $017C = $FF ends the bonuses.",
+      "status": "checked",
+      "evidence": "bank 7 $DF3D; bank 0 $80A5-$80B3; run at chosen scores"
+    },
+    {
+      "addr": "$0180",
+      "end": "$0198",
+      "name": "palette_shadow",
+      "what": "The palette the game wants: the backdrop, then 8 palettes of 3 colours (4 background, 4 sprite).",
+      "status": "checked",
+      "evidence": "bank 5 $B2E4; two savestates; the cutscene's backdrop flash writes $0180"
+    },
+    {
+      "addr": "$0199",
+      "end": "$01A0",
+      "name": "palette_slots",
+      "what": "Eight palette slot indices the stream's command 8 writes.",
+      "status": "lead",
+      "evidence": "bank 7 $EE09; bank 4 command 8"
+    },
+    {
+      "addr": "$0200",
+      "end": "$02FF",
+      "name": "oam",
+      "what": "The OAM shadow, copied by DMA every NMI. Sprite 0 is the HUD's raster-split marker; $02F0-$02FF are the status screen's and the credits' own.",
+      "status": "checked",
+      "evidence": "bank 7 NMI; the OAM matches in three savestates"
+    },
+    {
+      "addr": "$0300",
+      "name": "sound_flag",
+      "what": "A sound request / song-done flag: command $94 sets it ($10) after the title song's first pass; the boss routine waits on it.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9D06; bank 3 $93CE-$93E2"
+    },
+    {
+      "addr": "$0306",
+      "name": "sound_busy",
+      "what": "The mask of the four hardware channels in use.",
+      "status": "confirmed",
+      "evidence": "bank 0 sound engine"
+    },
+    {
+      "addr": "$0308",
+      "end": "$0317",
+      "name": "apu_shadow",
+      "what": "The APU register shadow, flushed to $4000-$400F; $FF means skip.",
+      "status": "confirmed",
+      "evidence": "bank 0 $917C"
+    },
+    {
+      "addr": "$0319",
+      "end": "$033B",
+      "name": "sound_channels",
+      "what": "Seven soft channels: field f of channel c at $0319 + 7 f + c.",
+      "status": "confirmed",
+      "evidence": "bank 0 $97E4"
+    },
+    {
+      "addr": "$0400",
+      "end": "$045F",
+      "name": "overlay_slots",
+      "what": "A corridor's eight overlay slots (structures placed over the background): column, repeat count, height, row pointer.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E90F; corridor 15 savestate"
+    },
+    {
+      "addr": "$0411",
+      "end": "$0430",
+      "name": "password_field",
+      "what": "The password screen's 32 characters, each a grid index. Shares the page with the overlay slots, which are not in use on that screen.",
+      "status": "confirmed",
+      "evidence": "bank 3 $88F2"
+    },
+    {
+      "addr": "$0438",
+      "end": "$0457",
+      "name": "password_payload",
+      "what": "The decoded password payload; index i is read to $0439 + i.",
+      "status": "confirmed",
+      "evidence": "bank 3 $859B, $85B0"
+    },
+    {
+      "addr": "$0460",
+      "end": "$0467",
+      "name": "set_ptr_lo",
+      "what": "The low bytes of the eight loaded metatile set windows.",
+      "status": "checked",
+      "evidence": "bank 5 $AD1A; two savestates"
+    },
+    {
+      "addr": "$0468",
+      "end": "$046F",
+      "name": "set_ptr_hi",
+      "what": "The high bytes of the same pointers.",
+      "status": "checked",
+      "evidence": "bank 5 $AD1A"
+    },
+    {
+      "addr": "$0470",
+      "end": "$0477",
+      "name": "set_tile_base",
+      "what": "Each set's tile base.",
+      "status": "checked",
+      "evidence": "bank 5 $AD1A"
+    },
+    {
+      "addr": "$0478",
+      "end": "$047F",
+      "name": "set_spawn_list",
+      "what": "Each set's spawn list: 0-2, an index into the three pointers at bank 5 $803C. The corridor spawner uses it.",
+      "status": "checked",
+      "evidence": "bank 5 $8A16-$8A23; the corridor 0 run"
+    },
+    {
+      "addr": "$0480",
+      "end": "$048F",
+      "name": "loaded_block",
+      "what": "The tile block loaded in each art slot.",
+      "status": "checked",
+      "evidence": "bank 7 $E99F; labyrinth savestate"
+    },
+    {
+      "addr": "$0490",
+      "end": "$049F",
+      "name": "loaded_tile",
+      "what": "The tile position each art slot loaded to.",
+      "status": "checked",
+      "evidence": "bank 7 $E99F"
+    },
+    {
+      "addr": "$04A0",
+      "end": "$04A8",
+      "name": "item_flags",
+      "what": "One flag per item room and miniboss, set when taken or beaten; the password carries them.",
+      "status": "confirmed",
+      "evidence": "bank 7 $EFE0, $EFE9; bank 2 $8669"
+    },
+    {
+      "addr": "$04A9",
+      "end": "$04AB",
+      "name": "areas_cleared",
+      "what": "One bit per corridor, set when its boss is beaten; hides the entrance marker.",
+      "status": "confirmed",
+      "evidence": "bank 7 $EFBA; bank 5 $C07B"
+    },
+    {
+      "addr": "$04AC",
+      "end": "$04AE",
+      "name": "weapon_levels",
+      "what": "Two bits a weapon, weapon 1 in the low bits of $04AC.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FD77"
+    },
+    {
+      "addr": "$04AF",
+      "name": "eraser_count",
+      "what": "Weapon 12 (the Enemy Eraser)'s stock.",
+      "status": "confirmed",
+      "evidence": "bank 5 status screen"
+    },
+    {
+      "addr": "$04B0",
+      "name": "keys",
+      "what": "The keys held, bit k-1 for key k.",
+      "status": "confirmed",
+      "evidence": "bank 7 $F547; bank 3 $8FF5"
+    },
+    {
+      "addr": "$04B3",
+      "end": "$04B8",
+      "name": "tgl_total",
+      "what": "The TGL game's running score total, six digits; / 10,000 gives the reward index $15.",
+      "status": "confirmed",
+      "evidence": "bank 6 $805A-$8093"
+    },
+    {
+      "addr": "$04B9",
+      "end": "$04BE",
+      "name": "corridor_score",
+      "what": "The score as a corridor began; the boss turns it into the points gained, ticking 10 off every 64 frames.",
+      "status": "confirmed",
+      "evidence": "bank 7 $EF86; bank 3 $91A7, $9305"
+    },
+    {
+      "addr": "$04C0",
+      "end": "$04CF",
+      "name": "row_cells",
+      "what": "The 16 cells of the background row being built: metatile ids, then (after drawing) each metatile's fifth byte, which the ground-object spawner reads.",
+      "status": "checked",
+      "evidence": "bank 7 $E8AB; bank 5 $83B3, $89FB; the corridor 0 spawn trace"
+    },
+    {
+      "addr": "$04D0",
+      "end": "$04E7",
+      "name": "palette_saved",
+      "what": "The palette, saved while a screen fades or the status screen is up.",
+      "status": "confirmed",
+      "evidence": "bank 7 $EDD1; bank 5 status screen"
+    },
+    {
+      "addr": "$04F0",
+      "end": "$04F9",
+      "name": "move_history",
+      "what": "The last ten moves in the labyrinth, one direction pushed per move; the loop gates sum them.",
+      "status": "confirmed",
+      "evidence": "bank 7 $EB26-$EB89; bank 5 $A3DB"
+    }
+  ],
+  "object_fields": [
+    {
+      "f": 0,
+      "name": "type",
+      "what": "The object type; bit 7 is set once its handler has initialised it.",
+      "status": "checked",
+      "evidence": "bank 6 $8210-$821E; every savestate"
+    },
+    {
+      "f": 1,
+      "name": "y",
+      "what": "Y position.",
+      "status": "checked",
+      "evidence": "bank 7 $CBFC; the Grimgrin and Fleepa OAM matches"
+    },
+    {
+      "f": 2,
+      "name": "x",
+      "what": "X position.",
+      "status": "checked",
+      "evidence": "bank 7 $CBFC"
+    },
+    {
+      "f": 3,
+      "name": "metasprite",
+      "what": "The metasprite id to draw.",
+      "status": "checked",
+      "evidence": "bank 7 $CC31"
+    },
+    {
+      "f": 4,
+      "name": "attributes",
+      "what": "Sprite attributes: palette in bits 0-1, bit 6 flips horizontally, bit 7 vertically.",
+      "status": "checked",
+      "evidence": "bank 7 $CBFC-$CC2F; Fleepa savestate"
+    },
+    {
+      "f": 5,
+      "name": "collision_flags",
+      "what": "Which sides it collides with (from $D02C); bit 7 skips it. The boss runs zero the player's to make it untouchable.",
+      "status": "checked",
+      "evidence": "bank 7 $D348-$D35F; bank 3 damage routines"
+    },
+    {
+      "f": 6,
+      "name": "hp",
+      "what": "Hit points (from $D0AB).",
+      "status": "confirmed",
+      "evidence": "bank 7 $D30E"
+    },
+    {
+      "f": 7,
+      "name": "attack",
+      "what": "Damage it deals on contact (from $D12A).",
+      "status": "confirmed",
+      "evidence": "bank 7 $D30E"
+    },
+    {
+      "f": 8,
+      "name": "yvel_frac",
+      "what": "Y velocity, fractional byte.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD12"
+    },
+    {
+      "f": 9,
+      "name": "yvel",
+      "what": "Y velocity, signed whole byte.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD12; Fleepa savestate"
+    },
+    {
+      "f": 10,
+      "name": "xvel_frac",
+      "what": "X velocity, fractional byte.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD46"
+    },
+    {
+      "f": 11,
+      "name": "xvel",
+      "what": "X velocity, signed whole byte.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD46"
+    },
+    {
+      "f": 12,
+      "name": "draw_flags",
+      "what": "Drawing flags (from $D1A9), tested bit by bit by the drawer.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CBE8"
+    },
+    {
+      "f": 13,
+      "name": "phase",
+      "what": "Animation / phase counter, whole part ($CD7A: add A, wrap at Y).",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD7A"
+    },
+    {
+      "f": 14,
+      "name": "phase_frac",
+      "what": "The phase counter's fraction.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD7A"
+    },
+    {
+      "f": 15,
+      "name": "target_y",
+      "what": "The y the object accelerates toward ($CD12), or a direction number the aim routine returned - handlers reuse it.",
+      "status": "checked",
+      "evidence": "bank 7 $CD12; bank 6 $9088, $9188; Fleepa savestate $0668 = $10"
+    },
+    {
+      "f": 16,
+      "name": "target_x",
+      "what": "The x the object accelerates toward ($CD46).",
+      "status": "confirmed",
+      "evidence": "bank 7 $CD46; bank 6 $90C1"
+    },
+    {
+      "f": 17,
+      "name": "param",
+      "what": "A spawn parameter handlers pass to the thing they create (a shot's speed class). Meaning varies.",
+      "status": "lead",
+      "evidence": "bank 6 $9108, $A0F5"
+    },
+    {
+      "f": 18,
+      "name": "param2",
+      "what": "A second parameter, set from a per-variant table by the shot handler. Meaning not established.",
+      "status": "lead",
+      "evidence": "bank 6 $A0E9"
+    },
+    {
+      "f": 19,
+      "name": "base_tile",
+      "what": "The base tile the drawer adds to a metasprite's relative tiles ($87).",
+      "status": "checked",
+      "evidence": "bank 7 $CBFC-$CC09; every OAM match"
+    },
+    {
+      "f": 20,
+      "name": "box_x_min",
+      "what": "Hitbox: x minus the metasprite's half width.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D229"
+    },
+    {
+      "f": 21,
+      "name": "box_x_max",
+      "what": "Hitbox: x plus the half width.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D229"
+    },
+    {
+      "f": 22,
+      "name": "box_y_min",
+      "what": "Hitbox: y minus the half height.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D229"
+    },
+    {
+      "f": 23,
+      "name": "box_y_max",
+      "what": "Hitbox: y plus the half height.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D229"
+    },
+    {
+      "f": 24,
+      "name": "aux_hp",
+      "what": "The high part of the hit points ($D385 shifts the hit points into it) and the type an object had when it died.",
+      "status": "lead",
+      "evidence": "bank 7 $D385, $D332"
+    },
+    {
+      "f": 25,
+      "name": "pos_frac",
+      "what": "A position fraction added to the y velocity's fraction by some handlers.",
+      "status": "lead",
+      "evidence": "bank 6 $826D"
+    },
+    {
+      "f": 26,
+      "name": "unknown_26",
+      "what": "Not named.",
+      "status": "lead",
+      "evidence": ""
+    },
+    {
+      "f": 27,
+      "name": "timer",
+      "what": "A countdown handlers use first: an entry timer, a shot direction, a spawned shot's aim.",
+      "status": "checked",
+      "evidence": "bank 6 $9088, $9188, $A0C6; Fleepa savestate $0788 = 0"
+    },
+    {
+      "f": 28,
+      "name": "state",
+      "what": "A state or counter: the boss's state byte, a spawned shot's variant.",
+      "status": "checked",
+      "evidence": "bank 6 $93DC; Grimgrin savestate $07A0 = $1F"
+    },
+    {
+      "f": 29,
+      "name": "aux3",
+      "what": "Per-handler scratch (a fire delay, a stage index).",
+      "status": "lead",
+      "evidence": "bank 6 $B851"
+    },
+    {
+      "f": 30,
+      "name": "aux4",
+      "what": "Per-handler scratch (an animation length, a mask).",
+      "status": "lead",
+      "evidence": "bank 3 $952E"
+    },
+    {
+      "f": 31,
+      "name": "block_base",
+      "what": "The tile block base the object's art loaded to; $CF8D copies it from $06C8 at spawn, handlers move $06C8 and leave this.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CF8D"
+    }
+  ],
+  "bits": {
+    "$30": [
+      {
+        "bit": 7,
+        "what": "Demo (attract mode): set by the demo's setup and tested at $EB9C and by the award code.",
+        "status": "confirmed",
+        "evidence": "bank 0 $8143; bank 7 $EB4F, $DFBC"
+      },
+      {
+        "bit": 6,
+        "what": "A corridor or a special screen is running (set at corridor start by $EF97 = ORA #$50, and by $F2C3 = ORA #$48).",
+        "status": "lead",
+        "evidence": "bank 7 $EF93-$EF99, $F2C3, $EC0C"
+      },
+      {
+        "bit": 5,
+        "what": "A labyrinth special screen: the room drawer takes its special path.",
+        "status": "confirmed",
+        "evidence": "bank 5 $A749; bank 7 $EE1D"
+      },
+      {
+        "bit": 4,
+        "what": "Tested in the NMI; set at corridor start with bit 6.",
+        "status": "lead",
+        "evidence": "bank 7 $EF97"
+      },
+      {
+        "bit": 3,
+        "what": "Set with bit 6 when a corridor loads; cleared at $F446.",
+        "status": "lead",
+        "evidence": "bank 7 $F2C3, $F446"
+      },
+      {
+        "bit": 2,
+        "what": "Quiet: no score-bonus jingle ($DF80); set while the score is zeroed at game start.",
+        "status": "confirmed",
+        "evidence": "bank 7 $DF80; bank 0 $80C4"
+      },
+      {
+        "bit": 1,
+        "what": "The TGL game.",
+        "status": "checked",
+        "evidence": "bank 3 $857A; bank 7 $ECEA; the two endings"
+      }
+    ],
+    "$A0": [
+      {
+        "bit": 0,
+        "what": "End of stage: set when a boss is beaten (corridor) or a room exit is taken; the scroll step tests it and jumps to $EB18.",
+        "status": "confirmed",
+        "evidence": "bank 3 $93E8, $90C1; bank 7 $E659"
+      },
+      {
+        "bit": 1,
+        "what": "The player died (or left a labyrinth room): tested at $EB8C.",
+        "status": "confirmed",
+        "evidence": "bank 3 $9009, bank 1 $8044; bank 7 $EB8C"
+      },
+      {
+        "bit": 2,
+        "what": "A new background row came in: set by the row builder, cleared by $E659; spawn waits count it.",
+        "status": "confirmed",
+        "evidence": "bank 7 $E98F, $E659"
+      },
+      {
+        "bit": 7,
+        "what": "A draw or flush request: $DD54 calls $D507 when it is set.",
+        "status": "lead",
+        "evidence": "bank 7 $DD54, $E522"
+      }
+    ]
+  }
+}

@@ -545,6 +545,30 @@ def _enemy_names() -> dict:
     return {int(k): v for k, v in m.items()}
 
 
+RAM_JSON = Path(__file__).resolve().parents[2] / "annotations" / "ram.json"
+RAM_STATUSES = ("confirmed", "checked", "lead")
+
+
+def _ram_data():
+    """annotations/ram.json, validated: addresses parse and lie in RAM, statuses are known."""
+    if not RAM_JSON.exists():
+        return None
+    import json as _json
+    d = _json.loads(RAM_JSON.read_text(encoding="utf-8"))
+    for e in d["entries"]:
+        a = int(e["addr"].lstrip("$"), 16)
+        b = int(e["end"].lstrip("$"), 16) if "end" in e else a
+        if not (0 <= a <= b < 0x800):
+            raise AnnotationError(f'ram.json entry {e["name"]}: {e["addr"]}-{e.get("end", "")} '
+                                  "is not inside $0000-$07FF")
+        if e["status"] not in RAM_STATUSES:
+            raise AnnotationError(f'ram.json entry {e["name"]}: unknown status {e["status"]}')
+    for e in d["object_fields"]:
+        if e["status"] not in RAM_STATUSES:
+            raise AnnotationError(f'ram.json field {e["name"]}: unknown status {e["status"]}')
+    return d
+
+
 def _topic_pages(rm):
     """(filename, nav label, blurb, count text) for each topic page that has content.
 
@@ -555,6 +579,12 @@ def _topic_pages(rm):
         n = len(select(rm.regions))
         if n:
             out.append((fname, label, blurb, f"{n:,} regions"))
+    ramd = _ram_data()
+    if ramd:
+        out.append(("ram.html", "RAM map",
+                    "What the console's 2 KB of RAM holds: every byte the traced code touches, "
+                    "which banks use it, and what is known about the named ones.",
+                    f'{len(ramd["entries"])} entries'))
     ext = _external()
     if ext and ext["facts"]:
         out.append(("external.html", "Outside sources",
@@ -3401,6 +3431,146 @@ def _ending_page(rm, out=None):
     return "".join(p)
 
 
+def _ram_page(rm):
+    """The RAM map: hand-authored names (annotations/ram.json) beside a generated
+    cross-reference of every access in the traced code (tools/tgl/ram.py)."""
+    from tgl import ram as ramx
+    d = _ram_data()
+    x = ramx.build(rm)
+
+    def num(sv):
+        return int(sv.lstrip("$"), 16)
+
+    named = set()
+    for e in d["entries"]:
+        named.update(range(num(e["addr"]), num(e.get("end", e["addr"])) + 1))
+
+    def acc(a, b):
+        hit = [(k, x[k]) for k in range(a, b + 1) if k in x]
+        if not hit:
+            return "&mdash;"
+        r = sum(v["r"] for _, v in hit)
+        w = sum(v["w"] for _, v in hit)
+        m = sum(v["m"] for _, v in hit)
+        banks = sorted({bk for _, v in hit for bk in v["banks"]})
+        return (f'<span class="mono">{r}r {w}w {m}m</span><br><span class="meta">bank'
+                f'{"s" if len(banks) > 1 else ""} {", ".join(map(str, banks))}</span>')
+
+    def stat(st):
+        return f'<span class="conf {"lead" if st == "lead" else ""}">{_h(st)}</span>'
+
+    p = ["<h1>RAM map</h1>",
+         '<p class="sub">The console has 2 KB of RAM and the game uses nearly all of it. Two '
+         "things are on this page and they are kept apart: <strong>a cross-reference</strong> "
+         "generated from every instruction in the traced code, and <strong>names</strong> written "
+         "by hand, each with where the meaning was read. A byte with a cross-reference and no "
+         "name is a to-do, not a mystery solved.</p>"]
+    touched = len(x)
+    cov = sum(1 for k in x if k in named)
+    reads = sum(v["r"] for v in x.values())
+    writes = sum(v["w"] for v in x.values())
+    mods = sum(v["m"] for v in x.values())
+    p.append(_stats([("addresses touched", f"{touched} of 2,048"),
+                     ("accesses seen", f"{reads + writes + mods:,}"),
+                     ("named entries", str(len(d["entries"]))),
+                     ("touched bytes named", f"{cov} ({cov * 100 // touched}%)")]))
+    p.append('<div class="note warn"><strong>How to read the counts.</strong> "5r 2w 1m" is five '
+             "reads, two writes and one read-modify-write (INC, DEC, shifts) in the traced code. "
+             "An indexed access (<code>LDA $0500,X</code>) is counted on the array's base only, "
+             "so the object slots show on the field's first byte. Code the trace has not reached "
+             "is not counted: <strong>no accesses is not evidence a byte is unused</strong>. "
+             "Status: <em>confirmed</em> = read from the code that uses it; <em>checked</em> = "
+             "also matched to a savestate or a run of the code; <em>lead</em> = a reading of "
+             "some uses, not settled.</div>")
+
+    p.append("<h2>The map</h2>")
+    rows = []
+    for rg in d["ranges"]:
+        a, b = num(rg["from"]), num(rg["to"])
+        t = sum(1 for k in x if a <= k <= b)
+        nmd = sum(1 for k in x if a <= k <= b and k in named)
+        rows.append(f"<tr><td><code>{rg['from']}-{rg['to']}</code></td><td><strong>"
+                    f"{_h(rg['name'])}</strong></td><td>{_h(rg['what'])}</td>"
+                    f'<td class="mono">{t} touched, {nmd} named</td></tr>')
+    p.append("<table><thead><tr><th>Range</th><th>What</th><th>Notes</th><th>Coverage</th>"
+             f"</tr></thead><tbody>{''.join(rows)}</tbody></table>")
+
+    def table(title, anchor, lo, hi, intro=""):
+        es = [e for e in d["entries"] if lo <= num(e["addr"]) <= hi]
+        out = [f'<h2 id="{anchor}">{title}</h2>']
+        if intro:
+            out.append(f'<p class="sub">{intro}</p>')
+        trs = []
+        for e in es:
+            a = num(e["addr"])
+            b = num(e["end"]) if "end" in e else a
+            rng = e["addr"] + (f"-{e['end']}" if "end" in e else "")
+            trs.append(f"<tr><td><code>{rng}</code></td><td><code>{_h(e['name'])}</code></td>"
+                       f"<td>{_h(e['what'])}</td><td>{stat(e['status'])}</td><td>{acc(a, b)}</td>"
+                       f'<td class="meta">{_h(e["evidence"])}</td></tr>')
+        out.append("<table><thead><tr><th>Address</th><th>Name</th><th>What it holds</th>"
+                   "<th>Status</th><th>Accesses</th><th>Where it was read</th></tr></thead>"
+                   f"<tbody>{''.join(trs)}</tbody></table>")
+        return out
+
+    p += table("Zero page", "zeropage", 0x00, 0xFF,
+               "Fast scratch and the game's hottest state. The scratch bytes <code>$10-$19</code> "
+               "are shared by everything and mean what the caller says.")
+    for key, label in (("$30", "<code>$30</code> - game mode bits"),
+                       ("$A0", "<code>$A0</code> - stage event bits")):
+        rows = "".join(f'<tr><td>bit {b["bit"]}</td><td>{_h(b["what"])}</td><td>{stat(b["status"])}'
+                       f'</td><td class="meta">{_h(b["evidence"])}</td></tr>'
+                       for b in sorted(d["bits"][key], key=lambda b: -b["bit"]))
+        p.append(f"<h3>{label}</h3><table><thead><tr><th>Bit</th><th>Meaning</th><th>Status</th>"
+                 f"<th>Where it was read</th></tr></thead><tbody>{rows}</tbody></table>")
+    p += table("Page 1: queue, stack and buffers", "page1", 0x100, 0x1FF,
+               "The PPU write queue is staged from <code>$0100</code> upward and the stack "
+               "grows down from <code>$01FF</code>; the password decoder, the score and the "
+               "palette shadow live between them.")
+    p += table("Page 2: OAM", "page2", 0x200, 0x2FF)
+    p += table("Page 3: sound", "page3", 0x300, 0x3FF)
+    p += table("Page 4: stage and progress state", "page4", 0x400, 0x4FF,
+               "Entries here can overlap in time: the password screen's field "
+               "(<code>$0411-$0430</code>) uses bytes the corridor overlay slots use in play.")
+
+    p.append('<h2 id="objects">Pages 5-7: object slots</h2>')
+    p.append('<p class="sub">24 slots; slots 0-4 are the player\'s side and <code>$EA8C</code> '
+             "allocates 5-23. <strong>Field f of slot s is at <code>$0500 + $18 f + s</code></strong>. "
+             "Handlers reuse the generic fields for their own purpose (a boss's "
+             "<code>$0668</code> is a target y in one handler and an aim direction in "
+             "another), which is why some descriptions say &ldquo;or&rdquo;.</p>")
+    trs = []
+    for f in d["object_fields"]:
+        base = 0x500 + 0x18 * f["f"]
+        trs.append(f'<tr><td class="mono">{f["f"]}</td><td><code>${base:04X}</code></td>'
+                   f"<td><code>{_h(f['name'])}</code></td><td>{_h(f['what'])}</td>"
+                   f"<td>{stat(f['status'])}</td><td>{acc(base, base)}</td>"
+                   f'<td class="meta">{_h(f["evidence"])}</td></tr>')
+    p.append("<table><thead><tr><th>f</th><th>Slot 0</th><th>Name</th><th>What it holds</th>"
+             "<th>Status</th><th>Accesses (base)</th><th>Where it was read</th></tr></thead>"
+             f"<tbody>{''.join(trs)}</tbody></table>")
+
+    p.append('<h2 id="todo">The busiest unnamed bytes</h2>')
+    p.append('<p class="sub">Touched by the traced code, in no entry above, most accesses first. '
+             "These are what to read next.</p>")
+    un = sorted((k for k in x if k not in named and k < 0x500),
+                key=lambda k: -(x[k]["r"] + x[k]["w"] + x[k]["m"]))[:40]
+    trs = []
+    for k in un:
+        v = x[k]
+        sites = ", ".join(f"{bk}:${pc:04X}" for bk, pc, _ in v["sites"][:3])
+        trs.append(f'<tr><td><code>${k:04X}</code></td><td>{acc(k, k)}</td>'
+                   f'<td class="meta">first sites (bank:addr) {sites}</td></tr>')
+    p.append("<table><thead><tr><th>Address</th><th>Accesses</th><th>Where</th></tr></thead>"
+             f"<tbody>{''.join(trs)}</tbody></table>")
+    p.append('<div class="note"><strong>Not covered.</strong> Pages 5-7 are all object-slot '
+             "arrays, so they are described by field above rather than listed byte by byte. "
+             "The sound engine's per-channel fields beyond <code>$0319</code>, most of the "
+             "<code>$0400</code> page's tail and about half the zero page's scratch have no "
+             "entry yet.</div>")
+    return "".join(p)
+
+
 def _labyrinth_rooms(rm) -> str:
     """How a room is encoded, and where the entrances, key doors, items and minibosses are."""
     import sys
@@ -3869,6 +4039,8 @@ def build_site(rm, out: Path) -> list[str]:
         pages["labyrinth.html"] = _labyrinth_page(rm)
     if _external():
         pages["external.html"] = _external_page(rm)
+    if _ram_data():
+        pages["ram.html"] = _ram_page(rm)
     if any(r.get("source") == ENEMY_SOURCE for r in rm.regions):
         pages["enemies.html"] = _enemies_page(rm, out)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
@@ -3915,6 +4087,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Enemies - {rm.meta["title"]}' if name == "enemies.html"
                  else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
                  else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
+                 else f'RAM map - {rm.meta["title"]}' if name == "ram.html"
                  else f'Demo - {rm.meta["title"]}' if name == "demo.html"
                  else f'Ending - {rm.meta["title"]}' if name == "ending.html"
                  else f'Corridors - {rm.meta["title"]}' if name == "corridors.html"
