@@ -276,9 +276,9 @@
       "source": "owner",
       "pages": "-",
       "topic": "Enemies",
-      "claim": "Object types $18/$19 are Eyegore, $23 Zibzub, $24-$26 Clawbot, $2D-$2F Optomon, $40/$41 Fleepa, $45 Crawdaddy, $46 Teramute, $47 Glider, $48/$49 Grimgrin, $4C/$4D Bombarder, $4F It.",
+      "claim": "Object types $18/$19 are Eyegore, $23 Zibzub, $24-$26 Clawbot, $2D-$2F Optomon, $40/$41 Fleepa, $45 Crawdaddy, $46 Teramute, $47 Glider, $48/$49 Grimgrin, $4C/$4D Bombarder, $4F It. It is the final boss, fought in a short corridor after corridor 21 and a cutscene.",
       "status": "consistent",
-      "rom": "Every one of these types is a corridor boss: they are exactly the values of bank 3 $9151 (boss type by corridor) apart from $06 - Eyegore corridors 9 and 10, Zibzub 5, Clawbot 14, 15 and 20, Optomon 3, 11 and 16, Fleepa 1 and 12, Crawdaddy 2, Teramute 4, Glider 6, Grimgrin 8 and 18, Bombarder 13 and 19 (and corridor 21's table slot), It table index 22. Same-name types share a bank 6 handler (the three Clawbots, the two Eyegores, Optomons, Grimgrins), which fits one name per handler. The manual's nine names (fact 'enemies') are all accounted for; Glider and It are not in the manual. Only Fleepa is tied by hardware (fact 'fleepa-corridor-1'); the rest rest on the owner's word and that structure. Types are decimal in this map's keys.",
+      "rom": "Every one of these types is a corridor boss: they are exactly the values of bank 3 $9151 (boss type by corridor) apart from $06 - Eyegore corridors 9 and 10, Zibzub 5, Clawbot 14, 15 and 20, Optomon 3, 11 and 16, Fleepa 1 and 12, Crawdaddy 2, Teramute 4, Glider 6, Grimgrin 8 and 18, Bombarder 13 and 19 (and corridor 21's table slot), It corridor 22 - confirmed by the code: $ECDC does INC $51 after corridor 21's cutscene, and $9151[22] = $4F; corridor 21 itself names six bosses by command 5. Same-name types share a bank 6 handler (the three Clawbots, the two Eyegores, Optomons, Grimgrins), which fits one name per handler. The manual's nine names (fact 'enemies') are all accounted for; Glider and It are not in the manual. Only Fleepa is tied by hardware (fact 'fleepa-corridor-1'); the rest rest on the owner's word and that structure. Types are decimal in this map's keys.",
       "enemy_names": {
         "24": "Eyegore",
         "25": "Eyegore",

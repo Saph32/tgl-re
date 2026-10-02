@@ -348,7 +348,7 @@ Do not re-derive these; do check anything that depends on them.
     every 16 px (`$AF`), row counter `$B0/$B1` = the stage clock. `docs/corridors.html`.
     **Per corridor:** `tools/tgl/corridor.py` walks one corridor's block (records with the row
     each fires on), its placements, strips and palette slots, and draws them with PIL;
-    `docs/corridor-00.html`…`-21.html` show every strip and structure. **Hardware (corridor 15
+    `docs/corridor-00.html`…`-22.html` show every strip and structure. **Hardware (corridor 15
     savestate):** all 8 palette slots predicted exactly; new rows enter at the top — nametable
     rows 8→3 hold strip rows 0,1,2,3,4,0 upward and the 1×2 pillars stack row 1 over row 0 —
     so pictures put a structure's first row at the bottom. Metatile ids are ambiguous on
@@ -716,7 +716,7 @@ Do not re-derive these; do check anything that depends on them.
   screen positions) use absolute tiles and are listed, not drawn. The page's tile runs now
   follow bank 4's corridor streams too, so corridor bosses are no longer drawn with holes.
   Bank 3 `$9151` = boss type by corridor.
-- **Boss behaviour (read from the code; only Fleepa's setup checked against a savestate).** Names from the owner (`external.json` fact `enemy-names`, status consistent): `$18`/`$19` Eyegore, `$23` Zibzub, `$24`-`$26` Clawbot, `$2D`-`$2F` Optomon, `$40`/`$41` Fleepa, `$45` Crawdaddy, `$46` Teramute, `$47` Glider, `$48`/`$49` Grimgrin, `$4C`/`$4D` Bombarder, `$4F` It - every one a corridor boss; the manual's nine names are all placed, Glider and It are not in the manual; only Fleepa is hardware-tied. Non-boss enemies are still unnamed. The
+- **Boss behaviour (read from the code; only Fleepa's setup checked against a savestate).** Names from the owner (`external.json` fact `enemy-names`, status consistent): `$18`/`$19` Eyegore, `$23` Zibzub, `$24`-`$26` Clawbot, `$2D`-`$2F` Optomon, `$40`/`$41` Fleepa, `$45` Crawdaddy, `$46` Teramute, `$47` Glider, `$48`/`$49` Grimgrin, `$4C`/`$4D` Bombarder, `$4F` It (the final boss, corridor 22) - every one a corridor boss; the manual's nine names are all placed, Glider and It are not in the manual; only Fleepa is hardware-tied. Non-boss enemies are still unnamed. The
   boss type is `$9151[corridor]` (bank 3 `$91C3`) -> `$72`, spawned by bank 3 `$92E5`; each type's
   code is its bank 6 handler (the split table at `$80DE`/`$815D`), some of which only far-call
   into bank 3 or 1. There is **no shared boss engine**: each handler is its own state machine
@@ -739,8 +739,18 @@ Do not re-derive these; do check anything that depends on them.
   re-pick a random position every 120-frame cycle (blink in, attack, blink out, hidden) and
   re-aim once per cycle; `$46` sweeps a fan around that aim, `$4C`/`$4D` fire 16 shots.
   Corridors 7 and 17 list type `$06` (bank 6 `$A889`, a ground object that waits for scroll
-  speed 0 and dies when types `$36`/`$37`/`$7E`/`$7F` are gone) and corridor 21 skips `$72`
-  (`CPY #$15`): both LEADS, not read through. **Whether a bullet steers is open:** type `$27`
+  speed 0 and dies when types `$36`/`$37`/`$7E`/`$7F` are gone): a LEAD, not read through.
+  **CORRECTION - corridor 22 exists, and corridor 21 is a boss gauntlet.** The owner said "It"
+  is the final boss in a mini corridor after a cutscene; the code agrees: at the end of corridor
+  21 `$ECC7` far-calls bank 0, then `$ECDC` does `INC $51` and `JMP $EC94`, loading corridor 22
+  (`$F28C`/`$F5FA`/`$F667` all test `$51 == $16`). `$9151[22]` = `$4F` = It; the table's 23rd
+  entry was the unexplained one. Corridor 21 never reads `$9151`: `$E79F` makes command 5's
+  operand the boss type (`$72`), and its stream names, at rows 58/150/220/320/410/480, Fleepa,
+  Zibzub, Clawbot (`$25`), Optomon (`$2F`), Grimgrin (`$48`), Bombarder (`$4D`). Corridor 22's
+  stream is bank 4 table entry 24 (`$8511`, 11 records: a short starfield, scene `$EF55[22]` =
+  32, command 5 at row 100); its music would be `$EF2A[22]` = `$EF40`'s first byte (song 25) - a
+  LEAD, read past the table's end. Earlier text here said "after 21 the ending" and that the
+  corridors are 1-21; both were wrong. Not traced: what follows corridor 22. **Whether a bullet steers is open:** type `$27`
   (`$A0C6`) can re-aim at the player when its `$07A0` timer reaches 0; which spawners use it is
   not worked out. Direction numbering 0/4/8/12 = down/right/up/left is from `$F95E` against
   `$F986`; which way each boss's counter-driven fan points on screen is not checked.
@@ -770,8 +780,8 @@ Do not re-derive these; do check anything that depends on them.
 - **The TGL game: corridors only (owner's claim, CONFIRMED from the code).** `$30` bit 1.
   A new game (`$EB18`) starts corridor 0; at each corridor end `$ECE7` sends a normal game
   back to the labyrinth but the TGL game to bank 3 `$80A0` (YOU GOT ITEM), then
-  `$51 = $ED08[$77++]` — 1, 11, 12, 2, 13, 3, … 10, 21, every corridor once — and after 21
-  the ending. **Rewards by score:** corridor start copies the score to `$04B9` (`$EF86`), the
+  `$51 = $ED08[$77++]` — 1, 11, 12, 2, 13, 3, … 10, 21, every corridor once — and after 21 the
+  cutscene and corridor 22 (see the boss entry; what follows 22 is not traced). **Rewards by score:** corridor start copies the score to `$04B9` (`$EF86`), the
   boss turns it into points gained (bank 3 `$91A7`) and ticks 10 off every 64 frames of the
   fight (`$9305`); bank 6 `$805A` adds it to a running total `$04B3` and sets `$15` = total /
   10,000 displayed points. `$80E7` gives each `$817A` entry from `$76` on whose threshold ≤
@@ -845,9 +855,9 @@ authoritative, up-to-date version of this list; what follows is what does not li
 1. **Name the remaining (non-boss) enemy types.** The bosses are named (see the boss entry);
    the manual's nine names are all placed. A savestate with known enemies on screen would
    settle it, and `parse-metasprites.py --verify` would check their shapes.
-2. **The last 35 unclaimed bytes**, none with a reader found: bank 0 `$82BD` (8) and
+2. **The last 34 unclaimed bytes**, none with a reader found: bank 0 `$82BD` (8) and
    `$BF04` (3), bank 5 `$84C3` (8), bank 6 `$A9BA` (5) and `$B902` (2), bank 7 `$EEC4` (8)
-   and `$EF6B` (1, one past `$EF55`'s 22 entries). Then the leads: `build.py` counts them,
+   (`$EF6B` is now claimed: the 23rd entry of `$EF55`, corridor 22's scene.) Then the leads: `build.py` counts them,
    and past 97% most of the coverage is leads. Which rooms take the room drawer's special
    path (`$30` bits 5-6).
 3. **The five bank 5 spawn scripts that end on a jump**, and corridor 16's.

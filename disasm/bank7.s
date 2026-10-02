@@ -5007,13 +5007,10 @@ L7_EEE0:
         .byte   $19,$07,$09,$0C,$00,$0B,$06,$0A,$03,$06,$0B,$04,$08,$0F,$0D,$11
         .byte   $01,$09,$05,$0F,$0E
 
-; ---- bank7.tbl_EF55 (data) $EF55-$EF6A, 22 bytes
+; ---- bank7.tbl_EF55 (data) $EF55-$EF6B, 23 bytes
 ; Corridor scene, by corridor
         .byte   $20,$21,$21,$22,$22,$23,$23,$24,$24,$26,$26,$21,$21,$22,$22,$23
-        .byte   $23,$24,$24,$25,$25,$25
-
-; ---- UNCLAIMED (gap) $EF6B-$EF6B, 1 bytes
-        .byte   $20
+        .byte   $23,$24,$24,$25,$25,$25,$20
 
 ; ---- bank7.code_EF6C (code) $EF6C-$EFD7, 108 bytes
 L7_EF6C:

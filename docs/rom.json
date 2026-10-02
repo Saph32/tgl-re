@@ -175,9 +175,9 @@
     }
   },
   "coverage": {
-    "documented_bytes": 131053,
+    "documented_bytes": 131054,
     "total_bytes": 131088,
-    "percent": 99.9733,
+    "percent": 99.9741,
     "region_count": 1344
   },
   "regions": [
@@ -20611,15 +20611,15 @@
     {
       "id": "bank7.tbl_EF55",
       "offset": 126821,
-      "size": 22,
+      "size": 23,
       "kind": "data",
       "name": "Corridor scene, by corridor",
       "confidence": "confirmed",
       "cpu_addr": 61269,
-      "sha1": "d7a59978790f459f276c827d11626d7f5b879669",
-      "description": "$EF74: LDY $51 / $EF76 LDA $EF55,Y / STA $5C / JSR bank 5 $8000 - the scene (tiles, metatile sets, palettes, see tools/tgl/scene.py) each corridor loads after scene 1. 22 entries, corridors 0-21, ending exactly where the code at $EF6C begins. Values 32 for corridor 0, then pairs 33-38; 11-20 repeat 1-10. HARDWARE: a savestate in corridor 15 has $5C = $23 = $EF55[15].",
+      "sha1": "c0c3856d5f0d4ec326e2e7f4aee339c3361f4ae4",
+      "description": "$EF74: LDY $51 / $EF76 LDA $EF55,Y / STA $5C / JSR bank 5 $8000 - the scene (tiles, metatile sets, palettes, see tools/tgl/scene.py) each corridor loads after scene 1. 23 entries, corridors 0-22, ending exactly where the code at $EF6C begins. CORRECTION: this said 22 and left $EF6B unclaimed; corridor 22, the final one (reached by INC $51 at $ECDC after corridor 21's scene), reads it - scene 32, as corridor 0 does. Values 32 for corridor 0, then pairs 33-38; 11-20 repeat 1-10. HARDWARE: a savestate in corridor 15 has $5C = $23 = $EF55[15].",
       "source": "74-small-tables.json",
-      "end": 126843,
+      "end": 126844,
       "segment": "prg",
       "prg_bank": 7,
       "fields": []
@@ -22017,14 +22017,6 @@
       "segment": "prg",
       "prg_bank": 7,
       "cpu_addr": 61124
-    },
-    {
-      "offset": 126843,
-      "size": 1,
-      "end": 126844,
-      "segment": "prg",
-      "prg_bank": 7,
-      "cpu_addr": 61291
     }
   ]
 }

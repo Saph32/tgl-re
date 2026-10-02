@@ -416,6 +416,49 @@ def _external():
     return d
 
 
+def _boss_section(rm, names) -> str:
+    """Movement and fire of each corridor boss, from tools/tgl/boss.py."""
+    from tgl import boss
+    b3 = rm.prg_bank(3)
+    corr = {}
+    for c in range(23):
+        if c != 21:                    # slot 21 is never read: corridor 21 uses command 5
+            corr.setdefault(b3[0x9151 - 0x8000 + c], []).append(c)
+    out = ['<h2 id="boss-behaviour">How the corridor bosses move and fire</h2>',
+           '<p class="sub">There is no shared boss engine: the boss type for a corridor comes '
+           "from bank 3 <code>$9151</code>, and each type's behaviour is its own state machine "
+           "in bank 6, built from a few shared routines. Whether a boss follows the player "
+           "is therefore a property of each handler.</p>",
+           '<div class="note warn"><strong>Read from the code, not observed.</strong> Only '
+           "Fleepa's setup values are checked against a savestate (target y <code>$10</code>, "
+           "mask <code>$0F</code>, and a y and velocity matching the bounce its code implies). "
+           "Direction numbers are 0-15 in 22.5&deg; steps; 0/4/8/12 are down/right/up/left.</div>",
+           "<table><thead><tr><th>Routine</th><th>What it does</th></tr></thead><tbody>"]
+    for addr, what in boss.PRIMITIVES:
+        out.append(f"<tr><td><code>{_h(addr)}</code></td><td>{_h(what)}</td></tr>")
+    out.append("</tbody></table>")
+    out.append('<div style="overflow-x:auto"><table><thead><tr><th>Boss</th><th>Corridors</th>'
+               "<th>Follows the player?</th><th>Movement</th><th>Fire</th><th>Handler</th>"
+               "</tr></thead><tbody>")
+    for types, kind, handler, move, fire in boss.BEHAVIOUR:
+        nm = sorted({names[t] for t in types if t in names})
+        cs = sorted(c for t in types for c in corr.get(t, []))
+        label = " / ".join(nm) if nm else "unnamed"
+        label += "<br>" + ", ".join(f"<code>${t:02X}</code>" for t in types)
+        out.append(f"<tr><td>{label}</td><td>{', '.join(str(c) for c in cs) or '&mdash;'}</td>"
+                   f"<td><strong>{_h(boss.FOLLOW[kind])}</strong></td><td>{_h(move)}</td>"
+                   f"<td>{_h(fire)}</td><td>{_h(handler)}</td></tr>")
+    out.append("</tbody></table></div>")
+    out.append(f'<div class="note">{boss.NOT_READ}</div>')
+    return "".join(out)
+
+
+def _tn(t) -> str:
+    """' Name' for an object type the owner named, else ''."""
+    n = _enemy_names().get(t)
+    return f" <strong>{_h(n)}</strong>" if n else ""
+
+
 def _enemy_names() -> dict:
     """Object type -> the owner's name for it (external.json fact enemy-names)."""
     ext = _external() or {"facts": []}
@@ -1236,7 +1279,7 @@ def _graphics_page(rm) -> str:
             cells.append(f'anim <code>${a:04X}</code> '
                          + ("&rarr; " + " ".join(str(x) for x in v) if v
                             else "<em>(empty &mdash; first byte is not an id)</em>"))
-        p.append(f'<tr><td><code>${r["type"]:02X}</code></td>'
+        p.append(f'<tr><td><code>${r["type"]:02X}</code>{_tn(r["type"])}</td>'
                  f'<td><code>${r["handler"]:04X}</code></td>'
                  f'<td>{" &middot; ".join(cells)}</td></tr>')
     p.append("</tbody></table></div>")
@@ -2154,6 +2197,7 @@ def _enemies_page(rm):
              "differently: the damage is divided by the player's own <code>$0590</code> "
              "first.</div>")
 
+    p.append(_boss_section(rm, _enemy_names()))
     p.append("<h2>Every type</h2>")
     p.append('<p class="sub">From <code>$D02C</code> (flags), <code>$D0AB</code> (HP), '
              "<code>$D12A</code> (attack), <code>$E00D</code>/<code>$E08C</code> (score), "
@@ -2208,7 +2252,8 @@ def _enemies_page(rm):
             art += (f'<span class="meta">drawn in pieces: {_h(msp.UNDRAWN[t])}</span>')
         pts = enemy.score(b7, v["score_class"])
         rows.append(f'<tr><td><code>${t:02X}</code>'
-                    + (f'<br><strong>{_h(ename[t])}</strong>' if t in ename else '')
+                    + (f'<br><strong>{_h(ename[t])}</strong> <a href="#boss-behaviour">behaviour</a>'
+                       if t in ename else '')
                     + f'</td><td class="mono">{v["hp"]}</td>'
                     f'<td class="mono">{"per object" if pts is None else pts}</td>'
                     f'<td class="mono">{v["attack"]}</td>'
@@ -2255,9 +2300,9 @@ def _enemies_page(rm):
         parts = []
         for e in ev:
             if e[0] == "formation":
-                parts.append(f"formation <code>${e[1]:02X}</code> &times; {e[2]} / {e[3]}")
+                parts.append(f"formation <code>${e[1]:02X}</code>{_tn(e[1])} &times; {e[2]} / {e[3]}")
             elif e[0] == "spawn":
-                parts.append(f"spawn <code>${e[1]:02X}</code>")
+                parts.append(f"spawn <code>${e[1]:02X}</code>{_tn(e[1])}")
             elif e[0] in ("delay", "wait"):
                 parts.append(f"wait {e[1]}")
             elif e[0] == "jump":
@@ -2485,6 +2530,24 @@ def _corridors_page(rm):
 
     p.append('<p class="desc"><strong>Each corridor, with its structures drawn:</strong> ' + " &middot; ".join(
         f'<a href="{_corridor_page_name(c)}">{c}</a>' for c in CORRIDOR_PAGES) + "</p>")
+    from tgl import corridor as cr
+    _b3 = rm.prg_bank(3)
+    _rows = []
+    for c in CORRIDOR_PAGES:
+        if c == 21:
+            ts = []
+            for r in sorted([x for x in cr.records(rm.prg_bank(4), 21) if x["cmd"] == 5],
+                            key=lambda x: x["row"]):
+                t = rm.prg_bank(4)[r["addr"] + 1 - 0x8000]
+                if t not in ts:
+                    ts.append(t)
+            cell = ", ".join(f"<code>${t:02X}</code>{_tn(t)}" for t in ts) + " (a gauntlet, by command 5)"
+        else:
+            t = _b3[0x9151 - 0x8000 + c]
+            cell = f"<code>${t:02X}</code>{_tn(t)}"
+        _rows.append(f'<tr><td><a href="{_corridor_page_name(c)}">{c}</a></td><td>{cell}</td></tr>')
+    p.append("<table><thead><tr><th>Corridor</th><th>Boss type (bank 3 <code>$9151</code>)</th></tr>"
+             f"</thead><tbody>{''.join(_rows)}</tbody></table>")
 
     # ------------------------------------------------------------------ overview
     p.append('<h2 id="overview">Where a corridor comes from</h2>')
@@ -2686,7 +2749,7 @@ def _corridors_page(rm):
     return "".join(p)
 
 
-CORRIDOR_PAGES = range(0, 22)         # corridor 0 is the opening flight; 1-21 the stages
+CORRIDOR_PAGES = range(0, 23)         # 0 the opening flight; 1-21 the stages; 22 the final corridor
 
 
 def _corridor_page_name(c: int) -> str:
@@ -2722,7 +2785,15 @@ def _corridor_page(rm, c: int, out: Path | None = None) -> str:
               if r["cmd"] == 0]
     song = b7[cr.MUSIC - 0xC000 + c]
     boss = b3[0x9151 - 0x8000 + c] if c != 21 else None
-    title = "Corridor 0 &mdash; the opening flight" if c == 0 else f"Corridor {c}"
+    title = ("Corridor 0 &mdash; the opening flight" if c == 0 else
+             "Corridor 22 &mdash; the final corridor" if c == 22 else f"Corridor {c}")
+    gauntlet = []
+    if c == 21:                        # $E7AF: command 5 in area 21 carries the boss type
+        seen = set()
+        for r in sorted(recs, key=lambda r: r["row"]):
+            if r["cmd"] == 5 and r["addr"] not in seen:
+                seen.add(r["addr"])
+                gauntlet.append((r["row"], b4[r["addr"] + 1 - 0x8000]))
 
     prev_ = f'<a href="{_corridor_page_name(c - 1)}">&larr; corridor {c - 1}</a>' if c > 0 else ""
     next_ = (f'<a href="{_corridor_page_name(c + 1)}">corridor {c + 1} &rarr;</a>'
@@ -2746,7 +2817,10 @@ def _corridor_page(rm, c: int, out: Path | None = None) -> str:
              + (f"<strong>Boss type</strong> (bank 3 <code>$9151</code>[{c}]): "
                 f'<a href="enemies.html"><code>${boss:02X}</code>'
                 f'{" " + _h(_enemy_names()[boss]) if boss in _enemy_names() else ""}</a>. ' if boss is not None else
-                "<strong>Boss type:</strong> named by the stream's command 5 operand. ")
+                "<strong>Bosses</strong> (named by each command 5's operand, bank 4 "
+                "<code>$E7AF</code>): " + ", ".join(
+                    f'row {r}: <code>${t:02X}</code> {_h(_enemy_names().get(t, "?"))}'
+                    for r, t in gauntlet) + ". ")
              + f"Stream: bank 4 <code>${cr.screen.entry_pointers(b4)[c - cr.screen.FIRST_AREA]:04X}"
              "</code>.</p>")
     p.append('<p class="meta">Colours are the palette slots after row 0 &mdash; the scenes\' '
@@ -3257,7 +3331,7 @@ def _labyrinth_rooms(rm) -> str:
     p.append("<table><thead><tr><th>Map (x, y)</th><th>Sub-id</th><th>Object type</th>"
              "<th>Graphics stream</th></tr></thead><tbody>" + "".join(
                  f"<tr><td>{pos(d)}</td><td>{d['sub']}</td><td><a href=\"enemies.html\">"
-                 f"<code>${d['type']:02X}</code></a></td><td><code>${d['stream']:04X}</code>"
+                 f"<code>${d['type']:02X}</code>{_tn(d['type'])}</a></td><td><code>${d['stream']:04X}</code>"
                  "</td></tr>" for d in bosses) + "</tbody></table>")
 
     # ---------------------------------------------------------------- the rest
