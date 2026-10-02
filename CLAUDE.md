@@ -756,6 +756,27 @@ Do not re-derive these; do check anything that depends on them.
   `$F986`; which way each boss's counter-driven fan points on screen is not checked.
   Fleepa savestate: `$0668` = `$10`, `$07A0` = `$0F`, entry timer 0, y 116 at velocity ~1.9 -
   what the bounce (+4 kick, `$10/256` accel) predicts (~114).
+- **The ending (traced from the code; `docs/ending.html`).** The boss routine (bank 3 `$917F`,
+  phase `$70`) waits at `$92EE` for the boss object to die, then in a corridor `$9355` plays song
+  `$2F`, far-calls bank 6 `$8003`, runs eight explosions and counts 90 frames; song `$1F` and the
+  victory song (`$1B`) play and `$93E8` sets `$A0` bit 0. **Corridor 21 sets it only for boss
+  `$4D`**; the other five gauntlet bosses just clear `$70`. Bank 7 `$E659` (every scroll step)
+  tests that bit and does `JMP $EB18`; with the player alive `$EB9C` falls to `$EBFE` and, via
+  `$EC54`, to `$ECBD`, which branches on `$51`: 0 `$ECE7`, 1-20 mark cleared (`$EFBA`) and run
+  the stage-clear routine `$F506`, 21 far-calls bank 0 `$8012` (`$88F5`, a starfield from the
+  script at `$88B7`) and bank 2 `$801B` (`$8836`, a wordless ship animation) then `INC $51`,
+  22 runs `$F506` and never returns. For 0 and 22 `$F506` skips the clear song, stops the
+  scroll, takes no key (`$F4A7`), then `$F5DE` flies the ship off the top. For 22 only,
+  `$F667` prints YOUR FINAL SCORE (PPU `$2086`, digits `$20C8`) and far-calls bank 2 `$8021`
+  -> `$8A69`: `TXS` with `$FF` (no return), `$30` cleared; a normal game loads tile block 4 of
+  bank 1, blits the 10 x 13 picture `$8B05` to PPU `$21F1`, copies the 22 sprites at `$8B87`
+  and the palette `$8BDF`; a TGL game (`$30` bit 1) prints CONGRATULATIONS only (`$8A3D`); song
+  `$0F`; far call bank 0 `$8015` -> `$8915`: MISSION COMPLETE and the credits, then PASSWORD TGL
+  after Start, then `$899F` loops forever. Reset is the only exit. Bank 3 `$9168` (boss songs,
+  23 entries: 3 3 3 6 6 3 3 6 3 6 3 $16 3 6 6 $16 3 $16 3 $16 3 6 6) also ends where corridor 22
+  needs it to. `$EF2A[22]` is `$EF40`'s first byte, so corridor 22 plays song `$19`. NOT
+  established: what the cutscene and picture look like on screen (the background pattern table
+  was not worked out), and nothing here has been seen on hardware.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

@@ -375,11 +375,24 @@ TOPICS = [
      lambda rs: [r for r in rs if r["id"] in DEMO_REGIONS],
      "What plays when the title screen is left alone: a powered-up state, a random corridor "
      "and button presses invented from a 31-entry table - not a recording."),
+    ("ending.html", "Ending",
+     lambda rs: [r for r in rs if _is_ending(r)],
+     "What happens when the final boss dies: the stage-end flag, the cutscene after corridor 21, "
+     "the last corridor, the final score and the credits that never return."),
     ("status.html", "Status screen",
      lambda rs: [r for r in rs if r["id"] in STATUS_REGIONS],
      "Select during play: the world map, seven keys, twelve weapons and what each one costs "
      "to fire."),
 ]
+
+
+
+def _is_ending(r) -> bool:
+    """Regions of the ending sequence: bank 0 $88F5-$8BBA and bank 2 $8836-$8BF7."""
+    a = r.get("cpu_addr", 0)
+    b = r.get("prg_bank")
+    return (b == 0 and 0x88F5 <= a < 0x8BBB) or (b == 2 and 0x8836 <= a < 0x8BF8)
+
 
 SCREEN_SOURCE = "60-screen.json"
 DEMO_REGIONS = ("bank7.tbl_DB22", "bank7.tbl_DB32")
@@ -3094,6 +3107,105 @@ def _demo_page(rm):
     return "".join(p)
 
 
+ENDING_STEPS = [
+    ("1. The boss dies", "bank 3 <code>$92EE</code> &rarr; <code>$931E</code> &rarr; "
+     "<code>$9355</code>",
+     "The boss phase <code>$70</code> waits at <code>$92EE</code> until the object in the boss "
+     "slot no longer has type <code>$72</code>. In a corridor (<code>$30</code> bit 6) "
+     "<code>$9355</code> plays song <code>$2F</code>, far-calls bank 6 <code>$8003</code>, and "
+     "runs eight explosions (positions from <code>$93F2</code>, sound <code>$23</code>, four "
+     "frames each). <code>$9387</code> adds two to <code>$70</code>."),
+    ("2. The stage-end flag", "bank 3 <code>$93A3</code>-<code>$93EA</code>",
+     "<code>$73</code> counts 90 frames, then song <code>$1F</code> and the victory song "
+     "(<code>$1B</code> in a corridor, <code>$1A</code> in the labyrinth) play and the code waits "
+     "for <code>$0300</code> to clear. In a corridor it then sets <code>$A0</code> bit 0 "
+     "(<code>$93E8</code>). <strong>Corridor 21 is the exception:</strong> it only does this "
+     "when the boss is type <code>$4D</code> (<code>$93B4</code>-<code>$93BC</code>); for the "
+     "other five bosses of the gauntlet it just clears <code>$70</code> and returns."),
+    ("3. The frame loop notices", "bank 7 <code>$E659</code> &rarr; <code>$EB18</code>",
+     "The scroll step clears <code>$A0</code> bit 2 and, if bit 0 is set, "
+     "<code>JMP $EB18</code>. With the player alive that reaches <code>$EB78</code>; in a "
+     "corridor (<code>$30</code> bit 6) and not in the demo, <code>$EB9C</code> falls to "
+     "<code>$EBFE</code>, which clears <code>$70</code> and, because <code>$30</code> bits 5-6 "
+     "are set, goes to <code>$EC54</code> and then <code>$ECBD</code>."),
+    ("4. Which corridor ended", "bank 7 <code>$ECBD</code>",
+     "<code>$51</code> = 0 &rarr; <code>$ECE7</code> (the opening flight). 1-20 &rarr; "
+     "<code>$ECE4</code>: mark it cleared (<code>$EFBA</code>) and run the stage-clear routine "
+     "<code>$F506</code>. <strong>21</strong> &rarr; <code>$ECC7</code>: <code>$F506</code>, "
+     "far call bank 0 <code>$8012</code> (&rarr; <code>$88F5</code>, a starfield of blank tiles "
+     "and star tiles from the script at <code>$88B7</code>), then far call bank 2 "
+     "<code>$801B</code> (&rarr; <code>$8836</code>, a wordless animation of the ship, no text) and "
+     "<code>INC $51</code> &rarr; <strong>22</strong>, loaded through <code>$EC94</code>. "
+     "<strong>22</strong> &rarr; <code>$ECE1</code>: <code>$F506</code> first, and it never "
+     "returns, so corridor 22 is never marked cleared."),
+    ("5. Stage clear, for 22", "bank 7 <code>$F506</code>-<code>$F5DE</code>",
+     "Corridors 0 and 22 skip the clear fanfare (<code>$F50A</code>/<code>$F50C</code>). The "
+     "scroll target goes to 0 and the code loops until the speed is 0. "
+     "<code>$F4A7</code> gives no key for corridors above 10, so 22 takes "
+     "<code>$F544</code> and goes to <code>$F5DE</code>."),
+    ("6. The ship leaves", "bank 7 <code>$F5DE</code>-<code>$F66B</code>",
+     "Slot 0 becomes type 5 with metasprite 1. Corridors 0 and 22 start it at velocity 0 with "
+     "<code>$0638</code> = 1 and accelerate it toward y = 0 (<code>$F648</code>, accel "
+     "<code>$20</code>) until it leaves the screen; every other corridor starts it at "
+     "velocity &minus;2."),
+    ("7. Final score", "bank 7 <code>$F667</code>-<code>$F6AB</code>",
+     "Only for <code>$51</code> = 22 (corridor 0 goes to <code>$F659</code>, the labyrinth). "
+     "It prints &ldquo;YOUR FINAL SCORE&rdquo; at PPU <code>$2086</code>, a <code>0</code> tile at "
+     "<code>$20CE</code> and the six score digits at <code>$20C8</code> "
+     "(<code>$E118</code>), then far-calls bank 2 <code>$8021</code>."),
+    ("8. The ending routine", "bank 2 <code>$8A69</code>-<code>$8AFF</code>",
+     "<code>LDX #$FF / TXS</code> throws the stack away, so nothing below it ever returns. "
+     "<code>$30</code> is cleared. <strong>A normal game:</strong> loads tile block 4 of bank 1 "
+     "(<code>$D7F9</code>), writes attribute bytes (<code>$D5CC</code> items at "
+     "<code>$8A88</code>-<code>$8ABF</code>), blits a 10 &times; 13 tile picture from "
+     "<code>$8B05</code> to PPU <code>$21F1</code> (<code>$D99C</code>), copies 22 sprites from "
+     "<code>$8B87</code> into OAM and 25 palette bytes from <code>$8BDF</code> to "
+     "<code>$0180</code>. <strong>A TGL game</strong> (<code>$30</code> bit 1 before it was "
+     "cleared) takes <code>$8A3D</code>: attributes, the word CONGRATULATIONS at "
+     "<code>$210C</code>, a white backdrop colour and no picture. Both then run "
+     "<code>$EDB7</code>, start song <code>$0F</code> and far-call bank 0 <code>$8015</code>."),
+    ("9. The credits", "bank 0 <code>$8915</code> &rarr; <code>$8927</code>",
+     "Eight credit screens after MISSION COMPLETE, each held for the seconds in "
+     "<code>$8BB2</code> (<code>$F0</code> counts them), then it waits for Start "
+     "(<code>$F5</code> bit 4) and draws a tenth screen: PASSWORD TGL. After that "
+     "<code>$899F</code> loops forever (<code>$89AE</code>-<code>$89B3</code>), animating two "
+     "sprites. <strong>Nothing leaves this loop; only the reset button does.</strong>"),
+]
+
+
+def _ending_page(rm):
+    """What happens when the final boss is beaten, from the boss routine to the last screen."""
+    b3 = rm.prg_bank(3)
+    boss_song = " ".join(f"${b3[0x9168 - 0x8000 + c]:X}" for c in range(23))
+    p = ["<h1>The ending</h1>",
+         '<p class="sub">From the final boss&rsquo;s last hit to the screen the game stops on. '
+         "Every step is read from the code and linked to the next by an address; the whole chain "
+         "is unchecked on hardware.</p>",
+         '<div class="note"><strong>Corrects earlier notes.</strong> This project said the ending '
+         "follows corridor 21. It follows <strong>corridor 22</strong>: after corridor 21 a "
+         "cutscene plays, <code>$51</code> becomes 22 (bank 7 <code>$ECDC</code>), and the "
+         "final boss, It (type <code>$4F</code>, <code>$9151[22]</code>), is fought in a short "
+         "corridor of its own. The boss-fight songs at bank 3 <code>$9168</code> have 23 "
+         f"entries, 0-22 &mdash; one per corridor including that one: {boss_song}.</div>",
+         "<table><thead><tr><th>Step</th><th>Where</th><th>What it does</th></tr></thead><tbody>"]
+    for step, where, what in ENDING_STEPS:
+        p.append(f"<tr><td><strong>{step}</strong></td><td>{where}</td><td>{what}</td></tr>")
+    p.append("</tbody></table>")
+    p.append('<div class="note warn"><strong>Not established.</strong> What the cutscene at bank 2 '
+             "<code>$8836</code> shows beyond a ship animating over stars (it is wordless and "
+             "was only skimmed). What the 10 &times; 13 picture at <code>$8B05</code> looks like "
+             "on screen &mdash; its tiles come from block 4 of bank 1, but the pattern table the "
+             "background reads was not worked out, so it is not rendered. Corridor 22&rsquo;s "
+             "music is song <code>$19</code>, read from <code>$EF2A[22]</code> at "
+             "<code>$EF40</code> (the code does read it; nothing else says it is meant). The "
+             "wordless cutscene&rsquo;s timing. Whether the sprites at <code>$8B87</code> are "
+             "the ship and what its sparkle is.</div>")
+    p.append('<h2 id="regions">Regions</h2>')
+    for r in [x for x in rm.regions if _is_ending(x)]:
+        p.append(_region_card(rm, r))
+    return "".join(p)
+
+
 def _labyrinth_rooms(rm) -> str:
     """How a room is encoded, and where the entrances, key doors, items and minibosses are."""
     import sys
@@ -3572,6 +3684,8 @@ def build_site(rm, out: Path) -> list[str]:
             pages[_corridor_page_name(c)] = _corridor_page(rm, c, out)
     if any(r["id"] in DEMO_REGIONS for r in rm.regions):
         pages["demo.html"] = _demo_page(rm)
+    if any(_is_ending(r) for r in rm.regions):
+        pages["ending.html"] = _ending_page(rm)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.
@@ -3607,6 +3721,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Outside sources - {rm.meta["title"]}' if name == "external.html"
                  else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
                  else f'Demo - {rm.meta["title"]}' if name == "demo.html"
+                 else f'Ending - {rm.meta["title"]}' if name == "ending.html"
                  else f'Corridors - {rm.meta["title"]}' if name == "corridors.html"
                  else f'Corridor {int(name[9:11])} - {rm.meta["title"]}'
                  if name.startswith("corridor-")
