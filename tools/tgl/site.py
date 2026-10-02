@@ -464,9 +464,12 @@ def _stage_boss_section(rm, out=None) -> str:
                      + ("<strong>With the background left out the frame is empty: everything "
                         "here is background tiles.</strong> The objects of the boss &mdash; "
                         + (", ".join(f"<code>${t:02X}</code>" for t in kinds) or "none found")
-                        + " &mdash; are alive but never drawn: their handlers "
-                          "(<code>$A8D8</code>, <code>$B851</code>) update hit boxes and fire, "
-                          "and never call the sprite drawer."
+                        + " &mdash; are alive but never drawn: their handler "
+                          + ("<code>$A8D8</code> (the cannons, types <code>$36</code>/"
+                             "<code>$37</code>)" if c == 0 else
+                             "<code>$B851</code> (the eyes, types <code>$7E</code>/"
+                             "<code>$7F</code>)")
+                          + " updates hit boxes and fires, and never calls the sprite drawer."
                         if empty else
                         "Object types alive in that frame that this boss uses: "
                         + (", ".join(f"<code>${t:02X}</code>" for t in kinds) or "none found")
