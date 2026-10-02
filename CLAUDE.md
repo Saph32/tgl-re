@@ -811,11 +811,11 @@ Do not re-derive these; do check anything that depends on them.
   `$DAB6` spins on `$2002` bit 6), scroll writes logged by cycle so the HUD split renders, and the
   NMI handler's own `$2002` read must not clear the vblank flag a main-code wait is polling
   (`$EDF4` hung on it); for corridor 0 the run must start with bank 5 live, because `$F282` returns from its `$F290` branch without switching banks and `$EF6C` then calls `$8000` in the wrong bank, so the scene was never loaded (the first corridor 0 capture had corridor 15's tiles and sets, and spawned `$7D` instead of `$36`/`$37` - an artefact, now fixed). A corridor start runs a ~300-frame launch scene (`$F336`-`$F439`). The live corridor 0 frame matches the stage simulation (`docs/stage-00.png`) layout; 15 cannon objects `$36`/`$37` and the `$06` controller are alive at the capture. The eyes and cannons are never drawn as sprites: the sprites-only frames are empty.
-- **The score bonus is a threshold counter, not a table (owner's example 50,000: ROM differs).**
+- **The score bonus is a threshold counter, not a table (owner's example 500,000: CONFIRMED; `docs/status.html#score-bonus`).**
   Bank 7 `$DF3D` (after every score add, `$DFB1`) compares the top three score digits `$0170-$0172`
   (tens-scale: `$0172` = 10,000) with `$017C-$017E`; at or above it, `$DF8C` plays song `$31` and
   `$DFA1` adds 8 to max life `$47` (cap `$FF`), sets `$48` = `$47` and redraws the HUD. Bank 0
-  `$80A9-$80B0` starts the threshold at (0,0,3); `$DF3D` steps it (0,0,3) -> (0,1,0) -> (0,5,0) ->
+  `$80A5-$80B3` starts the threshold at (0,0,3); `$DF3D` steps it (0,0,3) -> (0,1,0) -> (0,5,0) ->
   (1,0,0) -> +1 in `$017C`: **30,000, 100,000, 500,000, then every 1,000,000.** Verified by calling
   the real routine at chosen scores on the harness. The same "+8 max life" is the Energy Tank item
   (`$86BC`, effect 13 - see the weapons entry; icon 12). No awards in a demo; an overflow (all 9s)

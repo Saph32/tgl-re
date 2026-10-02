@@ -2087,6 +2087,54 @@ def _status_page(rm):
              "is the one counted rather than charged.</td></tr>"
              "</tbody></table>")
 
+    # ---- the score bonus: thresholds from the ROM's init bytes and the $DF3D stepping rules
+    b0 = rm.prg_bank(0)
+    i0 = bytes(b0).find(bytes([0xA9, 0x03, 0x8D, 0x7E, 0x01]))
+    thr = [0, 0, b0[i0 + 1]]                       # $017C, $017D, $017E as bank 0 $80B1 sets them
+    steps, digits = [], []
+    for _ in range(8):
+        steps.append(thr[0] * 1_000_000 + thr[1] * 100_000 + thr[2] * 10_000)
+        digits.append(" ".join(map(str, thr)))
+        if thr[0]:
+            thr[0] += 1
+        elif thr[1] == 0:
+            thr[2], thr[1] = 0, 1
+        elif thr[1] == 1:
+            thr[1] = 5
+        else:
+            thr[1], thr[0] = 0, 1
+    p.append('<h2 id="score-bonus">The score bonus</h2>')
+    p.append('<p class="sub">At certain scores the game adds <strong>8 to maximum life</strong> '
+             "and refills it - the same effect as the Energy Tank item. The scores are not "
+             "in a table: a counter in the code produces them.</p>")
+    p.append("<table><thead><tr><th>Award</th><th>Score</th><th>Threshold digits "
+             "<code>$017C $017D $017E</code> that must be reached</th></tr></thead><tbody>"
+             + "".join(f"<tr><td>{n}</td><td class=\"mono\">{v:,}</td><td>"
+                       f"<code>{digits[n - 1]}</code></td></tr>"
+                       for n, v in enumerate(steps[:4], 1))
+             + "<tr><td>5, 6, &hellip;</td><td class=\"mono\">2,000,000, 3,000,000, "
+               "&hellip;</td><td>(n 0 0): one more in <code>$017C</code> each time</td></tr>"
+             "</tbody></table>")
+    p.append("<p>How it works: after every score add (<code>$DFB1</code>), bank 7 "
+             "<code>$DF3D</code> compares the top three score digits "
+             "(<code>$0170-$0172</code>; the score is kept in tens, so <code>$0172</code> is "
+             "the 10,000s digit) with the threshold in <code>$017C-$017E</code>. At or above it "
+             "it plays song <code>$31</code> (<code>$DF8C</code>), adds 8 to <code>$47</code>, "
+             "capped at <code>$FF</code>, sets <code>$48</code> equal to it and redraws the HUD "
+             "(<code>$DFA1</code>, <code>$E424</code>), then steps the threshold: "
+             "<code>0 0 3</code> &rarr; <code>0 1 0</code> &rarr; <code>0 5 0</code> &rarr; "
+             "<code>1 0 0</code>, and from there <code>$017C</code> goes up by one. Bank 0 "
+             "<code>$80A5-$80B3</code> starts it at <code>0 0 3</code> when a game begins. No "
+             "award in a demo (<code>$30</code> bit 7); a score overflow sets every digit to 9 "
+             "and <code>$017C</code> to <code>$FF</code>, which ends them.</p>")
+    p.append('<div class="note"><strong>Confirmed.</strong> The owner reported a bonus at '
+             "500,000, which is the third award. The routine was also run on the NES model "
+             "(<code>tools/tgl/cpu.py</code>) at chosen scores: +8 at exactly 30,000, 100,000, "
+             "500,000, 1,000,000, 2,000,000 and 3,000,000, and at none of 29,990, 99,990, "
+             "499,990, 999,990 or 1,999,990. The 30,000 and 100,000 awards, and the idea "
+             "that it is a counter and not a table, are from the code and that run; they "
+             "have not been played on hardware.</div>")
+
     p.append("<h2>RAM this screen names</h2>")
     p.append("<table><thead><tr><th>Address</th><th>Meaning</th></tr></thead><tbody>"
              + "".join(f"<tr><td><code>{a}</code></td><td>{m}</td></tr>" for a, m in (
@@ -2108,6 +2156,9 @@ def _status_page(rm):
                  ("$04AF", "weapon 12's count"),
                  ("$04B0", "keys held, bit k-1 for key k"),
                  ("$04D0-$04E7", "the palette, saved while the screen is up"),
+                 ("$47 / $48", "maximum / current life; the score bonus adds 8 to both"),
+                 ("$0170-$0175", "the score, six digits, in tens (a fixed 0 is printed after)"),
+                 ("$017C-$017E", "the next score-bonus threshold, three digits"),
                  ("$0176", "the weapon selected when the screen opened"),
                  ("$0177", "sprite 0's Y, saved"),
              )) + "</tbody></table>")
