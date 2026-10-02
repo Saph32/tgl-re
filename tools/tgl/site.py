@@ -3173,7 +3173,7 @@ ENDING_STEPS = [
 ]
 
 
-def _ending_page(rm):
+def _ending_page(rm, out=None):
     """What happens when the final boss is beaten, from the boss routine to the last screen."""
     b3 = rm.prg_bank(3)
     boss_song = " ".join(f"${b3[0x9168 - 0x8000 + c]:X}" for c in range(23))
@@ -3191,15 +3191,38 @@ def _ending_page(rm):
     for step, where, what in ENDING_STEPS:
         p.append(f"<tr><td><strong>{step}</strong></td><td>{where}</td><td>{what}</td></tr>")
     p.append("</tbody></table>")
+    if out is not None:
+        from tgl import ending
+        bg, full, facts = ending.build(rm, NES_RGB)
+        out.mkdir(parents=True, exist_ok=True)
+        full.save(out / "ending-picture.png", optimize=True)
+        bg.save(out / "ending-picture-bg.png", optimize=True)
+        p.append('<h2 id="picture">The ending picture</h2>')
+        p.append('<p class="sub">Rebuilt from the ROM exactly as bank 2 <code>$8A69</code> '
+                 "builds it: tile block 4 of bank 1 (109 tiles) in pattern table 1, the 10 &times; "
+                 "13 tile frame at <code>$8B05</code> placed at tile column 17, row 15, "
+                 "attribute bytes from the <code>$8A88</code> fills, 25 palette bytes from "
+                 "<code>$8BDF</code>, and the 22 sprites at <code>$8B87</code>.</p>")
+        p.append('<p><img src="ending-picture.png" width="512" height="480" alt="The ending '
+                 'picture: a framed portrait, a planet and stars" '
+                 'style="image-rendering:pixelated;max-width:100%;height:auto"></p>')
+        p.append('<p class="meta">Left out of the picture: sprites 0 and 1 (Y = <code>$F8</code>, '
+                 "off screen as copied; the credits routine at <code>$8998</code> moves "
+                 "sprites at <code>$02F0-$02FF</code>) and everything else on the screen, which "
+                 'is taken as blank. <a href="ending-picture-bg.png">Background only</a>.</p>')
+        p.append('<div class="note warn"><strong>Checked by fit, not by hardware.</strong> '
+                 "The background reads pattern table 1 only because every tile the frame names "
+                 "(<code>$B0-$ED</code>, border <code>$F2-$F9</code>) lies inside block 4's "
+                 "range <code>$8F-$FB</code>; nothing here read <code>$2000</code>. That the "
+                 "result is a coherent portrait is the evidence. Tile <code>$20</code>, the "
+                 "frame's empty cells, is drawn blank.</div>")
     p.append('<div class="note warn"><strong>Not established.</strong> What the cutscene at bank 2 '
              "<code>$8836</code> shows beyond a ship animating over stars (it is wordless and "
-             "was only skimmed). What the 10 &times; 13 picture at <code>$8B05</code> looks like "
-             "on screen &mdash; its tiles come from block 4 of bank 1, but the pattern table the "
-             "background reads was not worked out, so it is not rendered. Corridor 22&rsquo;s "
+             "was only skimmed). What sprites 0 and 1 are (they start off screen). "
+             "Corridor 22&rsquo;s "
              "music is song <code>$19</code>, read from <code>$EF2A[22]</code> at "
              "<code>$EF40</code> (the code does read it; nothing else says it is meant). The "
-             "wordless cutscene&rsquo;s timing. Whether the sprites at <code>$8B87</code> are "
-             "the ship and what its sparkle is.</div>")
+             "wordless cutscene&rsquo;s timing.</div>")
     p.append('<h2 id="regions">Regions</h2>')
     for r in [x for x in rm.regions if _is_ending(x)]:
         p.append(_region_card(rm, r))
@@ -3685,7 +3708,7 @@ def build_site(rm, out: Path) -> list[str]:
     if any(r["id"] in DEMO_REGIONS for r in rm.regions):
         pages["demo.html"] = _demo_page(rm)
     if any(_is_ending(r) for r in rm.regions):
-        pages["ending.html"] = _ending_page(rm)
+        pages["ending.html"] = _ending_page(rm, out)
 
     # Guard: every region must get a card on some page. A region that is annotated and then
     # not shown anywhere is invisible to every reader, and nothing else notices.

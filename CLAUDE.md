@@ -774,9 +774,13 @@ Do not re-derive these; do check anything that depends on them.
   `$0F`; far call bank 0 `$8015` -> `$8915`: MISSION COMPLETE and the credits, then PASSWORD TGL
   after Start, then `$899F` loops forever. Reset is the only exit. Bank 3 `$9168` (boss songs,
   23 entries: 3 3 3 6 6 3 3 6 3 6 3 $16 3 6 6 $16 3 $16 3 $16 3 6 6) also ends where corridor 22
-  needs it to. `$EF2A[22]` is `$EF40`'s first byte, so corridor 22 plays song `$19`. NOT
-  established: what the cutscene and picture look like on screen (the background pattern table
-  was not worked out), and nothing here has been seen on hardware.
+  needs it to. `$EF2A[22]` is `$EF40`'s first byte, so corridor 22 plays song `$19`. **The picture is rendered** (`tools/tgl/ending.py`, `docs/ending-picture.png`): block 4 of
+  bank 1 is 109 tiles at PPU `$18F0` = tiles `$8F-$FB` of pattern table 1; the frame's tiles all fall
+  in that range, so the background reads table 1 (a fit, not a read of `$2000`); fills at
+  `$8A88` are `[count][hi][lo][value]` runs (`$D5CC`); the frame lands at column 17, row 15.
+  Result: a framed portrait of a woman with brown hair, a planet, stars and part of a ship -
+  sprites 0/1 start off screen. NOT established: the cutscene at `$8836` on screen, and
+  nothing here has been seen on hardware.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.
