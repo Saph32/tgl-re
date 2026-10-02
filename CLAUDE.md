@@ -708,7 +708,7 @@ Do not re-derive these; do check anything that depends on them.
   pieces. **Every pieced type now has a composite** (`metasprite.PIECED`, drawn on
   `docs/enemies.html` in several poses): `$23` (body + 127, 40 px above), `$24`-`$26` (two
   arms 110 56 px below, spread by `$15`), `$2D`-`$2F` (frame body + blinking 124), `$40`/`$41`
-  Fleepa, `$46` (136 + head 137/138), `$4C`/`$4D` (109 + itself flipped 32 px below), `$4F`
+  Fleepa, `$46` (136 + head 137/138), `$48`/`$49` Grimgrin (body 64, then $17/$15/$14 pieces - 41, 48/49/4A, 45/46/47 - the last two pairs mirrored; the eyes; **CORRECTION: it had no composite, so the page showed it without its eyes** - checked against the owner's `...grimgrin.fcs`, 40/40 sprites, state `$07A0` = `$1F`, frame 4), `$4C`/`$4D` (109 + itself flipped 32 px below), `$4F`
   (81 + two legs: claw 82 and a shaft of single sprites via `$CF05`), `$55`-`$57` (105 + 103/104).
   Pieces move `$84`/`$85` (y/x), `$86` and `$87`; bases are relative to `$07E8`, the block
   base `$CF8D` copies from `$06C8` at spawn. Only Fleepa is checked against hardware; `--verify`

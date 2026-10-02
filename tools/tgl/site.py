@@ -2233,12 +2233,16 @@ def _enemies_page(rm):
                 for pose in poses:
                     parts = build(allb, a86, pose)
                     ids = ", ".join(str(q[1]) if q[0] == "ms" else "single" for q in parts)
-                    shots.append(f'<span title="{_h(what)} {pose}: {ids}">'
+                    shots.append(f'<span title="{_h(what)} {(lambda x: f"${x >> 8:02X}:{x & 0xFF}" if t in (0x48, 0x49) else x)(pose)}: {ids}">'
                                  + _assembled_svg(msp.emit_parts(b7, parts), run, pals)
                                  + "</span>")
-                hw = " &mdash; checked against a savestate, 41/41 sprites"                     if t in (0x40, 0x41) else " &mdash; read from the code, not yet checked "                     "against a savestate"
+                hw = (" &mdash; checked against a savestate, 41/41 sprites" if t in (0x40, 0x41)
+                      else " &mdash; checked against a savestate, 40/40 sprites (the Grimgrin "
+                           "fight: state $1F, frame 4)" if t in (0x48, 0x49)
+                      else " &mdash; read from the code, not yet checked against a savestate")
+                plabel = ((lambda x: f"${x >> 8:02X}:{x & 0xFF}") if t in (0x48, 0x49) else str)
                 shots.append('<br><span class="meta">drawn in pieces'
-                             + (f" ({_h(what)} {', '.join(str(x) for x in poses)})"
+                             + (f" ({_h(what)} {', '.join(plabel(x) for x in poses)})"
                                 if what else "") + hw + "; the parts:</span><br>")
             elif t in msp.UNDRAWN:
                 shots.append(f'<span class="meta">drawn in pieces: {_h(msp.UNDRAWN[t])}'

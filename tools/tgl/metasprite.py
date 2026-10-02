@@ -420,6 +420,33 @@ def _t4f(banks, a86, pose):
     return out
 
 
+def _t48(banks, a86, pose):
+    """Bank 6 $93DC, types $48/$49 (Grimgrin). The pose is ($07A0 << 8) | $0638: the state
+    byte $07A0 (hit-point stages: $1F, then $1C, $10, $20 - $9457-$9476) and the 28-step
+    frame counter $0638 ($CD7A, wrap $1C).
+
+      $9454: the body, metasprite $0548 = $40, attributes $0560 (bit 6 flips every 8 frames);
+      $9481: $17 = $44 if $07A0 bit 4 is clear, else $41, or $95C3,Y (42 43 42) for frames
+             8-10; drawn with the body's attributes;
+      $94A3: $86 AND #3 clears the flips, then
+      $94A9: $15 = $4A if bit 2 is clear, else $48, or $49 for frames 14-16;
+      $94CA: $14 = $47 if bit 0 is clear, else $45, or $46 for frames 24-26;
+      both drawn, then $86 EOR $40 and both drawn again - mirrored. Every piece is at the
+      body's position; the offsets are in the records. The eyes are in $14/$15."""
+    st, ph = pose >> 8, pose & 0xFF
+    B = lambda a: banks[6][a - 0x8000]
+    if not st & 0x10:
+        a17 = 0x44
+    else:
+        a17 = B(0x95C3 + ph) if 8 <= ph < 11 else 0x41
+    a15 = 0x4A if not st & 4 else 0x49 if 0x0E <= ph < 0x11 else 0x48
+    a14 = 0x47 if not st & 1 else 0x46 if 0x18 <= ph < 0x1B else 0x45
+    at = a86 & 3
+    return [("ms", 0x40, a86, 0, 0, 0), ("ms", a17, a86, 0, 0, 0),
+            ("ms", a15, at, 0, 0, 0), ("ms", a14, at, 0, 0, 0),
+            ("ms", a15, at ^ 0x40, 0, 0, 0), ("ms", a14, at ^ 0x40, 0, 0, 0)]
+
+
 def _t55(banks, a86, pose):
     """Bank 6 $A349, types $55-$57: body $69 (105, $A366). $A3BE: $86 AND #$03 (flips
     cleared), id $A3E0,Y with Y = $0638,X, the 10-frame counter. The pose is that frame."""
@@ -437,6 +464,8 @@ PIECED = {
     **{t: (_t4c, (0,), "") for t in (0x4C, 0x4D)},
     0x4F: (_t4f, (0x30, 0x50, 0x70), "leg depth"),
     **{t: (_t55, (0, 2), "frame $0638") for t in (0x55, 0x56, 0x57)},
+    **{t: (_t48, (0x1F00, 0x1F09, 0x1F0F, 0x1F19, 0x1C04, 0x1004, 0x2004), "$07A0:$0638")
+       for t in (0x48, 0x49)},
 }
 COMPOSITES = PIECED       # the old name
 # The attribute byte each handler gives the object at spawn ($0560): a constant, or
@@ -446,6 +475,7 @@ SPAWN_ATTR = {
     0x23: 0x00,                                           # bank 6 $8D7B
     **{t: (6, 0x900D) for t in (0x24, 0x25, 0x26)},      # bank 6 $8E6D
     **{t: (3, 0x94E2) for t in (0x2D, 0x2E, 0x2F)},      # bank 3 $93FF
+    **{t: (6, 0x8FEA) for t in (0x48, 0x49)},            # bank 6 $93E1
     0x46: 0x01,                                           # bank 6 $91A1
     **{t: (6, 0x8FE6) for t in (0x4C, 0x4D)},            # bank 6 $9197
     0x4F: 0x02,                                           # bank 1 $82C5

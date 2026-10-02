@@ -71,7 +71,9 @@ def match(spr, x0: int, y0: int, base: int, oam: set):
 # The poses verify tries for each pieced type - every value its code allows.
 VERIFY_POSES = {0x23: range(3), 0x24: range(17), 0x25: range(17), 0x26: range(17),
                 0x2D: range(8), 0x2E: range(8), 0x2F: range(8), 0x46: range(16),
-                0x4F: range(0x30, 0x71), 0x55: range(10), 0x56: range(10), 0x57: range(10)}
+                0x4F: range(0x30, 0x71), 0x55: range(10), 0x56: range(10), 0x57: range(10),
+                **{t: [st << 8 | ph for st in (0x1F, 0x1C, 0x10, 0x20) for ph in range(28)]
+                   for t in (0x48, 0x49)}}
 
 
 def verify(b7: bytes, ptrs: list[int], state: Path, b3: bytes | None = None,
