@@ -794,6 +794,23 @@ Do not re-derive these; do check anything that depends on them.
   (`$88AE`), the ship flying off. A harness lesson: the vblank flag must stay set ~2,273
   cycles or `$EDF4` hangs; `$F506` is not a subroutine that returns in every case, so runs
   start at `$ECCA`/`$F66B`. NOT established: any of this against hardware.
+- **Static bosses made of the stage (owner's names; `docs/enemies.html#stage-bosses`).** The
+  boss of corridor 0 is the **Defense System**, of corridors 7 and 17 the **Eyeball Growth** -
+  exactly the three corridors whose `$9151` entry is `$06`. Type `$06` (bank 6 `$A889`) is an
+  invisible controller: it waits for the scroll to stop (`$B8`/`$B9` = 0), counts live objects of
+  types `$36`, `$37` (handler `$A8D8`, the cannons: animate by patching background tiles
+  through `$AA21`, fire an aimed type `$2B` at phase 3) and `$7E`, `$7F` (handler `$B851`, the
+  eyes: fire type `$27`/`$4E` aimed with `$F863` at `$07B8` + a random 0-31 frames; hit points x4
+  once `$70` is set) and dies when none is left. The parts are ground objects spawned from the
+  stage's own metatiles (`$89FB`: fifth byte high nibble -> the set's `$803C` list). **Rendered by
+  running the real corridors**: `tools/tgl/bossrun.py` / `tools/render-bosses.py` load a corridor
+  with `$EC94` called as a subroutine from a corridor savestate (return address = the savestate's
+  own PC), keep `$0590`, `$47` and lives `$6B` topped up and capture 60 frames after `$70` = 4:
+  `docs/boss-0.png`, `-7`, `-17` (+ `-sprites.png`, `boss-objects.json`). Harness fixes this needed
+  (`tools/tgl/cpu.py`): sprite-0 hit at the beam's cycle for OAM[0] (the raster-split wait at
+  `$DAB6` spins on `$2002` bit 6), scroll writes logged by cycle so the HUD split renders, and the
+  NMI handler's own `$2002` read must not clear the vblank flag a main-code wait is polling
+  (`$EDF4` hung on it); for corridor 0 the run must start with bank 5 live, because `$F282` returns from its `$F290` branch without switching banks and `$EF6C` then calls `$8000` in the wrong bank, so the scene was never loaded (the first corridor 0 capture had corridor 15's tiles and sets, and spawned `$7D` instead of `$36`/`$37` - an artefact, now fixed). A corridor start runs a ~300-frame launch scene (`$F336`-`$F439`). The live corridor 0 frame matches the stage simulation (`docs/stage-00.png`) layout; 15 cannon objects `$36`/`$37` and the `$06` controller are alive at the capture. The eyes and cannons are never drawn as sprites: the sprites-only frames are empty.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

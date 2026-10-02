@@ -276,9 +276,9 @@
       "source": "owner",
       "pages": "-",
       "topic": "Enemies",
-      "claim": "Object types $18/$19 are Eyegore, $23 Zibzub, $24-$26 Clawbot, $2D-$2F Optomon, $40/$41 Fleepa, $45 Crawdaddy, $46 Teramute, $47 Glider, $48/$49 Grimgrin, $4C/$4D Bombarder, $4F It. It is the final boss, fought in a short corridor after corridor 21 and a cutscene.",
+      "claim": "Object types $18/$19 are Eyegore, $23 Zibzub, $24-$26 Clawbot, $2D-$2F Optomon, $40/$41 Fleepa, $45 Crawdaddy, $46 Teramute, $47 Glider, $48/$49 Grimgrin, $4C/$4D Bombarder, $4F It. It is the final boss, fought in a short corridor after corridor 21 and a cutscene. Corridor 0's boss is the Defense System (static, part of the background, a bunch of cannons that fire at the player); corridors 7 and 17's boss is the Eyeball Growth, which works the same way. All three are object type $06.",
       "status": "consistent",
-      "rom": "Every one of these types is a corridor boss: they are exactly the values of bank 3 $9151 (boss type by corridor) apart from $06 - Eyegore corridors 9 and 10, Zibzub 5, Clawbot 14, 15 and 20, Optomon 3, 11 and 16, Fleepa 1 and 12, Crawdaddy 2, Teramute 4, Glider 6, Grimgrin 8 and 18, Bombarder 13 and 19 (and corridor 21's table slot), It corridor 22 - confirmed by the code: $ECDC does INC $51 after corridor 21's cutscene, and $9151[22] = $4F; corridor 21 itself names six bosses by command 5. Same-name types share a bank 6 handler (the three Clawbots, the two Eyegores, Optomons, Grimgrins), which fits one name per handler. The manual's nine names (fact 'enemies') are all accounted for; Glider and It are not in the manual. Only Fleepa is tied by hardware (fact 'fleepa-corridor-1'); the rest rest on the owner's word and that structure. Types are decimal in this map's keys.",
+      "rom": "Every one of these types is a corridor boss: they are exactly the values of bank 3 $9151 (boss type by corridor) apart from $06 - Eyegore corridors 9 and 10, Zibzub 5, Clawbot 14, 15 and 20, Optomon 3, 11 and 16, Fleepa 1 and 12, Crawdaddy 2, Teramute 4, Glider 6, Grimgrin 8 and 18, Bombarder 13 and 19 (and corridor 21's table slot), It corridor 22 - confirmed by the code: $ECDC does INC $51 after corridor 21's cutscene, and $9151[22] = $4F; corridor 21 itself names six bosses by command 5. Same-name types share a bank 6 handler (the three Clawbots, the two Eyegores, Optomons, Grimgrins), which fits one name per handler. The manual's nine names (fact 'enemies') are all accounted for; Glider and It are not in the manual. Only Fleepa is tied by hardware (fact 'fleepa-corridor-1'); the rest rest on the owner's word and that structure. Types are decimal in this map's keys. Corridors 0, 7 and 17 are exactly the three whose $9151 entry is $06 (bank 6 $A889, a controller that waits for the scroll to stop and dies when no object of type $36/$37/$7E/$7F is left) - CONSISTENT with the owner's description of a static boss made of parts. Runs of the real code from corridors 0, 7 and 17 (docs/enemies.html) show cannons in corridor 0 and eyeballs ($7E/$7F) in 7 and 17.",
       "enemy_names": {
         "24": "Eyegore",
         "25": "Eyegore",
@@ -298,7 +298,8 @@
         "73": "Grimgrin",
         "76": "Bombarder",
         "77": "Bombarder",
-        "79": "It"
+        "79": "It",
+        "6": "Defense System / Eyeball Growth"
       }
     }
   ]

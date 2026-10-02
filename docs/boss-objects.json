@@ -1,0 +1,476 @@
+{
+ "0": {
+  "frames": 5009,
+  "row": 1938,
+  "objects": [
+   {
+    "slot": 5,
+    "type": 123,
+    "x": 0,
+    "y": 0,
+    "metasprite": 0,
+    "base": 0
+   },
+   {
+    "slot": 6,
+    "type": 43,
+    "x": 169,
+    "y": 102,
+    "metasprite": 26,
+    "base": 248
+   },
+   {
+    "slot": 7,
+    "type": 43,
+    "x": 155,
+    "y": 58,
+    "metasprite": 121,
+    "base": 250
+   },
+   {
+    "slot": 8,
+    "type": 6,
+    "x": 84,
+    "y": 15,
+    "metasprite": 26,
+    "base": 0
+   },
+   {
+    "slot": 9,
+    "type": 55,
+    "x": 128,
+    "y": 32,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 10,
+    "type": 54,
+    "x": 40,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 11,
+    "type": 54,
+    "x": 72,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 12,
+    "type": 55,
+    "x": 96,
+    "y": 48,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 13,
+    "type": 55,
+    "x": 160,
+    "y": 48,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 14,
+    "type": 54,
+    "x": 184,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 15,
+    "type": 54,
+    "x": 216,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 16,
+    "type": 55,
+    "x": 128,
+    "y": 64,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 17,
+    "type": 55,
+    "x": 64,
+    "y": 80,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 18,
+    "type": 55,
+    "x": 96,
+    "y": 80,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 19,
+    "type": 55,
+    "x": 160,
+    "y": 80,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 20,
+    "type": 55,
+    "x": 192,
+    "y": 80,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 21,
+    "type": 55,
+    "x": 128,
+    "y": 96,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 22,
+    "type": 55,
+    "x": 96,
+    "y": 112,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 23,
+    "type": 55,
+    "x": 160,
+    "y": 112,
+    "metasprite": 33,
+    "base": 0
+   }
+  ]
+ },
+ "7": {
+  "frames": 5106,
+  "row": 520,
+  "objects": [
+   {
+    "slot": 5,
+    "type": 123,
+    "x": 0,
+    "y": 0,
+    "metasprite": 0,
+    "base": 0
+   },
+   {
+    "slot": 6,
+    "type": 109,
+    "x": 92,
+    "y": 0,
+    "metasprite": 0,
+    "base": 0
+   },
+   {
+    "slot": 7,
+    "type": 126,
+    "x": 104,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 8,
+    "type": 127,
+    "x": 128,
+    "y": 80,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 9,
+    "type": 6,
+    "x": 92,
+    "y": 13,
+    "metasprite": 0,
+    "base": 0
+   },
+   {
+    "slot": 10,
+    "type": 127,
+    "x": 128,
+    "y": 48,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 11,
+    "type": 126,
+    "x": 152,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 12,
+    "type": 126,
+    "x": 216,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 13,
+    "type": 127,
+    "x": 96,
+    "y": 64,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 14,
+    "type": 126,
+    "x": 104,
+    "y": 88,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 15,
+    "type": 127,
+    "x": 160,
+    "y": 64,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 16,
+    "type": 126,
+    "x": 152,
+    "y": 88,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 17,
+    "type": 41,
+    "x": 217,
+    "y": 0,
+    "metasprite": 102,
+    "base": 0
+   },
+   {
+    "slot": 18,
+    "type": 126,
+    "x": 120,
+    "y": 104,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 19,
+    "type": 126,
+    "x": 40,
+    "y": 104,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 20,
+    "type": 126,
+    "x": 136,
+    "y": 104,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 21,
+    "type": 41,
+    "x": 56,
+    "y": 0,
+    "metasprite": 97,
+    "base": 0
+   },
+   {
+    "slot": 22,
+    "type": 126,
+    "x": 216,
+    "y": 104,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 23,
+    "type": 41,
+    "x": 96,
+    "y": 0,
+    "metasprite": 105,
+    "base": 0
+   }
+  ]
+ },
+ "17": {
+  "frames": 5847,
+  "row": 578,
+  "objects": [
+   {
+    "slot": 5,
+    "type": 123,
+    "x": 0,
+    "y": 0,
+    "metasprite": 0,
+    "base": 0
+   },
+   {
+    "slot": 6,
+    "type": 126,
+    "x": 104,
+    "y": 24,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 7,
+    "type": 126,
+    "x": 120,
+    "y": 24,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 8,
+    "type": 126,
+    "x": 88,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 9,
+    "type": 127,
+    "x": 112,
+    "y": 48,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 10,
+    "type": 126,
+    "x": 136,
+    "y": 40,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 11,
+    "type": 127,
+    "x": 80,
+    "y": 64,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 12,
+    "type": 127,
+    "x": 144,
+    "y": 64,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 13,
+    "type": 127,
+    "x": 112,
+    "y": 80,
+    "metasprite": 33,
+    "base": 0
+   },
+   {
+    "slot": 14,
+    "type": 6,
+    "x": 92,
+    "y": 12,
+    "metasprite": 115,
+    "base": 0
+   },
+   {
+    "slot": 15,
+    "type": 126,
+    "x": 136,
+    "y": 88,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 16,
+    "type": 126,
+    "x": 88,
+    "y": 88,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 17,
+    "type": 126,
+    "x": 104,
+    "y": 104,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 18,
+    "type": 41,
+    "x": 75,
+    "y": 0,
+    "metasprite": 103,
+    "base": 0
+   },
+   {
+    "slot": 19,
+    "type": 41,
+    "x": 89,
+    "y": 0,
+    "metasprite": 108,
+    "base": 0
+   },
+   {
+    "slot": 20,
+    "type": 126,
+    "x": 120,
+    "y": 104,
+    "metasprite": 49,
+    "base": 0
+   },
+   {
+    "slot": 21,
+    "type": 41,
+    "x": 76,
+    "y": 0,
+    "metasprite": 108,
+    "base": 0
+   },
+   {
+    "slot": 22,
+    "type": 41,
+    "x": 80,
+    "y": 0,
+    "metasprite": 100,
+    "base": 0
+   },
+   {
+    "slot": 23,
+    "type": 41,
+    "x": 92,
+    "y": 0,
+    "metasprite": 109,
+    "base": 0
+   }
+  ]
+ }
+}

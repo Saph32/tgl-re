@@ -65,6 +65,10 @@ class Machine:
         self.scroll_x = self.scroll_y = 0
         self.cycles = 0
         self.frame = 0
+        self.fc = 0                     # cycles into the current frame
+        self.in_nmi = False
+        self.spr0 = False
+        self.scroll_log = [(0, 0, 0, 0)]
         self.chr_writes = 0
         self.nmi_vec = self.banks[7][0x3FFA] | self.banks[7][0x3FFB] << 8
 
@@ -90,8 +94,9 @@ class Machine:
         if a < 0x4000:
             r = a & 7
             if r == 2:
-                v = 0x80 if self.vbl else 0
-                self.vbl = False
+                v = (0x80 if self.vbl else 0) | (0x40 if self.spr0 else 0)
+                if not self.in_nmi:             # the NMI handler's own read must not eat the
+                    self.vbl = False            # flag a main-code wait loop is polling
                 self.w = 0
                 return v
             if r == 4:
@@ -111,6 +116,7 @@ class Machine:
             if r == 0:
                 self.ctrl = v
                 self.tmp = (self.tmp & 0xF3FF) | (v & 3) << 10
+                self.scroll_log.append((self.fc, self.scroll_x, self.scroll_y, v))
             elif r == 1:
                 self.mask = v
             elif r == 3:
@@ -125,6 +131,7 @@ class Machine:
                 else:
                     self.scroll_y = v
                     self.w = 0
+                self.scroll_log.append((self.fc, self.scroll_x, self.scroll_y, self.ctrl))
             elif r == 6:
                 if self.w == 0:
                     self.tmp = (self.tmp & 0x00FF) | (v & 0x3F) << 8
@@ -404,19 +411,30 @@ class Machine:
         self.frame += 1
         budget = CYC_FRAME
         self.vbl = True
+        self.spr0 = False
+        self.fc = 0
+        self.scroll_log = [(0, self.scroll_x, self.scroll_y, self.ctrl)]
         stopped = None
         if self.ctrl & 0x80:
             self.nmi()
+            self.in_nmi = True
             for _ in range(40000):
                 rti = self.read(self.pc) == 0x40
                 budget -= self.step()
+                self.fc = CYC_FRAME - budget
                 if rti:
                     break
             else:
+                self.in_nmi = False
                 raise StopRun("NMI handler did not return")
+            self.in_nmi = False
+        hit_at = 2273 + 114 + (self.oam[0] + 1) * 113.67 if self.oam[0] < 0xEF else None
         while budget > 0:
-            if self.vbl and CYC_FRAME - budget > 2273:       # vblank lasts ~2273 cycles
+            fc = self.fc = CYC_FRAME - budget
+            if self.vbl and fc > 2273:                      # vblank lasts ~2273 cycles
                 self.vbl = False
+            if hit_at is not None and not self.spr0 and fc >= hit_at and self.mask & 0x18 == 0x18:
+                self.spr0 = True
             if self.pc in stops:
                 stopped = self.pc
                 break
@@ -427,19 +445,26 @@ class Machine:
         return stopped
 
     # ---------------------------------------------------------------- picture
-    def render(self, rgb, scroll=True):
+    def render(self, rgb, scroll=True, bg=True, sprites=True):
         """The 256 x 240 picture from the state now: nametable + CHR RAM + palette + OAM."""
         from PIL import Image
         img = Image.new("RGB", (256, 240), rgb[self.pal[0] & 0x3F])
         px = img.load()
-        bg_on, spr_on = bool(self.mask & 8), bool(self.mask & 0x10)
+        bg_on, spr_on = bool(self.mask & 8) and bg, bool(self.mask & 0x10) and sprites
         bgbase = 0x1000 if self.ctrl & 0x10 else 0
         opaque = [[False] * 256 for _ in range(240)]
         if bg_on:
-            sx = self.scroll_x if scroll else 0
-            sy = self.scroll_y if scroll else 0
-            nx, ny = self.ctrl & 1, (self.ctrl >> 1) & 1
+            log = self.scroll_log if scroll else [(0, 0, 0, self.ctrl)]
             for y in range(240):
+                at = 2273 + 114 + y * 113.67
+                e = log[0]
+                for ent in log:
+                    if ent[0] <= at:
+                        e = ent
+                _, sx, sy, cx = e
+                if not scroll:
+                    sx = sy = 0
+                nx, ny = cx & 1, (cx >> 1) & 1
                 wy = y + sy + ny * 240
                 row = (wy // 8) % 60
                 tnt = (row // 30) * 2

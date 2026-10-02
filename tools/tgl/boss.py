@@ -83,9 +83,20 @@ BEHAVIOUR = [
      "every 16-79 frames, clamped to $30-$70.",
      "Fires type $27 shots and type $2A shots with random x speed, on a frame-counter mask that "
      "tightens as its hit points fall."),
+    ((0x06,), "stage", "bank 6 $A889 (controller); parts $A8D8 ($36/$37), $B851 ($7E/$7F)",
+     "Nothing moves: type $06 is an invisible controller. It waits until the scroll has "
+     "stopped ($B8 and $B9 both 0), counts the live objects of types $36, $37, $7E and $7F, and "
+     "dies when none is left (bank 6 $A8A6-$A8C3). Those parts are ground objects spawned by "
+     "the stage's own metatiles (bank 5 $89FB) and drawn over background tiles.",
+     "The eyes ($7E, $7F; $B851) shoot at random intervals - $07B8 plus a random 0-31 - aimed at "
+     "the player with $F863 (type $27 from $7E, $4E from $7F), and have four times their "
+     "hit points once the boss phase starts. The cannons ($36, $37; $A8D8) animate by "
+     "patching background tiles ($AA21) and fire a type $2B shot, aimed ($AA12), at animation "
+     "phase 3."),
 ]
 
-FOLLOW = {"tracks": "follows the player's x", "aims": "aimed shots",
+FOLLOW = {"stage": "part of the stage; its parts fire aimed shots",
+          "tracks": "follows the player's x", "aims": "aimed shots",
           "teleports": "random position, re-aims each cycle", "fixed": "fixed pattern"}
 
 NOT_READ = (
@@ -96,9 +107,8 @@ NOT_READ = (
     "gauntlet. After it the game plays a short scene (<code>$ECC7</code> far-calls bank 0) and "
     "does <code>INC $51</code> into <strong>corridor 22</strong>, whose slot in "
     "<code>$9151</code> is <code>$4F</code>: <strong>It</strong>, the final boss, in a short "
-    "corridor of its own (bank 4 stream <code>$8511</code>, 11 records). Corridors 7 and 17 name type "
-    "<code>$06</code>, bank 6 <code>$A889</code>: a ground object that waits for the scroll to "
-    "stop and dies once types $36, $37, $7E and $7F are gone - a lead, not read through. The "
+    "corridor of its own (bank 4 stream <code>$8511</code>, 11 records). Corridors 0, 7 and 17 name type "
+    "<code>$06</code>, the stage bosses (see the next section). The "
     "shared shot, type <code>$27</code> (<code>$A0C6</code>), can turn toward the player when its "
     "<code>$07A0</code> timer reaches zero; which bosses' shots do so is not worked out, so "
     "&ldquo;aimed&rdquo; means the direction at the moment of firing. Non-boss enemies have not "

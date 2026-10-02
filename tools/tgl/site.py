@@ -429,6 +429,66 @@ def _external():
     return d
 
 
+STAGE_BOSSES = ((0, "Defense System", "cannons"), (7, "Eyeball Growth", "eyeballs"),
+                (17, "Eyeball Growth", "eyeballs"))
+
+
+def _stage_boss_section(rm, out=None) -> str:
+    """The bosses that are part of the stage: pictures from tools/render-bosses.py."""
+    import json as _json
+    meta = {}
+    if out is not None and (out / "boss-objects.json").exists():
+        meta = _json.loads((out / "boss-objects.json").read_text(encoding="utf-8"))
+    o = ['<h2 id="stage-bosses">Bosses that are part of the stage</h2>',
+         '<p class="sub">Corridors 0, 7 and 17 list type <code>$06</code> as their boss (bank 3 '
+         "<code>$9151</code>), and type <code>$06</code> is not something you can see. Its "
+         "handler, bank 6 <code>$A889</code>, waits until the scroll has stopped, counts the "
+         "objects of types <code>$36</code>, <code>$37</code>, <code>$7E</code> and "
+         "<code>$7F</code> still alive and dies when there are none - which is what ends the "
+         "fight. Those are ground objects, spawned by the stage&rsquo;s own background tiles "
+         "(bank 5 <code>$89FB</code>) and drawn over them, so the boss is a part of the "
+         "scenery. The names are the owner&rsquo;s (see Outside sources).</p>"]
+    for c, name, what in STAGE_BOSSES:
+        o.append(f'<h3 id="stage-boss-{c}">{name} &mdash; corridor {c}</h3>')
+        if out is not None and (out / f"boss-{c}.png").exists():
+            m = meta.get(str(c), {})
+            objs = m.get("objects", [])
+            kinds = sorted({x["type"] for x in objs} & {0x06, 0x36, 0x37, 0x7E, 0x7F})
+            o.append(f'<p><img src="boss-{c}.png" width="512" height="384" alt="{name}, the '
+                     f'screen when the boss phase starts" style="image-rendering:pixelated;'
+                     f'max-width:100%;height:auto"> <img src="boss-{c}-sprites.png" width="512" '
+                     f'height="384" alt="{name}, sprites only" style="image-rendering:pixelated;'
+                     f'max-width:100%;height:auto"></p>')
+            from PIL import Image as _Im
+            empty = _Im.open(out / f"boss-{c}-sprites.png").convert("RGB").getbbox() is None
+            o.append('<p class="meta">Left: the playfield 60 frames after the controller '
+                     "(type <code>$06</code>) exists with the scroll stopped, row "
+                     f"{m.get('row', '?')}, as the game draws it. Right: the same frame with the "
+                     "background left out. "
+                     + ("<strong>It is empty: everything you see on the left is background "
+                        "tiles.</strong> The objects of the boss &mdash; "
+                        + (", ".join(f"<code>${t:02X}</code>" for t in kinds) or "none found")
+                        + " &mdash; are alive but never drawn: their handlers "
+                          "(<code>$A8D8</code>, <code>$B851</code>) update hit boxes and fire, "
+                          "and never call the sprite drawer."
+                        if empty else
+                        "Object types alive in that frame that this boss uses: "
+                        + (", ".join(f"<code>${t:02X}</code>" for t in kinds) or "none found")
+                        + ".")
+                     + "</p>")
+        else:
+            o.append('<p class="meta">Not rendered yet (tools/render-bosses.py).</p>')
+    o.append('<div class="note warn"><strong>Run, not recorded.</strong> These frames come from '
+             "<code>tools/render-bosses.py</code>, which runs the ROM&rsquo;s own code on the NES "
+             "model in <code>tools/tgl/cpu.py</code> (no cycle accuracy, no IRQ, one scroll "
+             "value per scanline from the logged writes) from a corridor savestate, loading each "
+             "corridor with <code>$EC94</code> and keeping the ship&rsquo;s life and lives topped "
+             "up. The ship is usually destroyed by then, which leaves the boss alone on screen. "
+             "The layouts are the code&rsquo;s; exact colours and pixels are the model&rsquo;s "
+             "and have not been compared with hardware.</div>")
+    return "".join(o)
+
+
 def _boss_section(rm, names) -> str:
     """Movement and fire of each corridor boss, from tools/tgl/boss.py."""
     from tgl import boss
@@ -464,6 +524,13 @@ def _boss_section(rm, names) -> str:
     out.append("</tbody></table></div>")
     out.append(f'<div class="note">{boss.NOT_READ}</div>')
     return "".join(out)
+
+
+def _boss_label(c: int, t: int) -> str:
+    """The owner's name for corridor c's boss of type t: type $06 is three different bosses."""
+    if t == 6:
+        return {0: "Defense System", 7: "Eyeball Growth", 17: "Eyeball Growth"}.get(c, "")
+    return _enemy_names().get(t, "")
 
 
 def _tn(t) -> str:
@@ -2148,7 +2215,7 @@ def _assembled_svg(spr, chr_run: bytes, pals, px: int = 3) -> str:
     return "".join(out)
 
 
-def _enemies_page(rm):
+def _enemies_page(rm, out=None):
     import sys
     from collections import Counter
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -2211,6 +2278,7 @@ def _enemies_page(rm):
              "first.</div>")
 
     p.append(_boss_section(rm, _enemy_names()))
+    p.append(_stage_boss_section(rm, out))
     p.append("<h2>Every type</h2>")
     p.append('<p class="sub">From <code>$D02C</code> (flags), <code>$D0AB</code> (HP), '
              "<code>$D12A</code> (attack), <code>$E00D</code>/<code>$E08C</code> (score), "
@@ -2561,7 +2629,8 @@ def _corridors_page(rm):
             cell = ", ".join(f"<code>${t:02X}</code>{_tn(t)}" for t in ts) + " (a gauntlet, by command 5)"
         else:
             t = _b3[0x9151 - 0x8000 + c]
-            cell = f"<code>${t:02X}</code>{_tn(t)}"
+            cell = (f"<code>${t:02X}</code>" + (f" <strong>{_h(_boss_label(c, t))}</strong>"
+                                                if _boss_label(c, t) else ""))
         _rows.append(f'<tr><td><a href="{_corridor_page_name(c)}">{c}</a></td><td>{cell}</td></tr>')
     p.append("<table><thead><tr><th>Corridor</th><th>Boss type (bank 3 <code>$9151</code>)</th></tr>"
              f"</thead><tbody>{''.join(_rows)}</tbody></table>")
@@ -2833,7 +2902,7 @@ def _corridor_page(rm, c: int, out: Path | None = None) -> str:
     p.append(f'<p class="desc"><strong>Scroll speed:</strong> {sp or "never set"}. '
              + (f"<strong>Boss type</strong> (bank 3 <code>$9151</code>[{c}]): "
                 f'<a href="enemies.html"><code>${boss:02X}</code>'
-                f'{" " + _h(_enemy_names()[boss]) if boss in _enemy_names() else ""}</a>. ' if boss is not None else
+                f'{" " + _h(_boss_label(c, boss)) if _boss_label(c, boss) else ""}</a>. ' if boss is not None else
                 "<strong>Bosses</strong> (named by each command 5's operand, bank 4 "
                 "<code>$E7AF</code>): " + ", ".join(
                     f'row {r}: <code>${t:02X}</code> {_h(_enemy_names().get(t, "?"))}'
@@ -3751,7 +3820,7 @@ def build_site(rm, out: Path) -> list[str]:
     if _external():
         pages["external.html"] = _external_page(rm)
     if any(r.get("source") == ENEMY_SOURCE for r in rm.regions):
-        pages["enemies.html"] = _enemies_page(rm)
+        pages["enemies.html"] = _enemies_page(rm, out)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
         pages["status.html"] = _status_page(rm)
     if any(r.get("source") == SCREEN_SOURCE for r in rm.regions):
