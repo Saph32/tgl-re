@@ -301,6 +301,15 @@
         "79": "It",
         "6": "Defense System / Eyeball Growth"
       }
+    },
+    {
+      "id": "score-bonus",
+      "source": "owner",
+      "pages": "-",
+      "topic": "Score",
+      "claim": "The game gives a health bonus when the score reaches certain values, for example 50,000.",
+      "status": "rom-differs",
+      "rom": "The bonus is real: bank 7 $DF3D, called after every score add ($DFB1), compares the top three score digits ($0170-$0172, tens-scale: $0172 is 10,000) with a threshold held in $017C-$017E and, when the score is at or above it, plays song $31 and adds 8 to maximum life $47 (capped $FF), refilling $48 ($DF8C-$DFAA, then the HUD, $E424). It is NOT a table: bank 0 $80A9-$80B0 sets the threshold to (0,0,3), and $DF3D then steps it - (0,0,3) -> (0,1,0) -> (0,5,0) -> (1,0,0) -> +1 in $017C each time. So the scores are 30,000, 100,000, 500,000, 1,000,000 and every further 1,000,000; 50,000 is not one of them (500,000 is the nearest). Checked by calling the real routine at chosen scores on the NES model (tgl/cpu.py): +8 life at exactly 30,000, 100,000, 500,000, 1,000,000, 2,000,000, 3,000,000 and at none of 10,000, 29,990, 99,990, 499,990, 999,990, 1,999,990. Not awarded in a demo ($30 bit 7, $DFBC); no jingle when $30 bit 2 is set ($DF80); a score overflow sets all digits to 9 and $017C to $FF, which ends the awards."
     }
   ]
 }
