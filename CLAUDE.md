@@ -716,6 +716,36 @@ Do not re-derive these; do check anything that depends on them.
   screen positions) use absolute tiles and are listed, not drawn. The page's tile runs now
   follow bank 4's corridor streams too, so corridor bosses are no longer drawn with holes.
   Bank 3 `$9151` = boss type by corridor.
+- **Boss behaviour (read from the code; only Fleepa's setup checked against a savestate).** The
+  boss type is `$9151[corridor]` (bank 3 `$91C3`) -> `$72`, spawned by bank 3 `$92E5`; each type's
+  code is its bank 6 handler (the split table at `$80DE`/`$815D`), some of which only far-call
+  into bank 3 or 1. There is **no shared boss engine**: each handler is its own state machine
+  on the common object fields. The primitives: `$F863` (`$C0FF`) **aims at slot 0, the player**
+  (16 directions, `$F95E`); `$F8CE` turns a direction (masked `AND #$0F`) into velocity;
+  `$CD12`/`$CD46` (`$C09C`/`$C09F`) accelerate y/x toward a target held in `$0668`/`$0680`,
+  a spring when the target is fixed; `$A325` (and `$A337` for y) moves one pixel toward the
+  player's x; `$CD7A` is an animation/phase counter whose wrap times shots; `$F9D1` random;
+  `$AD9A` just toggles `$6A` bit 0; `$FA5B`/`$FA4B` find a slot and spawn. `$0518` is y,
+  `$0530` is x, y/x velocity `$05D8`/`$0608`. **Who follows the player:** `$45` (corridor 2) homes
+  on the player's x (`LDA $0530` into `$0680`, accel 4) and fires `$F863`-aimed shots; `$23` (5)
+  homes on x (accel 8) in a jump/gravity cycle and fires aim, aim+4, aim+12; `$40`/`$41` Fleepa
+  (1, 12) creep 1 px per 2 frames toward the player's x on a vertical bounce, shots
+  (`$27`) a counter cycling 8-15; `$24`-`$26` (14, 15, 20) creep toward the player's x via
+  `$A325`, fire 0/8 alternately; `$48`/`$49` (18, 8) hover at a fixed point, aimed pairs. **Fixed
+  or random, not following:** `$18`/`$19` (9, 10) fixed x, spawns alternating +/-32 offsets;
+  `$2D`-`$2F` (11, 3, 16) spring about (128, 48) from an initial kick, shots up or down by
+  relative y; `$47` (6) hovers at (128, 96), fixed-direction bursts at random pauses;
+  `$4F` (index 22) random-wandering arms. **Teleporters:** `$46`/`$4C`/`$4D` (4, 13, 19)
+  re-pick a random position every 120-frame cycle (blink in, attack, blink out, hidden) and
+  re-aim once per cycle; `$46` sweeps a fan around that aim, `$4C`/`$4D` fire 16 shots.
+  Corridors 7 and 17 list type `$06` (bank 6 `$A889`, a ground object that waits for scroll
+  speed 0 and dies when types `$36`/`$37`/`$7E`/`$7F` are gone) and corridor 21 skips `$72`
+  (`CPY #$15`): both LEADS, not read through. **Whether a bullet steers is open:** type `$27`
+  (`$A0C6`) can re-aim at the player when its `$07A0` timer reaches 0; which spawners use it is
+  not worked out. Direction numbering 0/4/8/12 = down/right/up/left is from `$F95E` against
+  `$F986`; which way each boss's counter-driven fan points on screen is not checked.
+  Fleepa savestate: `$0668` = `$10`, `$07A0` = `$0F`, entry timer 0, y 116 at velocity ~1.9 -
+  what the bounce (+4 kick, `$10/256` accel) predicts (~114).
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.
