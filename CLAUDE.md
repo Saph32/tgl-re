@@ -827,6 +827,24 @@ Do not re-derive these; do check anything that depends on them.
   the real routine at chosen scores on the harness. The same "+8 max life" is the Energy Tank item
   (`$86BC`, effect 13 - see the weapons entry; icon 12). No awards in a demo; an overflow (all 9s)
   sets `$017C` = `$FF` and stops them. In `annotations/external.json` as `score-bonus`.
+- **Item boxes from defeated enemies (`docs/enemies.html#item-boxes`): a weighted kill counter, not
+  chance.** The explosion handler (bank 6 `$975F`, type `$88` = `$08` initialised, original type in
+  `$0740`) far-calls bank 1 `$8176`. `$823D[type]` is the kill's weight (0 = does not count; the table
+  runs to type `$77`, bank 1's boss code starts at `$82B5`); `$43` counts up by the weight but stops
+  the moment it equals `$8219[$42]` = 50, 80, 100, 140, 180, 220, 230, 256 (`$00` = wrap), leftover
+  weight lost. Then the explosion becomes a box (`$0788`++): in the labyrinth only if the cell under it
+  is free (bank 6 `$8435` reads the cell map at `$0400`, `$822D[cell]`; blocked -> `$43` back one), in a
+  corridor always. `$42` steps on and wraps after the 8th; `$42`-`$44` are cleared only at game start
+  (bank 0 `$8070-$8074`). Contents `$8221[$42]` = `$14 $15 $16 $14 $14 $15 $15`, step 8 rotates
+  `$8229[$44 AND 3]` = `$15 $0C $0C $0B` (`$0B` becomes `$0C` unless `$04AE` bit 6, the Eraser,
+  is set). Pick-up (bank 2 `$86BC`): `$14` +40 life; `$15` +500 chips +16 life; `$16` +10 chips +8
+  life; `$0C` full life; `$0B` +16 life, +20 Eraser uses, sets `$04AE` bit 6. (Life is added by
+  `$FD67`, chips by `$FCE7` capped at CHIP MAX; both read from the code.) **Verified by running the real
+  routines on the harness**: drops at exactly 50/80/100/140/180/220/230/256 weight-1 kills, repeating at
+  306...; the pick-up effects from life 32. Same sweep resolved `$6B` = fire-rate level (not lives:
+  Consecutive Firing +1, cap 5, `$87CE[$6B]` -> `$39` shot delay) and `$46` = chip capacity level
+  (`$87D4` table -> CHIP MAX). NOT established: how the box is opened (shot, per the manual; the
+  `$84CB` handler not followed through) and the cell-category table `$822D` beyond what blocks.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

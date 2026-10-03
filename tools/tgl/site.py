@@ -488,6 +488,93 @@ def _stage_boss_section(rm, out=None) -> str:
     return "".join(o)
 
 
+def _item_box_section(rm) -> str:
+    """When a defeated enemy leaves an item box, and what is in it (bank 1 $8176)."""
+    b1, b7 = rm.prg_bank(1), rm.prg_bank(7)
+    thr = list(b1[0x219:0x219 + 8])
+    steps, acc = [], 0
+    for t in thr:
+        acc = t if t else 256
+        steps.append(acc)
+    first = list(b1[0x221:0x221 + 8])
+    rot = list(b1[0x229:0x229 + 4])
+    death = lambda t: b7[0xD441 - 0xC000 + t]
+    weight = lambda t: b1[0x23D + t]
+    groups = {}
+    for t in range(1, 0x78):                      # the table ends where bank 1's boss code begins
+        if death(t) == 8 and weight(t):
+            groups.setdefault(weight(t), []).append(t)
+    effects = {0x14: "+40 life", 0x15: "+500 chips and +16 life", 0x16: "+10 chips and +8 life",
+               0x0C: "life filled to its maximum", 0x0B: "+16 life, +20 Enemy Eraser uses and the "
+               "Eraser counted as owned (only offered when it already is)"}
+    o = ['<h2 id="item-boxes">When an enemy leaves an item box</h2>',
+         '<p class="sub">It is not luck. Every enemy killed adds a <strong>weight</strong> to one '
+         "counter, and a box is released each time the counter reaches the next step of a fixed "
+         "schedule. The contents are fixed by the step too. Bank 1 <code>$8176</code> does it, "
+         "called from the explosion handler (bank 6 <code>$975F</code>) on the first frame of "
+         "a type-<code>$08</code> explosion.</p>"]
+    o.append("<h3>The rules</h3><ol>"
+             "<li>An enemy whose death type (<code>$D441</code>) is <code>$08</code> becomes that "
+             "explosion; 77 types do, and all but five of them have a weight, so they are the ones "
+             "that can count. Types that die into "
+             "<code>$07</code> (bosses such as <code>$45</code> and <code>$46</code>) never do.</li>"
+             "<li>The dead type's weight comes from <code>$823D[type]</code>, 0 meaning it does "
+             "not count. The counter <code>$43</code> goes up one at a time, up to that weight, and "
+             "stops the moment it equals the current step's threshold "
+             "(<code>$8219[$42]</code>); any weight left over is lost.</li>"
+             "<li>At the threshold the explosion turns into a box (<code>$0788</code> set). "
+             "<strong>In the labyrinth</strong> the box needs a free cell: <code>$8006</code> reads "
+             "the room's cell map (<code>$0400</code>) at the grid-snapped position and "
+             "<code>$822D[cell]</code> says whether it may; if not, the counter is put back one "
+             "so the next kill tries again. In a corridor there is no check.</li>"
+             "<li>The box takes the next step's contents, <code>$42</code> goes up by one, and "
+             "after step 7 (or when the counter wraps past 255) <code>$42</code> and "
+             "<code>$43</code> restart. <code>$42</code>-<code>$44</code> are cleared only when a "
+             "game begins, so the schedule carries on from room to room and corridor to "
+             "corridor.</li></ol>")
+    rows = []
+    names = {0x14: "$14", 0x15: "$15", 0x16: "$16"}
+    for i in range(8):
+        c = first[i]
+        what = (", then ".join(f"<code>${r:02X}</code> ({effects.get(r, '?')})" for r in rot[:1])
+                if c == 0 else f"<code>${c:02X}</code> ({effects.get(c, '?')})")
+        if c == 0:
+            what = ("rotates by <code>$44</code> through " + ", ".join(
+                f"<code>${r:02X}</code>" for r in rot) + f": {effects[rot[0]]}; {effects[rot[1]]}; "
+                f"{effects[rot[2]]}; {effects[rot[3]]}, or <code>$0C</code> when the Eraser is not owned")
+        rows.append(f"<tr><td>{i + 1}</td><td class=\"mono\">{steps[i]}</td><td>{what}</td></tr>")
+    o.append("<h3>The schedule (weighted kills, then contents)</h3>"
+             "<table><thead><tr><th>Box</th><th>Counter reaches</th><th>Contents</th></tr></thead>"
+             f"<tbody>{''.join(rows)}</tbody></table>")
+    o.append('<p class="meta">So a box comes after 50, 80, 100, 140, 180, 220, 230 and 256 weighted '
+             "kills, and the cycle repeats every 256: boxes at 306, 336, 356, &hellip;. Each pickup "
+             "is applied by bank 2 <code>$86BC</code>; the values <code>$0B</code>-<code>$0C</code> "
+             "are the labyrinth item icons of the same numbers (weapon 12 and the Energy Tank), "
+             "and <code>$14</code>-<code>$16</code> exist only as box contents.</p>")
+    rows = "".join(f"<tr><td class=\"mono\">{w}</td><td>" + ", ".join(f"<code>${t:02X}</code>" for t in ts)
+                   + "</td></tr>" for w, ts in sorted(groups.items()))
+    o.append("<h3>What each kill is worth</h3><p class=\"sub\">Weight by object type, from "
+             "<code>$823D</code>. The table is read for types 0-<code>$77</code>; "
+             "bank 1's boss code begins at <code>$82B5</code>, which is where type "
+             "<code>$78</code> would be.</p>"
+             "<table><thead><tr><th>Weight</th><th>Types</th></tr></thead>"
+             f"<tbody>{rows}</tbody></table>")
+    o.append('<div class="note"><strong>Run, not just read.</strong> The routine was run on the NES '
+             "model (<code>tools/tgl/cpu.py</code>) over repeated kills of a weight-1 type: boxes at "
+             "exactly 50, 80, 100, 140, 180, 220, 230 and 256 kills with contents "
+             "<code>$14 $15 $16 $14 $14 $15 $15 $15</code>, the next cycle at 306&hellip; and "
+             "<code>$0C</code> as the eighth box of the second cycle; a weight-16 type gives the "
+             "first box on the fourth kill. The pickups were run on the real routine from life 32: "
+             "<code>$14</code> +40 life; <code>$15</code> +500 chips and +16 life; "
+             "<code>$16</code> +10 chips and +8 life; <code>$0C</code> full life; "
+             "<code>$0B</code> +16 life and 20 Eraser uses. <strong>Not established:</strong> how "
+             "the box is opened (it is shot, which fits the manual; the handler was not followed "
+             "through), the weights' extent past type <code>$77</code>, and the labyrinth's "
+             "cell-category table <code>$822D</code> beyond what it blocks. Nothing here was "
+             "played on hardware.</div>")
+    return "".join(o)
+
+
 def _boss_section(rm, names) -> str:
     """Movement and fire of each corridor boss, from tools/tgl/boss.py."""
     from tgl import boss
@@ -2359,6 +2446,7 @@ def _enemies_page(rm, out=None):
 
     p.append(_boss_section(rm, _enemy_names()))
     p.append(_stage_boss_section(rm, out))
+    p.append(_item_box_section(rm))
     p.append("<h2>Every type</h2>")
     p.append('<p class="sub">From <code>$D02C</code> (flags), <code>$D0AB</code> (HP), '
              "<code>$D12A</code> (attack), <code>$E00D</code>/<code>$E08C</code> (score), "

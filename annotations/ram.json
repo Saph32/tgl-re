@@ -236,6 +236,13 @@
       "evidence": "bank 7 $CDDD, $CE85, $F867"
     },
     {
+      "addr": "$39",
+      "name": "shot_delay",
+      "what": "Frames between the player's shots, from $87CE[$6B].",
+      "status": "confirmed",
+      "evidence": "bank 2 $882E-$8833"
+    },
+    {
       "addr": "$3B",
       "name": "weapon_value",
       "what": "A per-weapon value from bank 6 $FDCA; compared in the damage routine. Meaning not established.",
@@ -278,6 +285,27 @@
       "evidence": "bank 7 $E10D, $F420; bank 6 $8CF6, bank 3 $94C5"
     },
     {
+      "addr": "$42",
+      "name": "box_step",
+      "what": "Which step of the item-box schedule is next, 0-7: an index into the thresholds at bank 1 $8219 and the contents at $8221.",
+      "status": "checked",
+      "evidence": "bank 1 $817D-$8190, $81E4-$8209; run on the real routine"
+    },
+    {
+      "addr": "$43",
+      "name": "box_counter",
+      "what": "The weighted kill counter. It counts up by each kill's weight; when it reaches the step's threshold an item box is released. Zeroed at game start only.",
+      "status": "checked",
+      "evidence": "bank 1 $817F-$818D, $8190; bank 0 $8072; run on the real routine"
+    },
+    {
+      "addr": "$44",
+      "name": "box_rotation",
+      "what": "Counts the boxes of step 7 so its contents rotate through bank 1 $8229 (4 entries).",
+      "status": "checked",
+      "evidence": "bank 1 $81EB-$81F2; bank 0 $8074"
+    },
+    {
       "addr": "$45",
       "name": "chips_per_use",
       "what": "Chips spent per shot of the selected weapon.",
@@ -287,9 +315,9 @@
     {
       "addr": "$46",
       "name": "chip_level",
-      "what": "Set to 6 by the demo setup and read by the status screen. Meaning not established.",
-      "status": "lead",
-      "evidence": "bank 0 $812C"
+      "what": "The chip capacity level, 0-10 (Red Lander +1); CHIP MAX is the 16-bit value at $87D4 + 2 x level (50, 100, 150, 200, 400, 800, 1200, 1600, 2400, 4000, 6000).",
+      "status": "confirmed",
+      "evidence": "bank 2 $8774-$87D4, $8820-$882D"
     },
     {
       "addr": "$47",
@@ -418,10 +446,10 @@
     },
     {
       "addr": "$6B",
-      "name": "lives_or_life",
-      "what": "Set to 2 by the demo and by the password decoder with the max life; the HUD shows a heart and a count. Which of those it is was not settled.",
-      "status": "lead",
-      "evidence": "bank 0 $8132; bank 3 password payload"
+      "name": "fire_rate",
+      "what": "The fire-rate level 0-5 (the Consecutive Firing item adds 1, capped at 5); $87CE[$6B] gives the delay in $39. The demo starts at 2.",
+      "status": "confirmed",
+      "evidence": "bank 2 $875C-$876C, $882E-$8833; bank 0 $8132"
     },
     {
       "addr": "$6C",
