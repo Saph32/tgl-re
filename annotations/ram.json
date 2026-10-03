@@ -474,17 +474,24 @@
     },
     {
       "addr": "$6C",
-      "name": "edge_state",
-      "what": "The player's position relative to the tile grid and the room edge: 2 means leaving the room (the exit routine picks a direction by position).",
+      "name": "cell_class",
+      "what": "The cell class (0-15) under the object last tested: a weapon's hit-box centre (bank 6 $8443-$846B), the ship's position in its movement test ($82F0). The ship standing on class 2 leaves the room if the exit's key is held (bank 3 $8FBF); on class 1 it picks up the blue sphere. CORRECTION: this was recorded as 'edge_state', a lead.",
+      "status": "confirmed",
+      "evidence": "bank 6 $846B, $82F0; bank 3 $8FBF-$9045; sphere pick-up run on the NES model"
+    },
+    {
+      "addr": "$6D",
+      "name": "cell_class_x",
+      "what": "The class of the neighbouring cell in x in the ship's movement test.",
       "status": "lead",
-      "evidence": "bank 6 $82C9; bank 3 $8FC9-$8FED"
+      "evidence": "bank 6 $8317"
     },
     {
       "addr": "$6E",
-      "name": "shield_slot",
-      "what": "The object slot of an object protecting the player (0 = none); the damage routine reads its attack instead of the player's.",
+      "name": "cell_class_y",
+      "what": "The class of the neighbouring cell in y in the ship's movement test. CORRECTION: also listed as 'shield_slot', a lead; the D2AA collision routine does store a hit slot in $6E, so it is shared scratch.",
       "status": "lead",
-      "evidence": "bank 7 $D39D-$D3C4; bank 5 $A153"
+      "evidence": "bank 6 $8345; bank 7 $D2AA"
     },
     {
       "addr": "$6F",
@@ -911,10 +918,10 @@
     {
       "addr": "$0400",
       "end": "$045F",
-      "name": "overlay_slots",
-      "what": "A corridor's eight overlay slots (structures placed over the background): column, repeat count, height, row pointer.",
+      "name": "cell_map_or_overlay_slots",
+      "what": "Two uses of one block. In the labyrinth: the room's 16 x 12 cell classes, one nibble a cell (even column in the high nibble), built when the room is drawn (bank 5 $8354) and changed as weapons break blocks (bank 6 $8523). In a corridor: the eight overlay slots (structures placed over the background): column, repeat count, height, row pointer.",
       "status": "confirmed",
-      "evidence": "bank 7 $E90F; corridor 15 savestate"
+      "evidence": "bank 5 $8354-$83A2; bank 6 $8443-$85F0; bank 7 $E8E5-$E969"
     },
     {
       "addr": "$0411",

@@ -876,6 +876,20 @@ Do not re-derive these; do check anything that depends on them.
   because the demo holds A+B. The tools now clear the bit (the gun picture is unchanged). NOT established: the
   labyrinth shapes (only a corridor was run), the Wave Attack's steering, what the weapons do to cells
   (`$8513`/`$8523`), flag bits 2 and 3, whether Eraser kills count for item boxes.
+- **What weapons do to labyrinth cells (`docs/labyrinth.html#cells`).** Bank 5 `$8354` builds `$0400-$045F`: 16 x 12
+  nibbles, one *cell class* per 16 x 16 cell, from the room buffer through `$838E`/`$83A5` (set-0 id < `$20` ->
+  1:8 2:7 3:6 4:5 5:1 6:4 7:4 8:10 9:9 10:0 11:2 12:14 13:0; sets 1-4 -> 0; sets 5-7 -> 9). A weapon's hit-box
+  centre is looked up every frame (bank 6 `$84E7`/`$8443`; always class 0 in a corridor, `$30` bit 6); classes
+  5-10 and 14 (`$8513`) run `$8523`, and any such hit costs the shot 8 hit points. Class 8/7 step down (sound
+  `$20`), 6 -> floor `$1C-$1F` + a type-`$30` blast, 5 -> blue sphere `$28-$2B` (class 1) + blast, 9/14 solid, 10 = a
+  key door's cover: the high nibble of `$58-$5B` (set to 3 by `$ED44` when a room loads) counts four hits, then warp
+  ring `$00-$03` (class 2; bracket tiles `$04-$07` if an earlier door needs another key - purpose unknown). Ship side
+  (bank 3): class 1 = +20 chips +2 life, class 2 = the warp panel, leaves with key 0 or `$04B0` bit k-1; `$8425`
+  = classes that stop the ship (4-10, 14). Dialogue: "blast through the cover ... need the key for the panel".
+  Hyper Laser and the grenade in flight never test cells; fast shots can skip a cell. Run: `$8523` per class on the
+  labyrinth savestate, the gun and every weapon at the savestate room's rocks, the sphere pick-up. `tools/render-
+  cells.py --state` (ring/bracket tiles come from live CHR, source of tiles `$00-$0F` not found). NOT established:
+  persistence on re-entry, the bracket's purpose, classes 3/11-13/15, `$0777/$07B2/$07BD/$07E7`.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

@@ -2212,10 +2212,10 @@ def _subweapon_section(rm) -> str:
              "<code>$04AF</code>. Pictures are from <code>tools/render-subweapons.py</code>. "
              "<strong>Not established:</strong> the corridor only was run, so the labyrinth "
              "shapes and facing are read from the code; the Wave Attack's D-pad steering was "
-             "not run; what the weapons do to the labyrinth's cells (<code>$8513</code>, "
-             "<code>$8523</code>: they react to certain cell types) and what flag bits 2 and 3 "
-             "do (one enemy-shot type tests bit 2); whether Eraser kills count towards item "
-             "boxes. Not played on hardware.</div>")
+             "not run; what flag bits 2 and 3 do (one enemy-shot type tests bit 2); "
+             "whether Eraser kills count towards item boxes. What the weapons do to the "
+             "labyrinth's cells is on <a href=\"labyrinth.html#cells\">the labyrinth page</a>. "
+             "Not played on hardware.</div>")
     return "".join(o)
 
 
@@ -3912,6 +3912,105 @@ def _ram_page(rm):
     return "".join(p)
 
 
+def _cell_hit_section(rm) -> str:
+    """What a shot does to the labyrinth's cells (bank 6 $8443-$85F0, bank 5 $8354-$83A4)."""
+    b5, b6 = rm.prg_bank(5), rm.prg_bank(6)
+    cls = [b5[0x3A5 + i] for i in range(14)]               # $83A5: buffer id -> class
+    blocks = [b6[0x425 + i] for i in range(16)]            # $8425: class blocks movement
+    reacts = [b6[0x513 + i] for i in range(16)]            # $8513: class a weapon reacts to
+    rows = []
+    what = {1: "the olive mound", 2: "the olive mound", 3: "the olive mound",
+            4: "the red block", 5: "the blue sphere", 6: "a red block (the item room&rsquo;s "
+            "block is id 6)", 7: "a red block (in no room)", 8: "the pyramid, the &ldquo;cover&rdquo; "
+            "of a key door", 9: "the red-and-white wedge (every border wall)", 10: "the checkered "
+            "floor", 11: "blank", 12: "the green wall", 13: "blank (in no room)", 0: "(nothing)"}
+    effect = {8: "3 hits: class 8 &rarr; 7 &rarr; 6 &rarr; floor", 7: "2 hits: class 7 &rarr; 6 "
+              "&rarr; floor", 6: "1 hit: floor, class 0", 5: "1 hit: becomes the blue sphere, "
+              "class 1", 10: "4 hits: the warp panel, class 2", 9: "none: solid", 14: "none: solid"}
+    for i in range(14):
+        c = cls[i]
+        e = effect.get(c, "") if reacts[c] else ""
+        rows.append(f"<tr><td class=\"mono\">{i}</td><td>{what[i]}</td><td class=\"mono\">{c}</td>"
+                    f"<td>{'blocks' if blocks[c] else 'free'}</td><td>{e or 'none'}</td></tr>")
+    o = ['<h2 id="cells">Shooting the room</h2>',
+         '<p class="sub">In the labyrinth some of a room&rsquo;s blocks give way to your shots: '
+         "the olive mounds break, a red block turns into a blue sphere you can collect, and a "
+         "key door&rsquo;s cover can be shot away to uncover its warp panel. All of it is bank 6 "
+         "<code>$8523</code>, run by every weapon that moves through the room.</p>",
+         "<h3>The cell map</h3><p>When a room is drawn, bank 5 <code>$8354</code> turns the "
+         "room&rsquo;s 16 &times; 12 buffer into <strong>cell classes</strong>, one nibble a cell, "
+         "in <code>$0400-$045F</code> (an even column in the high nibble). The class comes from "
+         "the buffer value (<code>$838E</code>): a set-0 metatile id below <code>$20</code> goes "
+         "through the table at <code>$83A5</code>, sets 1-4 are class 0, and sets 5-7 "
+         "(<code>$A0</code> and up) class 9. Ids in the rooms: 1 to 6, 9 and 10 (and 8 "
+         "wherever a key door is). Which classes stop the ship is the table at "
+         "<code>$8425</code>; the ones a shot reacts to are the ones set in "
+         "<code>$8513</code> (5-10 and 14).</p>",
+         "<table><thead><tr><th>Id</th><th>Looks like (area 0)</th><th>Class</th><th>Ship</th>"
+         "<th>When shot</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>",
+         '<p><img src="cell-effects.png" width="1104" style="max-width:100%;height:auto" '
+         'alt="Each shootable block and what it becomes"></p>',
+         "<h3>How a shot reaches a cell</h3><ol>"
+         "<li>Every frame, bank 6 <code>$84E7</code> (the gun's bullet, <code>$84E1</code>, and "
+         "every weapon that moves through <code>$88C7</code> or <code>$84E1</code>) takes the "
+         "<strong>centre of the object&rsquo;s hit box</strong> and looks up the cell class "
+         "(<code>$8443</code>). In a corridor (<code>$30</code> bit 6) and below the playfield "
+         "(y of <code>$C0</code> or more) the class is always 0.</li>"
+         "<li>If <code>$8513</code> says the class matters, <code>$8523</code> runs. "
+         "<strong>Whatever the class, the object loses 8 hit points</strong> (<code>$85E6</code>): a "
+         "bullet (1 to 3) is gone on the first hit, a weapon that never wears out is not.</li>"
+         "<li>The effect does not depend on which weapon or how hard: one hit is one hit. A "
+         "<strong>solid block</strong> (classes 9 and 14) only costs the shot its hit points and "
+         "plays sound <code>$21</code>. A <strong>mound</strong> steps down a class on each hit "
+         "(sound <code>$20</code>) without changing its picture &mdash; ids 1, 2 and 3 look "
+         "the same and only differ in how many hits they take &mdash; and the last hit draws the "
+         "checkered floor (tiles <code>$1C-$1F</code>), sets class 0, plays <code>$23</code> and "
+         "spawns a type-<code>$30</code> object, the blast that many enemies die into. The "
+         "<strong>red block</strong> (id 4, class 5) turns at once into the blue sphere "
+         "(tiles <code>$28-$2B</code>, class 1) with the same blast.</li>"
+         "<li><strong>Shots do not always hit</strong>: only the hit box&rsquo;s centre is tested, so "
+         "a shot that moves more than a cell (16 px) a frame can step over one. The "
+         "<strong>Hyper Laser</strong> and the <strong>Grenade in flight</strong> never test "
+         "cells (the grenade does when it bursts), and the Eraser has no object.</li></ol>",
+         "<h3>The two things the ship does with a cell</h3><ul>"
+         "<li><strong>Class 1, the sphere:</strong> stepping on it (bank 3 "
+         "<code>$9015</code>) plays <code>$33</code>, adds <strong>20 chips</strong> "
+         "(<code>$FCE7</code>) and <strong>2 life</strong> (<code>$FD67</code>) and turns it into "
+         "the floor. So a red block is a small pick-up in a shell.</li>"
+         "<li><strong>Class 2, the warp panel:</strong> stepping onto one (bank 3 "
+         "<code>$8FBF</code>) leaves the room towards that side if the exit&rsquo;s key is 0 or "
+         "held (<code>$8FF5</code>, bit k&minus;1 of <code>$04B0</code>), and does nothing "
+         "otherwise.</li></ul>",
+         "<h3>Key doors: blast through the cover</h3><p>The dialogue says it: &ldquo;To use the "
+         "Warp panel, blast through the cover. You will also need the key for the "
+         "panel.&rdquo; The cover is metatile 8 (class 10) in the exit&rsquo;s fixed cell. On "
+         "entering a room <code>$ED44</code> sets the high nibble of each of "
+         "<code>$58-$5B</code> to 3, and each hit takes 1 off it (sound <code>$20</code>); on "
+         "the <strong>fourth hit</strong> the cover is replaced by the warp ring (tiles "
+         "<code>$00-$03</code>, class 2) with the blast. The ring then needs the key as above. "
+         "If an earlier door of the room (order N, W, E, S) needs a different key, the "
+         "cover turns into the bracketed panel (tiles <code>$04-$07</code>) instead &mdash; "
+         "also class 2; what that picture is for was not worked out. A weapon that hits every "
+         "frame (the blades, the Bullet Shield) therefore opens a cover in four frames.</p>",
+         '<div class="note"><strong>Run, not just read.</strong> On the labyrinth savestate '
+         "(<code>$30</code> bit 6 clear) <code>$8523</code> was called for every class: "
+         "5 &rarr; 1 and 6 &rarr; 0 with a blast, 7 &rarr; 6, 8 &rarr; 7, 9 and 14 unchanged, "
+         "each costing the shot 8; a door (class 10, key byte <code>$3k</code>) took four hits "
+         "and turned class 2, with the ring or the bracket tiles by the other doors&rsquo; keys. "
+         "The savestate&rsquo;s own room has a column of three one-hit mounds above the "
+         "ship: the gun clears the nearest one, MultiBullets, Fireball and Wave level 1 clear "
+         "all three, Back Fire the two diagonals, Bullet Shield, Area Blaster and Repeller "
+         "several around the ship, and Hyper Laser none; the sphere pick-up was run and gave "
+         "+20 chips and +2 life. <strong>Not established:</strong> whether destroyed "
+         "blocks come back when the room is entered again (the map is rebuilt when a room is "
+         "drawn; the save of room state was not followed), the bracket picture&rsquo;s purpose, "
+         "which tile block holds tiles <code>$00-$0F</code>, classes 3, 11-13 and 15, and the "
+         "four bytes <code>$0777</code>, <code>$07B2</code>, <code>$07BD</code>, "
+         "<code>$07E7</code> that <code>$82DD</code> sets to 8 with each door. Not played on "
+         "hardware.</div>"]
+    return "".join(o)
+
+
 def _labyrinth_rooms(rm) -> str:
     """How a room is encoded, and where the entrances, key doors, items and minibosses are."""
     import sys
@@ -4101,6 +4200,7 @@ def _labyrinth_rooms(rm) -> str:
     p.append(_stats([(f"key {k}" if k else "no key", str(n)) for k, n in sorted(by_key.items())]))
 
     # ---------------------------------------------------------------- items
+    p.append(_cell_hit_section(rm))
     p.append('<h2 id="items">Items</h2>')
     p.append('<div class="note"><strong>Item rooms</strong> are kind <code>$20</code> '
              "records that are rooms (byte 0 bit 7 clear). <code>$A3BB</code> takes the "
