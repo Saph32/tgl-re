@@ -223,10 +223,10 @@
     },
     {
       "addr": "$32",
-      "name": "pad_dir",
-      "what": "A direction code used to index a direction table in the player's handler (4 = neutral). Read from the code of one routine only.",
-      "status": "lead",
-      "evidence": "bank 3 $8D06-$8D1B"
+      "name": "dpad_cell",
+      "what": "The D-pad as a 3 x 3 cell index 0-8 (3 x horizontal + vertical, 4 = nothing held), from the table at bank 7 $DB22 every frame. The Wave Attack in a corridor picks its heading from it ($8837[$32]).",
+      "status": "checked",
+      "evidence": "bank 7 $DB15-$DB21; bank 6 $8806-$8812"
     },
     {
       "addr": "$33",
@@ -283,6 +283,13 @@
       "what": "Chips / $45, or $04AF for weapon 12.",
       "status": "confirmed",
       "evidence": "bank 7 $FD77-$FDF7"
+    },
+    {
+      "addr": "$3F",
+      "name": "weapon_fee_timer",
+      "what": "Counts down once per frame per weapon object; at 0 the weapon is charged its chip cost and the timer reloads with 60 (120 when two objects share it).",
+      "status": "checked",
+      "evidence": "bank 6 $8616-$8641; chip timeline run on the NES model"
     },
     {
       "addr": "$40",

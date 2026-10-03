@@ -54,6 +54,8 @@ def shot(rm, st, chips: int, tier: int, frames: int = 14) -> dict:
     m.a, m.x, m.y = st["A"][0], st["X"][0], st["Y"][0]
     m.s, m.p = st["S"][0], st["P"][0]
     m.pc = st["PC"][0] | st["PC"][1] << 8
+    m.ram[0x30] &= 0x7F                             # the savestate is a demo frame (0 bit 7):
+                                                    # its input would override the pad
     m.ram[0x3A] = tier
     m.ram[0x47] = m.ram[0x48] = 0xFF
     m.pad = 0x02                                    # B held

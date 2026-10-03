@@ -857,6 +857,25 @@ Do not re-derive these; do check anything that depends on them.
   direction numbers 0/4/8/12 are right/down/left/up, not down/right/up/left (`$F8CE` run; the
   player's shot is 12 = up) - fixed in boss.py and the Enemies page; whether the bosses' own
   fans point as described there was never checked on screen.
+- **The A-button weapons (`docs/status.html#subweapons`).** Bank 3 `$8E3C`: weapon selected (`$3C`) and A held
+  -> a type-`$03` object in every free slot from `$3B`+1 to 4 (`$3B` = `$FDCA[$3C]`: 3, so slot 4 only; 2 for Back
+  Fire, Area Blaster, Cutter Laser = two objects). Bank 6 `$866B` first frame: needs `$3E` > 0; tables `$8701`
+  attack (0 = the gun's), `$8722` durability (0 = never wears out: `$FF` put back each frame), `$8743` `$0698`,
+  `$8764` flags, `$8784` sprite, `$878F` palette, `$879A` sound (bit 7 = pay `$45` chips at once: Grenade,
+  Fireball, Repeller); every other weapon pays when `$3F` hits 0 (60 frames, 120 for two objects), and is removed
+  when `$3E` = 0. Per weapon (init table `$86E7`, run table `$8653`, index `$3C`): 1 straight shot, 2 two shots at
+  facing +5/+11, 3 very fast shot steered by `$32` (D-pad cell, corridor), 4 orbiter, 5 lobbed burst (no hit box
+  in flight), 6 slow fireball, 7 two homing missiles (next live enemy in slot order, turn every 8/4/1 frames),
+  8 spinner, 9 beam (corridor only: `$30` bit 6; attack overwritten to 1 by `$FDF8`), 10/11 blades while A held
+  (attack = gun x 2/4/8), 12 Eraser (`$8B9F`: every slot >= 5 with `$0578` bit 6 clear becomes type 8, one use of
+  `$04AF`). Collision: an enemy test hits a player-side object only if `$0578 AND mask` is non-zero; ordinary
+  enemies `$30`, the stage's fixed targets (`$36`/`$37`, `$7E`/`$7F`...) `$C0CF` = `$20` only. Run: every weapon x
+  level on the harness, homing against real enemies, Eraser, Hyper Laser with bit 6 clear; `tools/render-subweapons.py`
+  (needs the ingame savestate; image committed). **CORRECTION to the gun entry and the earlier harness runs:** the
+  ingame savestate is a DEMO frame (`$30` bit 7), whose input overwrites the pad; the first gun run only worked
+  because the demo holds A+B. The tools now clear the bit (the gun picture is unchanged). NOT established: the
+  labyrinth shapes (only a corridor was run), the Wave Attack's steering, what the weapons do to cells
+  (`$8513`/`$8523`), flag bits 2 and 3, whether Eraser kills count for item boxes.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

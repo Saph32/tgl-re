@@ -6,7 +6,7 @@
    {
     "metasprite": 37,
     "y": 138,
-    "x": 156,
+    "x": 146,
     "param": 129,
     "half_w": 2,
     "half_h": 2
@@ -14,7 +14,7 @@
    {
     "metasprite": 37,
     "y": 134,
-    "x": 156,
+    "x": 146,
     "param": 129,
     "half_w": 2,
     "half_h": 2
@@ -28,7 +28,7 @@
    {
     "metasprite": 38,
     "y": 119,
-    "x": 156,
+    "x": 146,
     "param": 67,
     "half_w": 8,
     "half_h": 4
@@ -36,7 +36,7 @@
    {
     "metasprite": 37,
     "y": 114,
-    "x": 156,
+    "x": 146,
     "param": 67,
     "half_w": 2,
     "half_h": 2
@@ -50,7 +50,7 @@
    {
     "metasprite": 40,
     "y": 101,
-    "x": 156,
+    "x": 146,
     "param": 130,
     "half_w": 12,
     "half_h": 8
@@ -58,7 +58,7 @@
    {
     "metasprite": 37,
     "y": 93,
-    "x": 156,
+    "x": 146,
     "param": 130,
     "half_w": 2,
     "half_h": 2
@@ -72,7 +72,7 @@
    {
     "metasprite": 38,
     "y": 63,
-    "x": 156,
+    "x": 146,
     "param": 131,
     "half_w": 8,
     "half_h": 4
@@ -80,7 +80,7 @@
    {
     "metasprite": 23,
     "y": 52,
-    "x": 156,
+    "x": 146,
     "param": 131,
     "half_w": 20,
     "half_h": 10

@@ -2058,6 +2058,167 @@ def _worldmap_svg(recs, cell=14):
     return "".join(out)
 
 
+def _subweapon_section(rm) -> str:
+    """How the A-button weapons work (bank 3 $8E3C, bank 6 $8616-$8C6F and its tables)."""
+    b6, b7 = rm.prg_bank(6), rm.prg_bank(7)
+    ext = _external() or {"facts": []}
+    names = next((f.get("weapon_names") for f in ext["facts"] if f.get("weapon_names")),
+                 None) or [""] * 12
+
+    def tab(base, w, lv):                      # a by-level table: [(lv - 1) * 11 + (w - 1)]
+        return b6[base - 0x8000 + (lv - 1) * 11 + (w - 1)]
+
+    def speed(v):                              # px per frame for a $0698 speed class
+        return 120 * (8 if v & 0x80 else 1) * (4 if v & 0x40 else 1) * (v & 0x3F) / 256
+
+    cost = lambda w, lv: b7[0xFDD7 - 0xC000 + 3 * (w - 1) + lv - 1]
+    slots = lambda w: b7[0xFDCA - 0xC000 + w]
+    paid_at_fire = lambda w: bool(b6[0x879A - 0x8000 + w] & 0x80)
+
+    def trio(f):
+        return " / ".join(str(f(lv)) for lv in (1, 2, 3))
+
+    def attack(w):
+        if w == 9:
+            return "1 per frame"
+        if w in (10, 11):
+            return "gun &times; 2 / 4 / 8"
+        if all(tab(0x8701, w, lv) == 0 for lv in (1, 2, 3)):
+            return "gun"
+        return trio(lambda lv: tab(0x8701, w, lv) or "gun")
+
+    def hp(w):
+        return trio(lambda lv: tab(0x8722, w, lv) or "&infin;")
+
+    def flags(w):
+        return " ".join(f"{tab(0x8764, w, lv):02X}" + ("*" if tab(0x8764, w, lv) & 0x20 else "")
+                        for lv in (1, 2, 3))
+
+    how = {
+        1: "One object (slot 4) flying straight the way the ship faces (up in a corridor) at "
+           + trio(lambda lv: f"{speed(tab(0x8743, 1, lv)):.1f}") + " px/frame; a twin pair of "
+           "bullets at levels 1 and 2, a 32 &times; 32 diamond at level 3. The level changes its "
+           "speed, size and how much it can take, not its damage (the gun's).",
+        2: "Two objects (slots 3 and 4), fired at the facing direction +5 and +11: 112&deg; "
+           "either side, so backwards and outwards (in a corridor, 22.5&deg; below horizontal to "
+           "the left and the right). Speed " + trio(lambda lv: f"{speed(tab(0x8743, 2, lv)):.1f}")
+           + " px/frame. Takes two of the four object slots.",
+        3: "A very fast straight shot (" + trio(lambda lv: f"{speed(tab(0x8743, 3, lv)):.0f}")
+           + " px/frame) that is off the screen in a few frames. In a corridor its heading is "
+           "taken from the D-pad at the moment of firing (<code>$8837[$32]</code>): left held "
+           "up-left, otherwise up, right held up-right (read from the code, not run).",
+        4: "One object that orbits the ship, centred 16 px above it in a corridor, on a path "
+           "about 45 px across; at levels 2 and 3 it goes round twice as fast, and level 3 is "
+           "32 &times; 32. It never wears out and stays until the chips run out.",
+        5: "Thrown forward, rises, then falls back (<code>$0668</code> = <code>$FE</code> is the "
+           "y it accelerates toward) for 60 frames, then bursts: a ring of 32 &times; 32 blasts "
+           "sweeping out for " + trio(lambda lv: tab(0x8743, 5, lv)) + " frames (level 1, 2, 3). "
+           "It has no hit box in flight (the box is only refreshed during the burst).",
+        6: "A slow shot that does not wear out above level 1 (hit points 128 at level 1): "
+           + trio(lambda lv: f"{speed(tab(0x8743, 6, lv)):.1f}") + " px/frame, a 16-wide sprite "
+           "at level 1 and 32 &times; 32 at levels 2 and 3, with a high attack.",
+        7: "Two homing missiles (slots 3 and 4). Every 8 / 4 / 1 frames (level 1, 2, 3) each turns "
+           "one step of 16 toward its target, the next live enemy in slot order (the second "
+           "missile skips the first's target); with no target it circles the ship. Speed class "
+           + trio(lambda lv: f"{speed(tab(0x8743, 7, lv)):.1f}") + " px/frame.",
+        8: "A spinner: a 12 or 32 px blast circling a point that drifts forward at about half a "
+           "pixel a frame, radius about 30 px. It never wears out and goes on until it leaves "
+           "the screen; the chips are paid once, at the throw.",
+        9: "<strong>Corridors only</strong> (the first frame removes it when <code>$30</code> bit "
+           "6 is clear). A beam that grows up the screen at 6 / 10 / 8 px/frame to a box about "
+           "190 px tall (6, 6 and 48 px wide), then slides off; about 40 frames, whether or not A "
+           "is held. Damage is 1 a frame at every level (the table's attack is overwritten by "
+           "<code>$FDF8</code>); at level 1 it is live only on alternate frames.",
+        10: "Exists only while A is held: a 10 &times; 6 blade 24 to 40 px ahead of the ship, "
+            "sliding in and out. Damage is the gun's attack doubled once per level.",
+        11: "Exists only while A is held: two 12 &times; 12 blades either side of the ship, "
+            "sliding out 16 to 32 px and back. Damage as the Saber's. Takes two object slots.",
+        12: "No object lives on: a press (a fresh one, not held) flashes the screen, costs one of "
+            "the <code>$04AF</code> uses and turns every enemy slot whose collision flags bit 6 "
+            "is clear into the explosion type <code>$08</code> (the original type kept in "
+            "<code>$0740</code>, as in an ordinary death).",
+    }
+    rows = []
+    for w in range(1, 13):
+        if w == 12:
+            rows.append(f"<tr><td>12 {_h(names[11])}</td><td colspan=\"4\">the Eraser count "
+                        "(<code>$04AF</code>), one per press</td><td>none</td>"
+                        f"<td>1, removed at once</td><td>{how[12]}</td></tr>")
+            continue
+        rows.append(
+            f"<tr><td>{w} {_h(names[w - 1])}</td>"
+            f"<td class=\"mono\">{trio(lambda lv: cost(w, lv))}</td>"
+            f"<td class=\"mono\">{attack(w)}</td><td class=\"mono\">{hp(w)}</td>"
+            f"<td class=\"mono\">{flags(w)}</td>"
+            f"<td>{'at the throw' if paid_at_fire(w) else 'every 60 frames while it lives'}</td>"
+            f"<td class=\"mono\">{'1' if slots(w) == 3 else '2'}</td>"
+            f"<td>{how[w]}</td></tr>")
+    o = ['<h2 id="subweapons">The A-button weapons</h2>',
+         '<p class="sub">Select a weapon on the status screen and hold A. Each of the twelve has '
+         "its own handler in bank 6, but they share one set-up and one set of per-level tables. "
+         "What they do, measured by running the real code, is below.</p>",
+         "<h3>The mechanics they share</h3><ol>"
+         "<li><strong>Spawning</strong> (bank 3 <code>$8E3C</code>): with a weapon selected "
+         "(<code>$3C</code>) and A held, every free object slot from <code>$3B</code>+1 to 4 gets "
+         "an object of type <code>$03</code> at the ship, carrying the ship's facing in "
+         "<code>$0788</code>. The main gun owns slots 1 to <code>$3B</code>. "
+         "<code>$3B</code> is 3 for most weapons (the weapon gets slot 4 only) and 2 for Back "
+         "Fire, Area Blaster and Cutter Laser (slots 3 and 4, two objects), which also leaves "
+         "the gun just two bullets while they are selected.</li>"
+         "<li><strong>First frame</strong> (bank 6 <code>$866B</code>): it needs "
+         "<code>$3E</code> (uses left) above 0, or it removes itself; plays the weapon's sound; "
+         "sets sprite, palette, attack, durability, speed class and collision flags from "
+         "the tables at <code>$8784-$8764</code>; and for the Grenade, Fireball and Repeller "
+         "pays the chip cost <code>$45</code> at once (bit 7 of <code>$879A</code>).</li>"
+         "<li><strong>Every frame</strong> (<code>$8616</code>): the other weapons pay "
+         "<code>$45</code> chips each time <code>$3F</code> counts down to 0 (reloaded with 60, "
+         "or 120 when two objects both count it), so they cost chips by the second for as long "
+         "as the object is alive; when the chips left no longer cover one use "
+         "(<code>$3E</code> = 0) the object, or both objects, are removed. Durability "
+         "(<code>$8722</code>) is real hit points that enemy contact wears down; 0 in the table "
+         "means <code>$FF</code> is put back every frame, so it never wears out.</li>"
+         "<li><strong>Cost and level</strong>: chips per use are "
+         "<code>$FDD7</code>[3 &times; weapon + level] (the first table), the level comes from "
+         "<code>$04AC-$04AE</code> and the weapon's power on the status screen.</li></ol>"]
+    o.append("<table><thead><tr><th>Weapon</th><th>Chips per use (level 1 / 2 / 3)</th>"
+             "<th>Attack</th><th>Hit points</th><th>Collision flags</th><th>Chips charged</th>"
+             "<th>Slots</th><th>What it does</th></tr></thead><tbody>"
+             + "".join(rows) + "</tbody></table>")
+    o.append('<p class="meta">Attack &ldquo;gun&rdquo; is the ship&rsquo;s own attack '
+             "(<code>$05A8</code>, from the Gun item); hit points &infin; means it never wears "
+             "out. <strong>Collision flags</strong> are the weapon&rsquo;s <code>$0578</code>: an "
+             "enemy test hits a player-side object only if its flags share a bit with the test's "
+             "mask, and ordinary enemies test <code>$30</code> while the stage's fixed targets "
+             "(the cannons <code>$36</code>/<code>$37</code> and eyes <code>$7E</code>/"
+             "<code>$7F</code> among them) call <code>$C0CF</code>, which tests <code>$20</code> "
+             "only. A star marks flags with bit 5: those weapons <em>can</em> hurt the stage "
+             "bosses; the others (Back Fire, Wave Attack level 1, Bullet Shield, "
+             "Repeller level 1 and Hyper Laser level 1) pass through them. Read from the "
+             "code, not played.</p>")
+    o.append('<p><img src="subweapons.png" width="1408" style="max-width:100%;height:auto" '
+             'alt="Paths of the eleven weapons at levels 1, 2 and 3, drawn over time"></p>')
+    o.append('<p class="meta">Each cell overlays the weapon&rsquo;s sprites every four frames in a '
+             "corridor (white cross = the ship); rows are levels 1, 2, 3. Nothing else is on "
+             "screen, so the Area Blaster circles with nothing to chase.</p>")
+    o.append('<div class="note"><strong>Run, not just read.</strong> Every weapon at every level '
+             "was run on the NES model (<code>tools/tgl/cpu.py</code>, with a pad) from a corridor "
+             "savestate after calling the ROM's own <code>$FD77</code> to set the level and cost: "
+             "the object counts, chip charges (by the second or at the throw, and the stop when "
+             "chips cannot cover a use), lifetimes, speeds, paths and the table values above are "
+             "what the code did. The Area Blaster was also run among the savestate's real "
+             "enemies: its two missiles chose different ones and steered onto them. The Hyper "
+             "Laser was run with <code>$30</code> bit 6 cleared and removes itself at once; the "
+             "Eraser, with enemies on screen, turned them into explosions and used one of "
+             "<code>$04AF</code>. Pictures are from <code>tools/render-subweapons.py</code>. "
+             "<strong>Not established:</strong> the corridor only was run, so the labyrinth "
+             "shapes and facing are read from the code; the Wave Attack's D-pad steering was "
+             "not run; what the weapons do to the labyrinth's cells (<code>$8513</code>, "
+             "<code>$8523</code>: they react to certain cell types) and what flag bits 2 and 3 "
+             "do (one enemy-shot type tests bit 2); whether Eraser kills count towards item "
+             "boxes. Not played on hardware.</div>")
+    return "".join(o)
+
+
 def _gun_section(rm) -> str:
     """How the chip total shapes the main gun's shot (bank 7 $E213, bank 6 $8490)."""
     b6, b7 = rm.prg_bank(6), rm.prg_bank(7)
@@ -2327,6 +2488,7 @@ def _status_page(rm):
              "have not been played on hardware.</div>")
 
     p.append(_gun_section(rm))
+    p.append(_subweapon_section(rm))
 
     p.append("<h2>RAM this screen names</h2>")
     p.append("<table><thead><tr><th>Address</th><th>Meaning</th></tr></thead><tbody>"
