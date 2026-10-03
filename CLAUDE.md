@@ -896,6 +896,27 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **Rendering: mirroring, the NMI, the split, scrolling (`docs/rendering.html`).** iNES byte 6 = `$21`: vertical
+  mirroring, and the game RELIES on it: horizontal room scrolls cross `$2000`/`$2400`, and the corridor engine alternates its
+  row writes between `$2000` and the `$2800` alias (`$AB`; 216 of ~1000 writes in 120 frames). NMI `$DC75`: render off,
+  OAM DMA, `$4015=$1F`, `$DD54` (one pending row via `$A5` 1/2/3, then the `$0100` queue) + `$DEC9` palettes, the `$FE`
+  marker if `$30` bit 4, `$D68B` (`$2000=$FF`, `$2005=$FD,$FC`), render on `|$A3`. **Split:** sprite 0 = y 191, tile `$FF`
+  (8x16: tiles `$FE`/`$FF` of table 1, `$FE` solid), x 0, behind the BG; a solid BG tile `$FE` in column 0 at line 192
+  (labyrinth: the room's row 24 via `$F03D`; corridor: written by the NMI at row ((192+`$A6`) mod 240)/8); on the hit
+  `$DD21` loads `$2006=$2700` (NT1 row 24, fine y 2), forces NT1 in `$2000`, clears sprites in `$2001`, `$2005=0,0`: the
+  HUD is NT1 rows 24-29 (24 blank, 25 SC/CHIP/SHOT, 26 meter, 27 AREA/X/Y). Done by the main thread (`$DAB6`) or by the
+  DMC IRQ (`$DCF3`; 17-byte zero sample = 136 periods; `$05` walked `$87`->`$89`, +1 when late) - IRQ arithmetic only, the
+  harness has none. **Corridor:** NT0 only, window 192 of 240 lines, `$A6` counts DOWN by `$B7` (speed `$B8/$B9`),
+  wraps 0->239 with `$A7` toggling, a 16-px row every `$AF` overflow (`$AE` 14..0, `$EACC` -> `$AC/$AD`, written in two
+  NMIs), 4-6 tile rows above the window top. **Labyrinth:** room = NT0 rows 0-23 at rest; exits (`$A4` 0/2/6/8 = N/W/E/S):
+  E/W scroll `$A8` +/-4 a frame, 64 frames, new room drawn in NT1 first (W starts at `$A8`=252 with `$A9`=1), N/S `$A6`
+  +/-4, 48 frames, new room drawn into the rows being uncovered; ship moves 3 px a frame the other way; then re-homed
+  into NT0 (E/W: copy NT1->NT0; N/S: draw to NT1, flip, draw to NT0, flip) because the cell-editing code (`$D865`)
+  assumes NT0. **Status screen:** `$A2`=1, `$FC`=180, NT1, no split (HUD rows wrap to the top). All measured on the NES
+  model (`tools/render-scroll.py --corridor ... --labyrinth ...`, images committed); no hardware. NOT established: the
+  IRQ path run, `$F0A8-$F0C1` inline fills, the title/ending/password screens' scrolling.
+  **CORRECTION:** the RAM-map lead `$AA-$AE` 'scroll helpers/velocity' was wrong: they are the row's attribute
+  address, row table half, PPU address and row index.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

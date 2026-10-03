@@ -625,6 +625,13 @@
       "evidence": "bank 7 $D50F-$D51B"
     },
     {
+      "addr": "$A3",
+      "name": "render_enable",
+      "what": "The rendering bits the NMI ORs into PPUMASK after clearing them: 0 while the screen is blanked (fades, loading), $18 when it is on.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DD48-$DD53; $D4C7, $D4D5"
+    },
+    {
       "addr": "$A4",
       "name": "exit_dir",
       "what": "Which way the player left a labyrinth room: 0 north, 2 west, 6 east, 8 south (4 = none).",
@@ -633,10 +640,10 @@
     },
     {
       "addr": "$A5",
-      "name": "transfer_request",
-      "what": "A pending PPU transfer: 2 makes $E619 queue the 32-byte map row in $0150; any non-zero value tightens the queue-space check. Cleared by the init code.",
-      "status": "lead",
-      "evidence": "bank 7 $E5F7-$E654, $D6CC; bank 5 $8805"
+      "name": "row_transfer",
+      "what": "The hand-off of one background row to the NMI: 1 = write the attribute bytes ($04E8) and the first tile row ($0130) next NMI, 2 = write the second tile row ($0150), 3 = attributes and one row (the blank/marker row), 0 = nothing. $DD54 steps it.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DD54-$DE0B; $E5EB-$E654; $F03D; $E98F; NES-model run"
     },
     {
       "addr": "$A6",
@@ -648,11 +655,32 @@
     },
     {
       "addr": "$AA",
-      "end": "$AE",
-      "name": "scroll_fx",
-      "what": "Scroll helpers: $AC/$AD give a ground object the scroll's y velocity (lo, hi) at spawn, $AE its x velocity; $AA a column base for it.",
-      "status": "lead",
-      "evidence": "bank 5 $8A42-$8A67"
+      "name": "row_attr_lo",
+      "what": "The low byte of the attribute address of the background row being built ($C0 | (($AE x 2) AND $1C) x 2); ground objects keep it ($0608).",
+      "status": "confirmed",
+      "evidence": "bank 7 $EACC; bank 5 $8A57-$8A67"
+    },
+    {
+      "addr": "$AB",
+      "name": "row_nt_half",
+      "what": "Flips each time the row counter $AE wraps; while 1 the row address is moved up by $0800, so the corridor's rows alternate between $2000 and its mirror $2800 (vertical mirroring makes them the same table).",
+      "status": "confirmed",
+      "evidence": "bank 7 $E6B9-$E6C5, $E98F-area; 216 writes to $2800-$2BFF in 120 corridor frames"
+    },
+    {
+      "addr": "$AC",
+      "name": "row_ppu_addr",
+      "what": "The PPU address of the first tile row of the background row being built ($2000 + $40 x $AE, +$0800 while $AB is 1, or OR $17 in the labyrinth): $AC low, $AD high. A ground object takes a copy so it can patch its own tiles.",
+      "status": "confirmed",
+      "evidence": "bank 7 $EACC; bank 5 $8A42-$8A67",
+      "end": "$AD"
+    },
+    {
+      "addr": "$AE",
+      "name": "row_index",
+      "what": "Which of the 15 background rows (16 lines each) is being built, 14 down to 0 and round again; in the labyrinth, which pair of tile rows of the room is being drawn.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E560, $E98F, $EACC, $F03D; corridor run"
     },
     {
       "addr": "$AF",
@@ -676,6 +704,13 @@
       "what": "The scroll position accumulator (fraction, whole) the speed is subtracted from.",
       "status": "lead",
       "evidence": "bank 7 $E530-$E53F"
+    },
+    {
+      "addr": "$B7",
+      "name": "scroll_step",
+      "what": "The whole pixels the scroll moved this frame, from the speed in $B8/$B9.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E530-$E55E"
     },
     {
       "addr": "$B8",

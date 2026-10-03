@@ -32,7 +32,7 @@
       },
       "mirroring": {
         "value": "vertical",
-        "description": "iNES byte 6 bit 0 is 1, which the specification reads as vertical mirroring. Mapper 2 has no mirroring control register, so unlike the MMC1 cartridges this toolchain came from, this cannot change at runtime and the header's bit is the whole answer. NOT CHECKED: whether the game ever relies on that arrangement in a way the ROM would show."
+        "description": "iNES byte 6 bit 0 is 1, which the specification reads as vertical mirroring. Mapper 2 has no mirroring control register, so unlike the MMC1 cartridges this toolchain came from, this cannot change at runtime and the header's bit is the whole answer. CHECKED (docs/rendering.html): the game relies on it. The labyrinth's east and west scrolls run across the join between $2000 and $2400, and the corridor engine writes its rows through the $2800 alias of NT0 half the time (216 of 1,046 nametable writes in 120 corridor frames on the NES model), which only works because $2800 is NT0."
       }
     },
     "vectors": {
