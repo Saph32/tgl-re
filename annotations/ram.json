@@ -40,6 +40,14 @@
   ],
   "entries": [
     {
+      "addr": "$00",
+      "name": "jump_table_ptr",
+      "what": "The inline jump-table routines pop their return address into it and fetch entry k at +2k ($9F10 and the copies in banks 6 and 7). The random routine also reads $0000,Y as noise.",
+      "status": "confirmed",
+      "evidence": "bank 5 $9F10-$9F21; bank 7 $D6B0, $F9DC",
+      "end": "$01"
+    },
+    {
       "addr": "$04",
       "name": "live_bank",
       "what": "The PRG bank currently selected. Every bank-switch routine writes it.",
@@ -52,6 +60,37 @@
       "what": "The DMC timer's rate index, reloaded into $4010 by the IRQ and tuned between $81 and $89 to land the raster split.",
       "status": "confirmed",
       "evidence": "bank 7 $DCF3, $DAC3-$DACF"
+    },
+    {
+      "addr": "$09",
+      "name": "decomp_header",
+      "what": "The tile decompressor's escape byte ($09) and mirror byte ($0A) for the block it is decoding.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DB91-$DB9D, $DC5A",
+      "end": "$0A"
+    },
+    {
+      "addr": "$0B",
+      "name": "decomp_flags",
+      "what": "Decompressor state: bit 7 flips at each escape byte; a non-zero value, with $A5 and $20, makes the wait routine $D7C3 keep waiting.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DB95-$DB99, $D7EC-$D7F2"
+    },
+    {
+      "addr": "$0C",
+      "name": "decomp_src",
+      "what": "The decompressor's source pointer in the ROM bank.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D82B-$D830, $DB8E",
+      "end": "$0D"
+    },
+    {
+      "addr": "$0E",
+      "name": "decomp_dst",
+      "what": "The destination PPU address the decompressor writes tile bytes to (copied from $18/$19 when a block is armed).",
+      "status": "confirmed",
+      "evidence": "bank 7 $D832-$D838",
+      "end": "$0F"
     },
     {
       "addr": "$10",
@@ -102,6 +141,22 @@
       "evidence": "bank 5 $882D; bank 7 $D99C-$D9A4 (read, not followed through)"
     },
     {
+      "addr": "$1C",
+      "name": "sound_ptr",
+      "what": "The sound engine's pointer into the current channel's stream (and a note sequence).",
+      "status": "confirmed",
+      "evidence": "bank 0 $92F7-$9307",
+      "end": "$1D"
+    },
+    {
+      "addr": "$1E",
+      "name": "sound_tmp",
+      "what": "The sound engine's scratch: the pitch slide's delta (16 bits), a volume, or a pointer to a note sequence or an envelope.",
+      "status": "confirmed",
+      "evidence": "bank 0 $92A7-$92E8, $93B1-$93D6, $9534-$9545",
+      "end": "$1F"
+    },
+    {
       "addr": "$20",
       "end": "$21",
       "name": "queue_len",
@@ -110,11 +165,40 @@
       "evidence": "bank 7 $E619-$E654, $D6C0-$D6E0 (read, not followed through)"
     },
     {
+      "addr": "$21",
+      "name": "queue_end",
+      "what": "Offset of the next free byte in the PPU queue. The space check $D6C0 refuses an entry that would reach $51, and, while $A5 is not 0, one that would reach $31.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D6C0-$D6D2, $D6F7-$D6FC"
+    },
+    {
+      "addr": "$25",
+      "name": "queue_reserved",
+      "what": "Length of the queue entry being reserved ($D6E0), added to $21 when it is committed ($D6F7).",
+      "status": "confirmed",
+      "evidence": "bank 7 $D6E0-$D6FC"
+    },
+    {
       "addr": "$26",
       "name": "ppustatus_snapshot",
       "what": "PPUSTATUS read once per NMI.",
       "status": "confirmed",
       "evidence": "bank 7 NMI"
+    },
+    {
+      "addr": "$27",
+      "name": "art_stream",
+      "what": "The art-load stream: $27 is its position (bit 7 set while one runs), $28/$29 its pointer - the default $A497, a miniboss's, or the one command 7 names.",
+      "status": "confirmed",
+      "evidence": "bank 5 $A470-$A478, $A679; bank 7 $E86D-$E874, $E9B7-$E9BC",
+      "end": "$29"
+    },
+    {
+      "addr": "$2A",
+      "name": "rng_state",
+      "what": "The random number state: $F9D1 mixes it with the stack pointer, $41 and bytes of ROM and RAM; the IRQ stirs it ($DCE8).",
+      "status": "confirmed",
+      "evidence": "bank 7 $F9D1-$F9E8, $DCE8"
     },
     {
       "addr": "$2B",
@@ -136,6 +220,20 @@
       "what": "Mode bits - see the table below.",
       "status": "confirmed",
       "evidence": "many; the bits are listed with their writers"
+    },
+    {
+      "addr": "$32",
+      "name": "pad_dir",
+      "what": "A direction code used to index a direction table in the player's handler (4 = neutral). Read from the code of one routine only.",
+      "status": "lead",
+      "evidence": "bank 3 $8D06-$8D1B"
+    },
+    {
+      "addr": "$38",
+      "name": "temp_38",
+      "what": "Two uses: the metasprite drawer's saved X, and the aim routine's direction flags ($F863).",
+      "status": "confirmed",
+      "evidence": "bank 7 $CDDD, $CE85, $F867"
     },
     {
       "addr": "$3B",
@@ -326,6 +424,27 @@
       "evidence": "bank 0 $8132; bank 3 password payload"
     },
     {
+      "addr": "$6C",
+      "name": "edge_state",
+      "what": "The player's position relative to the tile grid and the room edge: 2 means leaving the room (the exit routine picks a direction by position).",
+      "status": "lead",
+      "evidence": "bank 6 $82C9; bank 3 $8FC9-$8FED"
+    },
+    {
+      "addr": "$6E",
+      "name": "shield_slot",
+      "what": "The object slot of an object protecting the player (0 = none); the damage routine reads its attack instead of the player's.",
+      "status": "lead",
+      "evidence": "bank 7 $D39D-$D3C4; bank 5 $A153"
+    },
+    {
+      "addr": "$6F",
+      "name": "align_or_mask",
+      "what": "Bit flags a movement test builds (bit 7 x on the tile grid, bit 6 y), and the collision mask argument of $D348.",
+      "status": "lead",
+      "evidence": "bank 6 $8295-$82C1; bank 7 $D34A"
+    },
+    {
       "addr": "$70",
       "name": "boss_phase",
       "what": "The boss phase: 0 none; 1 set up; 2 wait for the scroll; 3 spawn; 4 fight; 6 the explosion count; back to 0.",
@@ -391,6 +510,14 @@
       "evidence": "bank 7 $E733"
     },
     {
+      "addr": "$80",
+      "name": "oam_alloc",
+      "what": "The sprite allocator: $80 is the next free OAM offset, $81/$82 the limits it fills between, $83 flags (bit 0 which end it fills from, flipped each frame so overflowing sprites rotate; bit 1 full; bit 7 wrapped). $CE88 hides the unused rest.",
+      "status": "lead",
+      "evidence": "bank 7 $CD99-$CEBF",
+      "end": "$83"
+    },
+    {
       "addr": "$84",
       "end": "$87",
       "name": "draw_regs",
@@ -421,11 +548,33 @@
       "evidence": "bank 7 $E8AB"
     },
     {
+      "addr": "$A2",
+      "name": "nt_select",
+      "what": "The PPUCTRL nametable bits ($FF bits 0-1 merged with $A7/$A9), computed by $D507.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D50F-$D51B"
+    },
+    {
       "addr": "$A4",
       "name": "exit_dir",
       "what": "Which way the player left a labyrinth room: 0 north, 2 west, 6 east, 8 south (4 = none).",
       "status": "confirmed",
       "evidence": "bank 3 $8FCD-$8FED; bank 7 $EB3A"
+    },
+    {
+      "addr": "$A5",
+      "name": "transfer_request",
+      "what": "A pending PPU transfer: 2 makes $E619 queue the 32-byte map row in $0150; any non-zero value tightens the queue-space check. Cleared by the init code.",
+      "status": "lead",
+      "evidence": "bank 7 $E5F7-$E654, $D6CC; bank 5 $8805"
+    },
+    {
+      "addr": "$A6",
+      "name": "scroll_regs",
+      "what": "The scroll the game wants: $A6 vertical, $A7 its nametable bit, $A8 horizontal, $A9 its nametable bit. $D507 copies $A6 to $FC and $A8 to $FD; the corridor scroll subtracts the speed from $A6.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D4FD-$D51B, $E541",
+      "end": "$A9"
     },
     {
       "addr": "$AA",
@@ -531,6 +680,14 @@
       "evidence": "bank 7 $D678; bank 0 $8341"
     },
     {
+      "addr": "$FC",
+      "name": "scroll_shadow",
+      "what": "What the NMI writes to $2005: $FD horizontal (written first), $FC vertical. The raster-split IRQ adds $FC to sprite 0's Y.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D68B-$D69A, $DCB0",
+      "end": "$FD"
+    },
+    {
       "addr": "$FE",
       "name": "ppumask_shadow",
       "what": "The PPUMASK value the game wants.",
@@ -593,6 +750,13 @@
       "evidence": "bank 7 $DF3D; bank 0 $80A5-$80B3; run at chosen scores"
     },
     {
+      "addr": "$017F",
+      "name": "palette_dirty",
+      "what": "Set to 3 after code edits the palette shadow ($0180-$0198); the flush is not followed.",
+      "status": "lead",
+      "evidence": "bank 3 $8873; bank 2 $8916; bank 7 $D342"
+    },
+    {
       "addr": "$0180",
       "end": "$0198",
       "name": "palette_shadow",
@@ -618,10 +782,45 @@
     },
     {
       "addr": "$0300",
-      "name": "sound_flag",
-      "what": "A sound request / song-done flag: command $94 sets it ($10) after the title song's first pass; the boss routine waits on it.",
+      "name": "sound_event",
+      "what": "The song-event register. A song's $94 command ORs its operand into it (the title song sets $10 after one pass), and when a channel's stream ends the channel's song number ($03DD) is stored here. The boss routine and the title loop wait for it to become non-zero.",
       "status": "confirmed",
-      "evidence": "bank 0 $9D06; bank 3 $93CE-$93E2"
+      "evidence": "bank 0 $9370-$9373, $93DA-$93DD; bank 3 $93CE-$93E2"
+    },
+    {
+      "addr": "$0301",
+      "name": "sound_cmd",
+      "what": "Sound control bits: bit 0 requests a restart (clears it, reloads song 0 and marks every channel); bit 1 makes channel 6 run instead of 5.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9182-$91B3"
+    },
+    {
+      "addr": "$0302",
+      "name": "sound_channel",
+      "what": "The channel the tick is working on (5 down to 0, or 6).",
+      "status": "confirmed",
+      "evidence": "bank 0 $91B3-$91B6, $923E"
+    },
+    {
+      "addr": "$0303",
+      "name": "sound_ysave",
+      "what": "The stream index saved by handlers that borrow Y.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9427-$942E"
+    },
+    {
+      "addr": "$0304",
+      "name": "sound_song",
+      "what": "The song number being started ($97E4); a loop counter while a header is copied.",
+      "status": "confirmed",
+      "evidence": "bank 0 $97E4, $981B-$982E"
+    },
+    {
+      "addr": "$0305",
+      "name": "sound_tmp",
+      "what": "Scratch: the header's first byte, and the envelope's output volume.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9801, $95DD"
     },
     {
       "addr": "$0306",
@@ -629,6 +828,13 @@
       "what": "The mask of the four hardware channels in use.",
       "status": "confirmed",
       "evidence": "bank 0 sound engine"
+    },
+    {
+      "addr": "$0307",
+      "name": "sound_paused",
+      "what": "While non-zero the tick returns at once; $97CC raises it around a song start.",
+      "status": "confirmed",
+      "evidence": "bank 0 $917C, $97CC-$97DC"
     },
     {
       "addr": "$0308",
@@ -639,12 +845,19 @@
       "evidence": "bank 0 $917C"
     },
     {
+      "addr": "$0318",
+      "name": "sound_ctl",
+      "what": "ORed with each active channel's control byte during a tick, bit 5 = a channel muted all.",
+      "status": "lead",
+      "evidence": "bank 0 $96BF-$96D5"
+    },
+    {
       "addr": "$0319",
-      "end": "$033B",
+      "end": "$03FF",
       "name": "sound_channels",
-      "what": "Seven soft channels: field f of channel c at $0319 + 7 f + c.",
+      "what": "Seven soft channels, 33 fields each: field f of channel c is at $0319 + 7 f + c. The field table below names them.",
       "status": "confirmed",
-      "evidence": "bank 0 $97E4"
+      "evidence": "bank 0 $917C-$9840"
     },
     {
       "addr": "$0400",
@@ -1094,5 +1307,238 @@
         "evidence": "bank 7 $DD54, $E522"
       }
     ]
-  }
+  },
+  "sound_fields": [
+    {
+      "f": 0,
+      "name": "control",
+      "what": "Channel control: 0 = idle. Bits 0-1 take the duty from the note sequence; bit 4 is tested when a note starts.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91B9, $9564-$956B, $9516"
+    },
+    {
+      "f": 1,
+      "name": "volume",
+      "what": "The register's volume (low nibble, clamped 0-15) and flag bits (high nibble); bit 4 enables the volume envelope.",
+      "status": "confirmed",
+      "evidence": "bank 0 $93B1-$93D6, $95B2-$95B7"
+    },
+    {
+      "f": 2,
+      "name": "vol_envelope",
+      "what": "Volume envelope id (0 = none); its table is $99AB.",
+      "status": "confirmed",
+      "evidence": "bank 0 $95B9-$95C8"
+    },
+    {
+      "f": 3,
+      "name": "pitch_envelope",
+      "what": "Pitch envelope id (bit 7 none, bit 6 changes how the result is applied); its table is $995F.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9652-$9667, $968E"
+    },
+    {
+      "f": 4,
+      "name": "transpose",
+      "what": "A pitch offset added to the note number; commands add to it.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9397-$939D, $959A, $9432"
+    },
+    {
+      "f": 5,
+      "name": "tick_reload",
+      "what": "The tick countdown's reload value.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91E2, $9505"
+    },
+    {
+      "f": 6,
+      "name": "hw_channel",
+      "what": "The hardware channel wanted (compared with 3 for the triangle).",
+      "status": "confirmed",
+      "evidence": "bank 0 $957A-$957D, $96DF"
+    },
+    {
+      "f": 7,
+      "name": "stream_lo",
+      "what": "The stream pointer, low byte (high in field 8).",
+      "status": "confirmed",
+      "evidence": "bank 0 $92F7, $94F7-$9502"
+    },
+    {
+      "f": 8,
+      "name": "stream_hi",
+      "what": "The stream pointer, high byte.",
+      "status": "confirmed",
+      "evidence": "bank 0 $92FC, $9502"
+    },
+    {
+      "f": 9,
+      "name": "flags",
+      "what": "Bit 0 software-rate mode; bit 1 volume fade reached its target; bit 3 a note sequence is running; bit 5 volume fade on; bit 6 slide direction down; bit 7 pitch slide on.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91CA, $91FC, $9207, $9224, $94AC, $92BD"
+    },
+    {
+      "f": 10,
+      "name": "position",
+      "what": "Ticks counted in the current note.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91E8-$91F1"
+    },
+    {
+      "f": 11,
+      "name": "length",
+      "what": "The current note's length in ticks; reaching it ends the note.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91EE, $94F1"
+    },
+    {
+      "f": 12,
+      "name": "last_duration",
+      "what": "The last duration byte read, kept for a repeat.",
+      "status": "lead",
+      "evidence": "bank 0 $94C2, $94C8"
+    },
+    {
+      "f": 13,
+      "name": "countdown",
+      "what": "The tick countdown for the note.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91DD-$91E5"
+    },
+    {
+      "f": 14,
+      "name": "last_length",
+      "what": "The previous note's length, reused when a note has no duration byte.",
+      "status": "confirmed",
+      "evidence": "bank 0 $94D5, $94F4"
+    },
+    {
+      "f": 15,
+      "name": "out_volume",
+      "what": "The volume to send to the APU after the envelope is applied.",
+      "status": "confirmed",
+      "evidence": "bank 0 $95EE, $95F5, $961F"
+    },
+    {
+      "f": 16,
+      "name": "note",
+      "what": "Used with the note number when a pitch is looked up; not followed further.",
+      "status": "lead",
+      "evidence": "bank 0 $9414-$941B"
+    },
+    {
+      "f": 17,
+      "name": "unknown_17",
+      "what": "Not named.",
+      "status": "lead",
+      "evidence": ""
+    },
+    {
+      "f": 18,
+      "name": "soft_rate",
+      "what": "The software tick accumulator's step (command sets it and the accumulator to $80).",
+      "status": "confirmed",
+      "evidence": "bank 0 $9439-$944E, $91D1"
+    },
+    {
+      "f": 19,
+      "name": "soft_acc",
+      "what": "The software tick accumulator; a carry advances the note.",
+      "status": "confirmed",
+      "evidence": "bank 0 $91D5-$91DB, $943E"
+    },
+    {
+      "f": 20,
+      "name": "vol_env_pos",
+      "what": "Position in the volume envelope.",
+      "status": "confirmed",
+      "evidence": "bank 0 $95CA, $95E1"
+    },
+    {
+      "f": 21,
+      "name": "pitch_env_pos",
+      "what": "Position in the pitch envelope; zeroed at each note.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9667, $9672, $9510"
+    },
+    {
+      "f": 22,
+      "name": "period_lo",
+      "what": "The timer period sent to the APU, low byte.",
+      "status": "checked",
+      "evidence": "bank 0 $92AD-$92D2, $95A5; the period table $9840"
+    },
+    {
+      "f": 23,
+      "name": "period_hi",
+      "what": "The timer period, high byte (a slide stops at 8).",
+      "status": "checked",
+      "evidence": "bank 0 $92B2, $92D5"
+    },
+    {
+      "f": 24,
+      "name": "fade_rate",
+      "what": "Volume fade step added each tick.",
+      "status": "confirmed",
+      "evidence": "bank 0 $920E-$9218, $93F5-$93F8"
+    },
+    {
+      "f": 25,
+      "name": "fade_acc",
+      "what": "The volume fade's accumulator; a carry steps the volume.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9212-$9218, $93F2"
+    },
+    {
+      "f": 26,
+      "name": "fade_target",
+      "what": "The volume the fade moves toward.",
+      "status": "confirmed",
+      "evidence": "bank 0 $921F, $93E5"
+    },
+    {
+      "f": 27,
+      "name": "slide_shift",
+      "what": "A pitch slide's step: the period shifted right by this many bits.",
+      "status": "confirmed",
+      "evidence": "bank 0 $92A7-$92BB, $947B"
+    },
+    {
+      "f": 28,
+      "name": "song_id",
+      "what": "The song number playing on the channel; stored in $0300 when its stream ends.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9816, $9370"
+    },
+    {
+      "f": 29,
+      "name": "state",
+      "what": "Bit 7 set at each note start and cleared each tick; bit 6 set to mute the channel.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9199, $91C2-$91C7, $9525"
+    },
+    {
+      "f": 30,
+      "name": "seq_value",
+      "what": "The current byte of a note sequence: its bits 5-6 give the duty.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9558-$956B, $945C-$9476"
+    },
+    {
+      "f": 31,
+      "name": "seq_lo",
+      "what": "The note sequence pointer, low byte (command $90; a 00 byte jumps).",
+      "status": "confirmed",
+      "evidence": "bank 0 $9531-$9555"
+    },
+    {
+      "f": 32,
+      "name": "seq_hi",
+      "what": "The note sequence pointer, high byte.",
+      "status": "confirmed",
+      "evidence": "bank 0 $9531-$9555"
+    }
+  ]
 }

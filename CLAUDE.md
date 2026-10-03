@@ -883,7 +883,16 @@ Do not re-derive these; do check anything that depends on them.
 
 The RAM map exists: `annotations/ram.json`, drawn on `docs/ram.html` beside a generated
 cross-reference. Add a name there (with its evidence and a status), not here. The first version
-names about half the touched bytes; the page's "busiest unnamed bytes" table is what to read next.
+names 73% of the touched bytes (129 entries, 33 sound fields); the page's "busiest unnamed bytes"
+table is what to read next. Worked out from the busiest unnamed list: the sound engine's whole channel
+state (`$0319 + 7f + c`, 33 fields, ends exactly at `$03FF`; `$1C-$1F` its scratch; `$0300` is the
+song-event register: a `$94` command ORs into it and a channel's end stores its song number), the
+tile decompressor's state (`$09-$0F`), the PPU queue's cursor (`$21`, reserve `$25`), the art-load
+stream (`$27-$29`), `$2A` the random state, the sprite allocator (`$80-$83`) and the scroll
+registers. **CORRECTION:** `$FC` is the vertical and `$FD` the horizontal scroll shadow (`$D68B`
+writes `$FD` first), so `$A6`/`$A7` are scroll Y and its nametable bit and `$A8`/`$A9` scroll X and
+its; the older note that `$FC` is "added to `$0200` in NMI" was the raster-split IRQ adding the
+vertical scroll to sprite 0's Y (`$DCB0`).
 
 ## Known limits of the searches run so far
 

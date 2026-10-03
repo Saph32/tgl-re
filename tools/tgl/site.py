@@ -563,7 +563,7 @@ def _ram_data():
                                   "is not inside $0000-$07FF")
         if e["status"] not in RAM_STATUSES:
             raise AnnotationError(f'ram.json entry {e["name"]}: unknown status {e["status"]}')
-    for e in d["object_fields"]:
+    for e in d["object_fields"] + d.get("sound_fields", []):
         if e["status"] not in RAM_STATUSES:
             raise AnnotationError(f'ram.json field {e["name"]}: unknown status {e["status"]}')
     return d
@@ -3529,6 +3529,21 @@ def _ram_page(rm):
                "palette shadow live between them.")
     p += table("Page 2: OAM", "page2", 0x200, 0x2FF)
     p += table("Page 3: sound", "page3", 0x300, 0x3FF)
+    p.append('<h3 id="soundfields">Sound channel fields</h3>')
+    p.append('<p class="sub">Seven soft channels (0-6), 33 fields each, a structure of arrays: '
+             "<strong>field f of channel c is at <code>$0319 + 7 f + c</code></strong>, so the "
+             "state ends exactly at <code>$03FF</code>. The tick is bank 0 "
+             "<code>$917C</code>; a song start copies nine header fields into fields 0-8.</p>")
+    trs = []
+    for f in d["sound_fields"]:
+        base = 0x319 + 7 * f["f"]
+        trs.append(f'<tr><td class="mono">{f["f"]}</td><td><code>${base:04X}</code></td>'
+                   f"<td><code>{_h(f['name'])}</code></td><td>{_h(f['what'])}</td>"
+                   f"<td>{stat(f['status'])}</td><td>{acc(base, base)}</td>"
+                   f'<td class="meta">{_h(f["evidence"])}</td></tr>')
+    p.append("<table><thead><tr><th>f</th><th>Channel 0</th><th>Name</th><th>What it holds</th>"
+             "<th>Status</th><th>Accesses (base)</th><th>Where it was read</th></tr></thead>"
+             f"<tbody>{''.join(trs)}</tbody></table>")
     p += table("Page 4: stage and progress state", "page4", 0x400, 0x4FF,
                "Entries here can overlap in time: the password screen's field "
                "(<code>$0411-$0430</code>) uses bytes the corridor overlay slots use in play.")
