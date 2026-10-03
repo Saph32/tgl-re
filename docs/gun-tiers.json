@@ -1,0 +1,90 @@
+[
+ {
+  "chips": 50,
+  "tier": 0,
+  "frames": [
+   {
+    "metasprite": 37,
+    "y": 138,
+    "x": 156,
+    "param": 129,
+    "half_w": 2,
+    "half_h": 2
+   },
+   {
+    "metasprite": 37,
+    "y": 134,
+    "x": 156,
+    "param": 129,
+    "half_w": 2,
+    "half_h": 2
+   }
+  ]
+ },
+ {
+  "chips": 150,
+  "tier": 1,
+  "frames": [
+   {
+    "metasprite": 38,
+    "y": 119,
+    "x": 156,
+    "param": 67,
+    "half_w": 8,
+    "half_h": 4
+   },
+   {
+    "metasprite": 37,
+    "y": 114,
+    "x": 156,
+    "param": 67,
+    "half_w": 2,
+    "half_h": 2
+   }
+  ]
+ },
+ {
+  "chips": 500,
+  "tier": 2,
+  "frames": [
+   {
+    "metasprite": 40,
+    "y": 101,
+    "x": 156,
+    "param": 130,
+    "half_w": 12,
+    "half_h": 8
+   },
+   {
+    "metasprite": 37,
+    "y": 93,
+    "x": 156,
+    "param": 130,
+    "half_w": 2,
+    "half_h": 2
+   }
+  ]
+ },
+ {
+  "chips": 3000,
+  "tier": 3,
+  "frames": [
+   {
+    "metasprite": 38,
+    "y": 63,
+    "x": 156,
+    "param": 131,
+    "half_w": 8,
+    "half_h": 4
+   },
+   {
+    "metasprite": 23,
+    "y": 52,
+    "x": 156,
+    "param": 131,
+    "half_w": 20,
+    "half_h": 10
+   }
+  ]
+ }
+]

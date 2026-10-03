@@ -16,8 +16,9 @@ What it is NOT, and what that means for anything drawn with it:
 * **No PPU rendering pipeline.** Nothing is rendered per scanline; a frame is drawn from
   the state at its end, with one scroll value. A mid-frame scroll split is ignored, and
   sprite 0 never hits (``$2002`` bit 6 stays clear).
-* **No audio, no controller:** ``$4000-$4017`` writes are ignored except ``$4014``;
-  ``$4016/$4017`` read 0 (nothing pressed).
+* **No audio. The controller is one pad, held:** ``$4000-$4017`` writes are ignored except
+  ``$4014`` and the ``$4016`` strobe; ``$4016`` shifts out ``Machine.pad`` (A, B, Select, Start,
+  Up, Down, Left, Right, bit 0 = A) and ``$4017`` reads 0. ``pad`` is 0 unless a run sets it.
 * **Starting state comes from a savestate**, so anything the sequence reads that the
   savestate holds differently from a real run (palette RAM from another stage, CHR RAM
   that the code would have loaded earlier) is the savestate's.
@@ -68,6 +69,8 @@ class Machine:
         self.fc = 0                     # cycles into the current frame
         self.in_nmi = False
         self.spr0 = False
+        self.pad = 0                    # buttons held, bit 0 = A ... bit 7 = Right
+        self._padsh = 0
         self.scroll_log = [(0, 0, 0, 0)]
         self.chr_writes = 0
         self.nmi_vec = self.banks[7][0x3FFA] | self.banks[7][0x3FFB] << 8
@@ -104,6 +107,10 @@ class Machine:
             if r == 7:
                 return self._ppu_read()
             return 0
+        if a == 0x4016:
+            v = self._padsh & 1
+            self._padsh = (self._padsh >> 1) | 0x80
+            return v
         return 0
 
     def write(self, a, v):
@@ -143,6 +150,9 @@ class Machine:
             elif r == 7:
                 self._ppu_write(self.vaddr, v)
                 self.vaddr = (self.vaddr + (32 if self.ctrl & 4 else 1)) & 0x3FFF
+        elif a == 0x4016:
+            if v & 1:
+                self._padsh = self.pad
         elif a == 0x4014:
             base = (v & 7) << 8
             for i in range(256):

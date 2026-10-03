@@ -759,7 +759,7 @@ Do not re-derive these; do check anything that depends on them.
   LEAD, read past the table's end. Earlier text here said "after 21 the ending" and that the
   corridors are 1-21; both were wrong. Not traced: what follows corridor 22. **Whether a bullet steers is open:** type `$27`
   (`$A0C6`) can re-aim at the player when its `$07A0` timer reaches 0; which spawners use it is
-  not worked out. Direction numbering 0/4/8/12 = down/right/up/left is from `$F95E` against
+  not worked out. Direction numbering 0/4/8/12 = right/down/left/up (CORRECTED, see the main-gun entry; it was down/right/up/left) was first read from `$F95E` against
   `$F986`; which way each boss's counter-driven fan points on screen is not checked.
   Fleepa savestate: `$0668` = `$10`, `$07A0` = `$0F`, entry timer 0, y 116 at velocity ~1.9 -
   what the bounce (+4 kick, `$10/256` accel) predicts (~114).
@@ -845,6 +845,18 @@ Do not re-derive these; do check anything that depends on them.
   Consecutive Firing +1, cap 5, `$87CE[$6B]` -> `$39` shot delay) and `$46` = chip capacity level
   (`$87D4` table -> CHIP MAX). NOT established: how the box is opened (shot, per the manual; the
   `$84CB` handler not followed through) and the cell-category table `$822D` beyond what blocks.
+- **The main gun by chip tier (`docs/status.html#gun`).** Bank 7 `$E213` (after every change of the
+  chip total: spend `$8B8F`, pick-up `$FCE7`) sets `$3A` = 0 under 100 chips, 1 at 100, 2 at 200, 3 at
+  2,048. The player's handler (bank 3 `$8E04`) makes a type-`$02` object while B is held (`$33` counts
+  down from `$39`, slots 1 to `$3B`); its handler (bank 6 `$8490`) stores `$847C[$3A]` = `$81 $43 $82
+  $83` in `$0698`, the speed class `$F8CE` reads (3.75, 5.62, 7.5, 11.25 px/frame, fixed at firing) and
+  alternates the metasprite every frame from `$8480`/`$8488` + `$3A`: tier 0 one pellet, tiers 1-3 a
+  twin 8/16/32 px apart on alternate frames; hit box = the metasprite's. Damage does not depend on
+  chips; the gun does not spend them. Run on the harness (which now has a held pad,
+  `Machine.pad`; `tools/render-gun.py` needs the ingame savestate, image committed). **CORRECTION:**
+  direction numbers 0/4/8/12 are right/down/left/up, not down/right/up/left (`$F8CE` run; the
+  player's shot is 12 = up) - fixed in boss.py and the Enemies page; whether the bosses' own
+  fans point as described there was never checked on screen.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

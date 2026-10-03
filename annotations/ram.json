@@ -229,6 +229,13 @@
       "evidence": "bank 3 $8D06-$8D1B"
     },
     {
+      "addr": "$33",
+      "name": "fire_counter",
+      "what": "The main gun's countdown: reset to 1 when B is released, otherwise counts down each frame and a shot leaves when it reaches 0, then it reloads from $39.",
+      "status": "checked",
+      "evidence": "bank 3 $8E04-$8E1B; run with B held on the NES model"
+    },
+    {
       "addr": "$38",
       "name": "temp_38",
       "what": "Two uses: the metasprite drawer's saved X, and the aim routine's direction flags ($F863).",
@@ -243,11 +250,18 @@
       "evidence": "bank 2 $882E-$8833"
     },
     {
+      "addr": "$3A",
+      "name": "chip_tier",
+      "what": "The chip tier 0-3 that shapes the main gun's shot: 0 under 100 chips, 1 at 100-199, 2 at 200-2047, 3 from 2048. Recomputed by bank 7 $E213 whenever the chip total changes (spend or pick-up), read by every shot every frame.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E213-$E239; bank 6 $8490-$84DE; $E213 run at 0-6000 chips"
+    },
+    {
       "addr": "$3B",
-      "name": "weapon_value",
-      "what": "A per-weapon value from bank 6 $FDCA; compared in the damage routine. Meaning not established.",
-      "status": "lead",
-      "evidence": "bank 7 $FDCA; $D3A9"
+      "name": "gun_slots",
+      "what": "How many of object slots 1-4 the main gun may use, from $FDCA[$3C] (4 with no weapon selected, then 3 2 3 3 3 3 2 3 3 3 2 3). The selected weapon's own objects take the slots above that.",
+      "status": "checked",
+      "evidence": "bank 3 $8E19-$8E25 and $8E4A-$8E6B; bank 7 $FD85-$FD8D"
     },
     {
       "addr": "$3C",

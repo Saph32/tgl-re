@@ -3,8 +3,9 @@
 Everything here is read from the code, not observed: only Fleepa's setup values were checked
 against a savestate (``...fish.fcs``: ``$0668`` = ``$10``, ``$07A0`` = ``$0F``, y 116 at velocity
 about 1.9, what the bounce predicts). Direction numbers are 0-15 in 22.5 degree steps; 0/4/8/12
-= down/right/up/left from ``$F95E`` against ``$F986`` (the on-screen sense of each boss's own
-counter-driven fans is not checked). ``$0518`` is y, ``$0530`` is x.
+= right/down/left/up - CORRECTED: it said down/right/up/left; ``$F8CE`` run on the NES model gives
+x +3.75 for 0 and y +3.75 for 4, and the player's own shot, fixed at 12 in a corridor, goes up (the
+on-screen sense of each boss's own counter-driven fans is not checked). ``$0518`` is y, ``$0530`` is x.
 """
 
 from __future__ import annotations

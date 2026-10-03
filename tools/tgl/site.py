@@ -591,7 +591,7 @@ def _boss_section(rm, names) -> str:
            '<div class="note warn"><strong>Read from the code, not observed.</strong> Only '
            "Fleepa's setup values are checked against a savestate (target y <code>$10</code>, "
            "mask <code>$0F</code>, and a y and velocity matching the bounce its code implies). "
-           "Direction numbers are 0-15 in 22.5&deg; steps; 0/4/8/12 are down/right/up/left.</div>",
+           "Direction numbers are 0-15 in 22.5&deg; steps; 0/4/8/12 are right/down/left/up (corrected: this said down/right/up/left; the routine that turns a direction into a velocity was run and the player's own upward shot is 12).</div>",
            "<table><thead><tr><th>Routine</th><th>What it does</th></tr></thead><tbody>"]
     for addr, what in boss.PRIMITIVES:
         out.append(f"<tr><td><code>{_h(addr)}</code></td><td>{_h(what)}</td></tr>")
@@ -2058,6 +2058,80 @@ def _worldmap_svg(recs, cell=14):
     return "".join(out)
 
 
+def _gun_section(rm) -> str:
+    """How the chip total shapes the main gun's shot (bank 7 $E213, bank 6 $8490)."""
+    b6, b7 = rm.prg_bank(6), rm.prg_bank(7)
+    speed = list(b6[0x47C:0x480])
+    even = list(b6[0x480:0x484])
+    odd = list(b6[0x484:0x488])
+    even_v = list(b6[0x488:0x48C])
+    odd_v = list(b6[0x48C:0x490])
+    hw = lambda i: b7[0xC174 - 0xC000 + i]
+    hh = lambda i: b7[0xC201 - 0xC000 + i]
+    px = []
+    for v in speed:
+        mult = (8 if v & 0x80 else 1) * (4 if v & 0x40 else 1) * (v & 0x3F)
+        px.append(120 * mult / 256)
+    ranges = ("under 100", "100 to 199", "200 to 2,047", "2,048 and over")
+    rows = []
+    for t in range(4):
+        a, b = even_v[t], odd_v[t]
+        rows.append(
+            f"<tr><td>{t}</td><td>{ranges[t]}</td><td class=\"mono\">{px[t]:.2f}</td>"
+            f"<td><code>${a:02X}</code> / <code>${b:02X}</code> "
+            f"(hit box {hw(a) * 2} &times; {hh(a) * 2} / {hw(b) * 2} &times; {hh(b) * 2} px)</td></tr>")
+    o = ['<h2 id="gun">The main gun and your chips</h2>',
+         '<p class="sub">The shot you fire with B is not fixed: its speed and its look depend '
+         "on how many chips you hold, in four tiers. <strong>Chips are not spent</strong> on "
+         "it - they only decide the tier. (The sub-weapons on A do spend them, and spending, or "
+         "picking chips up, can move you between tiers.)</p>",
+         "<ol><li>Every time the chip total changes, bank 7 <code>$E213</code> (called from the "
+         "spend routine bank 6 <code>$8B8F</code> and the pick-up routine <code>$FCE7</code>) "
+         "puts a tier in <code>$3A</code>: 0 below 100 chips, 1 from 100, 2 from 200, 3 from "
+         "2,048.</li>"
+         "<li>Holding B counts <code>$33</code> down from <code>$39</code> (the fire-rate "
+         "delay) and, when it runs out, the player's handler (bank 3 <code>$8E04</code>) puts "
+         "an object of type <code>$02</code> in the first free slot of slots 1 to "
+         "<code>$3B</code>, heading the way the ship faces (always up in a corridor).</li>"
+         "<li>The type-<code>$02</code> handler (bank 6 <code>$8490</code>), on its first "
+         "frame, stores <code>$847C[$3A]</code> in <code>$0698</code>, the speed class that "
+         "<code>$F8CE</code> turns into a velocity: bit 7 multiplies by 8, bit 6 by 4, the low "
+         "six bits repeat the addition. The speed is <strong>fixed at the moment of "
+         "firing</strong>; a shot already in flight keeps it.</li>"
+         "<li>Every frame the handler picks the metasprite from <code>$3A</code> too, and "
+         "<strong>alternates</strong> between two rows of a table on odd and even frames "
+         "(<code>$8488</code> for a shot flying up or down, <code>$8480</code> for sideways). "
+         "The hit box follows the metasprite (<code>$C174</code>, <code>$C201</code>), so it "
+         "flickers with it. Damage is the ship's attack from the Gun item "
+         "(<code>$05A8</code>, <code>$FD4B</code>) and does not depend on chips.</li></ol>"]
+    o.append("<table><thead><tr><th>Tier</th><th>Chips</th><th>Speed (px/frame)</th>"
+             "<th>Metasprites for a shot flying up, even / odd frame</th></tr></thead>"
+             f"<tbody>{''.join(rows)}</tbody></table>")
+    o.append('<p class="meta">A shot flying sideways uses <code>$8480</code> instead '
+             f"({' '.join(f'${v:02X}' for v in even)} / {' '.join(f'${v:02X}' for v in odd)}), "
+             "the same shapes turned a quarter. Speed is 120/256 pixel per frame times the "
+             "class (8 &times; 1, 4 &times; 3, 8 &times; 2, 8 &times; 3).</p>")
+    o.append('<p><img src="gun-tiers.png" width="768" alt="The main gun\'s shot at 50, 150, '
+             '500 and 3,000 chips, two frames each"></p>')
+    o.append('<p class="meta">Each tier, two consecutive frames (top row, bottom row). A bigger '
+             "tier adds a second pellet beside the first on one of the two frames and moves "
+             "the pair further apart (8, 16 and 32 pixels), so the stream reads as a wider "
+             "beam; the pellet is the same sprite tile in every tier.</p>")
+    o.append('<div class="note"><strong>Run, not just read.</strong> <code>$E213</code> was '
+             "called at chip totals from 0 to 6,000 (the tier steps at exactly 100, 200 and "
+             "2,048), and B was held on the NES model (<code>tools/tgl/cpu.py</code>, now with "
+             "a controller) from a corridor savestate at 50, 150, 500 and 3,000 chips: the new "
+             "shots carry <code>$81</code>, <code>$43</code>, <code>$82</code>, <code>$83</code> "
+             "and move 3.75, 5.62, 7.5 and 11.25 pixels a frame, with the metasprites above, "
+             "and shots already flying kept the old speed while their sprite changed at once. "
+             "The picture is from <code>tools/render-gun.py</code>. Tier 3 needs a chip "
+             "capacity of 2,400 or more (<code>$46</code> at 8 or higher). "
+             "<strong>Not established:</strong> how the sideways shapes look (the labyrinth was "
+             "not run) and what else <code>$3B</code> does in the damage routine. Not played on "
+             "hardware.</div>")
+    return "".join(o)
+
+
 def _status_page(rm):
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -2251,6 +2325,8 @@ def _status_page(rm):
              "499,990, 999,990 or 1,999,990. The 30,000 and 100,000 awards, and the idea "
              "that it is a counter and not a table, are from the code and that run; they "
              "have not been played on hardware.</div>")
+
+    p.append(_gun_section(rm))
 
     p.append("<h2>RAM this screen names</h2>")
     p.append("<table><thead><tr><th>Address</th><th>Meaning</th></tr></thead><tbody>"
