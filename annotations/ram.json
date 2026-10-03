@@ -208,6 +208,13 @@
       "evidence": "bank 7 $DA9A-$DAE0, $FFD1; the NES model's frame loop depends on it"
     },
     {
+      "addr": "$2E",
+      "name": "retry_unused",
+      "what": "Cleared at game start and read in the death test (bank 6 $8239) with $48 and $49; no write other than the clear was found, so it is always 0.",
+      "status": "lead",
+      "evidence": "bank 0 $8066; bank 6 $8239"
+    },
+    {
       "addr": "$2F",
       "name": "boot_flag",
       "what": "Branched on in the boot path; set to 0 by a new game and by the TGL back door.",
@@ -353,6 +360,13 @@
       "what": "Current life; the score bonus sets it to $47.",
       "status": "confirmed",
       "evidence": "bank 7 $DFA9"
+    },
+    {
+      "addr": "$49",
+      "name": "life_shown",
+      "what": "The life meter's displayed value: steps one toward $48 per frame as the HUD redraws. The ship takes damage only while it equals $48, and dies only when a hit empties $48 with this already 0.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E30C-$E3E4; $D2C7-$D2F9"
     },
     {
       "addr": "$4A",

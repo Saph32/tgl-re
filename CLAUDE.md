@@ -889,7 +889,13 @@ Do not re-derive these; do check anything that depends on them.
   Hyper Laser and the grenade in flight never test cells; fast shots can skip a cell. Run: `$8523` per class on the
   labyrinth savestate, the gun and every weapon at the savestate room's rocks, the sphere pick-up. `tools/render-
   cells.py --state` (ring/bracket tiles come from live CHR, source of tiles `$00-$0F` not found). NOT established:
-  persistence on re-entry, the bracket's purpose, classes 3/11-13/15, `$0777/$07B2/$07BD/$07E7`.
+  the bracket's purpose, classes 3/11-13/15, `$0777/$07B2/$07BD/$07E7`.
+  **Respawn (resolved): destroyed blocks come back whenever the room is loaded** - nothing stores them. A room entry
+  (`$EB18` -> `$EBA5`, or `$EEE0`/`$EE1D`) rebuilds from the ROM: `$8015` record, `$8003` (`$8155`) buffer, `$8006`
+  (`$8354`) cell map; run: walked out of the north exit and back, all rocks returned (also one the owner had broken before
+  saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
+  meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
+  START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.
