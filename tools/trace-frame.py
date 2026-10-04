@@ -75,6 +75,8 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--state", type=Path, required=True)
     ap.add_argument("--frames", type=int, default=400)
+    ap.add_argument("--pad", type=lambda v: int(v, 0), default=0,
+                    help="buttons held every frame, bit 0 = A, 1 = B, 2 = Select, 3 = Start, 4-7 = Up Down Left Right")
     args = ap.parse_args()
     spec = importlib.util.spec_from_file_location("savestate", ROOT / "tools" / "savestate.py")
     ss = importlib.util.module_from_spec(spec)
@@ -106,13 +108,14 @@ def main() -> int:
     for f in range(args.frames):
         events.clear()
         firsts.clear()
+        m.pad = args.pad
         m.ram[0x578] = 0
         m.ram[0x48] = 0xFF
         m.run_frame()
         rows.append(dict(firsts))
-        if not shown and "newrow" in firsts:
+        if not shown and ("newrow" in firsts or (f == 20 and "newrow" not in firsts and not any("newrow" in r for r in rows))):
             shown = True
-            print(f"--- frame {f}: a frame that builds a new row ---")
+            print(f"--- frame {f}: " + ("a frame that builds a new row" if "newrow" in firsts else "a frame (no row is ever built here: not a scrolling stage)") + " ---")
             last = None
             for c, text in events:
                 if "sprite-0 wait" in text and last == text:

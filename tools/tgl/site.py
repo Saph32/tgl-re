@@ -673,10 +673,10 @@ def _topic_pages(rm):
                     "which banks use it, and what is known about the named ones.",
                     f'{len(ramd["entries"])} entries'))
     out.append(("gameloop.html", "Game loop",
-                "What one 1/60 second of a corridor does, in order and with timings: the NMI, pads, "
-                "objects, HUD, stage step, spawn scripts and the frame sync - and what runs only "
-                "every Nth frame.",
-                "8 sections"))
+                "What one 1/60 second of a corridor and of the labyrinth does, in order and with "
+                "timings: the NMI, pads, objects, HUD, stage step, spawn scripts and the frame sync - "
+                "and what runs only every Nth frame or every room.",
+                "9 sections"))
     out.append(("rendering.html", "Rendering",
                 "Mirroring, the NMI, the sprite-0 split that parks the HUD at the bottom, and how "
                 "corridors and the labyrinth scroll.",
@@ -4095,8 +4095,9 @@ def _game_loop_page(rm):
         f"<tr><td class=\"mono\">{a}</td><td class=\"mono\">{b}</td><td class=\"mono\">{c}</td>"
         f"<td>{d}</td><td>{e}</td><td>{f}</td></tr>" for a, b, c, d, e, f in T)
     o = ["<h1>Game loop</h1>",
-         '<p class="sub">What happens in one 1/60 second of a corridor: the order of the work, how long it takes, '
-         "what the NMI does behind it, and what only happens every so many frames.</p>",
+         '<p class="sub">What happens in one 1/60 second of a corridor, and then of the labyrinth: the order of '
+         "the work, how long it takes, what the NMI does behind it, and what only happens every so many "
+         'frames. <a href="#labyrinth-loop">Jump to the labyrinth.</a></p>',
          '<div class="note"><strong>In short.</strong> The game is one loop with a <strong>frame sync in the middle '
          "of it</strong>, plus an NMI that interrupts the sync. Per frame: the NMI puts last frame's sprites, "
          "the scroll and one background row on the screen and ticks the sound; the loop then reads the pads, runs "
@@ -4324,19 +4325,120 @@ def _game_loop_page(rm):
              "<code>$2D</code> while a row is pending)</td></tr>"
              "</tbody></table>")
 
+    # ================================================================ labyrinth
+    L = [
+        ("1", "2,168", "1,765&ndash;3,070", "pads (<code>$F493</code>)"),
+        ("2", "3,157", "2,754&ndash;4,059", "object loop starts (<code>$81FB</code>)"),
+        ("2'", "11,144", "7,152&ndash;12,502", "object loop ends (<code>$CE88</code>)"),
+        ("3", "11,285", "7,356&ndash;12,643", "HUD (<code>$E0F9</code>)"),
+        ("4", "11,560", "7,744&ndash;13,031", "decompressor (<code>$DB52</code>)"),
+        ("5", "11,804", "7,988&ndash;13,275", "boss/stage state (<code>$917F</code>)"),
+        ("6", "11,865", "8,049&ndash;13,336", "stage step (<code>$E655</code>): 34 cycles to the loader"),
+        ("7", "11,899", "8,083&ndash;13,370", "art loader and spawn script (<code>$E995</code>)"),
+        ("8", "12,045", "8,229&ndash;13,516", "frame sync (<code>$DA9A</code>)"),
+        ("split", "24,227", "24,224&ndash;24,230", "sprite 0 hit and the HUD split (<code>$DD21</code>)"),
+    ]
+    lrows = "".join(f"<tr><td class=\"mono\">{a}</td><td class=\"mono\">{b}</td><td class=\"mono\">{c}</td>"
+                    f"<td>{d}</td></tr>" for a, b, c, d in L)
+    o.append('<h2 id="labyrinth-loop">The labyrinth\'s frame</h2>')
+    o.append("<p>The loop does not know which mode it is in. <strong>Everything above runs in the "
+             "labyrinth too, in the same order</strong>: NMI, sync, pads, object loop, HUD, decompressor, "
+             "boss routine, stage step, loader. What changes is what some of those steps find to do.</p>")
+    o.append("<h3>One frame, measured</h3><p>300 frames in the owner's labyrinth savestate "
+             "(a room whose spawn script keeps making type-<code>$0F</code> enemies; no buttons held; "
+             "<code>tools/trace-frame.py --state ...labyrinth.fcs</code>). The NMI takes the same work as in "
+             "a corridor minus the marker tile (about 2,140 cycles).</p>"
+             "<table><thead><tr><th>#</th><th>Starts at (median)</th><th>Range</th><th>Where</th></tr></thead>"
+             f"<tbody>{lrows}</tbody></table>"
+             "<p>The logic ends at about 12,000 cycles and never later than 13,516 (45% of the frame); "
+             "there are no new-row spikes, and the load follows the <strong>number of enemies</strong> instead "
+             "(the object loop ended at 9,350 in the first 60 frames and at 11,144 at the median of 300 as "
+             "the room filled). In the traced frame the player's handler took about 1,600 cycles (2,150 "
+             "while moving and firing), the type-<code>$29</code> spawner 530, each enemy 120 to 800, "
+             "a bullet 900 and a block's blast 700. Nothing overran.</p>")
+    o.append("<h3>What is different</h3><ul>"
+             "<li><strong>The stage step is almost empty.</strong> With <code>$30</code> bit 6 clear, "
+             "<code>$E655</code> clears <code>$B7</code> and the new-row flag, tests the stage-end flag "
+             "(<code>$A0</code> bit 0, which here means <em>leave the room</em>) and jumps straight to the "
+             "loader: no scroll, no rows, no stream records, no ground objects. There is no "
+             "<code>E530</code> or <code>E6AC</code> in the trace.</li>"
+             "<li><strong>The marker tile is not rewritten.</strong> The sprite-0 target is the room's own "
+             "row 24 (<a href=\"rendering.html#split\">Rendering</a>), so the NMI skips that step "
+             "(<code>$30</code> bit 4 is clear).</li>"
+             "<li><strong>Spawn-script waits are in seconds.</strong> There are no rows to count, so "
+             "<code>$F78F</code> counts <code>$69</code> down from 60 and takes one off the wait "
+             "<code>$68</code> each time: waits are in whole seconds.</li>"
+             "<li><strong>Shots read the room.</strong> Every bullet and weapon looks up the cell under its "
+             "hit box each frame (bank 6 <code>$84E7</code>) and may break it "
+             "(<a href=\"labyrinth.html#cells\">Shooting the room</a>); in a corridor that lookup always "
+             "answers 0.</li></ul>")
+    o.append("<h3>The player's step</h3><p>The same slot-0 handler (bank 3 <code>$8C98</code>) takes the "
+             "labyrinth branch at <code>$8D03</code>, once a frame:</p><ol>"
+             "<li><strong>Facing and sprite</strong> (<code>$8F53</code>/<code>$8F90</code>): the D-pad cell "
+             "<code>$32</code> picks one of eight facings (<code>$8EF4</code> &rarr; <code>$0668</code>); the "
+             "facing and the animation frame <code>$0638</code> choose the sprite's tile base "
+             "(<code>$8F13</code>) and flip; after a hit the ship spins instead.</li>"
+             "<li><strong>Velocity:</strong> <code>$F8CE</code> turns the facing into a velocity at speed class "
+             "<code>$0698</code> = 3, <strong>1.4 pixels a frame</strong> (a corridor's is 5, 2.3). "
+             "Measured: x 124 &rarr; 139 in 11 frames holding Right.</li>"
+             "<li><strong>Move with the room's walls</strong> (<code>$8FB9</code> far-calls bank 6 "
+             "<code>$826D</code>): it forms the target position, offset 8 down to the ship's feet "
+             "(<code>$06B0</code>), reads the classes of the cells it would touch from "
+             "<code>$0400</code>, and if any blocks (<code>$8425</code>: classes 4-10 and 14) it snaps to the "
+             "edge of the blocked cell and keeps the other axis moving, so the ship <strong>slides along "
+             "walls</strong>: holding Down+Right against a wall it went on at 1.0 pixel a frame along it. "
+             "Fractions are kept in <code>$0758</code>/<code>$0770</code>.</li>"
+             "<li><strong>What the cell under it is</strong> (<code>$8FBF</code>, only when the class "
+             "<code>$6C</code> has changed since last frame): class 1 is the blue sphere (+20 chips, +2 life), "
+             "class 2 the warp panel, which leaves the room if the key is held "
+             "(<a href=\"labyrinth.html#cells\">Shooting the room</a>).</li>"
+             "<li><strong>The room's edges</strong> (<code>$9045</code>): at y &lt; 16, y &ge; 176, x &lt; 14 "
+             "or x &ge; 242 the ship is held at the edge &mdash; unless that exit is open "
+             "(<code>$54</code> bits 7, 4, 6, 5 for N, S, W, E) <em>and</em> has no key door "
+             "(<code>$58-$5B</code> is 8), in which case it sets the exit direction <code>$A4</code> "
+             "(0 N, 2 W, 6 E, 8 S) and <code>$A0</code> bit 0.</li>"
+             "<li><strong>Then the same as in a corridor:</strong> gun on B, weapon on A, hit flash "
+             "(<code>$8DF5</code> on).</li></ol>")
+    o.append("<h3>Leaving a room: the loop stops</h3><p>The exit flag is noticed at the top of the "
+             "<em>next</em> loop pass, in <code>$E655</code>, which calls <code>$EB18</code>, and "
+             "<code>$EB18</code> does not return until the new room is on screen. In between, "
+             "<strong>nothing of the normal frame runs</strong>: measured on the NES model, from the frame "
+             "that took the exit to the first frame whose object loop ran again, the loop was suspended for "
+             "<strong>98 frames (east), 81 (north) and 81 (south)</strong>. The pads are not read (so the "
+             "player cannot steer), no object handler runs (enemies and shots vanish), the HUD and boss "
+             "routine do not run; the transition's own code does the work, waiting with "
+             "<code>$FFD1</code> (a sync only) between steps, drawing the new room two tile rows a "
+             "frame, moving the scroll, and drawing <em>only the ship</em> each frame "
+             "(<code>$F258</code>: reset the allocator, the ship's sprite, finish). The NMI carries on: "
+             "sprites, scroll, the sound tick. How the scroll itself works is on "
+             "<a href=\"rendering.html#labyrinth\">Rendering</a>; the room is rebuilt from the ROM, which is "
+             "why broken blocks come back.</p>")
+    o.append("<h3>Rooms and frames</h3><table><thead><tr><th>Period</th><th>What</th></tr></thead><tbody>"
+             "<tr><td>every frame</td><td>The ship's step above; the room's enemies and shots; the "
+             "spawner (a type-<code>$29</code> object in slot 23) counting its interval</td></tr>"
+             "<tr><td>every 60 frames</td><td>A spawn script's wait ticks down one second</td></tr>"
+             "<tr><td>every 8th frame</td><td>Same as a corridor: the score redraw and the damage that "
+             "wears out an A-button weapon</td></tr>"
+             "<tr><td>every room change, 81&ndash;98 frames</td><td>The loop is suspended and the room "
+             "scrolled in, rebuilt and re-homed</td></tr>"
+             "<tr><td>never</td><td>A new background row, a scroll step or a stream record: those belong to "
+             "corridors</td></tr></tbody></table>")
+
     # ---------------------------------------------------------------- limits
     o.append('<div class="note"><strong>Measured and read.</strong> The order, the cycle numbers, the slot '
              "order and the new-row share are from running the real code on the NES model "
-             "(<code>tools/tgl/cpu.py</code>) from the owner's corridor savestate for 400 frames "
-             "(<code>$30</code> bit 7 cleared; the ship made invulnerable so the run does not end); the "
+             "(<code>tools/tgl/cpu.py</code>) from the owner's corridor savestate for 400 frames and its "
+             "labyrinth savestate for 300 (<code>$30</code> bit 7 cleared; the ship made invulnerable so "
+             "the run does not end), and the room-exit suspension from walking out of three exits; the "
              "routines' roles are from reading them. The NES model is not cycle-accurate "
              "(instruction timing is the table's, no DMA stalls, no IRQ, DMC or APU), so cycle "
-             "numbers are indicative, and a corridor with more enemies, a boss or heavier effects will take "
+             "numbers are indicative, and a stage with more enemies, a boss or heavier effects will take "
              "longer. <strong>Not established:</strong> the real hardware's frame budget; the "
              "sprite allocator's flag bits (<code>$83</code>) beyond what is said above; what every "
-             "one of the 127 handlers does each frame (only the shared steps); how the labyrinth's loop "
-             "differs (the same loop, with no scroll step: <code>$E655</code> skips to the loader when "
-             "<code>$30</code> bit 6 is clear); and the other uses of <code>$FF8B</code> with Y &gt; 1.</div>")
+             "one of the 127 handlers does each frame (only the shared steps); the west exit's "
+             "suspension (only east, north and south were timed); shops and message screens, which are "
+             "special rooms with their own handlers; and the other uses of <code>$FF8B</code> with "
+             "Y &gt; 1.</div>")
     return "".join(o)
 
 

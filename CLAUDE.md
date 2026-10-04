@@ -929,6 +929,15 @@ Do not re-derive these; do check anything that depends on them.
   NMI (one frame latency). Hit detection is in the ENEMIES' handlers (`D348`, slots 4..0, flags & mask). Periodic: HUD score
   every 8th frame (`$41&7`), weapon-object damage every 8th (`$D3A9`), boss bonus 64 (`$9305`), chip fee 60/120 (`$3F`).
   NOT established: hardware timing (model has no DMA stalls/IRQ), the sprite allocator's `$83` states, every handler.
+  **Labyrinth frame (same page, `#labyrinth-loop`):** the same loop and order; `$E655` skips scroll/rows/stream (34 cycles to
+  `E995`), no marker rewrite, spawn waits in 60-frame seconds, shots look up cells. 300 frames: logic ends median ~12,000,
+  max 13,516, load follows enemy count (no new-row spikes). Player (bank 3 `$8D03`): facing from `$32` -> `$0668`, speed class
+  3 = 1.4 px/frame (corridor 5 = 2.3; measured), moves via far call bank 6 `$826D` (target cells from `$0400`, `$8425`
+  blocks, snaps and slides along walls, foot offset `$06B0` = 8), cell events on class change (`$8FBF`: 1 sphere, 2 warp
+  panel), room edges (`$9045`: y<16 / >=176, x<14 / >=242; exit if `$54` bit open and `$58-$5B` = 8 -> `$A4` 0/2/6/8 N/W/E/S
+  + `$A0` bit 0). The exit is acted on at the next `E655` -> `$EB18`, which does not return until the new room is up: the
+  loop is SUSPENDED (no pads, objects, HUD, boss routine; only the ship is drawn, `F258`) for 98 frames east, 81 north and
+  81 south (measured).
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.
