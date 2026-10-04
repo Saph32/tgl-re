@@ -917,6 +917,18 @@ Do not re-derive these; do check anything that depends on them.
   IRQ path run, `$F0A8-$F0C1` inline fills, the title/ending/password screens' scrolling.
   **CORRECTION:** the RAM-map lead `$AA-$AE` 'scroll helpers/velocity' was wrong: they are the row's attribute
   address, row table half, PPU address and row index.
+- **The game loop (`docs/gameloop.html`; `tools/trace-frame.py --state ...ingame.fcs` reproduces it).** Bank 7 `$FF7A`:
+  `E655` (stage step) -> `FF8B` once (`DA9A` frame sync, `F493` pads, bank 6 `$81FB` object loop, `E0F9` HUD,
+  `DB52` decompressor) -> bank 3 `$917F` (boss/stage `$70`, a no-op unless a boss) -> loop. So a frame STARTS at the sync:
+  NMI (0-~2,230 cycles, incl. the ~1,600-cycle sound tick) -> pads ~2,256 -> objects ~3,245 (slot 0-4 then 5-23, order
+  flips every 2 frames by `$36` bit 1) -> `CE88` ~8,830 -> HUD ~9,005 -> decompressor -> `$917F` -> `E655` ~9,450 (a new
+  row every 16 px: stream records, `E8AB`, tiles, ground objects ~5,000 cycles) -> `E995` loader + spawn script (waits count
+  rows while scrolling, 60-frame seconds when stopped) -> sync ~9,990 -> spin on sprite 0 -> split at 24,227 -> NMI at
+  29,781. 400 corridor frames on the NES model: logic ends at median 9,987 (max 16,355), 38 new-row frames, no overrun
+  (NMI never already fired at `DA9A`). Sprites built in the loop and the scroll set in `E655` reach the screen at the NEXT
+  NMI (one frame latency). Hit detection is in the ENEMIES' handlers (`D348`, slots 4..0, flags & mask). Periodic: HUD score
+  every 8th frame (`$41&7`), weapon-object damage every 8th (`$D3A9`), boss bonus 64 (`$9305`), chip fee 60/120 (`$3F`).
+  NOT established: hardware timing (model has no DMA stalls/IRQ), the sprite allocator's `$83` states, every handler.
 - **What the labyrinth's rooms hold** (`tools/tgl/labyrinth.py`, `docs/labyrinth.html`).
   - **Byte 0 bit 7 = a special screen, not a room.** `$EC12` keeps the area, `$EE1D` picks
     screen type `$51` from byte 2 and loads scene `$10 + $51`; `$9F22` runs `$9F32[$51]`.

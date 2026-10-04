@@ -243,6 +243,27 @@
       "evidence": "bank 3 $8E04-$8E1B; run with B held on the NES model"
     },
     {
+      "addr": "$35",
+      "name": "obj_slot",
+      "what": "The object slot the bank 6 loop is on (0-23).",
+      "status": "confirmed",
+      "evidence": "bank 6 $81F5-$8204, $8227; slot order run on the NES model"
+    },
+    {
+      "addr": "$36",
+      "name": "obj_loop_count",
+      "what": "Counts object-loop passes; its bit 1 selects the slot order for the pass (0-4 then 5 up to 23, or 0-4 then 23 down to 5), so the order flips every two frames.",
+      "status": "confirmed",
+      "evidence": "bank 6 $81FB-$8212, table $81DD; order run on the NES model"
+    },
+    {
+      "addr": "$37",
+      "name": "obj_current",
+      "what": "The slot whose handler is running (the loop's X, kept for the handler).",
+      "status": "confirmed",
+      "evidence": "bank 6 $8210"
+    },
+    {
       "addr": "$38",
       "name": "temp_38",
       "what": "Two uses: the metasprite drawer's saved X, and the aim routine's direction flags ($F863).",
@@ -471,6 +492,20 @@
       "what": "The running spawn script's pointer ($7F is its bank).",
       "status": "confirmed",
       "evidence": "bank 7 $F78F, $E733"
+    },
+    {
+      "addr": "$68",
+      "name": "script_wait",
+      "what": "The spawn script's wait counter: counts new background rows while the stage scrolls, seconds when it has stopped.",
+      "status": "checked",
+      "evidence": "bank 7 $F7AC-$F7BD"
+    },
+    {
+      "addr": "$69",
+      "name": "script_second",
+      "what": "The spawn script's frame countdown (reloaded with 60) used while the scroll is stopped, or in the labyrinth.",
+      "status": "checked",
+      "evidence": "bank 7 $F78F-$F7BD"
     },
     {
       "addr": "$6A",

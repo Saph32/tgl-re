@@ -672,6 +672,11 @@ def _topic_pages(rm):
                     "What the console's 2 KB of RAM holds: every byte the traced code touches, "
                     "which banks use it, and what is known about the named ones.",
                     f'{len(ramd["entries"])} entries'))
+    out.append(("gameloop.html", "Game loop",
+                "What one 1/60 second of a corridor does, in order and with timings: the NMI, pads, "
+                "objects, HUD, stage step, spawn scripts and the frame sync - and what runs only "
+                "every Nth frame.",
+                "8 sections"))
     out.append(("rendering.html", "Rendering",
                 "Mirroring, the NMI, the sprite-0 split that parks the HUD at the bottom, and how "
                 "corridors and the labyrinth scroll.",
@@ -4042,6 +4047,299 @@ def _rendering_page(rm):
     return "".join(o)
 
 
+def _game_loop_page(rm):
+    """What one frame of a corridor does: the main loop, the NMI, and what runs every Nth frame."""
+    # (median first cycle, min, max) of each phase in a 400-frame corridor run on the NES model;
+    # the frame is 29,781 cycles and starts with the NMI. Measured, not read: see the note.
+    T = [
+        ("NMI", "0", "&mdash;",
+         "<code>$DC75</code>", "Render off; sprite DMA from <code>$0200</code>; the background row (or the "
+         "<code>$0100</code> queue) written to the PPU; the sprite-0 marker tile; the scroll registers; "
+         "render on; then the <strong>sound tick</strong>. Runs on its own, interrupting whatever the main "
+         "thread was doing (always the frame sync, step 8).", "every frame"),
+        ("1", "2,256", "1,973&ndash;4,095",
+         "<code>$DA9A</code> returns; <code>$F493</code> &rarr; <code>$D64C</code>",
+         "The frame sync ends (below) and the <strong>pads</strong> are read; a demo's Start ends it, otherwise "
+         "Start pauses and Select opens the status screen.", "every frame"),
+        ("2", "3,245", "2,962&ndash;5,084",
+         "bank 6 <code>$81FB</code>", "The <strong>object loop</strong>: reset the sprite allocator, then run the "
+         "handler of every live object slot 0-23 &mdash; the player first, then the enemies and shots. Each handler "
+         "moves its object, draws it into <code>$0200</code>, makes its hit box and tests collision. Then the "
+         "unused sprites are hidden and the player's death is checked.", "every frame"),
+        ("3", "9,005", "7,032&ndash;11,024",
+         "<code>$E0F9</code>", "The <strong>HUD</strong>: the life meter steps one toward the real life; the "
+         "frame counter <code>$41</code> goes up; if the score changed, the score is redrawn on every 8th frame.",
+         "every frame; the score every 8th"),
+        ("4", "9,147", "7,104&ndash;11,613",
+         "<code>$DB52</code>", "The <strong>tile decompressor</strong> fills the PPU queue with as many decoded "
+         "bytes as it has room for, if a graphics block is loading.", "every frame, when loading"),
+        ("5", "9,391", "7,348&ndash;11,857",
+         "bank 3 <code>$917F</code>", "The <strong>stage and boss state machine</strong> (<code>$70</code>): "
+         "returns at once unless a boss encounter is under way.", "every frame (usually a no-op)"),
+        ("6", "9,452", "7,409&ndash;11,918",
+         "<code>$E655</code>", "The <strong>stage step</strong>: speed, scroll, and &mdash; when 16 pixels "
+         "have gone by &mdash; the next background row, the stream records that fire on it and the ground "
+         "objects it holds.", "every frame; a new row about every tenth"),
+        ("7", "9,819", "7,822&ndash;16,174",
+         "<code>$E995</code>", "<strong>Art loader</strong> (<code>$E99F</code>) and <strong>spawn script</strong> "
+         "(<code>$F78F</code>): load the next tile block, count the current wait, spawn what the script says.",
+         "every frame"),
+        ("8", "9,987", "7,990&ndash;16,355",
+         "<code>$FF8B</code> &rarr; <code>$DA9A</code>", "The <strong>frame sync</strong>: spin until sprite 0 is hit, "
+         "do the HUD split, then wait for the NMI. The logic is over; the frame's remaining time is spent here.",
+         "every frame"),
+        ("split", "24,227", "24,224&ndash;24,230", "<code>$DD21</code>", "Sprite 0 hits (scan line 192) and the "
+         "split is done (<a href=\"rendering.html#split\">Rendering</a>).", "every frame"),
+    ]
+    rows = "".join(
+        f"<tr><td class=\"mono\">{a}</td><td class=\"mono\">{b}</td><td class=\"mono\">{c}</td>"
+        f"<td>{d}</td><td>{e}</td><td>{f}</td></tr>" for a, b, c, d, e, f in T)
+    o = ["<h1>Game loop</h1>",
+         '<p class="sub">What happens in one 1/60 second of a corridor: the order of the work, how long it takes, '
+         "what the NMI does behind it, and what only happens every so many frames.</p>",
+         '<div class="note"><strong>In short.</strong> The game is one loop with a <strong>frame sync in the middle '
+         "of it</strong>, plus an NMI that interrupts the sync. Per frame: the NMI puts last frame's sprites, "
+         "the scroll and one background row on the screen and ticks the sound; the loop then reads the pads, runs "
+         "every object's handler (which moves, draws and collides it), steps the HUD, the decompressor and the "
+         "boss state, scrolls the stage and runs the spawn script, and finally waits &mdash; for sprite 0, to cut "
+         "the screen in two, and then for the next NMI. On the NES model the work ends about 10,000 cycles into "
+         "the 29,781-cycle frame (never later than 16,355 in 400 frames), so about two thirds of the frame is "
+         "spent waiting.</div>"]
+
+    # ---------------------------------------------------------------- the loop
+    o.append('<h2 id="loop">The loop</h2>')
+    o.append("<p>Bank 7 <code>$FF5D</code> sets the game up and then spins in <code>$FF7A</code>:</p>"
+             "<pre>FF7A  JSR $E655        ; the stage step: speed, scroll, new row, stream records\n"
+             "      LDY #$01\n"
+             "      JSR $FF8B        ; one pass of the frame body (below)\n"
+             "      JSR $D76F        ; far call: bank 3 $800F -&gt; $917F, the stage/boss routine\n"
+             "      JMP $FF7A\n\n"
+             "FF8B  ...\n"
+             "FF8D  JSR $DA9A        ; FRAME SYNC: wait for sprite 0 (split), then for the NMI\n"
+             "      JSR $F493        ; read the pads; pause / status screen\n"
+             "      JSR $D76F        ; far call: bank 6 $8000 -&gt; $81FB, the object loop\n"
+             "      JSR $E0F9        ; HUD meter, frame counter, score\n"
+             "      JSR $DB52        ; tile decompressor\n"
+             "      DEY / BNE $FF8D  ; Y passes</pre>")
+    o.append("<p>The listing starts at the top of the loop, but a frame <em>starts</em> in the middle: the NMI "
+             "arrives while the main thread is waiting in <code>$DA9A</code>, and that is where the pads, the "
+             "objects, the HUD and the decompressor run, followed by the boss routine, the stage step and the "
+             "loader, and then the wait again. <code>FF8B</code> with Y = n (reached through "
+             "<code>$C024</code>) is the call that runs the game for n frames, with pads, objects, HUD and "
+             "decompressor all still going: bank 0's GAME OVER loop uses it with Y = 1. "
+             "<code>$FFD1</code> is the lighter wait that only syncs, which the labyrinth's room scrolls use.</p>")
+    o.append("<h3>One frame, in order</h3><p>Cycle numbers are the median of 400 corridor frames on the NES "
+             "model (CPU cycles after the start of the NMI; 29,781 to the frame, 113.67 to a scan line, the "
+             "first 2,273 are vblank), with the range beside it.</p>")
+    o.append("<table><thead><tr><th>#</th><th>Starts at</th><th>Range</th><th>Where</th><th>What</th>"
+             "<th>How often</th></tr></thead><tbody>" + rows + "</tbody></table>")
+    o.append("<p>A frame in which a new row is built is longer: the row's 16 metatile ids and the tile expansion "
+             "cost about 5,000 cycles (in the trace, <code>$E8AB</code> to the loader), which is why the "
+             "worst frames end at 16,000 rather than 10,000. Nothing overran: in 400 frames the NMI never "
+             "arrived before the loop reached its sync (if it did, <code>$DA9A</code> would skip both waits "
+             "and the game would simply run slow for that frame).</p>")
+
+    # ---------------------------------------------------------------- the NMI
+    o.append('<h2 id="nmi">The NMI: what reaches the screen</h2>')
+    o.append("<p>Everything the loop computes is invisible until the next NMI copies it. In order "
+             "(<code>$DC75</code>; also <a href=\"rendering.html#nmi\">Rendering</a>): rendering off; "
+             "frame counter <code>$2B</code> up; sprite DMA; DMC restart; <code>$DD54</code>, which "
+             "writes the one pending background row (<code>$A5</code> says whether its first tile row, "
+             "second tile row or neither goes this frame) and then the PPU queue at <code>$0100</code>; "
+             "the palette upload; the sprite-0 marker; the scroll registers; rendering on; the "
+             "<strong>sound tick</strong> (bank 0 <code>$917C</code>); and a stir of the random state "
+             "(<code>$2A</code> is mixed with the stack pointer at that moment, which is as "
+             "unpredictable as the instruction the NMI landed on). The NMI's own length varies "
+             "(1,945 to 4,095 cycles in the run): the sound tick alone is about 1,600, and a long queue or "
+             "a row adds to it.</p>")
+    o.append("<p><strong>Consequence: one frame of latency.</strong> Sprites built in step 2 are DMA'd at the "
+             "<em>next</em> NMI and the scroll registers set in step 6 are written then too, so a "
+             "background that moved this frame and the sprites that moved with it (ground objects are "
+             "shifted by the same <code>$B7</code> the scroll step used) appear together, one frame after "
+             "the logic.</p>")
+
+    # ---------------------------------------------------------------- frame sync
+    o.append('<h2 id="sync">The frame sync</h2>')
+    o.append("<p><code>$DA9A</code> is two waits in one. If the NMI has already happened "
+             "(<code>$2B</code> is non-zero) it just clears the flag and returns. Otherwise, unless the "
+             "I flag is set (the IRQ already did it): with sprites enabled it spins on "
+             "<code>$2002</code> bit 6 (<code>$DAB6</code>) &mdash; first making sure the flag is "
+             "not left over from the last frame &mdash; until sprite 0 hits at scan line 192, runs the "
+             "split (<code>$DD21</code>), adjusts the DMC timer's rate, and then waits for "
+             "<code>$2B</code> to become non-zero, i.e. the NMI. So the spin ends at cycle "
+             "24,227 and the rest, about 5,500 cycles, is a quiet wait. The DMC interrupt can "
+             "perform the split earlier from the middle of the logic; on the NES model, which "
+             "has no IRQ, the sync always did.</p>")
+
+    # ---------------------------------------------------------------- pads
+    o.append('<h2 id="pads">Reading the pads</h2>')
+    o.append("<p><code>$D64C</code> reads both pads with <code>ROL</code> (A ends in bit 7, Right in bit 0) "
+             "<strong>again and again until two consecutive reads agree</strong>, then keeps "
+             "<code>$F7/$F8</code> (held) and <code>$F5/$F6</code> (pressed this frame). That is "
+             "what a program has to do when the DMC channel is running, as this one's timer "
+             "is. Then <code>$F493</code> checks the pause and status keys "
+             "(<code>$E4B3</code>): a new Start waits in a loop (the objects do not run, the sound "
+             "does); a new Select runs the status screen. The player's own handler turns the D-pad "
+             "into <code>$32</code>, a 3 &times; 3 cell index, each frame (<code>$DAE1</code>, which in a "
+             "demo overwrites the pads with its own patterns first).</p>")
+
+    # ---------------------------------------------------------------- object loop
+    o.append('<h2 id="objects">The object loop</h2>')
+    o.append("<p>Bank 6 <code>$81FB</code>. There are 24 object slots (<a href=\"enemies.html\">Enemies</a>): "
+             "0-4 the player and its shots, 5-23 everything else.</p><ol>"
+             "<li><strong>Reset the sprite allocator</strong> (<code>$CDB4</code>: the first OAM entry to fill, "
+             "<code>$80</code>, is normally entry 1 &mdash; entry 0 is the split's sprite 0).</li>"
+             "<li><strong>For each slot in turn</strong> (<code>$35</code>) whose type "
+             "<code>$0500+slot</code> is not 0, jump through the split dispatch table "
+             "(<code>$80DE</code>/<code>$815D</code>) to that type's handler; it returns to "
+             "<code>$8227</code>. <strong>The order flips every two frames:</strong> slots 0-4 always come "
+             "first, then 5&rarr;23 for two frames, then 23&rarr;5 for two (the table at "
+             "<code>$81DD</code>, chosen by bit 1 of the loop counter <code>$36</code>). Measured: "
+             "<code>[0, 5, 6, 7, 8, 9, 23]</code>, <code>[0, 23, 9, 8, 7, 6, 5]</code>, the same again, then "
+             "forward again. Its effect is that when sprites run out, the ones that lose are not always the "
+             "same ones.</li>"
+             "<li><strong>Finish</strong> (<code>$CE88</code>): sprites left over from the previous frame are "
+             "hidden (y = <code>$F8</code>), and the allocator's flag byte <code>$83</code> is flipped "
+             "(<code>$CEFE</code>). <em>Lead:</em> that flip looks like what alternates which sprites lose when "
+             "OAM is full; the allocator's states were not traced through.</li>"
+             "<li><strong>The player's death</strong> is decided here: the player's slot becomes the death "
+             "object type 4 when a hit empties the life meter, and at the end of the loop, if the "
+             "meter and <code>$2E</code> are all 0, the game goes to bank 0 <code>$81DD</code> (GAME OVER) "
+             "(<a href=\"labyrinth.html#cells\">see the cell page</a>).</li></ol>")
+    o.append("<p><strong>What a handler does</strong> varies by type (a hundred and twenty-seven of them), "
+             "but nearly all follow one shape, and every step is a call into a shared routine in bank 7:</p><ol>"
+             "<li><strong>First frame:</strong> bit 7 of the type is clear, so initialise: hit points, attack, "
+             "collision flags and drawing flags are copied from the per-type tables "
+             "(<code>$D02C</code>, <code>$D0AB</code>, <code>$D12A</code>, <code>$D1A9</code>; "
+             "<code>$CFA0</code>), the type gets bit 7.</li>"
+             "<li><strong>Move:</strong> a velocity, a spring toward a target "
+             "(<code>$CD12</code>/<code>$CD46</code>), an aim at the player "
+             "(<code>$F863</code>) or a script; ground objects also add the scroll step "
+             "<code>$B7</code> so they stay on the background.</li>"
+             "<li><strong>Draw:</strong> <code>$CBE8</code> &rarr; <code>$CC34</code> turns the object's "
+             "metasprite id into hardware sprites in OAM at the allocator's cursor, one per "
+             "pass of <code>$CDD7</code>, flipping and offsetting as the id says, from the position "
+             "<code>$0518</code> (y), <code>$0530</code> (x).</li>"
+             "<li><strong>Hit box:</strong> <code>$D229</code> makes a box from the position and the "
+             "metasprite's half width and height (<code>$C174</code>, <code>$C201</code>).</li>"
+             "<li><strong>Collide:</strong> an enemy tests its box against slots 4 down to 0 "
+             "(<code>$D348</code>) &mdash; a shot or the ship counts only if its collision flags share a "
+             "bit with the test's mask &mdash; and <code>$D2BB</code>/<code>$D2C5</code>/<code>$D39B</code> "
+             "then take each side's attack from the other's hit points. The player's own "
+             "overlap with enemies and their shots is therefore found in the <em>enemies'</em> handlers, "
+             "up to five box tests per enemy per frame.</li>"
+             "<li><strong>Die:</strong> at 0 hit points the type becomes <code>$D441[type]</code> "
+             "&mdash; an explosion (<code>$08</code>, which is where the item box counter runs), "
+             "a bigger one (<code>$07</code>) for bosses &mdash; and the handler for that type runs from "
+             "the next frame.</li></ol>")
+    o.append("<h3>The player (slot 0)</h3><p>Bank 3 <code>$8C98</code>, once per frame: build "
+             "<code>$32</code> from the pad; in a corridor, steer: the ship's bank angle "
+             "<code>$0680</code> (0-10) moves one step toward the D-pad's left or right and picks the "
+             "sprite and flip (<code>$8EFD</code>/<code>$8F08</code>); the direction becomes a velocity "
+             "(<code>$F8CE</code>) and the position is clamped to x 12-244, y 24-176; "
+             "<strong>B</strong> counts <code>$33</code> down and spawns a bullet "
+             "(<a href=\"status.html#gun\">the gun</a>); <strong>A</strong> spawns a weapon object "
+             "(<a href=\"status.html#subweapons\">the weapons</a>); after a hit the ship "
+             "spins for 15 frames and blinks (<code>$0788</code>, collision flags bits 7 and 6); the "
+             "exhaust is drawn as a second piece whose frame follows the scroll speed.</p>")
+
+    # ---------------------------------------------------------------- the rest
+    o.append('<h2 id="stage">Stage, boss, scroll and spawns</h2>')
+    o.append("<ul><li><strong>Boss and stage state</strong> (bank 3 <code>$917F</code>, after the "
+             "decompressor): <code>$70</code> is 0 for nearly the whole stage and the routine "
+             "returns at once. A stream record sets it to 1 at the boss's row: <strong>1</strong> "
+             "turns the score into the stage's points gained, plays the warning (<code>$0300 = $40</code>, "
+             "sound <code>$45</code>) and, when the corridor's flags (<code>$913A</code>) say so, blows "
+             "up the ordinary enemies; <strong>2</strong> waits (<code>$73/$74</code>, in 64-frame ticks, "
+             "beeping) and starts the boss music; <strong>3</strong> "
+             "creates the boss object (<code>$72</code>) and remembers its slot; <strong>4</strong> "
+             "watches it (every 64th frame, <code>$41 &amp; $3F</code>, the bonus ticks 10 down); "
+             "<strong>5/6</strong> run the eight explosions, the victory song and set the stage-end flag "
+             "<code>$A0</code> bit 0, which <code>$E655</code> sees on the next pass "
+             "(<a href=\"ending.html\">Ending</a>).</li>"
+             "<li><strong>Stage step</strong> (<code>$E655</code>): clears the step <code>$B7</code> "
+             "and the new-row flag (<code>$A0</code> bit 2); if the stage-end flag is up, hands over to "
+             "<code>$EB18</code>; otherwise ramps the speed <code>$B8/$B9</code> by 2/256 toward "
+             "<code>$BA/$BB</code>, subtracts it from the scroll (<code>$E530</code>) and adds the "
+             "whole pixels to <code>$AF</code>.</li>"
+             "<li><strong>Every 16 pixels</strong> (<code>$AF</code> &ge; 16): finish the previous "
+             "row's PPU writes (<code>$E5EB</code>), count the row (<code>$B0/$B1</code>, the stage "
+             "clock), find its PPU address (<code>$EACC</code>), switch to bank 4 and "
+             "<strong>fire every stream record whose trigger equals the row</strong> (<code>$E6CE</code>; "
+             "speed changes, palettes, art loads, a wave script, the boss, the end), then "
+             "build the row's 16 metatile ids (<code>$E8AB</code>, with the overlay structures over it), "
+             "expand it to tiles and attributes (bank 5 <code>$83B3</code>), spawn the ground "
+             "objects it holds (<code>$89FB</code>), arm the transfer (<code>$A5</code> = 1) and set "
+             "the new-row flag. <a href=\"corridors.html\">Corridors</a> has what the records say.</li>"
+             "<li><strong>Art loader and spawn script</strong> (<code>$E995</code>, every frame): "
+             "<code>$E99F</code> advances the art-load stream by one tile block when the previous one "
+             "has decoded; <code>$F78F</code> runs the current wave script. Its waits are counted "
+             "in <strong>new rows</strong> while the stage scrolls (<code>$A0</code> bit 2 set by "
+             "the row code: <code>$68</code> goes down one per row) and in <strong>seconds</strong> "
+             "(<code>$69</code>, reloaded with 60) when the scroll has stopped &mdash; so waves follow the "
+             "scroll, and a boss that stops it gets a clock instead.</li></ul>")
+
+    # ---------------------------------------------------------------- sound
+    o.append('<h2 id="sound">Sound</h2>')
+    o.append("<p>Two halves. <strong>Starting</strong> a sound is immediate and happens in the game code, in "
+             "whatever step caused it: <code>$D852</code> switches to bank 0, calls <code>$8006</code> "
+             "(which loads the song or effect header into a free soft channel) and switches back. "
+             "<strong>Playing</strong> is the tick, once per frame at the end of the NMI "
+             "(bank 0 <code>$917C</code>, about 1,600 cycles): it steps each active channel's "
+             "duration, reads the next note or command from its stream, runs the pitch and "
+             "volume envelopes, and writes the APU shadow <code>$0308-$0317</code> to "
+             "<code>$4000-$4015</code>. Notes therefore change on frame boundaries, never in between; a "
+             "tick that finds <code>$0307</code> non-zero does nothing. "
+             "(<a href=\"sound.html\">Sound</a>.)</p>")
+
+    # ---------------------------------------------------------------- periodic
+    o.append('<h2 id="periodic">Things that do not happen every frame</h2>')
+    o.append("<table><thead><tr><th>Period</th><th>What</th><th>Driven by</th></tr></thead><tbody>"
+             "<tr><td>16 scroll pixels (about 10 frames at the run's 1.5 px/frame: 38 new-row frames in "
+             "400)</td><td>A new background row: stream records, row ids, tiles, ground objects</td>"
+             "<td><code>$AF</code> overflow, bank 7 <code>$E69B</code></td></tr>"
+             "<tr><td>2 NMIs per row</td><td>The row reaches the PPU in two halves</td>"
+             "<td><code>$A5</code> 1 then 2, <code>$DD54</code></td></tr>"
+             "<tr><td>every 8th frame, if the score changed</td><td>Score redrawn</td>"
+             "<td><code>$41 &amp; 7</code>, <code>$40</code>, bank 7 <code>$E0F9</code></td></tr>"
+             "<tr><td>every frame, one step</td><td>Life meter fills or drains toward the real life</td>"
+             "<td><code>$49</code> &rarr; <code>$48</code>, <code>$E30C</code></td></tr>"
+             "<tr><td>every 2 frames</td><td>The object loop's slot order flips</td>"
+             "<td><code>$36</code> bit 1</td></tr>"
+             "<tr><td>every 8th frame</td><td>Shots that wear out (the A-button weapons) take damage "
+             "from the enemies they touch</td><td><code>$41 &amp; 7</code>, bank 7 <code>$D3A9</code></td></tr>"
+             "<tr><td>every 60 frames (120 with two objects)</td><td>A running A-button weapon is charged "
+             "its chips</td><td><code>$3F</code>, bank 6 <code>$8616</code></td></tr>"
+             "<tr><td>the gun's delay (<code>$39</code> frames)</td><td>Next bullet</td>"
+             "<td><code>$33</code>, bank 3 <code>$8E04</code></td></tr>"
+             "<tr><td>every 64th frame in a boss fight</td><td>The stage bonus ticks down by 10</td>"
+             "<td><code>$41 &amp; $3F</code>, bank 3 <code>$9305</code></td></tr>"
+             "<tr><td>every new row, or every 60 frames when stopped</td><td>The spawn script's wait "
+             "counts down</td><td><code>$68</code>/<code>$69</code>, bank 7 <code>$F78F</code></td></tr>"
+             "<tr><td>per object, by its own counters</td><td>Enemy animation, firing, phases "
+             "(<code>$CD7A</code> phase counters wrap at a type-specific limit)</td>"
+             "<td>each handler</td></tr>"
+             "<tr><td>every frame, but only a share of the budget</td><td>Tile decompression</td>"
+             "<td>room in the PPU queue, <code>$DB52</code> (up to <code>$4D</code> bytes, "
+             "<code>$2D</code> while a row is pending)</td></tr>"
+             "</tbody></table>")
+
+    # ---------------------------------------------------------------- limits
+    o.append('<div class="note"><strong>Measured and read.</strong> The order, the cycle numbers, the slot '
+             "order and the new-row share are from running the real code on the NES model "
+             "(<code>tools/tgl/cpu.py</code>) from the owner's corridor savestate for 400 frames "
+             "(<code>$30</code> bit 7 cleared; the ship made invulnerable so the run does not end); the "
+             "routines' roles are from reading them. The NES model is not cycle-accurate "
+             "(instruction timing is the table's, no DMA stalls, no IRQ, DMC or APU), so cycle "
+             "numbers are indicative, and a corridor with more enemies, a boss or heavier effects will take "
+             "longer. <strong>Not established:</strong> the real hardware's frame budget; the "
+             "sprite allocator's flag bits (<code>$83</code>) beyond what is said above; what every "
+             "one of the 127 handlers does each frame (only the shared steps); how the labyrinth's loop "
+             "differs (the same loop, with no scroll step: <code>$E655</code> skips to the loader when "
+             "<code>$30</code> bit 6 is clear); and the other uses of <code>$FF8B</code> with Y &gt; 1.</div>")
+    return "".join(o)
+
+
 def _ram_page(rm):
     """The RAM map: hand-authored names (annotations/ram.json) beside a generated
     cross-reference of every access in the traced code (tools/tgl/ram.py)."""
@@ -4802,6 +5100,7 @@ def build_site(rm, out: Path) -> list[str]:
     if _ram_data():
         pages["ram.html"] = _ram_page(rm)
     pages["rendering.html"] = _rendering_page(rm)
+    pages["gameloop.html"] = _game_loop_page(rm)
     if any(r.get("source") == ENEMY_SOURCE for r in rm.regions):
         pages["enemies.html"] = _enemies_page(rm, out)
     if any(r["id"] in STATUS_REGIONS for r in rm.regions):
@@ -4850,6 +5149,7 @@ def build_site(rm, out: Path) -> list[str]:
                  else f'Labyrinth - {rm.meta["title"]}' if name == "labyrinth.html"
                  else f'RAM map - {rm.meta["title"]}' if name == "ram.html"
                  else f'Rendering - {rm.meta["title"]}' if name == "rendering.html"
+                 else f'Game loop - {rm.meta["title"]}' if name == "gameloop.html"
                  else f'Demo - {rm.meta["title"]}' if name == "demo.html"
                  else f'Ending - {rm.meta["title"]}' if name == "ending.html"
                  else f'Corridors - {rm.meta["title"]}' if name == "corridors.html"
