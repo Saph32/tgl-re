@@ -436,11 +436,25 @@
       "evidence": "bank 2 $8071, $8998; labyrinth savestate X 8 Y 12"
     },
     {
+      "addr": "$54",
+      "name": "room_openings",
+      "what": "The labyrinth room's exits: bit 7 north, 6 west, 5 east, 4 south (map byte 1's bits 7-4, built by bank 5 $8071). Bank 3 $9045 lets the ship leave through a side only if its bit is set and that side's door byte ($58 N, $59 W, $5A E, $5B S) has low nibble 8 (no cover left). The labyrinth savestate holds $B8: north, east, south open, west walled, and bit 3 also set (what bit 3 means is not established). The older note 'the room's $B8' means this VALUE, not the address.",
+      "status": "confirmed",
+      "evidence": "bank 3 $904C-$90B3; labyrinth savestate $54 = $B8"
+    },
+    {
       "addr": "$55",
       "name": "item_icon",
       "what": "The item a labyrinth item room holds: $A377[sub-id], an icon number.",
       "status": "confirmed",
       "evidence": "bank 5 $A3BB, $84CB"
+    },
+    {
+      "addr": "$56",
+      "name": "shop_item_standing",
+      "what": "In the round creature's shops (bank 2 $8500-$8640): the item the ship last stood at, taken from the object's $0680 field ($85BA); $FF when none ($8628), tested against $0680 at $8527 so the item is not offered twice.",
+      "status": "lead",
+      "evidence": "bank 2 $8521-$8528, $85BA, $8626-$8628; labyrinth savestate $56 = $FF"
     },
     {
       "addr": "$57",
@@ -586,6 +600,13 @@
       "evidence": "bank 3 $92EA"
     },
     {
+      "addr": "$76",
+      "name": "reward_index",
+      "what": "Position in the 73 [threshold][icon] pairs at bank 3 $817A that 'YOU GOT ITEM' has already given, in bytes: each award does INX INX and stores it ($813A); the list ends at $92 (CPX #$92, $80E7).",
+      "status": "confirmed",
+      "evidence": "bank 3 $80E5-$80F0, $8118, $813A"
+    },
+    {
       "addr": "$77",
       "name": "tgl_index",
       "what": "Index into $ED08, the TGL game's corridor order.",
@@ -606,6 +627,13 @@
       "what": "The map position the progress recorder keeps ($52/$53).",
       "status": "lead",
       "evidence": "bank 5 screen type 1"
+    },
+    {
+      "addr": "$7E",
+      "name": "art_loader_bank",
+      "what": "The bank holding the graphics-load stream that $E99F reads: $E9A5 switches to it (LDA $7E / JSR $D705). Command 7 ($E85E) sets 4 ($E87C: streams in bank 4); area setup in bank 5 ($A432) and bank 6 ($801E) set 5. $7F is the same for the spawn script.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E9A5, $E87C; bank 5 $A432; bank 6 $801E"
     },
     {
       "addr": "$7F",

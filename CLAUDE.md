@@ -658,7 +658,7 @@ Do not re-derive these; do check anything that depends on them.
     metatiles read from the live set pointer `$0460` = `$AF1C`, 5 bytes each. Floor is set
     3 metatile 16 (`$70`). The one odd cell is metatile 10 where an object stands;
   - **map byte 1 bits 7/6/5/4 = openings N/W/E/S** (`$82DD` against `$E0`/`$E2`/`$E6`/`$E8`,
-    built by `$8071` from row±1, column±1); the room's `$B8` = open N, E, S, walled W,
+    built by `$8071` from row±1, column±1); the room's openings byte `$54` holds `$B8` = open N, E, S, walled W (bit 3 also set, unexplained),
     as on screen. Byte 0 bit 7 puts a key door in an opening (code only).
   - CHR 393/512 from the ROM; OAM: the player and a 2-sprite object found whole.
   - Metatile sets come from records `[count]` + `[set|list<<4][tile base][ptr]` via the
