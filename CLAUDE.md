@@ -896,6 +896,23 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **Corridors 7 and 12 spawn types whose art is never loaded - run on the real corridor loader (model).** The five
+  "misses" of `parse-enemies.py --areas` were guessed to rely on art left loaded earlier. **CORRECTION: they do not.**
+  A corridor start leaves only its own streams' blocks in the 16 slots `$0480` (bank 5 `$A442` clears them at area setup;
+  observed: corridor 12 ends with `$39 $52 $18 $21 - $43` and nothing else), and `$CF5F` (reached through `$C0A8`, which every
+  one of these handlers calls) makes an enemy without its block wait 768 frames, undrawn, then removes it (as for corridor 16).
+  **Corridor 12** (script `$A233`): streams `$9D43`/`$9D55` are corridor 1's, loading `$20 $1F` (types `$42`, `$43`) but not
+  `$25 $22` (types `$63` ×10 at row 350, `$64` ×4 at rows 150, 190, 500): **14 of its 64 spawned objects are invisible**,
+  measured 7,718 / 3,081 frames with no art against 10 × 768 = 7,680 / 4 × 768 = 3,072. `$A048` (corridors 2 and 11) loads all
+  four blocks. Corridors 1, 2, 11, 12 share scene 33; their stream pointers are 1 `$9D43`, 2 `$9EFD`+`$A048`, 11 `$A048`+`$A05D`,
+  12 `$9D43`+`$9D55` - 12 repeats 1's, the other pairs (3/13 ... 10/20) share a stream. LEAD: a wrong pointer in corridor 12's
+  block (`$A09F`: `43 9D`). The row-960 stream swaps slots 4/5 to `$43` (pre-boss art, 30 rows before its boss command, as
+  corridor 1's `$9D55` is 5 rows before its) and the objects using the old blocks become type `$28` - by design, not a bug.
+  **Corridor 7** (script `$B165`): one `$1E` (block `$12`: types `$1D`-`$1F`; no corridor stream loads it) among 107 objects, at
+  row ~294, invisible for 768 frames (seen leaving between frames 3,400 and 4,000). Not explained: why the script has it; the
+  data cannot say. **Harness lesson:** a corridor started from the `ingame` savestate keeps that savestate's objects (`$6D`,
+  `$7B`) in the slots unless they are cleared - with them, corridor 7's slots filled with `$27` shots and the `$1E` spawn
+  seemed to fail. NOT checked on hardware.
 - **Corridor 16's spawn script (bank 4 `$AFDC`-`$B010`): the game misreads its own tail.** The walk ran into `$B011`, the next
   structure. Last bytes `A0 04 5A | E3 0F 28 | 96 EA 05 | 64 | 64 | 02`. The interpreter (`$F78F`) treats a byte >= `$80`
   after a spawn as the NEXT SPAWN, never a delay, so `96` is formation `$16` x `$EA` (234) every 5 frames, then
@@ -1102,7 +1119,7 @@ authoritative, up-to-date version of this list; what follows is what does not li
    leads, i.e. accounted for, not understood. The last six gaps are in `79-last-gaps.json` (see the entry above);
    three are leads with no reader (bank 7 `$EEC4`, bank 6 `$A9BA` and `$B902`, bank 0 `$BF04`). Which rooms take
    the room drawer's special path (`$30` bits 5-6).
-3. **Why corridors 7 and 12 spawn types whose art they never load** (7: `$1E`; 12: `$63`, `$64`) - corridor 16's two misses are explained, these are not.
+3. **Other bank 5/bank 4 script quirks** - none open here; see the corridor 7/12 and 16 entries.
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).
