@@ -172,6 +172,13 @@
       "evidence": "bank 7 $D6C0-$D6D2, $D6F7-$D6FC"
     },
     {
+      "addr": "$24",
+      "name": "queue_saved_flushes",
+      "what": "The PPU queue's reservation ($D6E0): $20 is saved here and cleared, and if $21 (the next-free offset) is unchanged afterwards $24 is kept, otherwise zeroed ($D6F4); $D6FE restores $20 = $24 + 1 when the entry is committed. So an NMI that drains the queue between reserve and commit is noticed. Purpose read from the code, not run.",
+      "status": "lead",
+      "evidence": "bank 7 $D6E0-$D704"
+    },
+    {
       "addr": "$25",
       "name": "queue_reserved",
       "what": "Length of the queue entry being reserved ($D6E0), added to $21 when it is committed ($D6F7).",
@@ -859,6 +866,13 @@
       "evidence": "bank 7 $E79F-$E89D"
     },
     {
+      "addr": "$BE",
+      "name": "split_addr_tmp",
+      "what": "Scratch for the corridor's split marker: sprite 0's Y ($0200) + the vertical scroll $FC + 1, wrapped at $F0 and rounded to a tile row ($DCA8-$DCBA), then shifted into a PPU address ($2000 + 32 x row) that is loaded into $2006 so $DCCE can write the solid tile $FE there.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DCA8-$DCD0"
+    },
+    {
       "addr": "$E0",
       "end": "$E3",
       "name": "room_north_west",
@@ -1258,12 +1272,30 @@
       "evidence": "bank 7 $EDD1; bank 5 status screen"
     },
     {
+      "addr": "$04E8",
+      "end": "$04EF",
+      "name": "row_attr_bytes",
+      "what": "The eight attribute-table bytes of the background row being built (corridor). Bank 5 $8442-$8454 merges each metatile's palette bits into them (read-modify-write with the mask tables $8469/$846D and the replicated-palette patterns at $0199); the NMI writes all eight to the PPU in one run at the address from $AA ($DD83-$DDAD).",
+      "status": "confirmed",
+      "evidence": "bank 5 $8442-$8454; bank 7 $DD7C-$DDAD"
+    },
+    {
       "addr": "$04F0",
       "end": "$04F9",
       "name": "move_history",
       "what": "The last ten moves in the labyrinth, one direction pushed per move; the loop gates sum them.",
       "status": "confirmed",
       "evidence": "bank 7 $EB26-$EB89; bank 5 $A3DB"
+    }
+  ],
+  "base_artifacts": [
+    {
+      "addr": "$016F",
+      "reason": "Base of indexed accesses with Y of 1 or more: the score digits $0170-$0175 are cleared with STA $016F,Y (bank 0 $809C, $80EC) and the top three compared with LDA $016F,Y at bank 7 $DF45."
+    },
+    {
+      "addr": "$017B",
+      "reason": "Base of SBC $017B,Y at bank 7 $DF48: reads the bonus threshold $017C-$017E beside the score digits."
     }
   ],
   "object_fields": [
