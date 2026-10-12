@@ -639,6 +639,49 @@
       "evidence": "bank 7 $CC37-$CC3F"
     },
     {
+      "addr": "$8A",
+      "end": "$8B",
+      "name": "ms_offsets_ptr",
+      "what": "The metasprite drawer: pointer to the shared (x, y) offset table, copied from bytes 1-2 of the record being drawn ($88/$89). $CE06 reads (x) and $CE35 (y) through it.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CC6C-$CC71, $CE06, $CE35"
+    },
+    {
+      "addr": "$8C",
+      "name": "ms_offset_index",
+      "what": "Index into the offset table ($8A/$8B): cleared per record ($CC7E), then +2 per sprite drawn ($CE1B, $CE1D) - one x and one y byte each.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CC7E, $CE04, $CE1B"
+    },
+    {
+      "addr": "$8D",
+      "name": "ms_tile_index",
+      "what": "Index into the record's tile array: starts at 3 (just past the header, $CC73), +1 per sprite. $CDF7 reads the relative tile through it; $FF skips the sprite.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CC74, $CDF5, $CE1F"
+    },
+    {
+      "addr": "$8E",
+      "name": "ms_attr_index",
+      "what": "Index into the record's attribute array: starts at 3 + sprite count ($CC7A); advances only when the attribute byte's bit 3 is clear ($CE23-$CE27), which is the run-length coding that makes a record's length not follow from its count.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CC7A, $CDE6, $CE27"
+    },
+    {
+      "addr": "$8F",
+      "name": "ms_count",
+      "what": "Sprites left to draw in the current record: the count byte with bit 7 stripped, decremented per sprite until $CC85 falls through.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CC67, $CC78, $CC83"
+    },
+    {
+      "addr": "$91",
+      "name": "ms_attr_byte",
+      "what": "The attribute byte of the sprite being drawn: ORed with the object's attributes ($86 AND $E3) into OAM byte 2, and its bit 3 decides whether $8E advances.",
+      "status": "confirmed",
+      "evidence": "bank 7 $CDEA, $CDF0, $CE21"
+    },
+    {
       "addr": "$A0",
       "name": "stage_flags",
       "what": "Stage event bits - see the table below.",
@@ -733,6 +776,22 @@
       "evidence": "bank 7 $E6CE; corridor 15 savestate row 41"
     },
     {
+      "addr": "$B2",
+      "end": "$B3",
+      "name": "stream_next_trigger",
+      "what": "Bank 4's screen-data engine: the trigger (a stage row) of the record about to run. Loaded from the block's first two bytes ($E593), compared with the row counter $B0/$B1 at $E6D0/$E6D6 (a match fires the record), and reloaded from the two bytes after each record's operands ($E89D).",
+      "status": "confirmed",
+      "evidence": "bank 7 $E593, $E6D0, $E89D-$E8A5"
+    },
+    {
+      "addr": "$B4",
+      "end": "$B5",
+      "name": "stream_row_table",
+      "what": "Pointer to the row table that command 1 selects ($E721 reads it from the record; $A1 is reset to 0). $E8AB indexes it with the row cycle $A1 to build each new row's 16 metatile ids.",
+      "status": "checked",
+      "evidence": "bank 7 $E725, $E72A, $E8AF-$E8C7"
+    },
+    {
       "addr": "$B6",
       "end": "$B7",
       "name": "scroll_acc",
@@ -802,6 +861,27 @@
       "what": "The demo's timer; it also counts the credits screens.",
       "status": "confirmed",
       "evidence": "bank 0 $8943; the demo's setup"
+    },
+    {
+      "addr": "$F2",
+      "name": "demo_pattern_timer",
+      "what": "The demo's input generator ($DAE1): frames until the next pattern change, reloaded with 24-39 (random AND $0F + $18). Bank 0 reuses $F0-$F4 as timers/counters in the title code ($8160-$8424), which is not worked out.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DAF0-$DAFB; bank 0 $8174, $83A8"
+    },
+    {
+      "addr": "$F3",
+      "name": "demo_pattern",
+      "what": "The demo's current input pattern (a byte of $DB32-$DB51), copied into the pad bytes $F7/$F8 each frame while $30 bit 7 is set. Bank 0's title code also counts with it ($8415).",
+      "status": "confirmed",
+      "evidence": "bank 7 $DB06-$DB0F; bank 0 $83AE, $8415"
+    },
+    {
+      "addr": "$F4",
+      "name": "demo_pattern_index",
+      "what": "The demo's index into the 32 patterns: random at start ($8170), then (AND $1F) + 1 at each change.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DAFD-$DB05; bank 0 $8170"
     },
     {
       "addr": "$F5",
@@ -1108,6 +1188,14 @@
       "what": "The keys held, bit k-1 for key k.",
       "status": "confirmed",
       "evidence": "bank 7 $F547; bank 3 $8FF5"
+    },
+    {
+      "addr": "$04B1",
+      "end": "$04B2",
+      "name": "once_flags",
+      "what": "A bit array of ten one-shot events, indexed by $15 (0-9, the same index as the 10-entry jump table at bank 5 $A1C4) through the helper $C078/$EFC7 (A = n gives Y = n >> 3 and A = 1 << (n AND 7)). $A1BA tests the bit: an event already done removes its object (song $3F). $A24A sets it when the event ends; $9FD8 sets bit 3 directly. Cleared by the game-start code at bank 0 $80A5/$80A8 and NOT part of the password payload ($04A0-$04B0), so after a password they would start clear - unless that start code is skipped, which was not checked (it branches on a flag at $80B6).",
+      "status": "checked",
+      "evidence": "bank 5 $A1A2-$A1BD, $A245-$A24D, $9FD8-$9FDD; bank 7 $EFC7; bank 0 $80A5"
     },
     {
       "addr": "$04B3",
