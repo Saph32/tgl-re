@@ -1079,9 +1079,10 @@ Do not re-derive these; do check anything that depends on them.
 ## Named so far
 
 The RAM map exists: `annotations/ram.json`, drawn on `docs/ram.html` beside a generated
-cross-reference. Add a name there (with its evidence and a status), not here. The first version
-names 73% of the touched bytes (129 entries, 33 sound fields); the page's "busiest unnamed bytes"
-table is what to read next. Worked out from the busiest unnamed list: the sound engine's whole channel
+cross-reference. Add a name there (with its evidence and a status), not here. It now names 85% of the touched bytes (175 entries, 33 sound fields) and the page's "busiest unnamed bytes"
+table is EMPTY: every touched byte below $0500 is named, or listed under "Counted but not bytes" (`base_artifacts`
+in ram.json: an indexed access names a base, and with Y starting at 1 the base is the byte before the data - $016F,
+$017B, $0136-$0137), or is a lead. What is left to do is the 18 `lead` entries and the object-slot fields. Worked out from the busiest unnamed list: the sound engine's whole channel
 state (`$0319 + 7f + c`, 33 fields, ends exactly at `$03FF`; `$1C-$1F` its scratch; `$0300` is the
 song-event register: a `$94` command ORs into it and a channel's end stores its song number), the
 tile decompressor's state (`$09-$0F`), the PPU queue's cursor (`$21`, reserve `$25`), the art-load
@@ -1137,4 +1138,4 @@ authoritative, up-to-date version of this list; what follows is what does not li
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).
-6. Grow the RAM map: name the busiest unnamed bytes it lists (`$1A/$1B`, `$1E`, `$0358`, ...).
+6. Turn the RAM map's `lead` entries into confirmed ones (`annotations/ram.json`, status `lead`); the unnamed table is empty.
