@@ -896,6 +896,20 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **The squares before a boss (owner's `fade` savestate; `docs/enemies.html#dissolve`).** Corridor 5, row 467 (still scrolling), four
+  objects of type `$A8` = `$28` + bit 7, metasprite 121, slot 12 empty, slots 13/14 = `$41`/`$35`. **Trigger:** screen-data command 7 at
+  row 465 starts stream `$AAE2` (slot 12 empty, 13 <- `$41`, 14 <- `$35`), five rows before the boss command (row 470). Per record
+  `$E9C3` zeroes the slot and `$E9D1`-`$E9E7` converts every live object (slots 5-23) whose `$CFB6[type]` (via `$CF4C`) is the evicted block to
+  type `$28`: the enemies that used the old art (`$1A`: block `$3C`, `$59`: block `$1E`) dissolve, others and art-less objects do not.
+  Type `$28` (bank 6 `$9972`, hp 0, flags `$C0`): 16-step table (`$99C9` metasprite, `$99D9` base tile, `$99E9` piece offsets): metasprite 121
+  with tiles 1/3 alternating, then 5, 7; then metasprite 55 (tiles 9, B, D, F) - ~32 + ~10 frames, 42 measured, then the slot is free. **Run:**
+  the real corridor 5 loader with a `$1A` and a `$59` placed at row 464 turn to `$28` on the frames after slots 13 and 14 are evicted
+  (5303 / 5312); a `$3F` control stays. 20 corridors have such a pre-boss stream 0-30 rows (rows 5-10 usual; 12: 30, 16: 10) before the
+  boss command (not 7, 17, 22; corridor 21 loads many). SEPARATE from it: the boss command (cmd 5 -> `$70` = 1) then runs `$91A0`: `$71` =
+  `$913A[corridor]` (`88` for all but 7, 17 = `02`, 21 and 22 = `00`): bit 7 turns every non-spawner object with `$0578` bit 1 clear
+  into an explosion (type `$08`, sound `$22`), bit 3 -> `$60` bit 3 (spawns stop). The dissolve is therefore the art swap's side
+  effect, not a designed transformation; whether the designers meant it is not knowable. Pairs with the corridor-12 note above.
+  NOT checked on hardware. (`$71` was already in `ram.json`.)
 - **Corridors 7 and 12 spawn types whose art is never loaded - run on the real corridor loader (model).** The five
   "misses" of `parse-enemies.py --areas` were guessed to rely on art left loaded earlier. **CORRECTION: they do not.**
   A corridor start leaves only its own streams' blocks in the 16 slots `$0480` (bank 5 `$A442` clears them at area setup;

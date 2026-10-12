@@ -2910,6 +2910,29 @@ def _enemies_page(rm, out=None):
              "stream that follows. Corridor 16's script runs on into the next block after its "
              "last wave; where it really ends is not established.</div>")
 
+    p.append('<h2 id="dissolve">The squares before a boss</h2>')
+    p.append('<div class="note">Enemies that turn into <strong>squares</strong> just before a boss are not a '
+             "scripted effect. Almost every corridor (not 7, 17, 22) has a second graphics stream (screen-data "
+             "command 7) <strong>0 to 30 rows before its boss command</strong> that loads the boss's art "
+             "into slots the stage's ordinary enemies were using (corridor 5: row 465, stream "
+             "<code>$AAE2</code>, slots 12-14; the boss command is at row 470). For every record "
+             "<code>$E9C3</code> reads the slot's old block, zeroes the slot, and walks slots 5-23: "
+             "any object whose art block (<code>$CFB6[type]</code>, via <code>$CF4C</code>) equals the evicted "
+             "block gets its type overwritten with <strong><code>$28</code></strong>. Type <code>$28</code> "
+             "(bank 6 <code>$9972</code>; hit points 0, death type 0, flags <code>$C0</code>) is a 16-step "
+             "dissolve: metasprite 121 &mdash; the squares, tiles <code>$01</code>/<code>$03</code> "
+             "flickering and then <code>$05</code>, <code>$07</code> &mdash; for about 32 frames, then "
+             "metasprite 55 for about 10, then it is gone (42 frames in all, measured). Enemies of "
+             "other blocks are untouched, and so is an object with no art block. A second effect "
+             "follows at the boss command: phase 1 (<code>$917F</code>-<code>$9216</code>) reads "
+             "<code>$913A[corridor]</code>; bit 7 (set for every corridor but 7, 17, 21 and 22) turns every "
+             "remaining non-spawner object into an explosion (type <code>$08</code>) and bit 3 stops the "
+             "spawn script. <strong>Checked</strong> on the owner's <code>fade</code> savestate (corridor 5, row "
+             "467: four <code>$A8</code> objects with metasprite 121, slot 12 empty, slots 13-14 holding "
+             "<code>$41</code>/<code>$35</code>) and on the real corridor loader with a <code>$1A</code> "
+             "(block <code>$3C</code>) and a <code>$59</code> (block <code>$1E</code>) placed in slots: "
+             "each became <code>$28</code> on the frame after its block was evicted; a control object was "
+             "unchanged. NES model; not checked on hardware.</div>")
     p.append("<h2>Loading enemy art</h2>")
     p.append('<div class="note">Enemy tiles are decompressed into CHR RAM as a room is '
              "entered. A <em>load stream</em> is <code>[flags | slot][block][tile]</code> "
