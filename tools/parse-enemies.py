@@ -179,8 +179,9 @@ def main() -> int:
           f"{len(all_g)} graphics streams, all in bank 4, pairwise disjoint: {disjoint}")
     print(f"  {len(loops)} scripts end on a jump, every one back into itself: {loops_ok}")
     print(f"  load streams pack exactly: {a_ok} of {a_pairs}")
-    print(f"  {len(overrun)} scripts run into the next named structure: "
-          + ", ".join(f"${s:04X} into ${n:04X}" for s, n in overrun.items()))
+    print(f"  {len(overrun)} scripts are read by the interpreter past the next named structure: "
+          + ", ".join(f"${s:04X} into ${n:04X}" for s, n in overrun.items())
+          + " (corridor 16: a delay byte >= $80 is read as a spawn; see tools/run-spawn-script.py's notes in CLAUDE.md)")
     print(f"  {have} of {need} (corridor, spawned type) pairs have the type's art block loaded by "
           f"that corridor's own streams; misses: {', '.join(misses)}")
 
@@ -351,8 +352,13 @@ def main() -> int:
                         f"{len(ev)} steps spawning types "
                         + ", ".join(f"${k:02X}" for k in kinds)
                         + (". Ends with a jump back into itself, a loop." if how == "jump"
-                           else f". NOT ESTABLISHED WHERE IT ENDS: its last steps run into "
-                           f"${e:04X}, which is named separately, so the claim stops there."
+                           else f". Its last byte is $" + f"{e - 1:04X}" + ", where the next structure ($" + f"{e:04X}"
+                           + ") begins. The INTERPRETER reads the end differently from the data: "
+                           "a delay byte of $80 or more ($96 here) is taken as a spawn, so "
+                           "the tail runs on past an end that is not reached (run on the model: "
+                           "an invisible formation of 234 objects of a type whose art is never "
+                           "loaded). Read with $96 as a delay it ends with command 2 exactly "
+                           "here."
                            if how == "overrun" else ". Ends with command 2.")
                         + " tools/parse-enemies.py --areas decodes it."))
     for g in all_g:

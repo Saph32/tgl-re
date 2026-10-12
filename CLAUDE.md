@@ -628,7 +628,7 @@ Do not re-derive these; do check anything that depends on them.
     byte has a high nibble. **Checks:** areas 1-21 name one script each; 23 scripts and 27
     streams are pairwise disjoint; all 5 jump-ending scripts loop into themselves; 139 of
     144 (area, spawned type) pairs have their art in that area's streams. Area 16's script
-    runs into the next block (`$B011`) — end not established. `parse-enemies.py --areas`.
+    ends at `$B010` (see the corridor-16 entry below). `parse-enemies.py --areas`.
   - **CORRECTION to bank 4:** the four "terminal triggers" ($1100, $270F, $3700, $3800) are
     not trigger data. A block's last record has no trigger; `$E89D` reads the next two bytes
     anyway, and three of the four are exactly the first bytes of a spawn script or graphics
@@ -896,6 +896,23 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **Corridor 16's spawn script (bank 4 `$AFDC`-`$B010`): the game misreads its own tail.** The walk ran into `$B011`, the next
+  structure. Last bytes `A0 04 5A | E3 0F 28 | 96 EA 05 | 64 | 64 | 02`. The interpreter (`$F78F`) treats a byte >= `$80`
+  after a spawn as the NEXT SPAWN, never a delay, so `96` is formation `$16` x `$EA` (234) every 5 frames, then
+  delay `64`, spawn `$64`, delay 2, then command 0 with operand `00` = a wait of 258 rows, spawn `$04` at script row 1,309
+  (the boss command 5 fires at stage row `0x532` = 1,330) and junk after. Read with `96` as a delay (150), the same bytes are
+  delay `96`, formation `$6A` x 5 / `$64`, delay `64`, **end** - and `02` is exactly the last byte before `$B011`: the
+  intended end. `$16` and `$64` are the two types in this script whose art block (`$3A`, `$22`) corridor 16's streams
+  never load - the project's own "misses" list had flagged them. `$CF5F`: an enemy whose block is not in the 16 loaded-block
+  slots (`$0480`) is not drawn, counts `$0758`/`$0770` down and is removed after **768 frames** (measured). Run on the
+  model (corridor-15 savestate, so speed and art differ; script rows = rows scrolled): at row 951 the three formations
+  spawn together, and from then **14-16 of the 19 enemy slots hold invisible type-`$16` objects**, so `$20` x 4 and `$63` x 15
+  get one or two slots at a time; the spawner alone would need ~11,000 frames to finish its 234 (16 slots / 768 frames).
+  The boss still got a slot immediately in 3 trials (the allocator `$EA8C` also reuses slots whose type has bit 7 set;
+  not traced fully), and ghosts have no handler, so they cannot hurt. Same bug class as the five labyrinth scripts: the data
+  is written for a different interpreter reading than the one in the ROM. NOT established: any of it on hardware, the
+  delays of those five as the author meant them, corridor 16's own scroll speed, and whether the slot starvation is
+  visible in play (the real formations are mostly missing in the model).
 - **The five bank 5 spawn scripts that end `[byte] 01 02` - RUN (`tools/run-spawn-script.py`, the model).** Ids 16, 24,
   28, 32, 38 (28 rooms). Interpreter `$F78F`, read in full: after any spawn or formation the next byte is its delay
   (a bit-7 byte instead chains the next spawn), so `[byte]` is a WAIT - in seconds in the labyrinth (`$69` counts 60
@@ -1085,7 +1102,7 @@ authoritative, up-to-date version of this list; what follows is what does not li
    leads, i.e. accounted for, not understood. The last six gaps are in `79-last-gaps.json` (see the entry above);
    three are leads with no reader (bank 7 `$EEC4`, bank 6 `$A9BA` and `$B902`, bank 0 `$BF04`). Which rooms take
    the room drawer's special path (`$30` bits 5-6).
-3. **Corridor 16's spawn script** (runs into the next structure, end not established).
+3. **Why corridors 7 and 12 spawn types whose art they never load** (7: `$1E`; 12: `$63`, `$64`) - corridor 16's two misses are explained, these are not.
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).
