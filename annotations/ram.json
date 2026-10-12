@@ -164,10 +164,10 @@
     {
       "addr": "$1A",
       "end": "$1B",
-      "name": "ptr2",
-      "status": "lead",
-      "what": "A second pointer or PPU address pair: the status screen's map walk builds the map address into it, and the rectangle blit's loop positions use it.",
-      "evidence": "bank 5 $882D; bank 7 $D99C-$D9A4 (read, not followed through)"
+      "name": "ptr2_or_blit_state",
+      "status": "confirmed",
+      "what": "Two uses of the pair. Bank 5's status-screen map walk ($882D-$8855) keeps a pointer into the world map in $1A/$1B (LDA ($1A),Y). The rectangle blit (bank 7 $D99C-$D9DE, entry $C07E) uses $1A as a running offset into its source, carried from call to call (LDY $1A / LDA ($16),Y ... STY $1A), and $1B as a running vertical position that grows by 8 per call and ends the blit at $C0.",
+      "evidence": "bank 5 $882D-$8855; bank 7 $D99C-$D9DE"
     },
     {
       "addr": "$1C",
@@ -187,11 +187,10 @@
     },
     {
       "addr": "$20",
-      "end": "$21",
-      "name": "queue_len",
-      "what": "The PPU queue's fill state: $21 is the byte offset of the next entry, $20 counts flushes.",
-      "status": "lead",
-      "evidence": "bank 7 $E619-$E654, $D6C0-$D6E0 (read, not followed through)"
+      "name": "queue_pending",
+      "what": "The PPU queue's count of entries waiting. A producer commits an entry by setting it to the saved value + 1 ($D6FE, $E652); the NMI drains only when it is non-zero ($DE0C) and counts it down per entry ($DE9A); the wait routine $D7C3 loops until it is 0 ($D7F0). The reservation ($D6E0) clears it first so the NMI cannot see a half-written entry. $21 is the byte offset of the next free byte.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D6E0-$D704, $D7EC-$D7F2, $DE0C, $DE9A, $E61F-$E652"
     },
     {
       "addr": "$21",
@@ -216,9 +215,9 @@
     },
     {
       "addr": "$24",
-      "name": "queue_saved_flushes",
-      "what": "The PPU queue's reservation ($D6E0): $20 is saved here and cleared, and if $21 (the next-free offset) is unchanged afterwards $24 is kept, otherwise zeroed ($D6F4); $D6FE restores $20 = $24 + 1 when the entry is committed. So an NMI that drains the queue between reserve and commit is noticed. Purpose read from the code, not run.",
-      "status": "lead",
+      "name": "queue_saved_pending",
+      "what": "Held across a queue reservation ($D6E0): $20 (the pending count) is saved here and cleared; if the next-free offset $21 is unchanged afterwards the saved value stays, otherwise (the NMI drained the queue meanwhile and reset $21) $24 is zeroed ($D6F4). $D6FE commits with $20 = $24 + 1. Read from the code; the NMI-in-the-middle case was not forced on the model.",
+      "status": "confirmed",
       "evidence": "bank 7 $D6E0-$D704"
     },
     {
@@ -261,15 +260,15 @@
       "addr": "$2E",
       "name": "retry_unused",
       "what": "Cleared at game start and read in the death test (bank 6 $8239) with $48 and $49; no write other than the clear was found, so it is always 0.",
-      "status": "lead",
+      "status": "confirmed",
       "evidence": "bank 0 $8066; bank 6 $8239"
     },
     {
       "addr": "$2F",
-      "name": "boot_flag",
-      "what": "Branched on in the boot path; set to 0 by a new game and by the TGL back door.",
-      "status": "lead",
-      "evidence": "bank 7 $FF53, $EB30; bank 3 $857A"
+      "name": "start_mode",
+      "what": "How the game was started, read at boot and by the start-up code. 0 = a new game; 1 = the title menu's second item (the title code at bank 0 $843A toggles it 0/1 with Select/Up/Down, sound $33): the boot path ($FF53) then runs bank 3's password screen, which loads the payload when it is non-zero ($8323); 2 = CONTINUE after GAME OVER (Start on 'CONTINUE PUSH START', bank 0 $82A6; the chips are topped to $FA if lower, $8278); 3 = the progress recorder just showed a password ($A2E4); a new game ($EB18) re-initialises the move history only when it is below 3, then clears it. The TGL back door sets it to 0 ($8593). The title menu's item names were not read from the screen.",
+      "status": "confirmed",
+      "evidence": "bank 7 $FF53, $EB20-$EB32; bank 0 $8088-$8096, $82A6-$82A8, $843A-$845B; bank 3 $8323, $8593; bank 5 $A2E4"
     },
     {
       "addr": "$30",
@@ -551,10 +550,10 @@
     },
     {
       "addr": "$60",
-      "name": "flags_60",
-      "what": "Bit flags; the stage-clear routine clears bits 0-1. Meaning not established.",
-      "status": "lead",
-      "evidence": "bank 7 $F516; bank 3 $9210"
+      "name": "script_flags",
+      "what": "Spawn-script flags. Bit 1 = a script is running: command 2 sets it ($E73B), the interpreter tests it ($F794) and its 'end' clears it ($F7EB), as do the stage clear ($F516) and the area setup ($A44A). Bit 3 = spawning stopped: copied from $71 bit 3 at the boss start ($9210), tested by the formation spawner ($9A2E) and the interpreter ($F7F6), cleared by the area setup. Bit 0 is written with bit 1 (command 2's operand low two bits, $E73B; bank 5 $A48A sets bit 1) and cleared with it, but nothing tests it. Bit 2 and 4-7 are not touched by any traced code.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E73B, $F516, $F794, $F7EB, $F7F6; bank 3 $9210; bank 5 $A44A, $A48A; bank 6 $9A2E; all 15 accesses read"
     },
     {
       "addr": "$66",
@@ -601,24 +600,24 @@
     },
     {
       "addr": "$6D",
-      "name": "cell_class_x",
-      "what": "The class of the neighbouring cell in x in the ship's movement test.",
-      "status": "lead",
-      "evidence": "bank 6 $8317"
+      "name": "cell_class_ystep",
+      "what": "The ship's movement test (bank 6 $826D): the class of the cell reached by the y part of the move alone, at (new row, current column). Equals $6C when the column does not change ($6F bit 6).",
+      "status": "confirmed",
+      "evidence": "bank 6 $82F2-$8317; read, not run"
     },
     {
       "addr": "$6E",
-      "name": "cell_class_y",
-      "what": "The class of the neighbouring cell in y in the ship's movement test. CORRECTION: also listed as 'shield_slot', a lead; the D2AA collision routine does store a hit slot in $6E, so it is shared scratch.",
-      "status": "lead",
-      "evidence": "bank 6 $8345; bank 7 $D2AA"
+      "name": "cell_class_xstep_or_hit_slot",
+      "what": "Two uses. The movement test: the class of the cell reached by the x part of the move alone, at (current row, new column); equals $6C when the row does not change ($6F bit 7). The collision routine $D2AA stores the slot of the object that hit (0 is the ship, 1-4 its shots) here, which the labyrinth seals test.",
+      "status": "confirmed",
+      "evidence": "bank 6 $8319-$8345; bank 7 $D2AA; bank 5 $A22D"
     },
     {
       "addr": "$6F",
-      "name": "align_or_mask",
-      "what": "Bit flags a movement test builds (bit 7 x on the tile grid, bit 6 y), and the collision mask argument of $D348.",
-      "status": "lead",
-      "evidence": "bank 6 $8295-$82C1; bank 7 $D34A"
+      "name": "move_align_or_mask",
+      "what": "Two uses. The movement test builds alignment bits: bit 7 = the new y stays in the same 16-pixel row as the ship's foot, bit 6 = the new x stays in the same column; both set means no cell change, so the class is 0 ($82C3). $D348 stores its collision mask argument here ($D34A).",
+      "status": "confirmed",
+      "evidence": "bank 6 $8293-$82CB; bank 7 $D348-$D358"
     },
     {
       "addr": "$70",
@@ -673,17 +672,17 @@
     {
       "addr": "$78",
       "name": "life_at_start",
-      "what": "$47 as the corridor began (read back by the continue path).",
-      "status": "lead",
-      "evidence": "bank 7 $EF8F-$EF91"
+      "what": "The life level ($47) when the corridor began ($EF91); restored by the start-up code when a TGL game is continued after GAME OVER ($2F = 2, bank 0 $8094).",
+      "status": "confirmed",
+      "evidence": "bank 7 $EF8F-$EF91; bank 0 $8088-$8096"
     },
     {
       "addr": "$7C",
       "end": "$7D",
       "name": "saved_pos",
-      "what": "The map position the progress recorder keeps ($52/$53).",
-      "status": "lead",
-      "evidence": "bank 5 screen type 1"
+      "what": "The map position ($52/$53) of the last progress record: written by the progress recorder (bank 5 $9FB8, $9FBC), by the password decode (bank 3 $84BA, $84C5) and to (11, 12) by a new game (bank 0 $80F9, $80FF); read at $80C8 to restore $52/$53 when the game continues after GAME OVER, so CONTINUE returns the player there.",
+      "status": "confirmed",
+      "evidence": "bank 0 $80C8-$80CE, $80F5-$8101; bank 3 $84BA; bank 5 $9FB8"
     },
     {
       "addr": "$7E",
@@ -702,9 +701,9 @@
     {
       "addr": "$80",
       "name": "oam_alloc",
-      "what": "The sprite allocator: $80 is the next free OAM offset, $81/$82 the limits it fills between, $83 flags (bit 0 which end it fills from, flipped each frame so overflowing sprites rotate; bit 1 full; bit 7 wrapped). $CE88 hides the unused rest.",
+      "what": "The sprite allocator (a two-ended fill). $80 is the next free OAM offset; $81/$82 are limits; $83 flags. Bit 0 of $83 clear: fill upward from offset 4 (offset 0 is sprite 0, the split marker, never touched), $80 = last + 4 ($CE61); bit 0 set: fill downward from $FC, $80 = last - 4 ($CE71). Running out upward ORs $82 (bits 7 and 1) into $83, running out downward sets bit 7 and restarts $80 at $FC. $CDB4 clears bits 7 and 1 at the start of a frame, and $CE88 hides the unused rest. The direction flips so overflowing sprites flicker alternately. $81/$82's exact roles and the toggle of bit 0 were not followed.",
       "status": "lead",
-      "evidence": "bank 7 $CD99-$CEBF",
+      "evidence": "bank 7 $CDA2-$CDD6, $CE5B-$CE87, $CE88-$CEDB",
       "end": "$83"
     },
     {
@@ -880,9 +879,9 @@
       "addr": "$B6",
       "end": "$B7",
       "name": "scroll_acc",
-      "what": "The scroll position accumulator (fraction, whole) the speed is subtracted from.",
-      "status": "lead",
-      "evidence": "bank 7 $E530-$E53F"
+      "what": "The scroll accumulator: $B6 is the fraction (1/256 pixel) that the speed's fraction $B8 is subtracted from each step, $B7 the whole pixels moved this frame (that plus the speed's whole part $B9 with the carry); $A6 is then reduced by $B7.",
+      "status": "confirmed",
+      "evidence": "bank 7 $E530-$E560; the Rendering page"
     },
     {
       "addr": "$B7",
@@ -1063,10 +1062,10 @@
     },
     {
       "addr": "$017F",
-      "name": "palette_dirty",
-      "what": "Set to 3 after code edits the palette shadow ($0180-$0198); the flush is not followed.",
-      "status": "lead",
-      "evidence": "bank 3 $8873; bank 2 $8916; bank 7 $D342"
+      "name": "palette_upload",
+      "what": "A request to the NMI to upload the palette shadow ($0180-$0198): 1 = the four background palettes to PPU $3F00, 2 = the four sprite palettes to $3F10, 3 = all eight. $DEC9 writes pairs of palettes (colour 0 of each is $0180) and clears it afterwards. Code that edits the shadow sets 3 ($D342, bank 3 $8873, bank 2 $8916).",
+      "status": "checked",
+      "evidence": "bank 7 $DEC9-$DF3B; run on the model: modes 1/2/3 changed PPU palette bytes 0-15 / the sprite half / both, and $017F returned to 0"
     },
     {
       "addr": "$0180",
@@ -1079,10 +1078,10 @@
     {
       "addr": "$0199",
       "end": "$01A0",
-      "name": "palette_slots",
-      "what": "Eight palette slot indices the stream's command 8 writes.",
-      "status": "lead",
-      "evidence": "bank 7 $EE09; bank 4 command 8"
+      "name": "attr_patterns",
+      "what": "Eight attribute-byte patterns indexed by a metatile's fifth byte AND 7. The metatile drawer (bank 5 $83B3) masks the pattern with the cell's quadrant mask (bank 5 $846D: 03 0C 30 C0) and merges it into the row's attribute bytes $04E8-$04EF. The default 00 55 AA FF 00 55 AA FF (each palette replicated into all four quadrants) is copied from bank 7 $EE15 by $EE09; a scene record with flag bit 1 can supply its own eight bytes; bank 4's command 8 ($E881) could patch one but never occurs in the data. CORRECTION: this was recorded as 'palette slot indices the stream's command 8 writes'.",
+      "status": "confirmed",
+      "evidence": "bank 5 $83B3-$8468; bank 7 $EE09-$EE15; tools/tgl/scene.py"
     },
     {
       "addr": "$0200",

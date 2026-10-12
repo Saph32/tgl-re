@@ -895,7 +895,16 @@ Do not re-derive these; do check anything that depends on them.
   (`$8354`) cell map; run: walked out of the north exit and back, all rocks returned (also one the owner had broken before
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
-  START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+  START, `$2F` = 2, then `$FF5D` the game start; for where CONTINUE puts you see the start-mode entry) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **Start modes and CONTINUE (`$2F`, `$7C/$7D`, `$78`; RUN on the model, `$805B` called with each mode).** `$2F` is set by the title menu (0 new game /
+  1 second item, which boot `$FF53` sends to bank 3's password screen), by Start on "CONTINUE PUSH START" (2, `$82A6`; chips topped to `$FA` if lower) and by the
+  progress recorder (3, `$A2E4`); a new game (`$EB18`) re-inits the move history only if it is below 3. The start-up code `$805B`: mode 0 = full new-game init (`$80D4`,
+  position (11, 12) into `$52/$53` and `$7C/$7D`); **mode 2 in a normal game jumps to `$80C8`: `$52/$53` := `$7C/$7D` (the last progress record) and nothing else changes - score,
+  items, keys and the corridor seals `$04B1/$04B2` all kept. Mode 2 in a TGL game: `$47` := `$78`, score cleared, seals cleared. Modes 1 and 3: `$04B1/$04B2` and the bonus
+  threshold cleared** (the seals are not in the password), position from `$7C/$7D` (the password decode and the progress recorder write it). Resolves "where CONTINUE puts you".
+  Also settled from the RAM leads (14 of 18 now confirmed, see ram.json): `$17F` palette upload 1/2/3 = BG / sprite / both (run), `$20` = pending queue entries, `$60` bit 1 = script
+  running, bit 3 = spawning stopped, `$6C-$6F` = the movement test (`$6D` y-step cell, `$6E` x-step cell, `$6F` bits 7/6 = same row/column), `$0199` = attribute patterns (CORRECTION:
+  not 'palette slot indices'). Left as leads: `$56`, `$5F`, `$80-$83` (the allocator), `$0318`.
 - **Corridor seals: how corridors 1-10 are unlocked, and the RAM that holds it (`docs/labyrinth.html#seals`).** Two locks per entrance:
   the room's key door (`$04B0`, above) and the SEAL on the gate inside. **State: `$04B1` bits 0-7 = corridors 1-8, `$04B2` bits 0-1 = corridors
   9-10** (bit c-1 set = removed; set through `$C078`/`$EFC7`, A = n -> Y = n>>3, A = 1<<(n&7)); not in the password; corridors 11-20 have
@@ -1158,4 +1167,4 @@ authoritative, up-to-date version of this list; what follows is what does not li
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).
-6. Turn the RAM map's `lead` entries into confirmed ones (`annotations/ram.json`, status `lead`); the unnamed table is empty.
+6. The RAM map's four remaining `lead` entries (`$56`, `$5F`, `$80`-`$83`, `$0318`); the unnamed table is empty.
