@@ -896,6 +896,19 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **The five bank 5 spawn scripts that end `[byte] 01 02` - RUN (`tools/run-spawn-script.py`, the model).** Ids 16, 24,
+  28, 32, 38 (28 rooms). Interpreter `$F78F`, read in full: after any spawn or formation the next byte is its delay
+  (a bit-7 byte instead chains the next spawn), so `[byte]` is a WAIT - in seconds in the labyrinth (`$69` counts 60
+  frames, `$68` seconds), `$70/$70/$54/$73/$1E` = 112/112/84/115/30 s - not the single spawn the data looks like
+  (those values are types other scripts spawn on their own). Command 1 reads `lo hi`: lo is the script's own `02`,
+  hi the next script's first byte, so the target is `$6F02/$7202/$9002/$F002/$6502`. Run: 28 and 32 land in ROM
+  (bank 5 map data, fixed-bank code) and are interpreted as script - a long junk stream of formations and objects;
+  16, 24, 38 land in `$6000-$7FFF`, nothing on this cartridge. **Open bus** there; if the value is the pointer high
+  byte (the 6502's last fetch before `LDA ($66),Y`) the interpreter spawns that type once per wait for ever (`$6F`,
+  `$72`, `$65` every ~111/114/101 s); with 0 it does nothing for 255 s. LEAD: the open-bus value is inferred, not
+  checked on FCEUX or a console. Whether the author meant "formation, then a spawn" (the encoding looks like a script
+  compiler dropping the formation's delay) is a guess. Corrects "read as a long wait... open". The line in
+  `parse-enemies.py` about scripts that "end on a jump, back into itself" is about the corridor scripts of bank 4.
 - **The last 34 unclaimed bytes (`annotations/regions/79-last-gaps.json`); the ROM is now 100.000% claimed.**
   Three are **palette lists** for the walker at bank 7 `$D92D` (entry `$C05D`, pointer in `$18/$19`): position Y
   0-7, value below `$FE`, far-calls bank 5 `$B2E4`, which copies palette A (of the 36 at `$B30A`) to `$0181 + 3Y`;
@@ -1072,7 +1085,7 @@ authoritative, up-to-date version of this list; what follows is what does not li
    leads, i.e. accounted for, not understood. The last six gaps are in `79-last-gaps.json` (see the entry above);
    three are leads with no reader (bank 7 `$EEC4`, bank 6 `$A9BA` and `$B902`, bank 0 `$BF04`). Which rooms take
    the room drawer's special path (`$30` bits 5-6).
-3. **The five bank 5 spawn scripts that end on a jump**, and corridor 16's.
+3. **Corridor 16's spawn script** (runs into the next structure, end not established).
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).

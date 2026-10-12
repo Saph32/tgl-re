@@ -2806,7 +2806,7 @@ def _enemies_page(rm, out=None):
             elif e[0] in ("delay", "wait"):
                 parts.append(f"wait {e[1]}")
             elif e[0] == "jump":
-                parts.append(f'<span class="conf lead">jump ${e[1]:04X}?</span>')
+                parts.append(f'<span class="conf lead">jump ${e[1]:04X}, outside the scripts</span>')
             else:
                 parts.append("end")
         items.append(f"<tr><td>{i}</td><td><code>${ptr:04X}</code></td>"
@@ -2814,11 +2814,20 @@ def _enemies_page(rm, out=None):
                      "</tr>")
     p.append("<table><thead><tr><th>Id</th><th>At</th><th>Rooms</th><th>Steps</th></tr>"
              f"</thead><tbody>{''.join(items)}</tbody></table>")
-    p.append('<div class="note warn"><strong>Five scripts do not end cleanly.</strong> They '
-             "finish <code>[byte] 01 02</code>, which the interpreter reads as a long wait "
-             "followed by command 1, a jump &mdash; whose two operand bytes are the next "
-             "script's <code>02</code> and first byte. Either that wait never runs out in "
-             "play, or this reading misses something. Marked <em>jump ?</em> above.</div>")
+    p.append('<div class="note warn"><strong>Five scripts do not end cleanly &mdash; run, not just read.</strong> '
+             "Ids 16, 24, 28, 32 and 38 (<strong>28 rooms</strong>) finish <code>[byte] 01 02</code>. The byte after "
+             "a formation is always read as its delay, so <code>[byte]</code> is <strong>not</strong> a spawn "
+             "(though it equals a type other scripts spawn singly: <code>$70</code>, <code>$54</code>, "
+             "<code>$73</code>): it is a wait of <strong>112, 112, 84, 115 and 30 seconds</strong> in the "
+             "labyrinth. Then command 1 jumps to (<code>02</code>, the next script's first byte): "
+             "<code>$6F02</code>, <code>$7202</code>, <code>$9002</code>, <code>$F002</code>, <code>$6502</code>. "
+             "Running the interpreter on the NES model: scripts 28 and 32 jump into ROM (bank 5 map data, fixed-bank "
+             "code) and read it as script, spawning a stream of junk formations and objects from then on; "
+             "scripts 16, 24 and 38 jump into <code>$6000-$7FFF</code>, where this cartridge has nothing. A "
+             "console returns open bus there; if that is the pointer's high byte (what the 6502 fetched last) "
+             "the interpreter spawns that type &mdash; <code>$6F</code>, <code>$72</code>, <code>$65</code> "
+             "&mdash; once per wait, for ever. <em>Lead:</em> the open-bus value is an inference, and nothing "
+             "here is checked on hardware. <code>tools/run-spawn-script.py</code> reproduces it.</div>")
 
     p.append("<h2>The corridors</h2>")
     p.append('<div class="note">Enemies in the 21 vertically corridors come from two '

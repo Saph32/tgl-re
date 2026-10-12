@@ -24,9 +24,16 @@ The checks
    11-32, and ``$A682 + 11`` is exactly the first byte after code; its records at ``$A6A3``
    point at streams that end exactly where the next code begins.
 
-Not established: five scripts end ``[byte] 01 02``, which the code reads as a long wait and a
-jump whose operand overlaps the next script's first byte - whether that is ever reached, or
-this reading of the script is incomplete, is open. What the special-room type ``$72`` does.
+The five bank 5 scripts that end ``[byte] 01 02`` (ids 16, 24, 28, 32, 38; 28 rooms) are RUN, not
+just read (``tools/run-spawn-script.py``, the model): the byte after a formation is always its
+delay, so ``[byte]`` is a wait of $70, $70, $54, $73, $1E *seconds* in the labyrinth - not a spawn,
+though the byte equals a type that other scripts spawn singly. Then command 1 jumps to
+(lo = the script's own ``02``, hi = the next script's first byte) = $6F02, $7202, $9002, $F002,
+$6502. Two land in ROM (28: bank 5 map data at $9002; 32: fixed-bank code at $F002) and are
+interpreted as script, spawning a long run of junk; three land in $6000-$7FFF, where this cartridge
+has nothing. What a console returns there is OPEN BUS; if it is the pointer high byte (the 6502's
+last fetch) the interpreter spawns that type every wait. Not checked on hardware. Not established:
+what the special-room type ``$72`` does.
 """
 
 from __future__ import annotations
@@ -303,10 +310,13 @@ def main() -> int:
                     "that type, bit 7 set a formation [type|$80][count][interval] carried by "
                     "a type-$29 spawner. A spawn is followed by another bit-7 spawn or a wait "
                     "in units of 60 frames. THE CHECK: walked from the 47 pointers they cover "
-                    "this stretch byte for byte. NOT ESTABLISHED: five scripts ("
-                    + ", ".join(f"${p:04X}" for p in odd) + ") end [byte] 01 02, which the "
-                    "code reads as a long wait and then a jump whose operand overlaps the "
-                    "next script. tools/parse-enemies.py --scripts decodes them all."))
+                    "this stretch byte for byte. FIVE SCRIPTS ("
+                    + ", ".join(f"${p:04X}" for p in odd) + ") end [byte] 01 02: run on the "
+                    "model, [byte] is a wait of $70/$70/$54/$73/$1E seconds (the byte after a "
+                    "formation is always its delay) and the jump goes to $6F02/$7202/$9002/"
+                    "$F002/$6502 - two into ROM read as script, three into unmapped $6000-$7FFF "
+                    "(open bus on hardware, not checked). tools/run-spawn-script.py runs them; "
+                    "tools/parse-enemies.py --scripts decodes them all."))
     R.append(region(5, "tbl", SPECIAL_IDX, 22, "data", "Miniboss rooms: sub-id to record",
                     "$A66B: LDY $5E / LDA $A682,Y, for rooms of kind $40 - and $A682 itself is code, the STA $27 two instructions on, so sub-ids 0-10 could not be used. The sub-ids those "
                     "rooms carry run 11-32, so the bytes read are $A68D-$A6A2 - starting "

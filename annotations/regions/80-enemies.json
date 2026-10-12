@@ -604,7 +604,7 @@
       "confidence": "confirmed",
       "cpu_addr": 42277,
       "sha1": "c94ad15995047a13c059ae3a1ab2c45a3cf2cb16",
-      "description": "The scripts bank 7 $F78F runs: < 3 a command (0 wait, 1 jump, 2 end, via the inline table at $F7C9), else a spawn - bit 7 clear one object of that type, bit 7 set a formation [type|$80][count][interval] carried by a type-$29 spawner. A spawn is followed by another bit-7 spawn or a wait in units of 60 frames. THE CHECK: walked from the 47 pointers they cover this stretch byte for byte. NOT ESTABLISHED: five scripts ($A58D, $A5BF, $A5D6, $A5F4, $A61F) end [byte] 01 02, which the code reads as a long wait and then a jump whose operand overlaps the next script. tools/parse-enemies.py --scripts decodes them all."
+      "description": "The scripts bank 7 $F78F runs: < 3 a command (0 wait, 1 jump, 2 end, via the inline table at $F7C9), else a spawn - bit 7 clear one object of that type, bit 7 set a formation [type|$80][count][interval] carried by a type-$29 spawner. A spawn is followed by another bit-7 spawn or a wait in units of 60 frames. THE CHECK: walked from the 47 pointers they cover this stretch byte for byte. FIVE SCRIPTS ($A58D, $A5BF, $A5D6, $A5F4, $A61F) end [byte] 01 02: run on the model, [byte] is a wait of $70/$70/$54/$73/$1E seconds (the byte after a formation is always its delay) and the jump goes to $6F02/$7202/$9002/$F002/$6502 - two into ROM read as script, three into unmapped $6000-$7FFF (open bus on hardware, not checked). tools/run-spawn-script.py runs them; tools/parse-enemies.py --scripts decodes them all."
     },
     {
       "id": "bank5.tbl_A68D",
