@@ -1284,10 +1284,10 @@
     {
       "addr": "$04B1",
       "end": "$04B2",
-      "name": "once_flags",
-      "what": "A bit array of ten one-shot events, indexed by $15 (0-9, the same index as the 10-entry jump table at bank 5 $A1C4) through the helper $C078/$EFC7 (A = n gives Y = n >> 3 and A = 1 << (n AND 7)). $A1BA tests the bit: an event already done removes its object (song $3F). $A24A sets it when the event ends; $9FD8 sets bit 3 directly. Cleared by the game-start code at bank 0 $80A5/$80A8 and NOT part of the password payload ($04A0-$04B0), so after a password they would start clear - unless that start code is skipped, which was not checked (it branches on a flag at $80B6).",
+      "name": "corridor_seals",
+      "what": "The corridor seals: bit c-1 set = the seal on corridor c is removed (corridors 1-8 in $04B1, 9 and 10 in $04B2). Set through the helper $C078/$EFC7 (A = n gives Y = n >> 3 and A = 1 << (n AND 7)) by $A245, which ten routines in bank 5 ($A1C4 table, index = corridor - 1) reach when their condition is met: 50 shot hits on the gate (1, 5), the ship touching four zones (2), 20 s in the room (3), the round creature's rooms entered with an alternating move history (4, $9FD8), the chip count changing (6), the same history in the gate room (7), weapon NO USE + A (8), the ship on the gate (9), B held 10 s (10). A set bit makes the gate's second half open the first and remove itself ($A1AA) and the ship can enter the corridor. Corridors 11-20 have no seal. Cleared bits for the bosses are the separate array $04A9. Cleared by the game-start code at bank 0 $80A5/$80A8 and NOT part of the password payload ($04A0-$04B0): after a password they would start clear, unless that start code is skipped (not checked). CORRECTION: first recorded as 'once_flags', ten one-shot events.",
       "status": "checked",
-      "evidence": "bank 5 $A1A2-$A1BD, $A245-$A24D, $9FD8-$9FDD; bank 7 $EFC7; bank 0 $80A5"
+      "evidence": "bank 5 $A19B-$A25B, $A245-$A24D, $9FD8, $A041, $A0A1; bank 7 $EFC7; run on the model through the real $EE1D room setup, all ten conditions driven (see the Labyrinth page, #seals)"
     },
     {
       "addr": "$04B3",

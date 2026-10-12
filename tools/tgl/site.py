@@ -5125,7 +5125,8 @@ def _labyrinth_rooms(rm) -> str:
              "is screen 0, a bare gate, until corridors 1-10 are all cleared. A room change "
              "with no exit direction (<code>$A4</code> = 4) inside an entrance screen starts "
              "the corridor (<code>$EC5B</code> &rarr; <code>$EC8C</code>: <code>$51</code> = "
-             "byte 2 AND <code>$7F</code>); what sets that on the gate is not read yet. Once "
+             "byte 2 AND <code>$7F</code>); an opened gate sets it when the ship touches the gap "
+             "(<code>$A149-$A18F</code>, below). Once "
              "cleared the entrance becomes screen 5, which also sets "
              "out a reward item, <code>$EF40</code>[corridor]. The status-screen map marks an "
              "entrance while its corridor is uncleared (<code>$C07B</code>).</div>")
@@ -5134,13 +5135,67 @@ def _labyrinth_rooms(rm) -> str:
                  f"<tr><td>{d['corridor']}</td><td>{pos(d)}</td><td>{d['key'] or 'none'}</td>"
                  f"<td class=\"desc\">{_h(msgs[10 + d['corridor']]) if 2 <= d['corridor'] <= 10 else ('fire at the gate (message 2)' if d['corridor'] == 1 else '')}</td>"
                  f"<td>{item(d['reward'])}</td></tr>" for d in ents) + "</tbody></table>")
-    p.append('<p class="meta">Seal hints are dialogue messages 12-20 (corridors 2-10), '
-             "given by message screens; each seal is its own piece of code, not read yet. "
-             "Corridor 4's is the one the ROM shows plainly: the shop controllers call "
-             "<code>$A2E7</code>, which looks for the player walking back and forth in the "
-             "move history, and then show message 11 and set bit 3 of <code>$04B1</code>. "
-             "Whether a cleared corridor's reward can be taken more than once is not "
-             "established.</p>")
+    p.append('<h3 id="seals">How a seal is removed</h3>')
+    p.append('<div class="note"><strong>Two locks, not one.</strong> Reaching a corridor entrance room needs the '
+             "key door in front of it (the &ldquo;Warp panel&rdquo;, below). Inside, corridors "
+             "<strong>1 to 10</strong> have a second lock, the <em>seal</em>: the two gate halves. Its state is "
+             "<strong>one bit per corridor in <code>$04B1</code> (corridors 1-8) and <code>$04B2</code> "
+             "(9, 10)</strong>: bit c&minus;1 set = seal removed. Corridors 11-20 have none (the gate removes itself "
+             "at once, <code>$A1A6</code>). <strong>Where it is checked:</strong> the second gate half (slot 6, "
+             "<code>$A19B</code>), 60 frames after the room loads, reads byte 2 of the room record, takes the "
+             "corridor minus 1 as <code>$15</code>, and if the bit is clear runs one of ten routines from the "
+             "inline table at <code>$A1C4</code>; a routine that finds its condition met branches to "
+             "<code>$A245</code>, which ORs bit <code>$15</code> into the flag array. If the bit is already set "
+             "the half sets the other half's open flag (<code>$0788</code>) and removes itself "
+             "(<code>$A1AA</code>); the other half then slides the two sides apart (<code>$0638</code> counts "
+             "up to <code>$1C</code>) and, once <code>$0638</code> reaches 16, a ship touching the gap "
+             "(box <code>$74-$8C</code> &times; <code>$60-$78</code>) is pushed up and gets exit code "
+             "<code>$A4</code> = 4, which starts the corridor. <strong>The flags are not in the password</strong> "
+             "(it carries <code>$04A0-$04B0</code>) and the cleared bits in <code>$04A9</code> are a separate "
+             "thing: a cleared corridor shows screen 5, an uncleared one the gate.</div>")
+    seal_rows = [
+        (1, "bit 0 of $04B1", "<code>$A21D</code>, box A (x 116-140, y 96-120): <strong>50 hits by the ship's "
+         "shots</strong> (counter <code>$0680</code>; each hit turns the shot into a spark, type "
+         "<code>$0A</code>, sound <code>$20</code>). The ship itself is ignored.", "50 hits: flag at frame 601 of continuous fire"),
+        (2, "bit 1", "<code>$A25B</code>: <strong>the ship touches four zones</strong> (x 80-112 or 144-176, y 64-96 or "
+         "128-160), one bit each in <code>$0680</code> until it is <code>$0F</code>; each touch spawns a spark "
+         "(bank 1 <code>$8002</code>, sound <code>$23</code>).", "four zones: set; three: not. <strong>Also sets bit 0</strong> (note below)"),
+        (3, "bit 2", "<code>$A1D8</code>: <strong>stay in the room for 20 seconds</strong> (<code>$A2F8</code> counts 60 frames "
+         "into <code>$0680</code>; 20 or more).", "flag 1,329 frames after entry (60-frame delay + 1,200); not at 1,100"),
+        (4, "bit 3", "<code>$A1DF</code> is a bare <code>RTS</code>: the gate can never remove it. "
+         "<strong>The round creature does</strong>: the shop rooms (screens 2, 6, 7: <code>$A041</code>, "
+         "<code>$A0A1</code>, <code>$9FCF</code>) call <code>$A2E7</code> on entry and, if it passes, set bit 3 "
+         "(<code>$9FD8</code>), play sound <code>$3F</code> and show message 11.", "history 0,8,0,8,..: set in screens 2 and 7; broken history: not"),
+        (5, "bit 4", "<code>$A256</code> = <code>$A21D</code> with box B (x 96-143, y 16-56, the corridor mouth above the gate): "
+         "<strong>50 shot hits</strong> there.", "flag at frame 598 of fire from y = 100"),
+        (6, "bit 5", "<code>$A1E0</code>: the first call stores the chip count <code>$4C</code> in <code>$0680</code>; "
+         "<strong>any change of the low byte of the chips</strong> afterwards removes the seal (spending them with a "
+         "weapon that costs chips, or finding some).", "one chip changed: set"),
+        (7, "bit 6", "<code>$A217</code>: <code>$A2E7</code>, <strong>the last 7 room changes alternate</strong> between "
+         "two opposite exits (exit codes N 0, W 2, E 6, S 8; each adjacent pair of the 10-entry history "
+         "<code>$04F0</code> must sum to 8, six pairs).", "0,8,0,8,0,8,0: set; one pair broken: not"),
+        (8, "bit 7", "<code>$A1F5</code>: <strong>weapon <code>$3C</code> = 0 (&ldquo;NO USE&rdquo;) and A newly pressed</strong> "
+         "(<code>$F5</code>/<code>$F6</code> bit 7).", "NO USE + A: set; weapon 3 + A: not"),
+        (9, "bit 0 of $04B2", "<code>$A21D</code>, box A: <strong>the ship itself overlaps the gate</strong> "
+         "(hit slot <code>$6E</code> = 0; shots do not count).", "ship on the gate: set; shots at it: not"),
+        (10, "bit 1 of $04B2", "<code>$A202</code>: <strong>hold B for 10 seconds</strong> (<code>$A2F8</code> as for 3; "
+         "<code>$0680</code> is cleared whenever B is not held).", "hold B: flag 729 frames after entry (60 + 600); 500 frames: not"),
+    ]
+    p.append("<table><thead><tr><th>Corridor</th><th>Flag</th><th>What the code tests</th>"
+             "<th>Run on the NES model</th></tr></thead><tbody>" + "".join(
+                 f"<tr><td>{c}</td><td class=\"mono\">{f}</td><td class=\"desc\">{w}</td><td class=\"desc\">{t}</td></tr>"
+                 for c, f, w, t in seal_rows) + "</tbody></table>")
+    p.append('<div class="note"><strong>Corrections and a quirk.</strong> The table in the section above read these as '
+             "&ldquo;its own piece of code, not read yet&rdquo;; they are the ten routines at <code>$A1C4</code>, "
+             "and the hints, in the dialogue's own words, say the same things (messages 2 and 12-20). "
+             "<code>$04B1</code> was first recorded as ten one-shot events; it is the seal flags. "
+             "<strong>Corridor 2's &ldquo;touch everywhere&rdquo; also removes corridor 1's seal:</strong> in the "
+             "pass that completes the fourth zone the spark spawned through bank 1 overwrites <code>$15</code> "
+             "with 0, and the shared tail <code>$A245</code> sets bit <code>$15</code> = 0 before the next pass sets "
+             "bit 1 (traced). For corridors 4, 6 and 7 the harness set the chip count and the move history "
+             "directly; the other conditions were driven by the pad and the ship's position. "
+             "Run from the labyrinth savestate through the real <code>$EE1D</code> room setup; not checked on "
+             "hardware. A cleared corridor's reward may be taken again: not established.</div>")
 
     # ---------------------------------------------------------------- key doors
     p.append('<h2 id="doors">Key doors</h2>')

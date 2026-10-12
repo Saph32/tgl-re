@@ -896,6 +896,26 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **Corridor seals: how corridors 1-10 are unlocked, and the RAM that holds it (`docs/labyrinth.html#seals`).** Two locks per entrance:
+  the room's key door (`$04B0`, above) and the SEAL on the gate inside. **State: `$04B1` bits 0-7 = corridors 1-8, `$04B2` bits 0-1 = corridors
+  9-10** (bit c-1 set = removed; set through `$C078`/`$EFC7`, A = n -> Y = n>>3, A = 1<<(n&7)); not in the password; corridors 11-20 have
+  none. Screen 8 (`$9F44`) puts two type-`$35` halves in slots 5 and 6; slot 6's driver (`$A0F7` -> `$A192`, a 60-frame `$07A0` countdown,
+  then `$A19B`) takes byte 2 of the room record minus 1 as `$15`, kills itself at once if `$15` >= 10, otherwise tests the bit
+  (`$A1BA`): set -> `$0788` of slot 5 = 1 (opens: `$0638` counts to `$1C`, halves slide), slot 6 removed, sound `$3F`; clear -> the ten-entry inline table
+  `$A1C4` (index `$15`), each routine RTSing unless its condition holds, then branching to `$A245` (ORs bit `$15`). The ten: **1** `$A21D`, box A (`$A327`
+  table, x 116-140 y 96-120): 50 shot hits (`$0680` of slot 6; each hit makes the shot a type `$0A` spark; ship ignored, `$6E` = hit slot from `$D2AA`);
+  **2** `$A25B`: the ship touches four zones (records `$A2A9` [mask][box][spark x][spark y], boxes 80-112/144-176 x 64-96/128-160), mask in `$0680` = `$0F`;
+  **3** `$A1D8`: `$A2F8` counts 60 frames -> `$0680`, >= 20 s; **4** `$A1DF` bare RTS: set by the round creature's rooms (screens 2, 6, 7 call `$A2E7`
+  on entry; pass -> `$9FD8`: bit 3, sound `$3F`, message 11); **5** `$A256` = `$A21D` with box B (x 96-143, y 16-56): 50 shot hits; **6** `$A1E0`:
+  `$4C` (chips, low byte) differs from the value stored at the first call; **7** `$A217` = `$A2E7`: all 6 adjacent pairs of the move history `$04F0` sum to 8
+  (exit codes N 0, W 2, E 6, S 8: 7 room changes alternating back and forth through one door); **8** `$A1F5`: `$3C` = 0 (NO USE) and A newly pressed
+  (`$F5`/`$F6` bit 7); **9** `$A21D` with the ship itself (`$6E` = 0) on box A; **10** `$A202`: B held (`$F7`/`$F8` bit 6) for 10 s, `$0680` cleared when released. The
+  hints are dialogue messages 2 and 12-20 (1-based; sub-id = message number). Once open and `$0638` >= 16, the ship in box A (`$A149`-`$A18F`) is pushed up and
+  `$A4` = 4 (enter the corridor). **RUN** from the labyrinth savestate through the real `$EE1D` (`$E4` = the entrance record, bank 5): idle controls stay clear,
+  each action sets exactly its bit (1: frame 601; 3: 1,329 frames after entry; 10: 729) except **QUIRK: corridor 2's completion also sets bit 0** - the spark
+  far call (bank 1 `$8002`) clobbers `$15` to 0 in the pass that finishes the 4th zone and `$A245` runs once with it. For 4, 6, 7 the harness set `$4C` /
+  `$04F0` directly. Corridor 21's gate (screen 0) needs `$04A9`/`$04AA` bits for 1-10 (cleared = boss beaten, a different flag). NOT checked on hardware;
+  `$EE1D` ran with a fake `$E4`, not by walking in. Corrects the Labyrinth page ("each seal ... not read yet") and the first `ram.json` entry for `$04B1`.
 - **The squares before a boss (owner's `fade` savestate; `docs/enemies.html#dissolve`).** Corridor 5, row 467 (still scrolling), four
   objects of type `$A8` = `$28` + bit 7, metasprite 121, slot 12 empty, slots 13/14 = `$41`/`$35`. **Trigger:** screen-data command 7 at
   row 465 starts stream `$AAE2` (slot 12 empty, 13 <- `$41`, 14 <- `$35`), five rows before the boss command (row 470). Per record
