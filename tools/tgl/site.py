@@ -4047,6 +4047,167 @@ def _rendering_page(rm):
     return "".join(o)
 
 
+LOOP_PROFILE_JSON = Path(__file__).resolve().parents[2] / "annotations" / "loop-profile.json"
+# state file name -> (short label, one line on what is going on); the order is the table's
+LOOP_STATES = [
+    ("ingame", "calm", "corridor 15: 3 enemies and a few shots"),
+    ("more1", "more1", "corridor 3: 13 enemies and 2 more objects"),
+    ("more2", "more2", "corridor 4: 15 enemies of one kind, scrolling at 3.5 px/frame"),
+    ("more3", "more3", "corridor 5: 11 enemies; the boss (Zibzub) arrives during the run"),
+    ("more4", "more4", "corridor 8, the boss fight: Grimgrin, 8 objects of type $2A, 7 explosions, 63 sprites"),
+]
+# object types the project can name; everything else is left as its number
+LOOP_TYPE_NAMES = {0x01: "the ship", 0x02: "the gun's bullet", 0x03: "an A-button weapon",
+                   0x08: "an explosion", 0x09: "a hit spark", 0x29: "the formation spawner",
+                   0x23: "Zibzub, a boss", 0x49: "Grimgrin (second form), a boss"}
+
+
+def _loop_profile():
+    """annotations/loop-profile.json (tools/profile-loop.py's output) keyed by LOOP_STATES' short names."""
+    import json as _json
+
+    if not LOOP_PROFILE_JSON.exists():
+        return None
+    raw = _json.loads(LOOP_PROFILE_JSON.read_text(encoding="utf-8"))
+    out = {}
+    for name, r in raw.items():
+        for key, label, _ in LOOP_STATES:
+            if key in name:
+                out[label] = r
+    return out if len(out) == len(LOOP_STATES) else None
+
+
+def _loop_timing(rm) -> str:
+    """The measured durations of every step of the corridor loop, from the profile file."""
+    prof = _loop_profile()
+    if prof is None:
+        return ""
+    FRAME = 29781
+    labels = [lab for _, lab, _ in LOOP_STATES]
+    desc = {lab: d for _, lab, d in LOOP_STATES}
+
+    def cell(st, key=None, nmi=False):
+        v = prof[st]["nmi"] if nmi else prof[st]["phases"].get(key)
+        if not v:
+            return "<td class=\"mono\">&mdash;</td>"
+        return (f"<td class=\"mono\">{v['median']:,}<br><span class=\"meta\">max {v['max']:,}</span></td>")
+
+    steps = [
+        ("NMI", "<code>$DC75</code>", None, "everything the NMI does, including the sound tick"),
+        ("1", "<code>$F493</code>", "pads", "read the pads, check for pause"),
+        ("2", "bank 6 <code>$81FB</code>", "objects", "the object loop: every live slot's handler"),
+        ("2a", "&nbsp;&nbsp;of which: the loop's own dispatch", "obj_overhead",
+         "walking 24 slots and the sprite allocator, whatever is in them"),
+        ("2b", "<code>$CE88</code>", "finish", "hide leftover sprites, check the player's death"),
+        ("3", "<code>$E0F9</code>", "hud", "the HUD meter and score (idle: 72; more while the meter moves "
+                                            "or the score changes)"),
+        ("4", "<code>$DB52</code>", "decomp", "the tile decompressor (idle: 244)"),
+        ("5", "bank 3 <code>$917F</code>", "boss", "boss and stage state (a no-op unless a boss)"),
+        ("6", "<code>$E655</code> without a new row", "stage_idle", "speed, scroll step"),
+        ("6a", "<code>$E655</code> building a row", "stage_row",
+         "stream records, row ids, tiles, ground objects (about every 10th frame)"),
+        ("7", "<code>$E995</code>", "loader", "art loader and spawn script"),
+        ("&sum;", "steps 1 to 7", "logic", "all the logic, with the NMI and any waiting taken out"),
+        ("8", "<code>$DA9A</code>", "wait", "idle: the frame sync's wait (23 = it did not wait at all; max = the longest wait)"),
+    ]
+    rows = ""
+    for num, where, key, what in steps:
+        cells = "".join(cell(st, key, nmi=key is None) for st in labels)
+        strong = ' style="font-weight:bold"' if num == "&sum;" else ""
+        rows += (f"<tr{strong}><td class=\"mono\">{num}</td><td>{where}</td>{cells}<td>{what}</td></tr>")
+    head = "".join(f"<th>{lab}</th>" for lab in labels)
+    states_rows = ""
+    for _, lab, d in LOOP_STATES:
+        i = prof[lab]["info"]
+        mix = ", ".join(f"{n} &times; <code>{t}</code>" for t, n in
+                        sorted(i["types"].items(), key=lambda kv: -kv[1]))
+        states_rows += (f"<tr><td class=\"mono\">{lab}</td><td>{d}</td><td>{mix}</td>"
+                        f"<td class=\"mono\">{i['sprites']}</td>"
+                        f"<td class=\"mono\">{i['speed'] / 256:.1f}</td></tr>")
+    o = ["<h3 id=\"timing\">Five stages, measured</h3><p>The first column is the calm corridor used so far; the "
+         "other four are the owner's savestates of busier moments (<code>more1</code> to "
+         "<code>more4</code>). Each was run for 900 frames on the NES model with the ship held "
+         "invulnerable (<code>tools/profile-loop.py</code>; the data is "
+         "<code>annotations/loop-profile.json</code>).</p>"
+         "<table><thead><tr><th>State</th><th>What is going on (at the start)</th><th>Objects</th>"
+         "<th>Sprites on screen</th><th>Scroll (px/frame)</th></tr></thead><tbody>" + states_rows +
+         "</tbody></table>"]
+    o.append("<h3>How long each step takes</h3><p>CPU cycles per loop iteration (29,781 to a frame): "
+             "the <strong>median</strong> with the <strong>worst</strong> below it. Times are net: the "
+             "NMI, which interrupts whichever step it lands in, is taken out of that step and shown on its "
+             "own row.</p>"
+             "<table><thead><tr><th>#</th><th>Step</th>" + head + "<th>What</th></tr></thead><tbody>"
+             + rows + "</tbody></table>")
+    # budget
+    brow = ""
+    for lab in labels:
+        r = prof[lab]
+        fr = r["frames_run"]
+        lg = r["phases"]["logic"]
+        nm = r["nmi"]
+        brow += (f"<tr><td class=\"mono\">{lab}</td>"
+                 f"<td class=\"mono\">{lg['median']:,} ({100 * lg['median'] / FRAME:.0f}%)</td>"
+                 f"<td class=\"mono\">{lg['p90']:,} ({100 * lg['p90'] / FRAME:.0f}%)</td>"
+                 f"<td class=\"mono\">{lg['max']:,} ({100 * lg['max'] / FRAME:.0f}%)</td>"
+                 f"<td class=\"mono\">{nm['median']:,}</td>"
+                 f"<td class=\"mono\">{r['iterations']} / {fr}<br><span class=\"meta\">"
+                 f"{60 * r['iterations'] / fr:.1f} a second</span></td>"
+                 f"<td class=\"mono\">{r['overrun_iterations']}</td><td class=\"mono\">{r['late_frames']}</td>"
+                 f"<td class=\"mono\">{fr - r['split_frames']}</td></tr>")
+    o.append("<h3>How much of the frame it is, and what happens when it is not enough</h3>"
+             "<table><thead><tr><th>State</th><th>Logic, median</th><th>90th percentile</th><th>Worst</th>"
+             "<th>NMI, median</th><th>Iterations / frames</th><th>Iterations longer than a frame</th>"
+             "<th>Late frames</th><th>Frames the main thread missed the split</th></tr></thead><tbody>"
+             + brow + "</tbody></table>")
+    o.append("<ul><li><strong>Late frame:</strong> the NMI arrived while the logic was still running. The "
+             "loop was not at its sync, so that NMI had only the <em>previous</em> iteration's sprites, "
+             "scroll and row to put on the screen: the picture repeats and then jumps. When the loop "
+             "reaches the sync with the NMI already counted (<code>$2B</code> non-zero) "
+             "<code>$DA9A</code> skips both waits and the next iteration starts at once, short, so "
+             "<strong>the game's own speed holds</strong> while the picture is irregular (the first four "
+             "states keep 59.9 iterations a second).</li>"
+             "<li><strong>The loop falls behind</strong> only when the logic takes most of a frame all "
+             "the time: in <code>more4</code> the object loop alone is about 26,500 cycles, the logic with "
+             "a new row up to 36,660, and 52 of 900 frames pass without an iteration finishing: "
+             "56.5 a second, about 6% slower than the screen.</li>"
+             "<li><strong>The split.</strong> When the logic runs past scan line 192 the main thread cannot "
+             "do the HUD split in its sync, and that is what the DMC interrupt is for (it ran the "
+             "split from the middle of the logic on the console). The NES model has no IRQ, so the "
+             "'missed' column counts frames in which the model would have left the HUD unsplit: "
+             "a measure of how often the IRQ does the job, not of lost frames.</li></ul>")
+    # handlers
+    agg = {}
+    for lab in labels:
+        for t, h in prof[lab]["handlers"].items():
+            a = agg.setdefault(t, {"calls": 0, "max": 0, "meds": {}})
+            a["calls"] += h["n"]
+            a["max"] = max(a["max"], h["max"])
+            a["meds"][lab] = h["median"]
+    nm = _enemy_names()
+    hrows = ""
+    for t, a in sorted(agg.items(), key=lambda kv: -max(kv[1]["meds"].values())):
+        n = int(t[1:], 16)
+        name = LOOP_TYPE_NAMES.get(n) or nm.get(n) or "an enemy or effect (not named)"
+        cells = "".join(
+            f"<td class=\"mono\">{a['meds'][lab]:,}</td>" if lab in a["meds"] else "<td class=\"mono\">&mdash;</td>"
+            for lab in labels)
+        hrows += (f"<tr><td class=\"mono\">{t}</td><td>{name}</td>{cells}"
+                  f"<td class=\"mono\">{a['max']:,}</td></tr>")
+    o.append("<h3>What an object costs</h3><p>Cycles for one call of a type's handler (median per call, "
+             "net of the NMI), in every state where the type was present, and the worst call seen. "
+             "The object loop's time is these added up over the live slots, plus about 75-90 for the "
+             "loop itself; a type with no cost in a state was not alive there.</p>"
+             "<table><thead><tr><th>Type</th><th>What</th>" + head + "<th>Worst</th></tr></thead><tbody>"
+             + hrows + "</tbody></table>")
+    o.append("<p>Reading it: the <strong>ship</strong> is the dearest ordinary object (about 2,250: its "
+             "step, the pad, the cell and weapon logic, and its own sprites), the <strong>bosses</strong> "
+             "are in another class (Grimgrin 9,170 a call, Zibzub 5,670), an ordinary enemy costs "
+             "between about 450 and 2,100 (most <strong>600 to 1,400</strong>), a controller or the "
+             "spawner <strong>70 to 500</strong>, an explosion about <strong>680</strong>. Fifteen of "
+             "<code>$5F</code> enemies (960 each) alone are 14,400 cycles.</p>")
+    return "".join(o)
+
+
 def _game_loop_page(rm):
     """What one frame of a corridor does: the main loop, the NMI, and what runs every Nth frame."""
     # (median first cycle, min, max) of each phase in a 400-frame corridor run on the NES model;
@@ -4103,9 +4264,10 @@ def _game_loop_page(rm):
          "the scroll and one background row on the screen and ticks the sound; the loop then reads the pads, runs "
          "every object's handler (which moves, draws and collides it), steps the HUD, the decompressor and the "
          "boss state, scrolls the stage and runs the spawn script, and finally waits &mdash; for sprite 0, to cut "
-         "the screen in two, and then for the next NMI. On the NES model the work ends about 10,000 cycles into "
-         "the 29,781-cycle frame (never later than 16,355 in 400 frames), so about two thirds of the frame is "
-         "spent waiting.</div>"]
+         "the screen in two, and then for the next NMI. On the NES model a calm corridor's logic takes about "
+         "8,100 of the 29,781 cycles in a frame (27%), busy ones 10,000 to 18,000, and a boss fight "
+         "<strong>28,800 (97%)</strong>, where the loop no longer has time to wait and the game runs at "
+         "56 iterations a second. <a href=\"#timing\">The measurements.</a></div>"]
 
     # ---------------------------------------------------------------- the loop
     o.append('<h2 id="loop">The loop</h2>')
@@ -4129,16 +4291,16 @@ def _game_loop_page(rm):
              "<code>$C024</code>) is the call that runs the game for n frames, with pads, objects, HUD and "
              "decompressor all still going: bank 0's GAME OVER loop uses it with Y = 1. "
              "<code>$FFD1</code> is the lighter wait that only syncs, which the labyrinth's room scrolls use.</p>")
-    o.append("<h3>One frame, in order</h3><p>Cycle numbers are the median of 400 corridor frames on the NES "
-             "model (CPU cycles after the start of the NMI; 29,781 to the frame, 113.67 to a scan line, the "
-             "first 2,273 are vblank), with the range beside it.</p>")
+    o.append(_loop_timing(rm))
+    o.append("<h3>A calm frame as a timeline</h3><p>Where in the frame each step <em>starts</em>, in the calm "
+             "corridor (the median of 400 frames; cycles after the start of the NMI; 29,781 to the frame, "
+             "113.67 to a scan line, the first 2,273 are vblank). This is the order, and it is only "
+             "meaningful while the loop keeps up; the durations above are what a step costs.</p>")
     o.append("<table><thead><tr><th>#</th><th>Starts at</th><th>Range</th><th>Where</th><th>What</th>"
              "<th>How often</th></tr></thead><tbody>" + rows + "</tbody></table>")
     o.append("<p>A frame in which a new row is built is longer: the row's 16 metatile ids and the tile expansion "
-             "cost about 5,000 cycles (in the trace, <code>$E8AB</code> to the loader), which is why the "
-             "worst frames end at 16,000 rather than 10,000. Nothing overran: in 400 frames the NMI never "
-             "arrived before the loop reached its sync (if it did, <code>$DA9A</code> would skip both waits "
-             "and the game would simply run slow for that frame).</p>")
+             "cost about 5,200 to 6,900 cycles (step 6a above), which is why the calm corridor's worst "
+             "iterations end at 15,000 rather than 8,000.</p>")
 
     # ---------------------------------------------------------------- the NMI
     o.append('<h2 id="nmi">The NMI: what reaches the screen</h2>')
@@ -4151,8 +4313,13 @@ def _game_loop_page(rm):
              "<strong>sound tick</strong> (bank 0 <code>$917C</code>); and a stir of the random state "
              "(<code>$2A</code> is mixed with the stack pointer at that moment, which is as "
              "unpredictable as the instruction the NMI landed on). The NMI's own length varies "
-             "(1,945 to 4,095 cycles in the run): the sound tick alone is about 1,600, and a long queue or "
-             "a row adds to it.</p>")
+             "(1,555 to 4,595 cycles over the five states, median about 2,100-2,300): the sound tick alone is about "
+             "1,600, and a long queue or a row adds to it. <strong>Rendering is off while the NMI runs</strong> "
+             "(step 1 above), so whatever runs past the end of vblank (2,273 cycles in the model; the 513 "
+             "cycles of sprite DMA, which the model does not count, would come on top) blanks the top scan "
+             "lines of that frame. In the model that is 29-53% of frames (262 to 478 of 900), by up to "
+             "15 lines in the calm corridor and 20 in <code>more3</code>. This is arithmetic from the NMI's "
+             "length, not something seen on a screen.</p>")
     o.append("<p><strong>Consequence: one frame of latency.</strong> Sprites built in step 2 are DMA'd at the "
              "<em>next</em> NMI and the scroll registers set in step 6 are written then too, so a "
              "background that moved this frame and the sprites that moved with it (ground objects are "
@@ -4427,13 +4594,20 @@ def _game_loop_page(rm):
     # ---------------------------------------------------------------- limits
     o.append('<div class="note"><strong>Measured and read.</strong> The order, the cycle numbers, the slot '
              "order and the new-row share are from running the real code on the NES model "
-             "(<code>tools/tgl/cpu.py</code>) from the owner's corridor savestate for 400 frames and its "
-             "labyrinth savestate for 300 (<code>$30</code> bit 7 cleared; the ship made invulnerable so "
-             "the run does not end), and the room-exit suspension from walking out of three exits; the "
+             "(<code>tools/tgl/cpu.py</code>): the durations from five corridor savestates for 900 frames each "
+             "(<code>tools/profile-loop.py</code>), the start-time timeline from the calm one for 400 "
+             "(<code>tools/trace-frame.py</code>), the labyrinth frame from its savestate for 300, and the "
+             "room-exit suspension from walking out of three exits (<code>$30</code> bit 7 cleared; "
+             "the ship's life held at its maximum so a run does not end); the "
              "routines' roles are from reading them. The NES model is not cycle-accurate "
              "(instruction timing is the table's, no DMA stalls, no IRQ, DMC or APU), so cycle "
              "numbers are indicative, and a stage with more enemies, a boss or heavier effects will take "
-             "longer. <strong>Not established:</strong> the real hardware's frame budget; the "
+             "longer than the five states measured here. A one-off 6.5-frame stall (192,000 cycles in a "
+             "single iteration, in a handler that was drawing a tile rectangle) appeared in an earlier run of "
+             "<code>more3</code> with a different life setting and did not come back; the routine "
+             "that can do it is <code>$D7C3</code>, which makes any code that queues PPU data into a full "
+             "queue spin until the NMI has drained it (a lead, not reproduced). "
+             "<strong>Not established:</strong> the real hardware's frame budget; the "
              "sprite allocator's flag bits (<code>$83</code>) beyond what is said above; what every "
              "one of the 127 handlers does each frame (only the shared steps); the west exit's "
              "suspension (only east, north and south were timed); shops and message screens, which are "

@@ -929,6 +929,19 @@ Do not re-derive these; do check anything that depends on them.
   NMI (one frame latency). Hit detection is in the ENEMIES' handlers (`D348`, slots 4..0, flags & mask). Periodic: HUD score
   every 8th frame (`$41&7`), weapon-object damage every 8th (`$D3A9`), boss bonus 64 (`$9305`), chip fee 60/120 (`$3F`).
   NOT established: hardware timing (model has no DMA stalls/IRQ), the sprite allocator's `$83` states, every handler.
+  **Durations, five corridor states (`tools/profile-loop.py`, data in `annotations/loop-profile.json`, 900 frames each; the
+  page's tables are built from that file):** calm (`ingame`) / more1 / more2 / more3 / more4 (the owner's busy savestates; more4
+  = corridor 8 boss fight, Grimgrin `$49`, 63 sprites). Net of the NMI, medians: pads 989; object loop 6,143 / 13,127 / 15,210 / 8,119 /
+  26,478 (loop's own dispatch 74-90); finish 141; HUD 72 idle; decompressor 244 idle; boss 61-104; stage step 195, or 5,200-6,900 when it
+  builds a row; loader 168; logic total 8,138 / 15,289 / 18,325 / 10,146 / 28,780 (27% / 51% / 62% / 34% / 97% of 29,781). NMI 1,555-4,595
+  (median ~2,100-2,300). Per handler call: ship ~2,250, Grimgrin 9,173, Zibzub 5,668, ordinary enemies 450-2,100, spawner/controllers 70-500,
+  explosion ~680. Loop speed 59.9 iterations/s in the first four (late frames 0/71/266/33), 56.5 in more4 (848 of 900 frames, 887 late);
+  an iteration over a frame makes `$DA9A` skip its waits so the next is short (the game's speed holds, the picture judders); the main
+  thread misses the HUD split in 0/90/309/47/893 of 900 frames (on hardware the DMC IRQ does it). NMI is longer than vblank in
+  29-53% of frames in the model (rendering is off meanwhile: top lines blank, arithmetic only). A one-off 192,000-cycle stall was seen once
+  in an earlier more3 run with a different life hold and not reproduced (`$D7C3` spins until the NMI drains a full PPU queue: a lead).
+  **Profiler lesson:** the life hold must be applied from the first frame and the HUD meter `$49` set equal to `$48`; the first runs let
+  the ship die during settling and `$48` > `$47` made the meter animate, which skewed the numbers.
   **Labyrinth frame (same page, `#labyrinth-loop`):** the same loop and order; `$E655` skips scroll/rows/stream (34 cycles to
   `E995`), no marker rewrite, spawn waits in 60-frame seconds, shots look up cells. 300 frames: logic ends median ~12,000,
   max 13,516, load follows enemy count (no new-row spikes). Player (bank 3 `$8D03`): facing from `$32` -> `$0668`, speed class

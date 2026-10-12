@@ -1,0 +1,1004 @@
+{
+ "Guardian Legend, The.ingame.fcs": {
+  "state": "Guardian Legend, The.ingame.fcs",
+  "info": {
+   "corridor": 15,
+   "boss_phase": 0,
+   "speed": 384,
+   "row": 41,
+   "objects": 10,
+   "types": {
+    "$01": 1,
+    "$02": 3,
+    "$03": 1,
+    "$7B": 1,
+    "$6D": 3,
+    "$29": 1
+   },
+   "player_type": "$01",
+   "sprites": 16,
+   "weapon": 1,
+   "weapon_level": 2,
+   "chips": 1185
+  },
+  "frames_run": 900,
+  "crashed": null,
+  "iterations": 899,
+  "nmi": {
+   "min": 1945,
+   "median": 2185,
+   "p90": 2670,
+   "max": 3934,
+   "n": 900
+  },
+  "phases": {
+   "pads": {
+    "min": 989,
+    "median": 989,
+    "p90": 989,
+    "max": 989,
+    "n": 899
+   },
+   "objects": {
+    "min": 3816,
+    "median": 6143,
+    "p90": 7379,
+    "max": 8874,
+    "n": 899
+   },
+   "finish": {
+    "min": 141,
+    "median": 141,
+    "p90": 183,
+    "max": 225,
+    "n": 899
+   },
+   "hud": {
+    "min": 72,
+    "median": 72,
+    "p90": 72,
+    "max": 72,
+    "n": 899
+   },
+   "decomp": {
+    "min": 244,
+    "median": 244,
+    "p90": 244,
+    "max": 244,
+    "n": 899
+   },
+   "boss": {
+    "min": 61,
+    "median": 61,
+    "p90": 61,
+    "max": 61,
+    "n": 899
+   },
+   "stage": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 5706,
+    "n": 899
+   },
+   "loader": {
+    "min": 168,
+    "median": 168,
+    "p90": 168,
+    "max": 328,
+    "n": 899
+   },
+   "wait": {
+    "min": 11854,
+    "median": 19460,
+    "p90": 20751,
+    "max": 21696,
+    "n": 899
+   },
+   "iter": {
+    "min": 28180,
+    "median": 29773,
+    "p90": 30273,
+    "max": 31670,
+    "n": 899
+   },
+   "stall": {
+    "min": 0,
+    "median": 0,
+    "p90": 0,
+    "max": 0,
+    "n": 899
+   },
+   "stage_row": {
+    "min": 5255,
+    "median": 5350,
+    "p90": 5528,
+    "max": 5706,
+    "n": 85
+   },
+   "stage_idle": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 195,
+    "n": 814
+   },
+   "obj_overhead": {
+    "min": 74,
+    "median": 74,
+    "p90": 79,
+    "max": 79,
+    "n": 899
+   },
+   "logic": {
+    "min": 5728,
+    "median": 8138,
+    "p90": 9941,
+    "max": 15074,
+    "n": 899
+   }
+  },
+  "late_frames": 0,
+  "nmi_over_vblank": 366,
+  "new_row_iterations": 85,
+  "split_frames": 900,
+  "handlers": {
+   "$01": {
+    "min": 2244,
+    "median": 2244,
+    "p90": 2269,
+    "max": 2773,
+    "n": 899,
+    "total": 2050037
+   },
+   "$1A": {
+    "min": 456,
+    "median": 1112,
+    "p90": 1523,
+    "max": 2020,
+    "n": 1366,
+    "total": 1608581
+   },
+   "$29": {
+    "min": 72,
+    "median": 495,
+    "p90": 603,
+    "max": 882,
+    "n": 808,
+    "total": 258500
+   },
+   "$6D": {
+    "min": 118,
+    "median": 636,
+    "p90": 1005,
+    "max": 1601,
+    "n": 1958,
+    "total": 1257236
+   },
+   "$7B": {
+    "min": 103,
+    "median": 125,
+    "p90": 561,
+    "max": 616,
+    "n": 899,
+    "total": 153423
+   }
+  },
+  "overrun_iterations": 4
+ },
+ "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more1.fcs": {
+  "state": "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more1.fcs",
+  "info": {
+   "corridor": 3,
+   "boss_phase": 0,
+   "speed": 256,
+   "row": 181,
+   "objects": 18,
+   "types": {
+    "$01": 1,
+    "$0B": 7,
+    "$3C": 2,
+    "$2A": 6,
+    "$29": 2
+   },
+   "player_type": "$01",
+   "sprites": 20,
+   "weapon": 10,
+   "weapon_level": 2,
+   "chips": 100
+  },
+  "frames_run": 900,
+  "crashed": null,
+  "iterations": 899,
+  "nmi": {
+   "min": 1890,
+   "median": 2058,
+   "p90": 2452,
+   "max": 3692,
+   "n": 900
+  },
+  "phases": {
+   "pads": {
+    "min": 989,
+    "median": 989,
+    "p90": 989,
+    "max": 989,
+    "n": 899
+   },
+   "objects": {
+    "min": 9182,
+    "median": 13127,
+    "p90": 19459,
+    "max": 28649,
+    "n": 899
+   },
+   "finish": {
+    "min": 141,
+    "median": 141,
+    "p90": 141,
+    "max": 267,
+    "n": 899
+   },
+   "hud": {
+    "min": 72,
+    "median": 72,
+    "p90": 72,
+    "max": 78,
+    "n": 899
+   },
+   "decomp": {
+    "min": 244,
+    "median": 244,
+    "p90": 244,
+    "max": 244,
+    "n": 899
+   },
+   "boss": {
+    "min": 61,
+    "median": 61,
+    "p90": 61,
+    "max": 61,
+    "n": 899
+   },
+   "stage": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 6762,
+    "n": 899
+   },
+   "loader": {
+    "min": 168,
+    "median": 168,
+    "p90": 168,
+    "max": 395,
+    "n": 899
+   },
+   "wait": {
+    "min": 23,
+    "median": 12454,
+    "p90": 14756,
+    "max": 27856,
+    "n": 899
+   },
+   "iter": {
+    "min": 17334,
+    "median": 29781,
+    "p90": 30245,
+    "max": 52118,
+    "n": 899
+   },
+   "stall": {
+    "min": 0,
+    "median": 0,
+    "p90": 0,
+    "max": 0,
+    "n": 899
+   },
+   "stage_row": {
+    "min": 5227,
+    "median": 5676,
+    "p90": 5864,
+    "max": 6762,
+    "n": 56
+   },
+   "stage_idle": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 195,
+    "n": 843
+   },
+   "obj_overhead": {
+    "min": 74,
+    "median": 79,
+    "p90": 79,
+    "max": 79,
+    "n": 899
+   },
+   "logic": {
+    "min": 11952,
+    "median": 15289,
+    "p90": 21449,
+    "max": 35633,
+    "n": 899
+   }
+  },
+  "late_frames": 71,
+  "nmi_over_vblank": 262,
+  "new_row_iterations": 56,
+  "split_frames": 810,
+  "handlers": {
+   "$01": {
+    "min": 2244,
+    "median": 2269,
+    "p90": 2269,
+    "max": 2337,
+    "n": 899,
+    "total": 2029381
+   },
+   "$0B": {
+    "min": 265,
+    "median": 834,
+    "p90": 921,
+    "max": 952,
+    "n": 236,
+    "total": 198780
+   },
+   "$1B": {
+    "min": 247,
+    "median": 820,
+    "p90": 844,
+    "max": 1856,
+    "n": 3328,
+    "total": 2507528
+   },
+   "$1C": {
+    "min": 376,
+    "median": 887,
+    "p90": 906,
+    "max": 1380,
+    "n": 156,
+    "total": 139824
+   },
+   "$29": {
+    "min": 72,
+    "median": 99,
+    "p90": 351,
+    "max": 432,
+    "n": 1139,
+    "total": 172400
+   },
+   "$2A": {
+    "min": 317,
+    "median": 909,
+    "p90": 948,
+    "max": 1295,
+    "n": 1862,
+    "total": 1696815
+   },
+   "$3C": {
+    "min": 130,
+    "median": 448,
+    "p90": 491,
+    "max": 1662,
+    "n": 251,
+    "total": 103271
+   },
+   "$60": {
+    "min": 320,
+    "median": 1975,
+    "p90": 2084,
+    "max": 2335,
+    "n": 310,
+    "total": 577951
+   },
+   "$66": {
+    "min": 423,
+    "median": 1399,
+    "p90": 1489,
+    "max": 1650,
+    "n": 3778,
+    "total": 5317720
+   }
+  },
+  "overrun_iterations": 28
+ },
+ "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more2.fcs": {
+  "state": "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more2.fcs",
+  "info": {
+   "corridor": 4,
+   "boss_phase": 0,
+   "speed": 896,
+   "row": 745,
+   "objects": 20,
+   "types": {
+    "$01": 1,
+    "$5F": 15,
+    "$1C": 1,
+    "$29": 3
+   },
+   "player_type": "$01",
+   "sprites": 22,
+   "weapon": 10,
+   "weapon_level": 2,
+   "chips": 100
+  },
+  "frames_run": 900,
+  "crashed": null,
+  "iterations": 899,
+  "nmi": {
+   "min": 1890,
+   "median": 2300,
+   "p90": 2761,
+   "max": 3952,
+   "n": 900
+  },
+  "phases": {
+   "pads": {
+    "min": 989,
+    "median": 989,
+    "p90": 989,
+    "max": 989,
+    "n": 899
+   },
+   "objects": {
+    "min": 3931,
+    "median": 15210,
+    "p90": 22981,
+    "max": 27790,
+    "n": 899
+   },
+   "finish": {
+    "min": 100,
+    "median": 141,
+    "p90": 141,
+    "max": 258,
+    "n": 899
+   },
+   "hud": {
+    "min": 72,
+    "median": 72,
+    "p90": 72,
+    "max": 72,
+    "n": 899
+   },
+   "decomp": {
+    "min": 244,
+    "median": 244,
+    "p90": 244,
+    "max": 250,
+    "n": 899
+   },
+   "boss": {
+    "min": 61,
+    "median": 61,
+    "p90": 61,
+    "max": 67,
+    "n": 899
+   },
+   "stage": {
+    "min": 146,
+    "median": 202,
+    "p90": 5790,
+    "max": 6893,
+    "n": 899
+   },
+   "loader": {
+    "min": 146,
+    "median": 168,
+    "p90": 181,
+    "max": 324,
+    "n": 899
+   },
+   "wait": {
+    "min": 23,
+    "median": 10215,
+    "p90": 19740,
+    "max": 27351,
+    "n": 899
+   },
+   "iter": {
+    "min": 16647,
+    "median": 29659,
+    "p90": 30745,
+    "max": 52121,
+    "n": 899
+   },
+   "stall": {
+    "min": 0,
+    "median": 0,
+    "p90": 0,
+    "max": 0,
+    "n": 899
+   },
+   "stage_row": {
+    "min": 5224,
+    "median": 5808,
+    "p90": 6313,
+    "max": 6893,
+    "n": 166
+   },
+   "stage_idle": {
+    "min": 146,
+    "median": 195,
+    "p90": 202,
+    "max": 213,
+    "n": 733
+   },
+   "obj_overhead": {
+    "min": 74,
+    "median": 79,
+    "p90": 79,
+    "max": 90,
+    "n": 899
+   },
+   "logic": {
+    "min": 5801,
+    "median": 18325,
+    "p90": 25126,
+    "max": 33909,
+    "n": 899
+   }
+  },
+  "late_frames": 266,
+  "nmi_over_vblank": 478,
+  "new_row_iterations": 166,
+  "split_frames": 591,
+  "handlers": {
+   "$01": {
+    "min": 1974,
+    "median": 2269,
+    "p90": 2311,
+    "max": 2398,
+    "n": 899,
+    "total": 2038138
+   },
+   "$1C": {
+    "min": 371,
+    "median": 888,
+    "p90": 1192,
+    "max": 1398,
+    "n": 590,
+    "total": 559008
+   },
+   "$20": {
+    "min": 343,
+    "median": 1048,
+    "p90": 1066,
+    "max": 1657,
+    "n": 1846,
+    "total": 1943176
+   },
+   "$29": {
+    "min": 72,
+    "median": 125,
+    "p90": 315,
+    "max": 634,
+    "n": 2054,
+    "total": 313234
+   },
+   "$5F": {
+    "min": 442,
+    "median": 962,
+    "p90": 982,
+    "max": 1434,
+    "n": 555,
+    "total": 533726
+   },
+   "$66": {
+    "min": 306,
+    "median": 1387,
+    "p90": 1405,
+    "max": 1769,
+    "n": 5647,
+    "total": 7855714
+   },
+   "$76": {
+    "min": 1857,
+    "median": 2127,
+    "p90": 2163,
+    "max": 4594,
+    "n": 71,
+    "total": 154860
+   }
+  },
+  "overrun_iterations": 75
+ },
+ "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more3.fcs": {
+  "state": "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more3.fcs",
+  "info": {
+   "corridor": 5,
+   "boss_phase": 0,
+   "speed": 384,
+   "row": 453,
+   "objects": 14,
+   "types": {
+    "$01": 1,
+    "$7B": 1,
+    "$1A": 11,
+    "$29": 1
+   },
+   "player_type": "$01",
+   "sprites": 28,
+   "weapon": 10,
+   "weapon_level": 2,
+   "chips": 100
+  },
+  "frames_run": 900,
+  "crashed": null,
+  "iterations": 899,
+  "nmi": {
+   "min": 1555,
+   "median": 2097,
+   "p90": 3003,
+   "max": 4595,
+   "n": 900
+  },
+  "phases": {
+   "pads": {
+    "min": 989,
+    "median": 989,
+    "p90": 989,
+    "max": 989,
+    "n": 899
+   },
+   "objects": {
+    "min": 2979,
+    "median": 8119,
+    "p90": 15504,
+    "max": 21909,
+    "n": 899
+   },
+   "finish": {
+    "min": 141,
+    "median": 141,
+    "p90": 145,
+    "max": 729,
+    "n": 899
+   },
+   "hud": {
+    "min": 72,
+    "median": 72,
+    "p90": 72,
+    "max": 428,
+    "n": 899
+   },
+   "decomp": {
+    "min": 244,
+    "median": 244,
+    "p90": 244,
+    "max": 4233,
+    "n": 899
+   },
+   "boss": {
+    "min": 61,
+    "median": 104,
+    "p90": 109,
+    "max": 2054,
+    "n": 899
+   },
+   "stage": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 6680,
+    "n": 899
+   },
+   "loader": {
+    "min": 146,
+    "median": 146,
+    "p90": 168,
+    "max": 1467,
+    "n": 899
+   },
+   "wait": {
+    "min": 23,
+    "median": 17480,
+    "p90": 23346,
+    "max": 26372,
+    "n": 899
+   },
+   "iter": {
+    "min": 18499,
+    "median": 29778,
+    "p90": 30228,
+    "max": 51454,
+    "n": 899
+   },
+   "stall": {
+    "min": 0,
+    "median": 0,
+    "p90": 0,
+    "max": 0,
+    "n": 899
+   },
+   "stage_row": {
+    "min": 5220,
+    "median": 5331,
+    "p90": 5789,
+    "max": 6680,
+    "n": 84
+   },
+   "stage_idle": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 201,
+    "n": 815
+   },
+   "obj_overhead": {
+    "min": 74,
+    "median": 74,
+    "p90": 79,
+    "max": 79,
+    "n": 899
+   },
+   "logic": {
+    "min": 4875,
+    "median": 10146,
+    "p90": 18332,
+    "max": 26223,
+    "n": 899
+   }
+  },
+  "late_frames": 33,
+  "nmi_over_vblank": 331,
+  "new_row_iterations": 84,
+  "split_frames": 853,
+  "handlers": {
+   "$01": {
+    "min": 2244,
+    "median": 2244,
+    "p90": 2917,
+    "max": 2917,
+    "n": 899,
+    "total": 2132117
+   },
+   "$08": {
+    "min": 222,
+    "median": 684,
+    "p90": 698,
+    "max": 1200,
+    "n": 384,
+    "total": 262283
+   },
+   "$1A": {
+    "min": 331,
+    "median": 1108,
+    "p90": 1149,
+    "max": 1633,
+    "n": 778,
+    "total": 828731
+   },
+   "$23": {
+    "min": 72,
+    "median": 5668,
+    "p90": 6560,
+    "max": 7344,
+    "n": 358,
+    "total": 1767925
+   },
+   "$27": {
+    "min": 251,
+    "median": 964,
+    "p90": 1416,
+    "max": 2094,
+    "n": 456,
+    "total": 492889
+   },
+   "$28": {
+    "min": 226,
+    "median": 680,
+    "p90": 704,
+    "max": 790,
+    "n": 172,
+    "total": 106721
+   },
+   "$29": {
+    "min": 72,
+    "median": 72,
+    "p90": 99,
+    "max": 376,
+    "n": 158,
+    "total": 16194
+   },
+   "$5F": {
+    "min": 443,
+    "median": 959,
+    "p90": 984,
+    "max": 1416,
+    "n": 1077,
+    "total": 1056075
+   },
+   "$7B": {
+    "min": 103,
+    "median": 125,
+    "p90": 661,
+    "max": 661,
+    "n": 899,
+    "total": 292578
+   },
+   "$7D": {
+    "min": 131,
+    "median": 432,
+    "p90": 1145,
+    "max": 2217,
+    "n": 155,
+    "total": 94386
+   }
+  },
+  "overrun_iterations": 16
+ },
+ "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more4.fcs": {
+  "state": "Guardian Legend, The.zakkythegoatragon-theguardianlegend.more4.fcs",
+  "info": {
+   "corridor": 8,
+   "boss_phase": 4,
+   "speed": 512,
+   "row": 539,
+   "objects": 21,
+   "types": {
+    "$01": 1,
+    "$09": 3,
+    "$03": 1,
+    "$08": 7,
+    "$2A": 8,
+    "$49": 1
+   },
+   "player_type": "$01",
+   "sprites": 63,
+   "weapon": 10,
+   "weapon_level": 2,
+   "chips": 60
+  },
+  "frames_run": 900,
+  "crashed": null,
+  "iterations": 848,
+  "nmi": {
+   "min": 1945,
+   "median": 2173,
+   "p90": 2743,
+   "max": 3392,
+   "n": 900
+  },
+  "phases": {
+   "pads": {
+    "min": 989,
+    "median": 989,
+    "p90": 989,
+    "max": 995,
+    "n": 848
+   },
+   "objects": {
+    "min": 22068,
+    "median": 26478,
+    "p90": 28134,
+    "max": 29120,
+    "n": 848
+   },
+   "finish": {
+    "min": 100,
+    "median": 111,
+    "p90": 111,
+    "max": 139,
+    "n": 848
+   },
+   "hud": {
+    "min": 72,
+    "median": 72,
+    "p90": 72,
+    "max": 77,
+    "n": 848
+   },
+   "decomp": {
+    "min": 244,
+    "median": 244,
+    "p90": 244,
+    "max": 250,
+    "n": 848
+   },
+   "boss": {
+    "min": 104,
+    "median": 104,
+    "p90": 104,
+    "max": 136,
+    "n": 848
+   },
+   "stage": {
+    "min": 195,
+    "median": 195,
+    "p90": 5307,
+    "max": 6068,
+    "n": 848
+   },
+   "loader": {
+    "min": 168,
+    "median": 168,
+    "p90": 181,
+    "max": 389,
+    "n": 848
+   },
+   "wait": {
+    "min": 23,
+    "median": 23,
+    "p90": 23,
+    "max": 24853,
+    "n": 848
+   },
+   "iter": {
+    "min": 26098,
+    "median": 31096,
+    "p90": 35648,
+    "max": 52050,
+    "n": 848
+   },
+   "stall": {
+    "min": 0,
+    "median": 0,
+    "p90": 0,
+    "max": 0,
+    "n": 848
+   },
+   "stage_row": {
+    "min": 5224,
+    "median": 5911,
+    "p90": 6012,
+    "max": 6068,
+    "n": 106
+   },
+   "stage_idle": {
+    "min": 195,
+    "median": 195,
+    "p90": 195,
+    "max": 201,
+    "n": 742
+   },
+   "obj_overhead": {
+    "min": 74,
+    "median": 84,
+    "p90": 90,
+    "max": 90,
+    "n": 848
+   },
+   "logic": {
+    "min": 23951,
+    "median": 28780,
+    "p90": 32735,
+    "max": 36660,
+    "n": 848
+   }
+  },
+  "late_frames": 887,
+  "nmi_over_vblank": 334,
+  "new_row_iterations": 106,
+  "split_frames": 7,
+  "handlers": {
+   "$01": {
+    "min": 2244,
+    "median": 2269,
+    "p90": 2290,
+    "max": 2296,
+    "n": 848,
+    "total": 1922835
+   },
+   "$2A": {
+    "min": 304,
+    "median": 919,
+    "p90": 1020,
+    "max": 1479,
+    "n": 13562,
+    "total": 12799789
+   },
+   "$49": {
+    "min": 7338,
+    "median": 9173,
+    "p90": 9397,
+    "max": 9635,
+    "n": 848,
+    "total": 7567454
+   }
+  },
+  "overrun_iterations": 388
+ }
+}
