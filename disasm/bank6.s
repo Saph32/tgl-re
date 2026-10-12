@@ -5193,7 +5193,8 @@ L6_A991:
 ; Types $36-$37: value for $0560
         .byte   $31,$21
 
-; ---- UNCLAIMED (gap) $A9BA-$A9BE, 5 bytes
+; ---- bank6.tbl_A9BA (data) $A9BA-$A9BE, 5 bytes
+; Five bytes after the cannon tables, no reader found
         .byte   $FE,$02,$FF,$01,$00
 
 ; ---- bank6.tbl_A9BF (level) $A9BF-$AA0E, 80 bytes
@@ -7046,7 +7047,8 @@ L6_B8F8:
         lda     #$04
         jmp     L6_A991
 
-; ---- UNCLAIMED (gap) $B902-$B903, 2 bytes
+; ---- bank6.tbl_B902 (data) $B902-$B903, 2 bytes
+; Two bytes between two handlers, no reader found
         .byte   $78,$64
 
 ; ---- bank6.code_B904 (code) $B904-$B961, 94 bytes

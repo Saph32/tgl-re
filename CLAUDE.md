@@ -896,6 +896,18 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; where CONTINUE puts you is not established) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **The last 34 unclaimed bytes (`annotations/regions/79-last-gaps.json`); the ROM is now 100.000% claimed.**
+  Three are **palette lists** for the walker at bank 7 `$D92D` (entry `$C05D`, pointer in `$18/$19`): position Y
+  0-7, value below `$FE`, far-calls bank 5 `$B2E4`, which copies palette A (of the 36 at `$B30A`) to `$0181 + 3Y`;
+  `$FE` ends, `$FF` skips; positions 0-3 are background, 4-7 sprite palettes. **Bank 0 `$82BD`** = `08 09 0A 0B 00 01 02 03`,
+  read at `$8321` after the title picture is drawn (`$8485`): HARDWARE, the title savestate's palette RAM holds exactly
+  those 8 palettes (8 of 8; the password savestate's slots 0-3 too). **Bank 5 `$84C3`** = `05 0F 1F FF 00 01 02 03`, the status
+  screen's, read from `$84EE` (code only, no savestate; slot 3 skipped). Found, as the world map was, by scanning for
+  a pointer built from two immediates - no table points at them. **Bank 7 `$EEC4`** (`00 01 02 03 05 06 09 0A`) has
+  the same shape and NO reader, and `$A9BA` (`FE 02 FF 01 00`, after the cannon handler's two-byte table),
+  `$B902` (`78 64`, between two handlers) and bank 0 `$BF04` (`12 E9 82`: a note, a repeat, a track end, no
+  header points at it) are leads. **Method note:** a byte scan for absolute operands finds nothing for the first two
+  - the reader hid the address in immediates; scan for both.
 - **Rendering: mirroring, the NMI, the split, scrolling (`docs/rendering.html`).** iNES byte 6 = `$21`: vertical
   mirroring, and the game RELIES on it: horizontal room scrolls cross `$2000`/`$2400`, and the corridor engine alternates its
   row writes between `$2000` and the `$2800` alias (`$AB`; 216 of ~1000 writes in 120 frames). NMI `$DC75`: render off,
@@ -1056,11 +1068,10 @@ authoritative, up-to-date version of this list; what follows is what does not li
 1. **Name the remaining (non-boss) enemy types.** The bosses are named (see the boss entry);
    the manual's nine names are all placed. A savestate with known enemies on screen would
    settle it, and `parse-metasprites.py --verify` would check their shapes.
-2. **The last 34 unclaimed bytes**, none with a reader found: bank 0 `$82BD` (8) and
-   `$BF04` (3), bank 5 `$84C3` (8), bank 6 `$A9BA` (5) and `$B902` (2), bank 7 `$EEC4` (8)
-   (`$EF6B` is now claimed: the 23rd entry of `$EF55`, corridor 22's scene.) Then the leads: `build.py` counts them,
-   and past 97% most of the coverage is leads. Which rooms take the room drawer's special
-   path (`$30` bits 5-6).
+2. **Leads, now that every byte is claimed (100.000%).** `build.py` counts them; past 97% most of the coverage is
+   leads, i.e. accounted for, not understood. The last six gaps are in `79-last-gaps.json` (see the entry above);
+   three are leads with no reader (bank 7 `$EEC4`, bank 6 `$A9BA` and `$B902`, bank 0 `$BF04`). Which rooms take
+   the room drawer's special path (`$30` bits 5-6).
 3. **The five bank 5 spawn scripts that end on a jump**, and corridor 16's.
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,

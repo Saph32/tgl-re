@@ -4947,7 +4947,8 @@ L7_EEB7:
 L7_EEC3:
         rts
 
-; ---- UNCLAIMED (gap) $EEC4-$EECB, 8 bytes
+; ---- bank7.pal_EEC4 (palette) $EEC4-$EECB, 8 bytes
+; Palette-list-shaped table, no reader found
         .byte   $00,$01,$02,$03,$05,$06,$09,$0A
 
 ; ---- bank7.code_EECC (code) $EECC-$EF15, 74 bytes

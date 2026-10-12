@@ -374,7 +374,8 @@ L0_82B0:
         sta     $0183
         jmp     L7_C0DE
 
-; ---- UNCLAIMED (gap) $82BD-$82C4, 8 bytes
+; ---- bank0.pal_82BD (palette) $82BD-$82C4, 8 bytes
+; Palette list: the title screen, 8 palettes
         .byte   $08,$09,$0A,$0B,$00,$01,$02,$03
 
 ; ---- bank0.code_82C5 (code) $82C5-$8311, 77 bytes
@@ -2841,7 +2842,8 @@ L0_9AE7:
         .byte   $BE,$82,$01,$05,$03,$BF,$04,$92,$00,$01,$01,$FF,$BE,$89,$08,$38
         .byte   $E7,$82
 
-; ---- UNCLAIMED (gap) $BF04-$BF06, 3 bytes
+; ---- bank0.snd_BF04 (data) $BF04-$BF06, 3 bytes
+; Sound stream fragment, no header points at it
         .byte   $12,$E9,$82
 
 ; ---- bank0.snd_BF07 (music) $BF07-$BFD9, 211 bytes

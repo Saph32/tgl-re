@@ -744,7 +744,8 @@ L5_84A9:
         sta     $16
         jmp     L7_C084
 
-; ---- UNCLAIMED (gap) $84C3-$84CA, 8 bytes
+; ---- bank5.pal_84C3 (palette) $84C3-$84CA, 8 bytes
+; Palette list: the status screen, 7 palettes and a skip
         .byte   $05,$0F,$1F,$FF,$00,$01,$02,$03
 
 ; ---- bank5.code_84CB (code) $84CB-$8517, 77 bytes
