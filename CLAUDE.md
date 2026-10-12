@@ -904,8 +904,8 @@ Do not re-derive these; do check anything that depends on them.
   Type `$28` (bank 6 `$9972`, hp 0, flags `$C0`): 16-step table (`$99C9` metasprite, `$99D9` base tile, `$99E9` piece offsets): metasprite 121
   with tiles 1/3 alternating, then 5, 7; then metasprite 55 (tiles 9, B, D, F) - ~32 + ~10 frames, 42 measured, then the slot is free. **Run:**
   the real corridor 5 loader with a `$1A` and a `$59` placed at row 464 turn to `$28` on the frames after slots 13 and 14 are evicted
-  (5303 / 5312); a `$3F` control stays. 20 corridors have such a pre-boss stream 0-30 rows (rows 5-10 usual; 12: 30, 16: 10) before the
-  boss command (not 7, 17, 22; corridor 21 loads many). SEPARATE from it: the boss command (cmd 5 -> `$70` = 1) then runs `$91A0`: `$71` =
+  (5303 / 5312); a `$3F` control stays. 18 corridors (1-6, 8-16, 18-20) have such a pre-boss stream 0-30 rows before the
+  boss command (usually 5-10; 12: 30; 3, 13, 14, 15: 0), corridor 21 loads several, 7, 17, 22 none. SEPARATE from it: the boss command (cmd 5 -> `$70` = 1) then runs `$91A0`: `$71` =
   `$913A[corridor]` (`88` for all but 7, 17 = `02`, 21 and 22 = `00`): bit 7 turns every non-spawner object with `$0578` bit 1 clear
   into an explosion (type `$08`, sound `$22`), bit 3 -> `$60` bit 3 (spawns stop). The dissolve is therefore the art swap's side
   effect, not a designed transformation; whether the designers meant it is not knowable. Pairs with the corridor-12 note above.
