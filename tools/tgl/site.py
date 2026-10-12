@@ -4810,7 +4810,10 @@ def _ram_page(rm):
     p.append('<h2 id="todo">The busiest unnamed bytes</h2>')
     p.append('<p class="sub">Touched by the traced code, in no entry above, most accesses first. '
              "These are what to read next.</p>")
-    arts = {int(a["addr"][1:], 16): a for a in d.get("base_artifacts", [])}
+    arts = {}
+    for a in d.get("base_artifacts", []):
+        for k in range(num(a["addr"]), num(a.get("end", a["addr"])) + 1):
+            arts[k] = a
     un = sorted((k for k in x if k not in named and k not in arts and k < 0x500),
                 key=lambda k: -(x[k]["r"] + x[k]["w"] + x[k]["m"]))[:40]
     trs = []
@@ -4822,8 +4825,8 @@ def _ram_page(rm):
     p.append("<table><thead><tr><th>Address</th><th>Accesses</th><th>Where</th></tr></thead>"
              f"<tbody>{''.join(trs)}</tbody></table>")
     if arts:
-        rows = "".join(f'<tr><td><code>{a["addr"]}</code></td><td>{acc(k, k)}</td><td>{a["reason"]}</td></tr>'
-                       for k, a in sorted(arts.items()))
+        rows = "".join(f'<tr><td><code>${k:04X}</code></td><td>{acc(k, k)}</td><td>{a["reason"]}</td></tr>'
+                       for k, a in sorted(arts.items()) if k in x)
         p.append('<h3>Counted but not bytes</h3><p class="sub">An indexed access names the base of an array, '
                  "and when the index starts at 1 the base is the byte <em>before</em> the data. These "
                  "addresses are touched only that way, so they are left out of the table above; each "

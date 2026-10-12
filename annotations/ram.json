@@ -42,10 +42,18 @@
     {
       "addr": "$00",
       "name": "jump_table_ptr",
-      "what": "The inline jump-table routines pop their return address into it and fetch entry k at +2k ($9F10 and the copies in banks 6 and 7). The random routine also reads $0000,Y as noise.",
+      "what": "The inline jump-table routines pop their return address into it and fetch entry k at +2k ($9F10 and the copies in banks 6 and 7). The random routine also reads $0000,Y as noise. The pad reader $D626 uses them too: bit 1 of each $4016 / $4017 read is rotated into $00 / $01 (expansion-port bits), beside the ordinary bit 0 into $F5 / $F6.",
       "status": "confirmed",
-      "evidence": "bank 5 $9F10-$9F21; bank 7 $D6B0, $F9DC",
+      "evidence": "bank 5 $9F10-$9F21; bank 7 $D6B0, $F9DC; bank 7 $D626-$D647",
       "end": "$01"
+    },
+    {
+      "addr": "$02",
+      "end": "$03",
+      "name": "pad_prev_bit1",
+      "what": "The previous read's $00 / $01, kept by the pad routine ($D64C-$D674): the pads are read again until two reads in a row agree on all four bytes ($F5, $F6, $00 / $01 against $02 / $03). The usual reason for such a loop is a DMC sample fetch stealing a cycle mid-read; this game runs the DMC as its split timer, so the guard fits, but that reason is an inference.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D64F-$D674"
     },
     {
       "addr": "$04",
@@ -60,6 +68,27 @@
       "what": "The DMC timer's rate index, reloaded into $4010 by the IRQ and tuned between $81 and $89 to land the raster split.",
       "status": "confirmed",
       "evidence": "bank 7 $DCF3, $DAC3-$DACF"
+    },
+    {
+      "addr": "$06",
+      "name": "decomp_bank",
+      "what": "The bank holding the tile block being decompressed: stored when a block is armed ($D81C, from the caller's bank argument) and switched to at the start of every decompressor pass ($DB55); bank 6 $8022 initialises it to 5.",
+      "status": "confirmed",
+      "evidence": "bank 7 $D81C, $DB55; bank 6 $8022"
+    },
+    {
+      "addr": "$07",
+      "name": "decomp_run_value",
+      "what": "The tile decompressor: the value of the run section being expanded ($DBFB), written $08 times into the output buffer.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DBFB-$DC10"
+    },
+    {
+      "addr": "$08",
+      "name": "decomp_run_count",
+      "what": "The tile decompressor: how many more bytes of the current run to write ($DC06 loads the count, $DC0E counts it down).",
+      "status": "confirmed",
+      "evidence": "bank 7 $DC06-$DC10"
     },
     {
       "addr": "$09",
@@ -170,6 +199,20 @@
       "what": "Offset of the next free byte in the PPU queue. The space check $D6C0 refuses an entry that would reach $51, and, while $A5 is not 0, one that would reach $31.",
       "status": "confirmed",
       "evidence": "bank 7 $D6C0-$D6D2, $D6F7-$D6FC"
+    },
+    {
+      "addr": "$22",
+      "name": "ppu_read_prev",
+      "what": "The attribute read-modify-write ($DE20-$DE61) reads the PPU byte twice and repeats until two reads agree: $22 is the previous value read.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DE3F, $DE53-$DE57"
+    },
+    {
+      "addr": "$23",
+      "name": "ppu_rmw_saved_x",
+      "what": "X (the queue cursor) saved across the attribute read-modify-write loop.",
+      "status": "confirmed",
+      "evidence": "bank 7 $DE2D, $DE59"
     },
     {
       "addr": "$24",
@@ -498,6 +541,13 @@
       "what": "A room's sub-id; the flag index for items and minibosses.",
       "status": "confirmed",
       "evidence": "bank 5 $8243, $A3BB, $A663"
+    },
+    {
+      "addr": "$5F",
+      "name": "start_cleared_5F",
+      "what": "Cleared to 0 by the game-start code with the other per-game state ($A5, $A0, $3C, $3E, $42-$44, $70, $2E, $49), and written nowhere else in the traced code. Nothing traced reads it: a flag whose reader is not found, or a leftover.",
+      "status": "lead",
+      "evidence": "bank 0 $8078; the whole-ROM trace has no other access"
     },
     {
       "addr": "$60",
@@ -1296,6 +1346,11 @@
     {
       "addr": "$017B",
       "reason": "Base of SBC $017B,Y at bank 7 $DF48: reads the bonus threshold $017C-$017E beside the score digits."
+    },
+    {
+      "addr": "$0136",
+      "end": "$0137",
+      "reason": "PPU queue bytes: the unrolled eight-byte copy at bank 7 $DDC0-$DE01 reads LDA $0130,Y ... $0137,Y and writes each to $2007, so these are the 7th and 8th data bytes of a queue entry at offset Y, not variables."
     }
   ],
   "object_fields": [
