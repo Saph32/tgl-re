@@ -1474,21 +1474,21 @@
     {
       "f": 14,
       "name": "phase_frac",
-      "what": "The phase counter's fraction.",
+      "what": "The phase counter's fraction. Reused as a beam's half-width in pixels ($FC27: the hit box is x +/- $0650; the Hyper Laser is 3, 8, 24 at levels 1-3).",
       "status": "confirmed",
       "evidence": "bank 7 $CD7A"
     },
     {
       "f": 15,
       "name": "target_y",
-      "what": "The y the object accelerates toward ($CD12), or a direction number the aim routine returned - handlers reuse it.",
+      "what": "The y the object accelerates toward ($CD12), or a direction number the aim routine returned - handlers reuse it. Reused as a beam's parent slot ($FB76: the object it hangs from; a negative value means none).",
       "status": "checked",
       "evidence": "bank 7 $CD12; bank 6 $9088, $9188; Fleepa savestate $0668 = $10"
     },
     {
       "f": 16,
       "name": "target_x",
-      "what": "The x the object accelerates toward ($CD46).",
+      "what": "The x the object accelerates toward ($CD46). Reused as the type a beam's parent must keep ($FB76-$FB7E); the labyrinth seal tests keep a counter or a baseline here too ($A21D, $A1E0).",
       "status": "confirmed",
       "evidence": "bank 7 $CD46; bank 6 $90C1"
     },
@@ -1516,7 +1516,7 @@
     {
       "f": 20,
       "name": "box_x_min",
-      "what": "Hitbox: x minus the metasprite's half width.",
+      "what": "Hitbox: x minus the metasprite's half width. Also written directly by the beam drawer ($FC27: x - $0650) and by the seal gate's box tables ($A30E).",
       "status": "confirmed",
       "evidence": "bank 7 $D229"
     },
@@ -1551,7 +1551,7 @@
     {
       "f": 25,
       "name": "pos_frac",
-      "what": "A position fraction added to the y velocity's fraction by some handlers.",
+      "what": "A position fraction added to the y velocity's fraction by some handlers. Reused as the far end (y) of a beam ($FBF7, read at $FC2B).",
       "status": "lead",
       "evidence": "bank 6 $826D"
     },

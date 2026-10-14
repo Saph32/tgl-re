@@ -6386,7 +6386,7 @@ L7_F982:
         .byte   $78,$75,$6E,$63,$54,$42,$2D,$17,$00,$E9,$D3,$BE,$AC,$9D,$92,$8B
         .byte   $88,$8B,$92,$9D,$AC,$BE,$D3,$E9,$00,$17,$2D,$42,$54,$63,$6E,$75
 
-; ---- bank7.code_F9AE (code) $F9AE-$FD4A, 925 bytes
+; ---- bank7.code_F9AE (code) $F9AE-$FA5A, 173 bytes
 L7_F9AE:
         sta     $10
         sty     $11
@@ -6486,6 +6486,8 @@ L7_FA4B:
         lda     $0518,X
         sta     $0518,Y
         rts
+
+; ---- bank7.code_FA5B (code) $FA5B-$FA6A, 16 bytes
 L7_FA5B:
         ldy     #$05
 L7_FA5D:
@@ -6499,6 +6501,8 @@ L7_FA5D:
 L7_FA69:
         clc
         rts
+
+; ---- bank7.code_FA6B (code) $FA6B-$FA95, 43 bytes
 L7_FA6B:
         lda     $19
         lsr     A
@@ -6527,6 +6531,8 @@ L7_FA6B:
         ora     #$C0
         tay
         rts
+
+; ---- bank7.code_FA96 (code) $FA96-$FB11, 124 bytes
 L7_FA96:
         jsr     L7_FA5B
         bcs     L7_FAB7
@@ -6600,6 +6606,8 @@ L7_FB0E:
         sta     $0400,Y
 L7_FB11:
         rts
+
+; ---- bank7.code_FB12 (code) $FB12-$FB51, 64 bytes
 L7_FB12:
         jsr     L7_FA5B
         bcs     L7_FB51
@@ -6632,6 +6640,8 @@ L7_FB12:
         jsr     L7_D852
 L7_FB51:
         rts
+
+; ---- bank7.code_FB52 (code) $FB52-$FB63, 18 bytes
 L7_FB52:
         lda     #$00
         sec
@@ -6641,6 +6651,8 @@ L7_FB52:
         sbc     $05D8,X
         sta     $05D8,X
         rts
+
+; ---- bank7.code_FB64 (code) $FB64-$FB75, 18 bytes
 L7_FB64:
         lda     #$00
         sec
@@ -6650,6 +6662,8 @@ L7_FB64:
         sbc     $0608,X
         sta     $0608,X
         rts
+
+; ---- bank7.code_FB76 (code) $FB76-$FC26, 177 bytes
 L7_FB76:
         ldy     $0668,X
         bmi     L7_FB85
@@ -6738,6 +6752,8 @@ L7_FC22:
         bcs     L7_FBFD
 L7_FC24:
         sta     $0518,X
+
+; ---- bank7.code_FC27 (code) $FC27-$FCC2, 156 bytes
 L7_FC27:
         lda     #$10
         sta     $17
@@ -6820,6 +6836,8 @@ L7_FCBE:
         sta     $06F8,X
         clc
         rts
+
+; ---- bank7.code_FCC3 (code) $FCC3-$FCD4, 18 bytes
 L7_FCC3:
         clc
         adc     $05D8,X
@@ -6833,6 +6851,8 @@ L7_FCCD:
 L7_FCD2:
         adc     #$0F
         rts
+
+; ---- bank7.code_FCD5 (code) $FCD5-$FCE6, 18 bytes
 L7_FCD5:
         lda     $B7
         clc
@@ -6844,6 +6864,8 @@ L7_FCD5:
         cmp     #$D0
 L7_FCE6:
         rts
+
+; ---- bank7.code_FCE7 (code) $FCE7-$FD4A, 100 bytes
 L7_FCE7:
         clc
         adc     $4C

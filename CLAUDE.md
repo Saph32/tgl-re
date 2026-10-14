@@ -916,6 +916,19 @@ Do not re-derive these; do check anything that depends on them.
   Also settled from the RAM leads (14 of 18 now confirmed, see ram.json): `$17F` palette upload 1/2/3 = BG / sprite / both (run), `$20` = pending queue entries, `$60` bit 1 = script
   running, bit 3 = spawning stopped, `$6C-$6F` = the movement test (`$6D` y-step cell, `$6E` x-step cell, `$6F` bits 7/6 = same row/column), `$0199` = attribute patterns (CORRECTION:
   not 'palette slot indices'). (The last four, `$56`, `$5F`, `$80-$83`, `$0318`, are settled in the entry below.)
+- **Object helpers, bank 7 `$FA5B-$FCE6` (`annotations/regions/23-object-helpers.json`; found as the largest stretch of traced code nothing explained).**
+  Ten regions now replace the generated extent-only cards. **`$FA5B`** find a free slot (5-23; slot `$C108`). **`$FA6B`** pixel position -> PPU address of the
+  8x8 tile (`$2000 + 32(y/8) + x/8`) and attribute offset (slot `$C111`). **`$FA96` BREAK A BLOCK** (slot `$C117`; callers: the weapon-hits-cell code bank 6 `$854B`,
+  bank 3 `$92B2`/`$9336`, bank 1 `$8159`): a type-`$30` blast at the cell centre (skipped if no slot), the new tiles queued through `$D865` with `$16`, then the class
+  write. **`$FADE`** (slot `$C11D`) writes `$15` into the nibble of the class map `$0400` for the cell at (`$18`, `$19`) - labyrinth only, nothing when `$30` bit 6 is
+  set; index = (y AND `$F0`)/2 | x/32, x bit 4 picks the nibble (set = low). RUN: class 0 -> 7 on exactly one cell, blast at (103, 136) from (100, 140), 9 bytes queued; corridor
+  = no change. **`$FB12`** one type-`$08` explosion near a point jittered by a box, sound `$22` (slot `$C120`; bank 1 `$80D0` the boss-death barrage, bank 2 `$88EF` the planet
+  cutscene); run 300x: y 83-116, x 104-136 for box 32 x 48 at (100, 128). **`$FB52`/`$FB64`** negate the y / x velocity (slots `$C126`/`$C123`; types `$52 $59` / `$5A $52`).
+  **`$FB76`-`$FCC2` THE BEAM** (slot `$C129`; weapon 9 = Hyper Laser, bank 6 `$8AC4`, run table entry 9, and enemy type `$22`): a vertical chain of 16-pixel pieces between
+  `$0518` and `$0758`, drawn with the object's metasprite (`$0548`) or single sprites (`$CF05`) and a hit box x +/- `$0650` (half-width 3, 8, 24 px at levels 1-3,
+  measured), y from the smaller end to the larger + 15; its head/tail state machine (`$FB76`-`$FC26`: parent slot `$0668`, parent type `$0680`, phase `$0788`) is a LEAD.
+  **`$FCD5`** (slot `$C12C`) adds the scroll step `$B7` to y in a corridor: ground objects, pickup boxes and types `$16 $63 $7A` stay fixed on the background (carry = off the
+  bottom). Two corrections to the notes above: the bank 6 cell-hit entry's "6 -> floor + a type-`$30` blast" is exactly this routine, and `$D865` (the PPU redraw) is called from it.
 - **Corridor seals: how corridors 1-10 are unlocked, and the RAM that holds it (`docs/labyrinth.html#seals`).** Two locks per entrance:
   the room's key door (`$04B0`, above) and the SEAL on the gate inside. **State: `$04B1` bits 0-7 = corridors 1-8, `$04B2` bits 0-1 = corridors
   9-10** (bit c-1 set = removed; set through `$C078`/`$EFC7`, A = n -> Y = n>>3, A = 1<<(n&7)); not in the password; corridors 11-20 have
