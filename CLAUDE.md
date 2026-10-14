@@ -843,8 +843,7 @@ Do not re-derive these; do check anything that depends on them.
   routines on the harness**: drops at exactly 50/80/100/140/180/220/230/256 weight-1 kills, repeating at
   306...; the pick-up effects from life 32. Same sweep resolved `$6B` = fire-rate level (not lives:
   Consecutive Firing +1, cap 5, `$87CE[$6B]` -> `$39` shot delay) and `$46` = chip capacity level
-  (`$87D4` table -> CHIP MAX). NOT established: how the box is opened (shot, per the manual; the
-  `$84CB` handler not followed through) and the cell-category table `$822D` beyond what blocks.
+  (`$87D4` table -> CHIP MAX). How the box is opened: RUN in the labyrinth - the ship's shots open it, touching it before that does nothing, touching it after collects the item (see the `$56` entry; a corridor box was not tried). NOT established: the cell-category table `$822D` beyond what blocks.
 - **The main gun by chip tier (`docs/status.html#gun`).** Bank 7 `$E213` (after every change of the
   chip total: spend `$8B8F`, pick-up `$FCE7`) sets `$3A` = 0 under 100 chips, 1 at 100, 2 at 200, 3 at
   2,048. The player's handler (bank 3 `$8E04`) makes a type-`$02` object while B is held (`$33` counts
@@ -896,6 +895,18 @@ Do not re-derive these; do check anything that depends on them.
   saving); the status screen and pause change nothing. Death does not reload the room: the fatal hit needs `$49` (life
   meter shown value, steps toward `$48`) = 0, bank 6 `$8239` then enters bank 0 `$81DD` (GAME OVER, then CONTINUE PUSH
   START, `$2F` = 2, then `$FF5D` the game start; for where CONTINUE puts you see the start-mode entry) - a restart. `$2E` is always 0 (only cleared). Corridor-return path read, not run.
+- **The last four RAM leads (all settled; ram.json has no `lead` entries now).** **Sprite allocator `$80-$83`** (bank 7 `$CDA2-$CF05`, RUN on the calm and
+  boss savestates): a two-ended fill of OAM - `$83` bit 0 = this frame's direction (0 upward from offset 4, 1 downward from `$FC`; offset 0 is sprite 0, never touched);
+  `$80` next offset; `$82` the end of the last upward block, `$81` the start of the last downward one (the hiding loop `$CE88` clears the stale sprites between);
+  bit 1 full, bit 7 wrapped (both cleared each frame at `$CDB4`); bit 2 set once at start-up (bank 6 `$8057` stores 4) and never cleared. **CORRECTION:** the Game loop page
+  said `$83` is flipped at every frame's finish. It flips (`$CEFE`) only when the frame ran out of OAM or the PPU's sprite-overflow flag (`$26` bit 5) was set: calm = never
+  (`$83` = `$04` throughout), boss fight (63-64 sprites) = every frame (`$84-$87`; `$81` walks `$FC, $F4, $F0, $EC`). **`$0318`**: a sticky OR of the channels' control
+  bytes, cleared only by the silence routine; its only reader tests bit 5, which no song header (values 0-4, 6) or stream command (`$88` writes fields 16 and 17 only) ever sets
+  - that branch (`$03E4 |= $40`) is dead; the old 'a channel muted all' was a guess. **`$5F`**: written once at game start and read nowhere - a whole-ROM byte scan finds one real
+  instruction touching it (51 pairs, 50 inside data or operands, none through `($5E),Y`). **`$56`** is the id of the pickup box (type `$31`) that is currently OPEN, `$FF` none:
+  the ship's shots open a box (the handler stores the item id and uploads its icon, `$85BA` / `$81B2`), touching it adds the item and releases `$56` (run: item 6 = weapon 6 gained,
+  `$04AD` `0x40000` -> `0x41000`, box removed, `$56` back to `$FF`); the shop's type-`$33` items never touch it (CORRECTION: it was recorded as 'shop_item_standing'). So a box is
+  opened by SHOOTING it and collected by touching - this settles 'how the box is opened' for the labyrinth (a corridor box was not tried).
 - **Start modes and CONTINUE (`$2F`, `$7C/$7D`, `$78`; RUN on the model, `$805B` called with each mode).** `$2F` is set by the title menu (0 new game /
   1 second item, which boot `$FF53` sends to bank 3's password screen), by Start on "CONTINUE PUSH START" (2, `$82A6`; chips topped to `$FA` if lower) and by the
   progress recorder (3, `$A2E4`); a new game (`$EB18`) re-inits the move history only if it is below 3. The start-up code `$805B`: mode 0 = full new-game init (`$80D4`,
@@ -904,7 +915,7 @@ Do not re-derive these; do check anything that depends on them.
   threshold cleared** (the seals are not in the password), position from `$7C/$7D` (the password decode and the progress recorder write it). Resolves "where CONTINUE puts you".
   Also settled from the RAM leads (14 of 18 now confirmed, see ram.json): `$17F` palette upload 1/2/3 = BG / sprite / both (run), `$20` = pending queue entries, `$60` bit 1 = script
   running, bit 3 = spawning stopped, `$6C-$6F` = the movement test (`$6D` y-step cell, `$6E` x-step cell, `$6F` bits 7/6 = same row/column), `$0199` = attribute patterns (CORRECTION:
-  not 'palette slot indices'). Left as leads: `$56`, `$5F`, `$80-$83` (the allocator), `$0318`.
+  not 'palette slot indices'). (The last four, `$56`, `$5F`, `$80-$83`, `$0318`, are settled in the entry below.)
 - **Corridor seals: how corridors 1-10 are unlocked, and the RAM that holds it (`docs/labyrinth.html#seals`).** Two locks per entrance:
   the room's key door (`$04B0`, above) and the SEAL on the gate inside. **State: `$04B1` bits 0-7 = corridors 1-8, `$04B2` bits 0-1 = corridors
   9-10** (bit c-1 set = removed; set through `$C078`/`$EFC7`, A = n -> Y = n>>3, A = 1<<(n&7)); not in the password; corridors 11-20 have
@@ -1030,7 +1041,7 @@ Do not re-derive these; do check anything that depends on them.
   (NMI never already fired at `DA9A`). Sprites built in the loop and the scroll set in `E655` reach the screen at the NEXT
   NMI (one frame latency). Hit detection is in the ENEMIES' handlers (`D348`, slots 4..0, flags & mask). Periodic: HUD score
   every 8th frame (`$41&7`), weapon-object damage every 8th (`$D3A9`), boss bonus 64 (`$9305`), chip fee 60/120 (`$3F`).
-  NOT established: hardware timing (model has no DMA stalls/IRQ), the sprite allocator's `$83` states, every handler.
+  NOT established: hardware timing (model has no DMA stalls/IRQ), the allocator's hiding loop in detail (`$81`/`$82`; the flags are in the allocator entry), every handler.
   **Durations, five corridor states (`tools/profile-loop.py`, data in `annotations/loop-profile.json`, 900 frames each; the
   page's tables are built from that file):** calm (`ingame`) / more1 / more2 / more3 / more4 (the owner's busy savestates; more4
   = corridor 8 boss fight, Grimgrin `$49`, 63 sprites). Net of the NMI, medians: pads 989; object loop 6,143 / 13,127 / 15,210 / 8,119 /
@@ -1111,7 +1122,7 @@ The RAM map exists: `annotations/ram.json`, drawn on `docs/ram.html` beside a ge
 cross-reference. Add a name there (with its evidence and a status), not here. It now names 85% of the touched bytes (175 entries, 33 sound fields) and the page's "busiest unnamed bytes"
 table is EMPTY: every touched byte below $0500 is named, or listed under "Counted but not bytes" (`base_artifacts`
 in ram.json: an indexed access names a base, and with Y starting at 1 the base is the byte before the data - $016F,
-$017B, $0136-$0137), or is a lead. What is left to do is the 18 `lead` entries and the object-slot fields. Worked out from the busiest unnamed list: the sound engine's whole channel
+$017B, $0136-$0137), or is a lead. The RAM map has no `lead` entries left; what remains is the object-slot fields. Worked out from the busiest unnamed list: the sound engine's whole channel
 state (`$0319 + 7f + c`, 33 fields, ends exactly at `$03FF`; `$1C-$1F` its scratch; `$0300` is the
 song-event register: a `$94` command ORs into it and a channel's end stores its song number), the
 tile decompressor's state (`$09-$0F`), the PPU queue's cursor (`$21`, reserve `$25`), the art-load
@@ -1167,4 +1178,4 @@ authoritative, up-to-date version of this list; what follows is what does not li
 4. **What `$55`, `$04A0-$04A8`, `$46` and `$6B` hold** — all now have known writers.
 5. **The other `$16`/`$17` consumers** — `$C04B`, `$C006`, `$C07E` (a rectangle blit,
    `$D99C`).
-6. The RAM map's four remaining `lead` entries (`$56`, `$5F`, `$80`-`$83`, `$0318`); the unnamed table is empty.
+6. The RAM map has no `lead` entries and an empty unnamed table; what is left is the object-slot fields and the rest of the allocator's hiding loop.

@@ -500,10 +500,10 @@
     },
     {
       "addr": "$56",
-      "name": "shop_item_standing",
-      "what": "In the round creature's shops (bank 2 $8500-$8640): the item the ship last stood at, taken from the object's $0680 field ($85BA); $FF when none ($8628), tested against $0680 at $8527 so the item is not offered twice.",
-      "status": "lead",
-      "evidence": "bank 2 $8521-$8528, $85BA, $8626-$8628; labyrinth savestate $56 = $FF"
+      "name": "open_box_item",
+      "what": "The pickup box (type $31: item rooms, enemy drops) that is currently open: the item id of an opened box, $FF when none. A box is opened by the ship's shots (the manual's 'take them out of the boxes'); the handler then stores its item id ($0680, the icon) here and uploads the icon ($85BA, then $81B2) and $8521 lets only the open box act; touching the open box adds the item and sets $56 back to $FF ($8628). The shop's type-$33 items do not use it (a shop purchase never changes it). CORRECTION: first recorded as 'shop_item_standing', a lead.",
+      "status": "checked",
+      "evidence": "bank 2 $84F8-$8532, $858E-$85BC, $8621-$8628; run on the model: a type-$31 box with item 6, shot at: $56 = 6 at frame 70, touched: box removed, weapon 6 gained, $56 = $FF"
     },
     {
       "addr": "$57",
@@ -543,10 +543,10 @@
     },
     {
       "addr": "$5F",
-      "name": "start_cleared_5F",
-      "what": "Cleared to 0 by the game-start code with the other per-game state ($A5, $A0, $3C, $3E, $42-$44, $70, $2E, $49), and written nowhere else in the traced code. Nothing traced reads it: a flag whose reader is not found, or a leftover.",
-      "status": "lead",
-      "evidence": "bank 0 $8078; the whole-ROM trace has no other access"
+      "name": "never_read_5F",
+      "what": "Cleared to 0 by the game-start code with the other per-game state ($A5, $A0, $3C, $3E, $42-$44, $70, $2E, $49) and never read: a byte scan of the whole ROM for every zero-page opcode with operand $5F (and for indirect uses through $5E) finds one real instruction, this store; the other 50 hits are inside graphics and other data or inside operands. A leftover.",
+      "status": "confirmed",
+      "evidence": "bank 0 $8078; byte scan of the whole ROM (51 pairs, 1 real instruction start)"
     },
     {
       "addr": "$60",
@@ -700,11 +700,31 @@
     },
     {
       "addr": "$80",
-      "name": "oam_alloc",
-      "what": "The sprite allocator (a two-ended fill). $80 is the next free OAM offset; $81/$82 are limits; $83 flags. Bit 0 of $83 clear: fill upward from offset 4 (offset 0 is sprite 0, the split marker, never touched), $80 = last + 4 ($CE61); bit 0 set: fill downward from $FC, $80 = last - 4 ($CE71). Running out upward ORs $82 (bits 7 and 1) into $83, running out downward sets bit 7 and restarts $80 at $FC. $CDB4 clears bits 7 and 1 at the start of a frame, and $CE88 hides the unused rest. The direction flips so overflowing sprites flicker alternately. $81/$82's exact roles and the toggle of bit 0 were not followed.",
-      "status": "lead",
-      "evidence": "bank 7 $CDA2-$CDD6, $CE5B-$CE87, $CE88-$CEDB",
-      "end": "$83"
+      "name": "oam_next",
+      "what": "The sprite allocator's next free OAM offset. A frame fills OAM in one of two directions, chosen by $83 bit 0: upward from offset 4 (offset 0 is sprite 0, the split marker, never touched; $CDB4 sets $80 = 4) with $80 = last + 4 ($CE61), or downward from $FC (the start-of-frame code sets $FC, $CDD4) with $80 = last - 4 ($CE71). Each sprite is written by $CDD7/$CF05 at OAM[$80].",
+      "status": "checked",
+      "evidence": "bank 7 $CDB4-$CDD6, $CDD7, $CE5B-$CE87; run on the calm and boss savestates"
+    },
+    {
+      "addr": "$81",
+      "name": "oam_down_extent",
+      "what": "The lowest OAM offset the last downward-filled frame used (it starts at $FC and steps down; the boss fight with 63-64 sprites walks $FC, $F4, $F0, $EC). At the end of a downward frame $CEE2 copies $80 into it; $CE88 uses it and $82 to hide the stale sprites between the two extents.",
+      "status": "checked",
+      "evidence": "bank 7 $CEAC-$CEB2, $CED9, $CEE2-$CEE4, $CEFC; the boss savestate log"
+    },
+    {
+      "addr": "$82",
+      "name": "oam_up_extent",
+      "what": "The first free offset after the last upward-filled frame ($CEC5 copies $80 into it; 0 when that frame ran out of OAM). Starts at 4 ($CDAD).",
+      "status": "checked",
+      "evidence": "bank 7 $CDAD, $CE99-$CEC5; the calm savestate ($82 tracks $80) and the boss savestate ($82 = 0)"
+    },
+    {
+      "addr": "$83",
+      "name": "oam_flags",
+      "what": "Allocator flags. Bit 0 = this frame's direction (0 upward from 4, 1 downward from $FC), flipped at the end of the frame ($CEFE: EOR #1) when the list ran out of OAM (bit 7) or when the PPU's sprite-overflow flag ($26 bit 5) was set; in the calm corridor, with neither, it never changes. Bit 1 = full, set when the upward fill reaches the end ($CE6B, ORA #$82), and makes the drawer skip its sprites ($CDD9). Bit 7 = the fill wrapped (downward below offset 4, $CE7F; or ORA #$82 upward). $CDB8 clears bits 7 and 1 at each frame start. Bit 2 is set once at start-up (bank 6 $8057 stores 4) and never cleared: with only that bit the flip depends on the overflow flag. Which sprites get dropped when a line has more than 8 therefore alternates frame by frame.",
+      "status": "checked",
+      "evidence": "bank 7 $CDB4-$CDD6, $CE5B-$CEDB, $CEFE-$CF04; bank 6 $8055-$8057; run: calm $83 = $04 throughout, boss $83 cycles $84-$87 with the direction flipping every frame"
     },
     {
       "addr": "$84",
@@ -1157,10 +1177,10 @@
     },
     {
       "addr": "$0318",
-      "name": "sound_ctl",
-      "what": "ORed with each active channel's control byte during a tick, bit 5 = a channel muted all.",
-      "status": "lead",
-      "evidence": "bank 0 $96BF-$96D5"
+      "name": "sound_ctl_or",
+      "what": "A sticky OR of the channels' control bytes: $96CF-$96D5 ORs each channel's control field in, and only the silence routine ($96A9-$96BB) clears it. The one reader, $96BF, tests bit 5 and if set ORs $40 into $03E4. No song header (control values 0-4 and 6) and no stream command ever sets control bit 5 (command $88's field offsets in all 72 songs are 112 and 119, i.e. fields 16 and 17; $956B writes only bits 0-1), so that branch is never taken. CORRECTION: 'bit 5 = a channel muted all' was a guess.",
+      "status": "confirmed",
+      "evidence": "bank 0 $96A9-$96D5, $93A1-$93A9, $956B; all 72 song headers and every $88 operand in the 132 tracks scanned"
     },
     {
       "addr": "$0319",
