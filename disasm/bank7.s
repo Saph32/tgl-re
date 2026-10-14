@@ -3041,7 +3041,7 @@ L7_E15F:
 ; "AREA" at $E162
         .byte   $04,$27,$62,$41,$52,$45,$41
 
-; ---- bank7.code_E169 (code) $E169-$E3F8, 656 bytes
+; ---- bank7.code_E169 (code) $E169-$E1A2, 58 bytes
         lda     #$27
         sta     $19
         lda     #$66
@@ -3068,6 +3068,8 @@ L7_E17C:
         lda     #$59
         sta     $0103,Y
         jmp     L7_D6F7
+
+; ---- bank7.code_E1A3 (code) $E1A3-$E1C2, 32 bytes
 L7_E1A3:
         sty     $12
         ldy     #$00
@@ -3090,6 +3092,8 @@ L7_E1BE:
         adc     #$0A
         ldy     $12
         rts
+
+; ---- bank7.code_E1C3 (code) $E1C3-$E1D2, 16 bytes
 L7_E1C3:
         lda     #$27
         sta     $19
@@ -3099,6 +3103,8 @@ L7_E1C3:
 L7_E1CD:
         jsr     L7_E1D3
         jmp     L7_D6F7
+
+; ---- bank7.code_E1D3 (code) $E1D3-$E212, 64 bytes
 L7_E1D3:
         pha
         lda     #$06
@@ -3132,6 +3138,8 @@ L7_E200:
         lda     $18
         sta     $0102,Y
         rts
+
+; ---- bank7.code_E213 (code) $E213-$E24A, 56 bytes
 L7_E213:
         lda     $4C
         sta     $16
@@ -3165,6 +3173,8 @@ L7_E239:
         sta     $18
         lda     #$27
         sta     $19
+
+; ---- bank7.code_E24B (code) $E24B-$E30B, 193 bytes
 L7_E24B:
         txa
         pha
@@ -3268,6 +3278,8 @@ L7_E304:
         pla
         tax
         jmp     L7_D6F7
+
+; ---- bank7.code_E30C (code) $E30C-$E3F8, 237 bytes
 L7_E30C:
         lda     $49
         sta     $15
@@ -3418,7 +3430,7 @@ L7_E3E4:
 ; Meter row masks
         .byte   $EE,$FE,$FF,$FF,$EE
 
-; ---- bank7.code_E406 (code) $E406-$E6F2, 749 bytes
+; ---- bank7.code_E406 (code) $E406-$E423, 30 bytes
 L7_E406:
         and     #$FF
         beq     L7_E422
@@ -3439,6 +3451,8 @@ L7_E422:
         sec
 L7_E423:
         rts
+
+; ---- bank7.code_E424 (code) $E424-$E6F2, 719 bytes
 L7_E424:
         lsr     A
         lsr     A

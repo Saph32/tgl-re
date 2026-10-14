@@ -252,7 +252,7 @@ Do not re-derive these; do check anything that depends on them.
     set 1 8/8 labyrinth, set 2 32/32 password.
 - **One other confirmed CHR write.** Bank 7 `$E3CC` queues 5 bytes at PPU `$1FF9` — inside
   tile `$FF` of pattern table 1 — from the mask tables at `$E3F9` and `$E401`: a status
-  meter redrawing part of a character tile.
+  meter redrawing part of a character tile. That is the LIFE METER's partial segment (see the HUD entry below).
 - **The tile codec is FOUND. A block toggles between two modes and picks its own toggle
   byte.** A block is `[escape][unknown]`, decoding starts in literal mode, the escape
   switches into a run section of `[value][count]` pairs, the escape switches back, and
@@ -916,6 +916,20 @@ Do not re-derive these; do check anything that depends on them.
   Also settled from the RAM leads (14 of 18 now confirmed, see ram.json): `$17F` palette upload 1/2/3 = BG / sprite / both (run), `$20` = pending queue entries, `$60` bit 1 = script
   running, bit 3 = spawning stopped, `$6C-$6F` = the movement test (`$6D` y-step cell, `$6E` x-step cell, `$6F` bits 7/6 = same row/column), `$0199` = attribute patterns (CORRECTION:
   not 'palette slot indices'). (The last four, `$56`, `$5F`, `$80-$83`, `$0318`, are settled in the entry below.)
+- **The HUD's number printers and the life meter, bank 7 `$E169-$E3F8`, `$E406-$E423` (`annotations/regions/24-hud.json`; the 'HUD code at `$E24B-$E3CC`' task).**
+  Eight regions replace the generated extent card. **`$E24B` (slot `$C04E`) prints any 16-bit value in `$17:$16` as up to four digits at PPU `$19:$18`**: left-justified,
+  leading zeros blanked, **everything from 10,000 up shows 9999**; the shop uses it for prices (bank 2 `$851B`). **`$E213` (slot `$C05A`, also `$FD0B`)** sets the gun
+  tier `$3A` from the chips (high byte >= 8 -> 3; else other non-zero high byte -> 2; low byte >= `$C8` -> 2, >= `$64` -> 1, else 0) and points the printer at `$272F` (row 25 after CHIP),
+  falling through into it. `$E1A3` splits a byte into decimal digits, `$E1D3` queues a blank-suppressed 3-digit number (not committed), `$E1C3` (slot `$C072`) prints `$3E`, the uses left,
+  at `$2739`, and `$E169` (entered by falling through from the label routine `$E15F`) draws row 27: area (`$50`, or `$51` in TGL), then `$52`/`$53` with the letters X/Y written over
+  the hundreds cell (so 255 shows as X55). **`$E30C` is the LIFE METER** (called first by `$E0F9` every frame): `$49` (shown) steps one unit per frame toward `$48` (real); the bar is
+  8-pixel tiles - count ((v-1)/8)+1, fill of the last (v-1) AND 7 - at row 26: tile `$23` (life icon), the tile COUNT as a number (not the life) at `$2740`, then bar tiles `$21` full /
+  `$FF` the partial / `$22` empty from PPU `$2743`. Within a tile only the partial tile is redrawn: **5 bytes queued for PPU `$1FF9` (plane 1 rows 1-5 of tile `$FF`) = `$E3F9[fraction]`
+  (80 C0 E0 F0 F8 FC FE FF) AND `$E401` (EE FE FF FF EE)**, i.e. the bar's end is drawn by editing CHR RAM; across a tile boundary it also queues the number, the new `$FF` tile and
+  the old end tile (`$22` draining, `$21` filling) through `$E406`; no room in the queue = retry next frame. **RUN:** chip counts 0...65535 (all as listed on the page), life 160 -> 32 -> 112
+  stepping one unit per frame (tile `$FF` bytes ee fe ff ff ee -> ec fc fc fc ec -> e8 f8 f8 f8 e8 -> e0 f0 f0 f0 e0 -> 80 x5), AREA/X/Y and SHOT rows. `$E424` (reached from the score bonus,
+  `$DFAE`) draws the bar's new empty end tile when max life grows - not run. NOT established: `$E110` (the score row) and `$E0F9`'s other branches were not re-read here; hardware.
+  Harness lesson: the HUD only redraws on a CHANGE, so a snapshot of a steady state shows stale text.
 - **Object helpers, bank 7 `$FA5B-$FCE6` (`annotations/regions/23-object-helpers.json`; found as the largest stretch of traced code nothing explained).**
   Ten regions now replace the generated extent-only cards. **`$FA5B`** find a free slot (5-23; slot `$C108`). **`$FA6B`** pixel position -> PPU address of the
   8x8 tile (`$2000 + 32(y/8) + x/8`) and attribute offset (slot `$C111`). **`$FA96` BREAK A BLOCK** (slot `$C117`; callers: the weapon-hits-cell code bank 6 `$854B`,
