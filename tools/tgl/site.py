@@ -567,9 +567,11 @@ def _item_box_section(rm) -> str:
              "first box on the fourth kill. The pickups were run on the real routine from life 32: "
              "<code>$14</code> +40 life; <code>$15</code> +500 chips and +16 life; "
              "<code>$16</code> +10 chips and +8 life; <code>$0C</code> full life; "
-             "<code>$0B</code> +16 life and 20 Eraser uses. <strong>Not established:</strong> how "
-             "the box is opened (it is shot, which fits the manual; the handler was not followed "
-             "through), the weights' extent past type <code>$77</code>, and the labyrinth's "
+             "<code>$0B</code> +16 life and 20 Eraser uses. <strong>How a box opens (run in the labyrinth):</strong> "
+             "touching a closed box does nothing; the ship's shots open it (the handler records its item in "
+             "<code>$56</code> and uploads the icon), and touching the open box adds the item and removes it "
+             "&mdash; item 6 gave weapon 6. A corridor box was not tried. <strong>Not established:</strong> "
+             "the weights' extent past type <code>$77</code>, and the labyrinth's "
              "cell-category table <code>$822D</code> beyond what it blocks. Nothing here was "
              "played on hardware.</div>")
     return "".join(o)
