@@ -5495,7 +5495,7 @@ L7_F269:
 ; Table, 9 bytes (structural extent)
         .byte   $90,$DC,$70,$80,$90,$28,$70,$78,$38
 
-; ---- bank7.code_F282 (code) $F282-$F46E, 493 bytes
+; ---- bank7.code_F282 (code) $F282-$F28F, 14 bytes
 L7_F282:
         jsr     L7_EDD1
         jsr     L7_D4E3
@@ -5503,6 +5503,8 @@ L7_F282:
         beq     L7_F290
         cmp     #$16
         bne     L7_F2A0
+
+; ---- bank7.code_F290 (code) $F290-$F29F, 16 bytes
 L7_F290:
         lda     #$00
         sta     $0680
@@ -5510,6 +5512,8 @@ L7_F290:
         lda     #$BF
         sta     $0200
         jmp     L7_F452
+
+; ---- bank7.code_F2A0 (code) $F2A0-$F2AD, 14 bytes
 L7_F2A0:
         cmp     #$0B
         bcc     L7_F2A6
@@ -5520,11 +5524,17 @@ L7_F2A6:
         lda     #$0A
 L7_F2AC:
         sta     $50
+
+; ---- bank7.code_F2AE (code) $F2AE-$F2B3, 6 bytes
         lda     $30
         and     #$02
         bne     L7_F290
+
+; ---- bank7.code_F2B4 (code) $F2B4-$F2B8, 5 bytes
         lda     #$1D
         jsr     L7_D852
+
+; ---- bank7.code_F2B9 (code) $F2B9-$F2D8, 32 bytes
         lda     #$00
 L7_F2BB:
         sta     $0680
@@ -5539,6 +5549,8 @@ L7_F2BB:
         jsr     L5_8000
         jsr     L7_D7C3
         jsr     L7_D748
+
+; ---- bank7.code_F2D9 (code) $F2D9-$F2F5, 29 bytes
         lda     #$FF
         ldy     $0680
         beq     L7_F2ED
@@ -5552,6 +5564,8 @@ L7_F2ED:
         jsr     L4_8000
         jsr     L7_E560
         jsr     L7_E5BD
+
+; ---- bank7.code_F2F6 (code) $F2F6-$F335, 64 bytes
         ldy     #$30
         lda     $0680
         beq     L7_F2FF
@@ -5580,15 +5594,21 @@ L7_F32C:
         lda     #$05
         sta     $0500
         ldx     #$00
+
+; ---- bank7.code_F336 (code) $F336-$F33D, 8 bytes
         jsr     L7_CD99
         lda     #$BF
         jsr     L7_EDE5
+
+; ---- bank7.code_F33E (code) $F33E-$F34A, 13 bytes
 L7_F33E:
         jsr     L7_E66A
         jsr     L7_CDB4
         ldx     #$00
         lda     $0680
         beq     L7_F3A7
+
+; ---- bank7.code_F34B (code) $F34B-$F3A6, 92 bytes
         ldy     #$00
         lda     $51
         cmp     #$15
@@ -5633,6 +5653,8 @@ L7_F39F:
         lda     #$16
         sta     $0548
         jmp     L7_F3F6
+
+; ---- bank7.code_F3A7 (code) $F3A7-$F3FB, 85 bytes
 L7_F3A7:
         lda     $0638
         cmp     #$22
@@ -5676,6 +5698,8 @@ L7_F3E7:
 L7_F3F6:
         lda     $0788
         jsr     L7_CD12
+
+; ---- bank7.code_F3FC (code) $F3FC-$F438, 61 bytes
 L7_F3FC:
         jsr     L7_CBE8
         php
@@ -5706,6 +5730,8 @@ L7_F420:
         ldy     #$01
         jsr     L7_FFD1
         jmp     L7_F33E
+
+; ---- bank7.code_F439 (code) $F439-$F457, 31 bytes
 L7_F439:
         jsr     L7_EDD1
 L7_F43C:
@@ -5721,6 +5747,8 @@ L7_F43C:
 L7_F452:
         jsr     L7_F717
         jmp     L7_F705
+
+; ---- bank7.code_F458 (code) $F458-$F46E, 23 bytes
 L7_F458:
         and     #$E7
         sta     $30

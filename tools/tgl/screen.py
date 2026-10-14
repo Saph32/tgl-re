@@ -62,7 +62,8 @@ from __future__ import annotations
 
 ENTRY_TABLE = 0x8013      # 25 pointers, indexed by (area + 2) * 2
 ENTRY_COUNT = 25
-FIRST_AREA = -2           # entry 0 is two slots below area 0
+FIRST_AREA = -2           # entry 0 is two slots below area 0; entries 0 and 1 are the launch flight's blocks
+                          # ($826D for the corridor-21 landing, $81ED for every other flight; bank 7 $F2D9)
 DISPATCH = 0xE6F3         # bank 7, ten handlers
 TRIGGER_BYTES = 2         # the [next trigger] suffix on every record
 AREA_21 = 0x15            # the area whose command 5 takes an operand

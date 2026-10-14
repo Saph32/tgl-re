@@ -916,6 +916,22 @@ Do not re-derive these; do check anything that depends on them.
   Also settled from the RAM leads (14 of 18 now confirmed, see ram.json): `$17F` palette upload 1/2/3 = BG / sprite / both (run), `$20` = pending queue entries, `$60` bit 1 = script
   running, bit 3 = spawning stopped, `$6C-$6F` = the movement test (`$6D` y-step cell, `$6E` x-step cell, `$6F` bits 7/6 = same row/column), `$0199` = attribute patterns (CORRECTION:
   not 'palette slot indices'). (The last four, `$56`, `$5F`, `$80-$83`, `$0318`, are settled in the entry below.)
+- **The corridor start and its launch flight, bank 7 `$F282-$F46E` (`annotations/regions/26-corridor-launch.json`, 15 regions; the 'corridor start' task).**
+  Entered by `JSR $EC99` from the corridor loader (`$EC8C` has just read the map record, so **bank 5 is live**). `$EDD1` FADES to black (target palette `$04D0-$04E7` + `$0180` = `$0F`, `$EDBD`
+  steps `$D950` every 2 frames: 8 frames), rendering off. **Corridors 0 and 22 and EVERY TGL corridor take `$F290`: no flight** (load the ship's sprite sheet, bank 2 block 5 -> PPU `$0000`, sprite 0 y `$BF`, to `$F452`).
+  Corridors 1-21 of a normal game: `$50` = the corridor folded onto 1-10 (`$F2A0`, 11-20 -> 1-10, 21 -> 10), sound `$1D`, `$0680` := A (**the MODE: 0 take-off; 1 landing, entered from the stage-clear code
+  at `$F6BE` with A = 1 jumping to `$F2BB`**), `$30 |= $48`, bank 5 `$8000` with A = 0 and `$20` (the common scenes 0 and 32: a BLUE PANEL TUNNEL, the same for every corridor), wait,
+  then bank 4's entry with A = `$FF` -> table entry 1 = **`$81ED`, the flight's screen-data block** (speed `$0600` at once = 6 px a frame, row table, palette list, overlays, no waves); `$FE` ->
+  entry 0 = `$826D` only for mode 1 AND corridor 21 (sound `$2D`) - never reached as far as read (LEAD). The parser's 'area -2/-1' are these. **Ship:** slot 0 = type `$05`, x `$80`, mode 0: y `$30`,
+  velocity +0.5 px a frame; mode 1: y `$C8`, -0.25. **Loop `$F33E`:** `$E66A` (scroll step + speed ramp), `$CDB4`, per-mode motion, `$CBE8` draws the ship, the exhaust flame (metasprite `$1D`, tile base
+  `$32`/`$34` by `$41` bit 1) while rising, `$CE88`, `$F493` pads (a NEW Select opens the status screen even here), wait 1 frame. **Phase `$0638`** (`$CD7A`; steps `$30`/`$60` in mode 0, `$80`/`$60` in
+  mode 1) picks the pose: mode 0: id 22 for phases 0-9, 22 -> 14 (`$F46F`) for 10-18, 4 3 2 for 19-21, then `$F47B[(phase-10) mod 12]` = 1 2 3 4 5 6 7 6 5 4 3 2 with attribute `$F487`, pose 1 from `$46`; thrust
+  `$0788` = `$20` from phase `$40` (accelerates up through `$CD12`); mode 1 mirrors it (cycle for phases < `$60`; 1 2 3 4 then 14 ... 21 for `$60`-`$6B`; 22 from `$6C`; thrust 8). `$F9AE` is an 8-bit
+  division (Y mod A). **The scene ends when the ship leaves the top (`$CBE8` carry): 318 frames in mode 0 (frames 26-344), then `$F717`/`$F705` load more sprite tiles and the routine returns to `$EC9C` -> `$EF6C`.**
+  **Select HELD from before the scene starts exits at the first pass** (`$F7` bit 5, frame 26 in the run) - a hidden skip; a Select TAP opens the status screen. Mode 1's tail (`$F458`): `$30` bits 3-4 off,
+  slot 0's hit-box x bytes zeroed, the labyrinth ship's sprite sheet (block 4) unless TGL. **Harness lesson (cost me a wrong result):** `JSR $8000` goes to the LIVE bank, so a corridor start run from a
+  savestate must set bank 5 (as `$EC8C` does) - with the savestate's bank 6 the call far-called the ship's handler, bumped `$0680` (slot 0 field 16 = the mode!) and made every start look like mode 1; the
+  full sweep (corridors 0-22, normal and TGL) with bank 5: `$0680` = 0 and the ship at y 48 for all of 1-21. Run on the model, not hardware; the corridor-21 landing and `$F717`/`$F705` are not read through.
 - **The labyrinth room-change scrolls, bank 7 `$F09A-$F268` (`annotations/regions/25-room-scroll.json`, 24 regions; the 'F169-F258' task).** `$F09A` (called by
   `JSR $EBC6`) dispatches on the exit `$A4`: 0 -> **north `$F169`**, 8 -> south `$F10D`, else the horizontal arm `$F0A8`; every arm ends in the shared tail and `JMP $8006` (bank 5
   `$8354`, the cell classes). **North:** `$30` bit 4 set (the NMI then moves the split marker with the scroll), `$AE` = 14, `$17:$16` = `$28B0` (`$16` is also the room-buffer

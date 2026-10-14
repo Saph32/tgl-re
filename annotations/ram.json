@@ -1488,7 +1488,7 @@
     {
       "f": 16,
       "name": "target_x",
-      "what": "The x the object accelerates toward ($CD46). Reused as the type a beam's parent must keep ($FB76-$FB7E); the labyrinth seal tests keep a counter or a baseline here too ($A21D, $A1E0).",
+      "what": "The x the object accelerates toward ($CD46). Reused as the type a beam's parent must keep ($FB76-$FB7E); the labyrinth seal tests keep a counter or a baseline here too ($A21D, $A1E0). The corridor launch routine ($F2BB) stores its MODE here (0 take-off, 1 landing) and the type-$05 flight ship reads it back at $F2F8 and $F346; it survives the scene loads only if bank 5 is live.",
       "status": "confirmed",
       "evidence": "bank 7 $CD46; bank 6 $90C1"
     },
