@@ -916,6 +916,22 @@ Do not re-derive these; do check anything that depends on them.
   Also settled from the RAM leads (14 of 18 now confirmed, see ram.json): `$17F` palette upload 1/2/3 = BG / sprite / both (run), `$20` = pending queue entries, `$60` bit 1 = script
   running, bit 3 = spawning stopped, `$6C-$6F` = the movement test (`$6D` y-step cell, `$6E` x-step cell, `$6F` bits 7/6 = same row/column), `$0199` = attribute patterns (CORRECTION:
   not 'palette slot indices'). (The last four, `$56`, `$5F`, `$80-$83`, `$0318`, are settled in the entry below.)
+- **The labyrinth room-change scrolls, bank 7 `$F09A-$F268` (`annotations/regions/25-room-scroll.json`, 24 regions; the 'F169-F258' task).** `$F09A` (called by
+  `JSR $EBC6`) dispatches on the exit `$A4`: 0 -> **north `$F169`**, 8 -> south `$F10D`, else the horizontal arm `$F0A8`; every arm ends in the shared tail and `JMP $8006` (bank 5
+  `$8354`, the cell classes). **North:** `$30` bit 4 set (the NMI then moves the split marker with the scroll), `$AE` = 14, `$17:$16` = `$28B0` (`$16` is also the room-buffer
+  offset of the band: `$B0` = band 11, the bottom, because the room enters from the top), every 16 px (`$A6` AND `$0F` = 0) wait for queue room (`$E5EB`) and draw a band (`$F03D`, net
+  `$16` - 16), every frame ship y + 3, `$A6` - 4 (first step wraps 0 -> `$EC`, `$A7` flips), `$E522` (commit the scroll variables to the shadow registers; `$D507` derives `$A2`),
+  `$F258` (the ship's frame only: `$CDB4`, bank 3 `$8F89` = the ship's ANIMATION step, `$CBFC` draw, `$CE88` finish) until `$A6` = `$30`: **48 frames, 12 bands**. RUN: ship y 14 -> 158,
+  tail at frame 74, `JMP $8006` 29 frames later. **South:** the mirror, `$A6` 0 -> 192, ship y - 3 (177 -> 33), and each band goes through `$F204`, which also keeps a 2-deep record of column
+  0 (`$AD:$AC`, `$0130`, `$0150`) at `$0400,Y` and re-queues it two calls later as a vertical 2-tile run (`$82`) - purpose a LEAD (observed addresses `$2300 $2340 $2380 $2800 ...`).
+  **Horizontal:** thin the split tile, draw the incoming room into NT1, fill row 24 of NT0 and NT1 (cols 1-31) with the solid tile `$FE`, then `$A8` +/-4 for 64 frames; the ship moves **alternately 3 and
+  4 px** (`SBC #3` with a leftover carry from unused `LSR`s; measured -3, -4, -3, -4 ..., 220 px), CORRECTING the Rendering page's "3 px a frame" (true of N/S only). **The `$1FEA` fills** (`$D5CC` writes
+  `count` bytes: `06 1F EA 00` = 6 bytes): tile `$FE` is plane 0 `00`, plane 1 `FF` (solid colour 2); the fill zeroes plane-1 rows 2-7, leaving two opaque lines, and `06 1F EA FF` restores it
+  (measured). Done for the whole horizontal scroll and, for N/S, from the end of the scroll to the re-home; WHY is a LEAD. **Re-home** (`$F1C6` N/S only, `$F1DA` shared): the room is drawn into NT1
+  (`$EFF3` with A = `$24`), scroll zeroed with `$A9` = 1, commit, then drawn into NT0 (A = `$20`), scroll all 0, commit, blank `$2700` row (32 x `$20`), restore the tile, blank `$2400` row 0 - **a redraw from the
+  buffer, not a copy** (CORRECTS the Rendering page). Helpers: `$FFD1` (slot `$C021`) waits Y frames; `$E522` (slot `$C087`) commits the scroll; `$E5EB` spins until the PPU queue offset `$21` < `$31`
+  (its ~12,600 hits per exit are the spin); `$EFF3` draws a whole room into the nametable whose high byte is in A. West was not run (the savestate's west side is a wall); the east/north/south runs used
+  the labyrinth savestate with the pad held (Up from y `$34`, x `$78`; Down; Right from y `$78`, x `$D8`).
 - **The HUD's number printers and the life meter, bank 7 `$E169-$E3F8`, `$E406-$E423` (`annotations/regions/24-hud.json`; the 'HUD code at `$E24B-$E3CC`' task).**
   Eight regions replace the generated extent card. **`$E24B` (slot `$C04E`) prints any 16-bit value in `$17:$16` as up to four digits at PPU `$19:$18`**: left-justified,
   leading zeros blanked, **everything from 10,000 up shows 9999**; the shop uses it for prices (bank 2 `$851B`). **`$E213` (slot `$C05A`, also `$FD0B`)** sets the gun
@@ -1050,8 +1066,8 @@ Do not re-derive these; do check anything that depends on them.
   wraps 0->239 with `$A7` toggling, a 16-px row every `$AF` overflow (`$AE` 14..0, `$EACC` -> `$AC/$AD`, written in two
   NMIs), 4-6 tile rows above the window top. **Labyrinth:** room = NT0 rows 0-23 at rest; exits (`$A4` 0/2/6/8 = N/W/E/S):
   E/W scroll `$A8` +/-4 a frame, 64 frames, new room drawn in NT1 first (W starts at `$A8`=252 with `$A9`=1), N/S `$A6`
-  +/-4, 48 frames, new room drawn into the rows being uncovered; ship moves 3 px a frame the other way; then re-homed
-  into NT0 (E/W: copy NT1->NT0; N/S: draw to NT1, flip, draw to NT0, flip) because the cell-editing code (`$D865`)
+  +/-4, 48 frames, new room drawn into the rows being uncovered; ship moves the other way (N/S exactly 3 px a frame; E/W alternately 3 and 4 - CORRECTED, see the room-scroll entry); then re-homed
+  into NT0 (E/W: the room is REDRAWN into NT0 from the room buffer, not copied; N/S: draw to NT1, flip, draw to NT0, flip) because the cell-editing code (`$D865`)
   assumes NT0. **Status screen:** `$A2`=1, `$FC`=180, NT1, no split (HUD rows wrap to the top). All measured on the NES
   model (`tools/render-scroll.py --corridor ... --labyrinth ...`, images committed); no hardware. NOT established: the
   IRQ path run, `$F0A8-$F0C1` inline fills, the title/ending/password screens' scrolling.

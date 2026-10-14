@@ -5149,7 +5149,7 @@ L7_F010:
 ; Inline argument at $F036
         .byte   $40,$23,$80,$20
 
-; ---- bank7.code_F03A (code) $F03A-$F0AA, 113 bytes
+; ---- bank7.code_F03A (code) $F03A-$F099, 96 bytes
 L7_F03A:
         jmp     L7_D7C3
 L7_F03D:
@@ -5203,6 +5203,8 @@ L7_F084:
 L7_F097:
         sta     $A5
         rts
+
+; ---- bank7.code_F09A (code) $F09A-$F0A7, 14 bytes
 L7_F09A:
         lda     $A4
         bne     L7_F0A1
@@ -5211,11 +5213,13 @@ L7_F0A1:
         cmp     #$08
         bne     L7_F0A8
         jmp     L7_F10D
+
+; ---- bank7.code_F0A8 (code) $F0A8-$F0AA, 3 bytes
 L7_F0A8:
         jsr     L7_D5CC
 
-; ---- bank7.inline_F0AB (data) $F0AB-$F0AE, 4 bytes
-; Inline argument at $F0AB
+; ---- bank7.fill_F0AB (data) $F0AB-$F0AE, 4 bytes
+; Fill arguments: 6 bytes of $00 at PPU $1FEA
         .byte   $06,$1F,$EA,$00
 
 ; ---- bank7.code_F0AF (code) $F0AF-$F0B6, 8 bytes
@@ -5223,18 +5227,18 @@ L7_F0A8:
         jsr     L7_EFF3
         jsr     L7_D5CC
 
-; ---- bank7.inline_F0B7 (data) $F0B7-$F0BA, 4 bytes
-; Inline argument at $F0B7
+; ---- bank7.fill_F0B7 (data) $F0B7-$F0BA, 4 bytes
+; Fill arguments: 31 bytes of $FE at PPU $2301
         .byte   $1F,$23,$01,$FE
 
 ; ---- bank7.code_F0BB (code) $F0BB-$F0BD, 3 bytes
         jsr     L7_D5CC
 
-; ---- bank7.inline_F0BE (data) $F0BE-$F0C1, 4 bytes
-; Inline argument at $F0BE
+; ---- bank7.fill_F0BE (data) $F0BE-$F0C1, 4 bytes
+; Fill arguments: 31 bytes of $FE at PPU $2701
         .byte   $1F,$27,$01,$FE
 
-; ---- bank7.code_F0C2 (code) $F0C2-$F1C1, 256 bytes
+; ---- bank7.code_F0C2 (code) $F0C2-$F10C, 75 bytes
 L7_F0C2:
         ldy     #$01
         jsr     L7_FFD1
@@ -5275,6 +5279,8 @@ L7_F100:
         lda     $A8
         bne     L7_F0C2
         jmp     L7_F1DA
+
+; ---- bank7.code_F10D (code) $F10D-$F168, 92 bytes
 L7_F10D:
         lda     $30
         ora     #$10
@@ -5320,6 +5326,8 @@ L7_F147:
         bne     L7_F127
         jsr     L7_F20A
         jmp     L7_F1B9
+
+; ---- bank7.code_F169 (code) $F169-$F1B8, 80 bytes
 L7_F169:
         lda     $30
         ora     #$10
@@ -5362,17 +5370,19 @@ L7_F1AD:
         lda     $A6
         cmp     #$30
         bne     L7_F17B
+
+; ---- bank7.code_F1B9 (code) $F1B9-$F1C1, 9 bytes
 L7_F1B9:
         lda     $30
         and     #$EF
         sta     $30
         jsr     L7_D5CC
 
-; ---- bank7.inline_F1C2 (data) $F1C2-$F1C5, 4 bytes
-; Inline argument at $F1C2
+; ---- bank7.fill_F1C2 (data) $F1C2-$F1C5, 4 bytes
+; Fill arguments: 6 bytes of $00 at PPU $1FEA
         .byte   $06,$1F,$EA,$00
 
-; ---- bank7.code_F1C6 (code) $F1C6-$F1EE, 41 bytes
+; ---- bank7.code_F1C6 (code) $F1C6-$F1D9, 20 bytes
         lda     #$24
         jsr     L7_EFF3
         lda     #$00
@@ -5382,6 +5392,8 @@ L7_F1B9:
         lda     #$01
         sta     $A9
         jsr     L7_E522
+
+; ---- bank7.code_F1DA (code) $F1DA-$F1EE, 21 bytes
 L7_F1DA:
         lda     #$20
         jsr     L7_EFF3
@@ -5393,26 +5405,28 @@ L7_F1DA:
         jsr     L7_E522
         jsr     L7_D5CC
 
-; ---- bank7.inline_F1EF (data) $F1EF-$F1F2, 4 bytes
-; Inline argument at $F1EF
+; ---- bank7.fill_F1EF (data) $F1EF-$F1F2, 4 bytes
+; Fill arguments: 32 blanks at PPU $2700
         .byte   $20,$27,$00,$20
 
 ; ---- bank7.code_F1F3 (code) $F1F3-$F1F5, 3 bytes
         jsr     L7_D5CC
 
-; ---- bank7.inline_F1F6 (data) $F1F6-$F1F9, 4 bytes
-; Inline argument at $F1F6
+; ---- bank7.fill_F1F6 (data) $F1F6-$F1F9, 4 bytes
+; Fill arguments: 6 bytes of $FF at PPU $1FEA
         .byte   $06,$1F,$EA,$FF
 
 ; ---- bank7.code_F1FA (code) $F1FA-$F1FC, 3 bytes
         jsr     L7_D5CC
 
-; ---- bank7.inline_F1FD (data) $F1FD-$F200, 4 bytes
-; Inline argument at $F1FD
+; ---- bank7.fill_F1FD (data) $F1FD-$F200, 4 bytes
+; Fill arguments: 32 blanks at PPU $2400
         .byte   $20,$24,$00,$20
 
-; ---- bank7.code_F201 (code) $F201-$F25F, 95 bytes
+; ---- bank7.code_F201 (code) $F201-$F203, 3 bytes
         jmp     L5_8006
+
+; ---- bank7.code_F204 (code) $F204-$F257, 84 bytes
 L7_F204:
         jsr     L7_E5EB
         jsr     L7_F03D
@@ -5449,18 +5463,22 @@ L7_F250:
         adc     #$04
         sta     $0440
         rts
+
+; ---- bank7.code_F258 (code) $F258-$F25F, 8 bytes
 L7_F258:
         jsr     L7_CDB4
         ldx     #$00
         jsr     L7_D76F
 
-; ---- bank7.inline_F260 (data) $F260-$F262, 3 bytes
-; Far-call argument at $F260
+; ---- bank7.fill_F260 (data) $F260-$F262, 3 bytes
+; Far-call arguments: bank 3, target $8003
         .byte   $03,$02,$80
 
-; ---- bank7.code_F263 (code) $F263-$F277, 21 bytes
+; ---- bank7.code_F263 (code) $F263-$F268, 6 bytes
         jsr     L7_CBFC
         jmp     L7_CE88
+
+; ---- bank7.code_F269 (code) $F269-$F277, 15 bytes
 L7_F269:
         ldy     $A4
         lda     $F278,Y

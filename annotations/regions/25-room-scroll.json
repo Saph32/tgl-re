@@ -1,0 +1,269 @@
+{
+  "_comment": "Hand-authored. The labyrinth room-change scrolls, bank 7 $F09A-$F268. The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank7.code_F09A",
+      "offset": 127146,
+      "size": 14,
+      "kind": "code",
+      "name": "Room change: pick the scroll by the exit code",
+      "confidence": "confirmed",
+      "cpu_addr": 61594,
+      "sha1": "992ee1e8af4a698e0a063021dd01b5fe5f06c2d9",
+      "description": "Called once, by JSR $EBC6 in the room-change routine, after the new room's data is ready. $A4 is the exit that was taken (set by bank 3 $9045: 0 north, 2 west, 6 east, 8 south): 0 jumps to the north arm $F169, 8 to the south arm $F10D, anything else falls into the horizontal arm at $F0A8. Every arm ends by running the shared tail and a final JMP $8006 (bank 5 $8354, which builds the new room's cell classes), so the whole transition returns to the caller from there. RUN on the labyrinth savestate: the north, south and east exits reached $F169, $F10D and the horizontal arm; west was not run (that room's west side is a wall)."
+    },
+    {
+      "id": "bank7.code_F0A8",
+      "offset": 127160,
+      "size": 3,
+      "kind": "code",
+      "name": "East/west scroll: thin the split tile",
+      "confidence": "confirmed",
+      "cpu_addr": 61608,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "The call to the fill routine $D5CC; the four inline bytes after it are the next region. Tile $FE is the solid split marker: plane 0 all $00, plane 1 all $FF. This clears plane-1 rows 2-7 ($1FEA-$1FEF), leaving only its first two scan lines opaque (measured: 00x8, ff ff 00 00 00 00 00 00). WHY is a LEAD: it is done for the whole horizontal scroll and, for the vertical ones, only after the scroll, for the re-home; the matching restore is the fill at $F1F6."
+    },
+    {
+      "id": "bank7.fill_F0AB",
+      "offset": 127163,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 6 bytes of $00 at PPU $1FEA",
+      "confidence": "confirmed",
+      "cpu_addr": 61611,
+      "sha1": "a39765e05ac5a854393f6c25a3ed4ce4d7e958fe",
+      "description": "[count 6][PPU $1F][$EA][value $00]: $D5CC writes `count` bytes of the value at the address, count 6 here (checked: six CHR bytes changed). Tile $FE is the solid split marker: plane 0 all $00, plane 1 all $FF. This clears plane-1 rows 2-7 ($1FEA-$1FEF), leaving only its first two scan lines opaque (measured: 00x8, ff ff 00 00 00 00 00 00). WHY is a LEAD: it is done for the whole horizontal scroll and, for the vertical ones, only after the scroll, for the re-home; the matching restore is the fill at $F1F6."
+    },
+    {
+      "id": "bank7.code_F0AF",
+      "offset": 127167,
+      "size": 8,
+      "kind": "code",
+      "name": "East/west scroll: draw the incoming room into nametable 1",
+      "confidence": "confirmed",
+      "cpu_addr": 61615,
+      "sha1": "cb3b60ad6fba34223e13021a177a34e4e1ac5fe1",
+      "description": "$EFF3 with A = $24 draws the whole room (twelve 16-pixel bands from the room buffer $0740) into the nametable at PPU $2400, then a fill call. The incoming room is on screen first in NT1 while NT0 still holds the old one; the scroll then slides NT0 out and NT1 in."
+    },
+    {
+      "id": "bank7.fill_F0B7",
+      "offset": 127175,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 31 bytes of $FE at PPU $2301",
+      "confidence": "confirmed",
+      "cpu_addr": 61623,
+      "sha1": "34da15031bf7ec9e7f708d52f317486d7ae80f39",
+      "description": "[count $1F][$23][$01][value $FE]: tile $FE across nametable 0 row 24 (the line at y = 192, where the HUD split fires), columns 1-31; column 0 is left to the room drawer. Read from the code; the picture of the row was not captured."
+    },
+    {
+      "id": "bank7.code_F0BB",
+      "offset": 127179,
+      "size": 3,
+      "kind": "code",
+      "name": "East/west scroll: second marker row",
+      "confidence": "confirmed",
+      "cpu_addr": 61627,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "The fill call whose arguments follow."
+    },
+    {
+      "id": "bank7.fill_F0BE",
+      "offset": 127182,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 31 bytes of $FE at PPU $2701",
+      "confidence": "confirmed",
+      "cpu_addr": 61630,
+      "sha1": "2755cfe65df4aa9acc3542d788689df8ebc3307d",
+      "description": "[count $1F][$27][$01][value $FE]: the same marker row in nametable 1 (row 24, columns 1-31)."
+    },
+    {
+      "id": "bank7.code_F0C2",
+      "offset": 127186,
+      "size": 75,
+      "kind": "code",
+      "name": "East/west scroll loop",
+      "confidence": "confirmed",
+      "cpu_addr": 61634,
+      "sha1": "3bb278a79d60ddf9b76ee72708e18d30ad0b9239",
+      "description": "Waits one frame ($FFD1 with Y = 1: clear $2B and call the frame sync $DA9A Y times), then each frame: east ($A4 not 2) moves the ship's x down and adds 4 to the horizontal scroll $A8 (carrying into $A9 on the wrap); west ($A4 = 2) moves the ship up and subtracts 4 (the loop is the same shape). The ship's step is SBC #3 / ADC #3 with whatever carry the preceding LSRs left, so it ALTERNATES 3 and 4 pixels (a leftover of unused shifts). Then $E522 commits the scroll to the shadow registers and $F258 runs the ship's frame; it repeats until $A8 reaches 0 and jumps to the shared re-home at $F1DA. RUN, east exit from (y $78, x $D8): 79 frames with $A8/$A9 non-zero, $A8 = 4, 8, 12 ..., ship dx -3, -4, -3, -4 ... (220 px in all, from x 238 to 18), ending with ($A8, $A9) = (0, 1). CORRECTION: the Rendering page said the ship moves 3 px a frame; that is true of the vertical exits only."
+    },
+    {
+      "id": "bank7.code_F10D",
+      "offset": 127261,
+      "size": 92,
+      "kind": "code",
+      "name": "South scroll",
+      "confidence": "confirmed",
+      "cpu_addr": 61709,
+      "sha1": "8f55c0db258a6a493034b3753ef66239d9e9437d",
+      "description": "The south arm (A4 = 8). Sets $30 bit 4 (the NMI then moves the split marker tile with the scroll, as it does in a corridor), $AE = 12, $17 = $20, $16 = 0 (the room buffer offset of the band to draw: band 0 first), the record cursor $0440 = 0, and queues the first band through $F204. Then waits a frame and loops: every 16 pixels ($A6 AND $0F = 0) it draws the next band ($F204, $AE + 1, wrapping at 15 with $17 XOR 8 to switch between the $2000 and $2800 rows), the ship's y is reduced by 3 a frame (the room slides up past it), $A6 is increased by 4, then $E522 and $F258 run; until $A6 = $C0 (48 frames); then $F20A stores and flushes the last record and the shared tail runs at $F1B9. RUN, south exit: dispatch at frame 44, $A6 = 0 -> 192 in steps of 4, the ship's y 177 -> 33, 14 record stores and 12 flushes."
+    },
+    {
+      "id": "bank7.code_F169",
+      "offset": 127353,
+      "size": 80,
+      "kind": "code",
+      "name": "North scroll",
+      "confidence": "confirmed",
+      "cpu_addr": 61801,
+      "sha1": "a657e7facfd5af257fef422c3e50b625f49ae7d7",
+      "description": "The north arm (A4 = 0). Sets $30 bit 4, $AE = 14, $17:$16 = $28B0 ($16 doubles as the room-buffer offset of the band being drawn, $B0 = band 11, the BOTTOM band, since the new room enters from the top), waits one frame, then loops: every 16 pixels ($A6 AND $0F = 0) it waits for queue room ($E5EB), draws a band ($F03D, which also advances $16 by 16) and steps $16 down by $20 (net one band up) and $AE - 1; every frame the ship's y goes DOWN 3 ($0518 + 3), $A6 is reduced by 4 (the first step wraps 0 -> $EC and increments $A7, the nametable flip), $E522 commits the scroll and $F258 runs the ship's frame, until $A6 = $30. That is 48 frames and 12 bands. RUN, north exit from (y 14, x 120): dispatch at frame 26, $A6 = 236, 232, ... 48, ship y 14 -> 158, tail at frame 74."
+    },
+    {
+      "id": "bank7.code_F1B9",
+      "offset": 127433,
+      "size": 9,
+      "kind": "code",
+      "name": "Vertical scroll finished: marker off, thin the split tile",
+      "confidence": "confirmed",
+      "cpu_addr": 61881,
+      "sha1": "8f8c538e047773f6a19ea221afb2d19d605ea49c",
+      "description": "Shared by the north and south arms (the south arm jumps here). Clears $30 bit 4 (the NMI stops moving the marker) and makes the fill call whose arguments follow. Tile $FE is the solid split marker: plane 0 all $00, plane 1 all $FF. This clears plane-1 rows 2-7 ($1FEA-$1FEF), leaving only its first two scan lines opaque (measured: 00x8, ff ff 00 00 00 00 00 00). WHY is a LEAD: it is done for the whole horizontal scroll and, for the vertical ones, only after the scroll, for the re-home; the matching restore is the fill at $F1F6."
+    },
+    {
+      "id": "bank7.fill_F1C2",
+      "offset": 127442,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 6 bytes of $00 at PPU $1FEA",
+      "confidence": "confirmed",
+      "cpu_addr": 61890,
+      "sha1": "a39765e05ac5a854393f6c25a3ed4ce4d7e958fe",
+      "description": "[6][$1F][$EA][$00]. Tile $FE is the solid split marker: plane 0 all $00, plane 1 all $FF. This clears plane-1 rows 2-7 ($1FEA-$1FEF), leaving only its first two scan lines opaque (measured: 00x8, ff ff 00 00 00 00 00 00). WHY is a LEAD: it is done for the whole horizontal scroll and, for the vertical ones, only after the scroll, for the re-home; the matching restore is the fill at $F1F6."
+    },
+    {
+      "id": "bank7.code_F1C6",
+      "offset": 127446,
+      "size": 20,
+      "kind": "code",
+      "name": "Vertical re-home, part 1: the new room into nametable 1",
+      "confidence": "confirmed",
+      "cpu_addr": 61894,
+      "sha1": "4e167917066cd08d313924125b2633abfa499ba3",
+      "description": "Draws the incoming room into NT1 ($EFF3 with A = $24), zeroes the vertical scroll $A6/$A7 and the horizontal $A8, sets $A9 = 1 (the view points into NT1) and commits ($E522). The horizontal arm does NOT run this part (it jumps to $F1DA)."
+    },
+    {
+      "id": "bank7.code_F1DA",
+      "offset": 127466,
+      "size": 21,
+      "kind": "code",
+      "name": "Re-home, part 2: the room again into nametable 0, scroll to zero",
+      "confidence": "confirmed",
+      "cpu_addr": 61914,
+      "sha1": "9c3483eb850085e6b0a68cd35028162837424f78",
+      "description": "Shared with the horizontal arm. Draws the room into NT0 ($EFF3 with A = $20) FROM THE ROOM BUFFER (a redraw, not a copy), zeroes $A8, $A9, $A6, $A7 so the view returns to NT0 at scroll 0, commits ($E522), then the fill call below. CORRECTION: the Rendering page said the east/west re-home copies NT1 to NT0; the code redraws the room."
+    },
+    {
+      "id": "bank7.fill_F1EF",
+      "offset": 127487,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 32 blanks at PPU $2700",
+      "confidence": "confirmed",
+      "cpu_addr": 61935,
+      "sha1": "87a7732cfc93413c888c74768a2e4fce842c6816",
+      "description": "[count $20][$27][$00][value $20]: blanks nametable 1 row 24, the HUD's blank top row."
+    },
+    {
+      "id": "bank7.code_F1F3",
+      "offset": 127491,
+      "size": 3,
+      "kind": "code",
+      "name": "Re-home: restore the split tile",
+      "confidence": "confirmed",
+      "cpu_addr": 61939,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "The fill call whose arguments follow."
+    },
+    {
+      "id": "bank7.fill_F1F6",
+      "offset": 127494,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 6 bytes of $FF at PPU $1FEA",
+      "confidence": "confirmed",
+      "cpu_addr": 61942,
+      "sha1": "eb77d3f3ebc2eb29e2a1ab33df845a7c89e9fb84",
+      "description": "[6][$1F][$EA][$FF]: restores plane-1 rows 2-7 of tile $FE (measured: back to ff x8). Undoes the fill at $F0AB / $F1C2."
+    },
+    {
+      "id": "bank7.code_F1FA",
+      "offset": 127498,
+      "size": 3,
+      "kind": "code",
+      "name": "Re-home: blank nametable 1 row 0",
+      "confidence": "confirmed",
+      "cpu_addr": 61946,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "The fill call whose arguments follow."
+    },
+    {
+      "id": "bank7.fill_F1FD",
+      "offset": 127501,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 32 blanks at PPU $2400",
+      "confidence": "confirmed",
+      "cpu_addr": 61949,
+      "sha1": "8b0d6acf52c8191d22a127c78fc028ad4bf5e280",
+      "description": "[count $20][$24][$00][value $20]: blanks the top row of nametable 1, left over from the incoming room."
+    },
+    {
+      "id": "bank7.code_F201",
+      "offset": 127505,
+      "size": 3,
+      "kind": "code",
+      "name": "Room change: build the cell classes",
+      "confidence": "confirmed",
+      "cpu_addr": 61953,
+      "sha1": "fa7685aaf776c3bc03ebc5137053cc1e56e10661",
+      "description": "JMP $8006: a tail call to bank 5 $8354, which builds the new room's class map $0400-$045F from the room buffer. Its RTS returns to the caller of $F09A. RUN: reached 29 frames after the vertical tail ($F1B9) at frame 74 (north) and 92 (south)."
+    },
+    {
+      "id": "bank7.code_F204",
+      "offset": 127508,
+      "size": 84,
+      "kind": "code",
+      "name": "South scroll: queue a band, and re-queue its first column two calls later",
+      "confidence": "confirmed",
+      "cpu_addr": 61956,
+      "sha1": "6ff86e2488bc22366ff466e9176735c4495160ea",
+      "description": "Called once per 16-pixel band by the south arm. Waits for queue room ($E5EB), draws the band ($F03D), then stores a 4-byte record at $0400 + the cursor $0440: the PPU address $AD:$AC and the first tile of each of the two tile rows ($0130, $0150, column 0). When the cursor is 8 or more it queues the record from two calls ago as a 2-tile VERTICAL run ([$82][hi][lo][t1][t2], increment 32) and advances the cursor by 4 either way. $F20A is the second entry, which skips the draw. OBSERVED in the south exit: the flushed addresses were $2300, $2340, $2380, $2800, $2840, $2880, $28C0, $2900 ... (column 0, row pairs), the tiles $9B $9B, $9B $8D, $82 $92 ..., 14 stores and 12 flushes. WHY the south scroll needs column 0 rewritten two bands late (the scratch buffer is the class map area $0400, which is rebuilt at $F201) is a LEAD; the north arm has no such step."
+    },
+    {
+      "id": "bank7.code_F258",
+      "offset": 127592,
+      "size": 8,
+      "kind": "code",
+      "name": "One frame of a room scroll: only the ship",
+      "confidence": "confirmed",
+      "cpu_addr": 62040,
+      "sha1": "318e8adda8b0d96e016e520df8d2dd7a5db141a5",
+      "description": "Resets the sprite allocator ($CDB4: $80 = 4, the flags), then far-calls bank 3 $8003 -> $8F89 with X = 0: the ship's animation step (a phase counter from $C0A5, the base tile $06C8 from the table at $8F13 indexed by the facing and phase, metasprite $50, attributes from $8F33). Nothing else is processed during a room change."
+    },
+    {
+      "id": "bank7.fill_F260",
+      "offset": 127600,
+      "size": 3,
+      "kind": "data",
+      "name": "Far-call arguments: bank 3, target $8003",
+      "confidence": "confirmed",
+      "cpu_addr": 62048,
+      "sha1": "976357021279aec1896feec6e741eb4da69b0cf3",
+      "description": "[3][$02][$80]: bank 3 and the address minus one, $8002 + 1 = $8003 (the jump-table slot to $8F89)."
+    },
+    {
+      "id": "bank7.code_F263",
+      "offset": 127603,
+      "size": 6,
+      "kind": "code",
+      "name": "Draw the ship and finish the sprite list",
+      "confidence": "confirmed",
+      "cpu_addr": 62051,
+      "sha1": "e7b14e5e6e8d8f17d7e66225e19b1e0269deb669",
+      "description": "JSR $CBFC draws object X (the ship) with the metasprite machinery, then JMP $CE88: the sprite finish (hide stale sprites, flip the fill direction when needed)."
+    }
+  ]
+}
