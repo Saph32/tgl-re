@@ -932,6 +932,18 @@ Do not re-derive these; do check anything that depends on them.
   slot 0's hit-box x bytes zeroed, the labyrinth ship's sprite sheet (block 4) unless TGL. **Harness lesson (cost me a wrong result):** `JSR $8000` goes to the LIVE bank, so a corridor start run from a
   savestate must set bank 5 (as `$EC8C` does) - with the savestate's bank 6 the call far-called the ship's handler, bumped `$0680` (slot 0 field 16 = the mode!) and made every start look like mode 1; the
   full sweep (corridors 0-22, normal and TGL) with bank 5: `$0680` = 0 and the ship at y 48 for all of 1-21. Run on the model, not hardware; the corridor-21 landing and `$F717`/`$F705` are not read through.
+- **The stage engine's front half, bank 7 `$E424-$E6F2` (`annotations/regions/27-stage-engine.json`, 22 regions; the 'continue exploring' task).** **CORRECTION found on the way:
+  the score bonus ALSO REFILLS THE CHIPS.** `$DF8C` (score bonus, and the Energy Tank item 13 that calls it) copies CHIP MAX `$4E/$4F` into `$4C/$4D` and adds 0 through `$FCE7` (which clamps,
+  redraws the counter and re-derives the gun tier), THEN adds 8 to max life; RUN: chips 10, max 500 -> 500. The Status page, `external.json` `score-bonus`, and `$4E` in ram.json say so now.
+  **`$E445` (slot `$C018`) clears a nametable** (A = `$20` or `$24`, 30 rows of tile `$20`); **`$E453` (slot `$C084`) clears rows `$17`..`$16`-1** with fill `$14` and page `$15` (used for the first row's address only), and
+  past row 29 it WRAPS to row 0 of the same table through the `$2800`/`$2C00` alias (the status screen clears rows 28, 29, 0-23); the queue only holds ~7 rows, so a whole table takes 15 frames. **`$E498`** = the 2-bit level
+  of weapon A (0-11) from `$04AC-$04AE`. **Pause/status `$E4B3`:** Start = sound `$46`, wait for a NEW Start/Select, Start -> sound `$47` + 30 frames; Select (also from play) = `$46`, then `$E4EE`: sound `$3E`, bank 5
+  `$801B` open, `$8021` per frame, `$801E` close, one bank 6 `$8000` (object loop) pass, `$47`, 30 frames (RUN, scripted pads). **Stage engine:** `$E530` scroll step (`$B7` = `$B9` + the borrow of `$B6 -= $B8`; `$A6 -= $B7`,
+  wrap at 240 flips `$A7`); `$E560` start-up (speed 0, `$B0/$B1` = trigger - 1, `$AF` = `$0F`, `$AE` = `$0D`, `$AB` = 1, overlay slots `$0400-$0407` = `$80`, default target `$0200`); **`$E5BD` primes 15 rows** at 16 px a frame
+  before a corridor scrolls (RUN: 15 passes); `$E5EB` waits for queue room and no half-sent row, `$E605` drains the queue from the main thread only while rendering is off (turning the NMI off for a moment, `$D7AA`),
+  `$E619` appends a pending second tile row (`$A5` = 2) to the queue directly when the offset is under `$0E`; `$E655` stage step -> `$E66A` speed ramp +-2/256 per frame toward `$BA/$BB` -> `$E69B` `$AF` += `$B7` -> every 16 px
+  `$E6AC` (queue room, `$B0/$B1`++, `$EACC` address, `$AB` adds 8 to `$AD`) -> bank 4 -> `$E6CE` trigger compare -> `$E6EB` dispatch (`$D6AE`, ten commands), else `$E8AB` builds the row; handlers return to `$E6CE` with Y = bytes consumed.
+  NOT established: why the status screen's close calls one object-loop pass (lead), sound ids `$46 $47 $3E`, hardware.
 - **The labyrinth room-change scrolls, bank 7 `$F09A-$F268` (`annotations/regions/25-room-scroll.json`, 24 regions; the 'F169-F258' task).** `$F09A` (called by
   `JSR $EBC6`) dispatches on the exit `$A4`: 0 -> **north `$F169`**, 8 -> south `$F10D`, else the horizontal arm `$F0A8`; every arm ends in the shared tail and `JMP $8006` (bank 5
   `$8354`, the cell classes). **North:** `$30` bit 4 set (the NMI then moves the split marker with the scroll), `$AE` = 14, `$17:$16` = `$28B0` (`$16` is also the room-buffer

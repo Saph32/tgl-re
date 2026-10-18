@@ -458,9 +458,9 @@
       "addr": "$4E",
       "end": "$4F",
       "name": "chip_max",
-      "what": "The number printed after CHIP MAX.",
+      "what": "The number printed after CHIP MAX. The cap on the chips $4C/$4D: the pick-up adder $FCE7 clamps to it, and the score bonus / Energy Tank routine $DF8C refills the chips to it (run: chips 10, max 500 -> 500).",
       "status": "confirmed",
-      "evidence": "bank 5 status screen; bank 7 $E24B"
+      "evidence": "bank 5 status screen; bank 7 $E24B, $FCF2-$FD03, $DF91-$DF97"
     },
     {
       "addr": "$50",

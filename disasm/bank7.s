@@ -3452,7 +3452,7 @@ L7_E422:
 L7_E423:
         rts
 
-; ---- bank7.code_E424 (code) $E424-$E6F2, 719 bytes
+; ---- bank7.code_E424 (code) $E424-$E444, 33 bytes
 L7_E424:
         lsr     A
         lsr     A
@@ -3471,6 +3471,8 @@ L7_E424:
         lda     #$22
         sta     a:$00FF,y
         jmp     L7_D6F7
+
+; ---- bank7.code_E445 (code) $E445-$E452, 14 bytes
 L7_E445:
         sta     $15
         lda     #$20
@@ -3479,6 +3481,8 @@ L7_E445:
         sta     $17
         lda     #$1E
         sta     $16
+
+; ---- bank7.code_E453 (code) $E453-$E497, 69 bytes
 L7_E453:
         lda     $17
         and     #$FE
@@ -3519,6 +3523,8 @@ L7_E485:
         and     #$2C
         sta     $19
         jmp     L7_E471
+
+; ---- bank7.code_E498 (code) $E498-$E4B2, 27 bytes
 L7_E498:
         stx     $38
         tax
@@ -3539,6 +3545,8 @@ L7_E4AE:
         ldx     $38
         and     #$03
         rts
+
+; ---- bank7.code_E4B3 (code) $E4B3-$E4DC, 42 bytes
 L7_E4B3:
         lda     $F5
         and     #$10
@@ -3566,15 +3574,21 @@ L7_E4D2:
         bne     L7_E4D2
 L7_E4DC:
         rts
+
+; ---- bank7.code_E4DD (code) $E4DD-$E4E2, 6 bytes
 L7_E4DD:
         jsr     L7_DA9A
         jmp     L7_D64C
+
+; ---- bank7.code_E4E3 (code) $E4E3-$E4ED, 11 bytes
 L7_E4E3:
         lda     $F5
         and     #$20
         beq     L7_E4DC
         lda     #$46
         jsr     L7_D852
+
+; ---- bank7.code_E4EE (code) $E4EE-$E521, 52 bytes
 L7_E4EE:
         lda     #$3E
         jsr     L7_D852
@@ -3600,6 +3614,8 @@ L7_E503:
         pla
         sta     $30
         jmp     L7_E4CB
+
+; ---- bank7.code_E522 (code) $E522-$E52F, 14 bytes
 L7_E522:
         lda     $A0
         pha
@@ -3609,6 +3625,8 @@ L7_E522:
         pla
         sta     $A0
         rts
+
+; ---- bank7.code_E530 (code) $E530-$E55F, 48 bytes
 L7_E530:
         lda     $B6
         sec
@@ -3639,6 +3657,8 @@ L7_E530:
 L7_E55E:
         plp
         rts
+
+; ---- bank7.code_E560 (code) $E560-$E5BC, 93 bytes
 L7_E560:
         lda     #$00
         sta     $B8
@@ -3689,6 +3709,8 @@ L7_E587:
         lda     #$02
         sta     $BB
         rts
+
+; ---- bank7.code_E5BD (code) $E5BD-$E5EA, 46 bytes
 L7_E5BD:
         jsr     L7_EE09
         jsr     L7_D7C3
@@ -3715,6 +3737,8 @@ L7_E5C3:
         bne     L7_E5C3
 L7_E5EA:
         rts
+
+; ---- bank7.code_E5EB (code) $E5EB-$E604, 26 bytes
 L7_E5EB:
         ldx     $21
         cpx     #$31
@@ -3729,6 +3753,8 @@ L7_E5F7:
 L7_E5FF:
         jsr     L7_E605
         jmp     L7_E5EB
+
+; ---- bank7.code_E605 (code) $E605-$E618, 20 bytes
 L7_E605:
         lda     $FE
         and     #$18
@@ -3741,6 +3767,8 @@ L7_E605:
         sta     $2000
 L7_E618:
         rts
+
+; ---- bank7.code_E619 (code) $E619-$E654, 60 bytes
 L7_E619:
         ldx     $21
         cpx     #$0E
@@ -3774,6 +3802,8 @@ L7_E63D:
         adc     #$01
         sta     $20
         rts
+
+; ---- bank7.code_E655 (code) $E655-$E669, 21 bytes
 L7_E655:
         lda     #$00
         sta     $B7
@@ -3786,6 +3816,8 @@ L7_E655:
 L7_E666:
         bit     $30
         bvc     L7_E6A6
+
+; ---- bank7.code_E66A (code) $E66A-$E69A, 49 bytes
 L7_E66A:
         jsr     L7_E530
         lda     $B9
@@ -3814,6 +3846,8 @@ L7_E68F:
         lda     $B9
         sbc     #$00
         sta     $B9
+
+; ---- bank7.code_E69B (code) $E69B-$E6AB, 17 bytes
 L7_E69B:
         lda     $AF
         clc
@@ -3825,6 +3859,8 @@ L7_E6A6:
         lda     $04
         pha
         jmp     L7_E995
+
+; ---- bank7.code_E6AC (code) $E6AC-$E6C5, 26 bytes
 L7_E6AC:
         sbc     #$10
         sta     $AF
@@ -3839,12 +3875,16 @@ L7_E6B9:
         lda     $AD
         adc     #$08
         sta     $AD
+
+; ---- bank7.code_E6C6 (code) $E6C6-$E6CD, 8 bytes
 L7_E6C6:
         lda     $04
         pha
         jsr     L7_D748
 L7_E6CC:
         ldy     #$00
+
+; ---- bank7.code_E6CE (code) $E6CE-$E6EA, 29 bytes
 L7_E6CE:
         lda     $B0
         cmp     $B2
@@ -3863,6 +3903,8 @@ L7_E6DA:
         sta     $BD
 L7_E6E8:
         jmp     L7_E8AB
+
+; ---- bank7.code_E6EB (code) $E6EB-$E6F2, 8 bytes
 L7_E6EB:
         lda     ($BC),Y
         iny
