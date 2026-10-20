@@ -1,0 +1,280 @@
+{
+  "_comment": "Hand-authored. The stage engine's back half, bank 7 $E707-$EAE1: the ten stream commands, the row builder, the art-load stream, the object slot allocator. The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank7.code_E707",
+      "offset": 124695,
+      "size": 26,
+      "kind": "code",
+      "name": "Stream command 0: set the scroll speed target",
+      "confidence": "confirmed",
+      "cpu_addr": 59143,
+      "sha1": "23b1cec686600be5f8fd0cda0d723425465b9d7a",
+      "description": "Two operand bytes -> the target $BA/$BB (the high byte's bit 7 is a flag, not part of the value). With bit 7 clear the speed ramps toward it by 2/256 a frame ($E66A). With bit 7 set the value (high byte AND $7F) is also copied into the current speed $B8/$B9 at once. RUN: the flight block and corridors 3 and 15 fire it at frame 18 and 382 of a corridor start (the flight's, then the corridor's own). Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E721",
+      "offset": 124721,
+      "size": 18,
+      "kind": "code",
+      "name": "Stream command 1: choose the background row table",
+      "confidence": "confirmed",
+      "cpu_addr": 59169,
+      "sha1": "95520871fa8a0cf234a4f75a34e97bb4fa0623ee",
+      "description": "Two operand bytes -> the row table pointer $B4/$B5 ([rows lo][rows hi][count]) and the row cycle $A1 = 0, so the strip starts again from its first row. Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E733",
+      "offset": 124739,
+      "size": 45,
+      "kind": "code",
+      "name": "Stream command 2: start or stop enemy waves",
+      "confidence": "confirmed",
+      "cpu_addr": 59187,
+      "sha1": "b0c4b7f1a525452586ae32493b0982df4cf8bba2",
+      "description": "One operand byte: its low two bits replace the low two bits of $60 (bit 1 = a spawn script is running; bit 0 is written with it and tested by nothing). If bit 1 is set two more operand bytes follow: the script pointer -> $66/$67, the wait counters $68 = $69 = 1 and the script bank $7F = 4 - a spawn script that lives in bank 4 and is run by the same interpreter ($F78F) as the labyrinth's, its waits counted in rows (the $A0 bit 2 flag). RUN: fired at frame 19 and 382 in corridors 3 and 15. Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E760",
+      "offset": 124784,
+      "size": 42,
+      "kind": "code",
+      "name": "Stream command 3: jump to another block (the loop)",
+      "confidence": "confirmed",
+      "cpu_addr": 59232,
+      "sha1": "d31d4c89f4e312cbdf02d8d13bdc09dc4637a7c2",
+      "description": "Two operand bytes = a block address. The block's first two bytes (its first trigger) are copied into BOTH the next-trigger $B2/$B3 and the row counter $B0/$B1, the record pointer $BC/$BD is set to block + 2, and it re-enters the trigger test at $E6CC. So a jump also REBASES THE STAGE CLOCK to the target's first trigger and the target's first record fires on this very row. The launch flight's block ends with it: it fired at frames 186, 236, 287 and 338 of a corridor start (every ~50 frames: the flight's overlay pattern loops). Command 9 enters this code at $E762 when its condition holds."
+    },
+    {
+      "id": "bank7.code_E78A",
+      "offset": 124826,
+      "size": 21,
+      "kind": "code",
+      "name": "Stream command 4: set the background palettes",
+      "confidence": "confirmed",
+      "cpu_addr": 59274,
+      "sha1": "04847d5633d696e8580e6eccb05dd893e13f5c30",
+      "description": "Two operand bytes = a palette list address -> $18/$19, then JSR $D92D (the palette-list walker: up to eight indices, $FE ends, $FF skips; far-calls bank 5 $B2E4). Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E79F",
+      "offset": 124847,
+      "size": 23,
+      "kind": "code",
+      "name": "Stream command 5: the boss phase",
+      "confidence": "confirmed",
+      "cpu_addr": 59295,
+      "sha1": "0bcf0b245eccd1389e52ccad6c68aee3122088a9",
+      "description": "Sets $70 = 1 (the boss routine in bank 3 $917F starts the fight). In corridor 21 ($51 = $15) one operand byte follows and becomes the boss type $72; in every other corridor there is no operand (the DEY cancels the Y that the tail adds). The record is therefore one byte longer in corridor 21 only. Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E7B6",
+      "offset": 124870,
+      "size": 168,
+      "kind": "code",
+      "name": "Stream command 6: place a structure in an overlay slot",
+      "confidence": "confirmed",
+      "cpu_addr": 59318,
+      "sha1": "c22093a0c4366f277d78cc7c458ea0f2bc556d44",
+      "description": "Operand 1 = the number of placements (0 = none). Each placement: a flag byte (low three bits = the slot 0-7 -> X; bit 7 no delay and no gap; bit 6 no step byte; bit 5 a single showing; bit 4 the structure is given inline), then in order: [delay -> $0430,X] and [gap -> $0408,X] unless bit 7 (bit 5 set stores $20 as the gap, which is never used because it also means one repeat), [step -> $0438,X] unless bit 6 (else 0), [repeats -> $0410,X] unless bit 5 (else 1; 0 = for ever), the start column -> $0400,X, then either [pointer lo][pointer hi][width][height] inline (bit 4: -> $0440/$0448, $0420, $0418) or a pointer to a structure [width][height][rows] (the pointer + 2 -> $0440/$0448). $EA79 then loads the working pointer $0450/$0458 and the row counter $0428 from them. The table in tools/tgl/corridor.py ('placements') reads the same format and is what the stage pictures use. Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E85E",
+      "offset": 125038,
+      "size": 35,
+      "kind": "code",
+      "name": "Stream command 7: load graphics for the stage",
+      "confidence": "confirmed",
+      "cpu_addr": 59486,
+      "sha1": "ed39f1eab796de48352c779d457cd8f090f75688",
+      "description": "While the art-load stream engine is busy ($27 non-zero) it runs a step of it ($E99F) and waits for the decompressor ($D7C3), then loops. Then two operand bytes -> the stream address $28/$29, $27 = $80 (start) and the stream's bank $7E = 4. The records are run by $E995/$E99F one step per row. Used 5 rows before a boss to swap the art (the squares before a boss). Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E881",
+      "offset": 125073,
+      "size": 18,
+      "kind": "code",
+      "name": "Stream command 8: set attribute patterns",
+      "confidence": "confirmed",
+      "cpu_addr": 59521,
+      "sha1": "adf91b16be01064bae741945fcaad58f1131aff5",
+      "description": "Pairs [index < 8][value] -> $0199,index (the attribute patterns the metatile drawer ORs in), repeated while the index byte is below 8. This command does not occur in any block (the parser finds it zero times); it is read from the code only. Every handler ends by jumping to $E89D, which skips its last operand byte, reads the NEXT record's trigger into $B2/$B3 and returns to $E6CE with Y = the bytes consumed."
+    },
+    {
+      "id": "bank7.code_E893",
+      "offset": 125091,
+      "size": 10,
+      "kind": "code",
+      "name": "Stream command 9: the jump taken only in the boss phase",
+      "confidence": "confirmed",
+      "cpu_addr": 59539,
+      "sha1": "8443767ce8d4e3418ec98567e04a02922d3745fe",
+      "description": "If $70 is non-zero (a command 5 has run) it enters the jump code at $E762; otherwise it skips its two operand bytes (the INY here and the one in the tail). The corridor blocks use it as the end of a loop: the stage repeats until the boss is called, then falls through into the ending records."
+    },
+    {
+      "id": "bank7.code_E89D",
+      "offset": 125101,
+      "size": 14,
+      "kind": "code",
+      "name": "Record tail: read the next trigger and go back to the test",
+      "confidence": "confirmed",
+      "cpu_addr": 59549,
+      "sha1": "2f0c8d8bf44f8ebb2292871c6c3274e19ec8e1c3",
+      "description": "INY over the last operand byte, the next record's trigger -> $B2/$B3 (low, high), INY, and JMP $E6CE with Y = the bytes this record used. $E6CE then fires the next record on the same row if its trigger is the same, or adds Y to the record pointer and builds the row."
+    },
+    {
+      "id": "bank7.code_E8AB",
+      "offset": 125115,
+      "size": 54,
+      "kind": "code",
+      "name": "Build a row: take the next 16 ids from the strip",
+      "confidence": "confirmed",
+      "cpu_addr": 59563,
+      "sha1": "1f4d5306f21d242f9ecf7bf895726942e59684a4",
+      "description": "$A1 (the row cycle) is compared with the row table's count byte; at or over it wraps to 0; it is then incremented. The 16 ids are at (table pointer) + 16 x the old $A1 (computed by shifting left four times into $19), and are copied into $04C0-$04CF: the background row, before any overlay is drawn over it."
+    },
+    {
+      "id": "bank7.code_E8E1",
+      "offset": 125169,
+      "size": 147,
+      "kind": "code",
+      "name": "Build a row: draw the eight overlay slots over it",
+      "confidence": "confirmed",
+      "cpu_addr": 59617,
+      "sha1": "249d66deb39df0d82eb9862ed793e38d2c7d9ad3",
+      "description": "For each slot X = 0-7 ($15): column $0400,X = $80 is a free slot and is skipped. A running delay $0430,X is decremented and the slot skipped. Otherwise one ROW of the structure is drawn: the working pointer $0450/$0458 is read with the codes $00 n (skip n columns: the column counter moves on), $01 (end the row early) and any other value = a metatile id written to $04C0 + column when the column is under 16, until `width` ($0420) ids have been written; the pointer is saved for the next row. When the height $0428 runs out ($0428 counts down once per row): if the repeat counter $0410 is non-zero it is decremented and a result of 0 frees the slot ($0400 = $80); otherwise the column moves by the step $0438, and a column in $20-$EF (off either edge) frees the slot, else $EA73 reloads the gap as the next delay and $EA79 resets the pointer and height - the structure starts again. This is what tools/tgl/corridor.py's simulation does, and it matched a corridor-15 savestate cell for cell (settled rows)."
+    },
+    {
+      "id": "bank7.code_E974",
+      "offset": 125316,
+      "size": 27,
+      "kind": "code",
+      "name": "Build a row: hand it to bank 5 and step the row index",
+      "confidence": "confirmed",
+      "cpu_addr": 59764,
+      "sha1": "27bd3bd3dba66ad0b051e0cf05f422cc5eab9bbc",
+      "description": "Selects bank 5 and calls its slots $8009 (-> $83B3: draw the 16 metatile ids of $04C0 as tile rows $0130/$0150 and attributes, writing each metatile's fifth byte back) and $802A (-> $89FB: spawn the ground objects named by those fifth bytes), sets $A5 = 1 (a new row is waiting for the NMI) and steps the row index $AE: 14 down to 0 and round again, toggling the half flag $AB at each wrap."
+    },
+    {
+      "id": "bank7.code_E98F",
+      "offset": 125343,
+      "size": 6,
+      "kind": "code",
+      "name": "Mark that a row came in (the waves' clock)",
+      "confidence": "confirmed",
+      "cpu_addr": 59791,
+      "sha1": "9fd33fdcbb4550d0ce60d845b841ee08ae81789b",
+      "description": "$A0 bit 2 set: the bank 4 spawn script's waits count rows, and this flag is what they see; $E655 clears it again at the next step."
+    },
+    {
+      "id": "bank7.code_E995",
+      "offset": 125349,
+      "size": 10,
+      "kind": "code",
+      "name": "Loader and spawn script, then back to the caller's bank",
+      "confidence": "confirmed",
+      "cpu_addr": 59797,
+      "sha1": "b815906d79580c3bd3ce4120531fa146a1744c62",
+      "description": "Entered by JMP from $E6A9 (no row due) and falling in from $E994 (a row was built) with the caller's bank on the stack: one step of the art-load stream ($E99F), one step of the spawn script interpreter ($F78F), then PLA and JMP $D705 to switch back."
+    },
+    {
+      "id": "bank7.code_E99F",
+      "offset": 125359,
+      "size": 130,
+      "kind": "code",
+      "name": "Art-load stream: start the next record",
+      "confidence": "confirmed",
+      "cpu_addr": 59807,
+      "sha1": "ac91f58e70d4b0803d73fb65f956d470a0189a2d",
+      "description": "$27 = 0 means idle (return). Otherwise it selects the stream's bank $7E. A positive $27 is a record already being decompressed (-> $EA21); bit 7 set = start the record at index $27 AND $7F: wait while the decompressor is busy ($0B), read the slot (byte 0 AND $0F), and if that slot ($0480,slot) already holds a block, EVICT it - clear the slot and turn every live object (slots 5-23) that uses the evicted block into type $28, the dissolving square. Then the record: byte 0 = flags | slot, byte 1 = block (0 = none: a 2-byte record that only evicts; bit 7 of byte 0 ends the stream), byte 2 = the first tile; PPU address = tile x 16 -> $18/$19 and the block is armed for decompression ($EA58); $27 counts on."
+    },
+    {
+      "id": "bank7.code_EA21",
+      "offset": 125489,
+      "size": 43,
+      "kind": "code",
+      "name": "Art-load stream: finish the record",
+      "confidence": "confirmed",
+      "cpu_addr": 59937,
+      "sha1": "bd6afceed344cb70c5176d1ff315e548af512a64",
+      "description": "Once the decompressor is free ($0B = 0) the record is entered in the slot tables: $0480,slot = the block, $0490,slot = the first tile; $27 moves to the next record, or to 0 (and returns) after a record with bit 7 set. So the tables only change after the tiles are in place."
+    },
+    {
+      "id": "bank7.code_EA4C",
+      "offset": 125532,
+      "size": 12,
+      "kind": "code",
+      "name": "Art-load stream: wait for the decompressor",
+      "confidence": "confirmed",
+      "cpu_addr": 59980,
+      "sha1": "0f54a0a3ebbd3b299392d925ec7b8cb93ad32996",
+      "description": "If rendering is on ($FE bits 3-4) it returns and tries again next row; with rendering off it waits for the decompressor ($D7C3) and runs the loader again at once."
+    },
+    {
+      "id": "bank7.code_EA58",
+      "offset": 125544,
+      "size": 16,
+      "kind": "code",
+      "name": "Arm the decompressor for a block id",
+      "confidence": "confirmed",
+      "cpu_addr": 59992,
+      "sha1": "9250e56bc74bba3b43cb7abe033f9d1a560a97c9",
+      "description": "Block ids under $40 are read from bank 3 (Y = 3); $40 and over from bank 2 with the id reduced by $30 (Y = 2); JMP $D7F9 (slot $C042: arm the decompressor with block A in bank Y)."
+    },
+    {
+      "id": "bank7.code_EA68",
+      "offset": 125560,
+      "size": 11,
+      "kind": "code",
+      "name": "Remove every object but the player",
+      "confidence": "confirmed",
+      "cpu_addr": 60008,
+      "sha1": "cf16177e37395bfe2d166da3435e30fb43c9acd8",
+      "description": "Calls the object-removal routine $CCBF (type kept in $0740, the position, velocity and fraction fields zeroed) for slots 1-23. Slot $C159; callers $EB96 and $EBF8 (a room or stage ending) and $F536."
+    },
+    {
+      "id": "bank7.code_EA73",
+      "offset": 125571,
+      "size": 6,
+      "kind": "code",
+      "name": "Overlay slot: start the gap as the next delay",
+      "confidence": "confirmed",
+      "cpu_addr": 60019,
+      "sha1": "379fef85d23afe3f67c8aa7d0d9b33d7172c15e3",
+      "description": "$0430,X := the gap $0408,X, then falls into the reload."
+    },
+    {
+      "id": "bank7.code_EA79",
+      "offset": 125577,
+      "size": 19,
+      "kind": "code",
+      "name": "Overlay slot: rewind the structure",
+      "confidence": "confirmed",
+      "cpu_addr": 60025,
+      "sha1": "eaf34b8411c1c8503512f7185e1752c25eaac392",
+      "description": "Working pointer $0450/$0458 := the structure's start $0440/$0448, rows left $0428 := the height $0418. Called when a placement is made (from $E854) and when a repeat starts."
+    },
+    {
+      "id": "bank7.code_EA8C",
+      "offset": 125596,
+      "size": 64,
+      "kind": "code",
+      "name": "Allocate an object slot (5-23), reclaiming one if none is free",
+      "confidence": "confirmed",
+      "cpu_addr": 60044,
+      "sha1": "0bcd01ba9847cecdfd02b78c449353f75a95fa11",
+      "description": "Slot $C027; the spawn-script interpreter calls it. Scans from slot 23 DOWN to 5 for a free one (type 0): returns it in Y with carry clear, so the highest free slot is used first. If none is free it reclaims, in order: the LOWEST slot whose type (AND $7F) is $0B, $0C or $0D; failing that the highest slot with type bit 7 set and flag bit 1 clear in $0578; the reclaimed object is removed ($CCBF) and its slot returned with carry clear. If nothing can be reclaimed it returns carry set (Y = 4). RUN with all slots full of type $10: carry set; a $0B in slot 12 and a $0D in 15 reclaimed 12; bit-7 types in 8 and 14 reclaimed 14; a bit-7 type with flag bit 1 set was left alone; X preserved. What types $0B-$0D are was not looked up."
+    },
+    {
+      "id": "bank7.code_EACC",
+      "offset": 125660,
+      "size": 22,
+      "kind": "code",
+      "name": "Row address: the background row's PPU address and attribute offset",
+      "confidence": "confirmed",
+      "cpu_addr": 60108,
+      "sha1": "bcd5aae9738091e0f26f06d08c2db5dbd7805773",
+      "description": "From the row index $AE (0-14): the attribute offset $AA = (AE AND 14) x 4 + $C0 (low byte of the attribute address), and $AC/$AD = the row's PPU address from the pair table at $EAE2 (one entry per 64 bytes, $2000 ... $23C0; the band's second tile row is +$20). The caller adds 8 to $AD for the $2800 alias."
+    }
+  ]
+}

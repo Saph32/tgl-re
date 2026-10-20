@@ -944,6 +944,18 @@ Do not re-derive these; do check anything that depends on them.
   `$E619` appends a pending second tile row (`$A5` = 2) to the queue directly when the offset is under `$0E`; `$E655` stage step -> `$E66A` speed ramp +-2/256 per frame toward `$BA/$BB` -> `$E69B` `$AF` += `$B7` -> every 16 px
   `$E6AC` (queue room, `$B0/$B1`++, `$EACC` address, `$AB` adds 8 to `$AD`) -> bank 4 -> `$E6CE` trigger compare -> `$E6EB` dispatch (`$D6AE`, ten commands), else `$E8AB` builds the row; handlers return to `$E6CE` with Y = bytes consumed.
   NOT established: why the status screen's close calls one object-loop pass (lead), sound ids `$46 $47 $3E`, hardware.
+- **The stage engine's back half, bank 7 `$E707-$EAE1` (`annotations/regions/28-stream-commands.json`, 25 regions).** The ten bank 4 stream commands, one region each: **0** `$E707` speed target (`$BA/$BB`; high-byte bit 7 =
+  also set the speed `$B8/$B9` at once); **1** `$E721` row table `$B4/$B5`, `$A1` = 0; **2** `$E733` low two bits -> `$60`, bit 1 adds a bank 4 wave script (`$66/$67`, `$68 = $69 = 1`, `$7F = 4`); **3** `$E760` jump,
+  and **it REBASES THE STAGE CLOCK**: the target block's first trigger goes into `$B2/$B3` AND the row counter `$B0/$B1`, so its first record fires on the same row (RUN: the launch flight's block loops with it every ~50 frames);
+  **4** `$E78A` palette list -> `$D92D`; **5** `$E79F` `$70` = 1 (boss phase; one operand = boss type `$72` in corridor 21 only); **6** `$E7B6` overlay placement (flag byte: bits 0-2 slot, 7 no delay/gap, 6 no step, 5 single
+  showing - its stored gap `$20` is never used -, 4 inline structure; then delay, gap, step, repeats, column, structure pointer or inline [ptr][w][h]); **7** `$E85E` art stream `$28/$29`, `$27` = `$80`, bank `$7E` = 4;
+  **8** `$E881` attribute patterns `$0199+` (occurs in no block); **9** `$E893` the jump only when `$70` is set. All end at `$E89D` (next trigger -> `$B2/$B3`, back to `$E6CE` with Y = bytes used). **Row builder:** `$E8AB` strip
+  row `$A1` -> `$04C0`; `$E8E1` the eight overlay slots (state `$0400,X` = column, `$80` free; delay `$0430`, gap `$0408`, step `$0438`, repeats `$0410`, width `$0420`, height `$0418`, rows left `$0428`, pointers
+  `$0440/$0448` start and `$0450/$0458` working) draw a row each with codes `$00 n` / `$01` / id; off-edge (`$20-$EF`) or repeats exhausted frees the slot; `$E974` bank 5 `$8009` (-> `$83B3`) and `$802A` (-> `$89FB`),
+  `$A5` = 1, `$AE` 14..0 with `$AB` toggled; `$E995` loader + spawn script. **Art-load stream (`$E99F`):** `$27` state (0 idle, bit 7 start); a record is evicted/started first (slot's old block cleared, objects using it
+  turn to `$28`), decompressed (block < `$40` from bank 3, else bank 2 with id - `$30`), and only THEN written into `$0480/$0490`; a block-0 record is 2 bytes (evict only), bit 7 of byte 0 ends. **Allocator `$EA8C`
+  (slot `$C027`): highest free slot 23 -> 5 first; if full, the LOWEST slot of type `$0B/$0C/$0D`, else the highest slot with type bit 7 and `$0578` bit 1 clear, else carry set** (RUN, 8 cases). `$EA68` removes objects 1-23.
+  Not established: what types `$0B-$0D` are; the stream-engine detail beyond what `corridor.simulate` already matches on a savestate.
 - **The labyrinth room-change scrolls, bank 7 `$F09A-$F268` (`annotations/regions/25-room-scroll.json`, 24 regions; the 'F169-F258' task).** `$F09A` (called by
   `JSR $EBC6`) dispatches on the exit `$A4`: 0 -> **north `$F169`**, 8 -> south `$F10D`, else the horizontal arm `$F0A8`; every arm ends in the shared tail and `JMP $8006` (bank 5
   `$8354`, the cell classes). **North:** `$30` bit 4 set (the NMI then moves the split marker with the scroll), `$AE` = 14, `$17:$16` = `$28B0` (`$16` is also the room-buffer

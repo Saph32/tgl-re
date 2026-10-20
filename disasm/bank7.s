@@ -3916,7 +3916,7 @@ L7_E6EB:
         .byte   $06,$E7,$20,$E7,$32,$E7,$5F,$E7,$89,$E7,$9E,$E7,$B5,$E7,$5D,$E8
         .byte   $80,$E8,$92,$E8
 
-; ---- bank7.code_E707 (code) $E707-$EAE1, 987 bytes
+; ---- bank7.code_E707 (code) $E707-$E720, 26 bytes
 L7_E707:
         ldy     $16
         lda     ($BC),Y
@@ -3932,6 +3932,8 @@ L7_E707:
         sta     $B8
 L7_E71E:
         jmp     L7_E89D
+
+; ---- bank7.code_E721 (code) $E721-$E732, 18 bytes
 L7_E721:
         ldy     $16
         lda     ($BC),Y
@@ -3942,6 +3944,8 @@ L7_E721:
         lda     #$00
         sta     $A1
         jmp     L7_E89D
+
+; ---- bank7.code_E733 (code) $E733-$E75F, 45 bytes
 L7_E733:
         ldy     $16
         lda     ($BC),Y
@@ -3967,6 +3971,8 @@ L7_E733:
         sta     $7F
 L7_E75D:
         jmp     L7_E89D
+
+; ---- bank7.code_E760 (code) $E760-$E789, 42 bytes
 L7_E760:
         ldy     $16
 L7_E762:
@@ -3991,6 +3997,8 @@ L7_E762:
         adc     #$00
         sta     $BD
         jmp     L7_E6CC
+
+; ---- bank7.code_E78A (code) $E78A-$E79E, 21 bytes
 L7_E78A:
         ldy     $16
         lda     ($BC),Y
@@ -4002,6 +4010,8 @@ L7_E78A:
         jsr     L7_D92D
         ldy     $16
         jmp     L7_E89D
+
+; ---- bank7.code_E79F (code) $E79F-$E7B5, 23 bytes
 L7_E79F:
         ldy     $16
         lda     #$01
@@ -4015,6 +4025,8 @@ L7_E7AF:
         lda     ($BC),Y
         sta     $72
         jmp     L7_E89D
+
+; ---- bank7.code_E7B6 (code) $E7B6-$E85D, 168 bytes
 L7_E7B6:
         ldy     $16
         lda     ($BC),Y
@@ -4108,6 +4120,8 @@ L7_E854:
         dec     $14
         beq     L7_E89D
         jmp     L7_E7C1
+
+; ---- bank7.code_E85E (code) $E85E-$E880, 35 bytes
 L7_E85E:
         lda     $27
         beq     L7_E86B
@@ -4126,6 +4140,8 @@ L7_E86B:
         lda     #$04
         sta     $7E
         jmp     L7_E89D
+
+; ---- bank7.code_E881 (code) $E881-$E892, 18 bytes
 L7_E881:
         ldy     $16
 L7_E883:
@@ -4138,6 +4154,8 @@ L7_E883:
         sta     $0199,X
         iny
         bne     L7_E883
+
+; ---- bank7.code_E893 (code) $E893-$E89C, 10 bytes
 L7_E893:
         ldy     $16
         lda     $70
@@ -4145,6 +4163,8 @@ L7_E893:
         jmp     L7_E762
 L7_E89C:
         iny
+
+; ---- bank7.code_E89D (code) $E89D-$E8AA, 14 bytes
 L7_E89D:
         iny
         lda     ($BC),Y
@@ -4154,6 +4174,8 @@ L7_E89D:
         sta     $B3
         iny
         jmp     L7_E6CE
+
+; ---- bank7.code_E8AB (code) $E8AB-$E8E0, 54 bytes
 L7_E8AB:
         ldy     #$02
         lda     $A1
@@ -4187,6 +4209,8 @@ L7_E8D6:
         inx
         cpx     #$10
         bne     L7_E8D6
+
+; ---- bank7.code_E8E1 (code) $E8E1-$E973, 147 bytes
         ldx     #$00
         stx     $15
 L7_E8E5:
@@ -4266,6 +4290,8 @@ L7_E969:
         cpx     #$08
         beq     L7_E974
         jmp     L7_E8E5
+
+; ---- bank7.code_E974 (code) $E974-$E98E, 27 bytes
 L7_E974:
         jsr     L7_D755
         jsr     L5_8009
@@ -4279,15 +4305,21 @@ L7_E974:
         lda     $AB
         eor     #$01
         sta     $AB
+
+; ---- bank7.code_E98F (code) $E98F-$E994, 6 bytes
 L7_E98F:
         lda     $A0
         ora     #$04
         sta     $A0
+
+; ---- bank7.code_E995 (code) $E995-$E99E, 10 bytes
 L7_E995:
         jsr     L7_E99F
         jsr     L7_F78F
         pla
         jmp     L7_D705
+
+; ---- bank7.code_E99F (code) $E99F-$EA20, 130 bytes
 L7_E99F:
         lda     $27
         bne     L7_E9A4
@@ -4365,6 +4397,8 @@ L7_EA03:
         jsr     L7_EA58
         inc     $27
         bne     L7_EA4C
+
+; ---- bank7.code_EA21 (code) $EA21-$EA4B, 43 bytes
 L7_EA21:
         lda     $0B
         bne     L7_EA4C
@@ -4392,12 +4426,16 @@ L7_EA47:
         sta     $27
 L7_EA4B:
         rts
+
+; ---- bank7.code_EA4C (code) $EA4C-$EA57, 12 bytes
 L7_EA4C:
         lda     $FE
         and     #$18
         bne     L7_EA4B
         jsr     L7_D7C3
         jmp     L7_E99F
+
+; ---- bank7.code_EA58 (code) $EA58-$EA67, 16 bytes
 L7_EA58:
         cmp     #$40
         bcs     L7_EA61
@@ -4407,6 +4445,8 @@ L7_EA61:
         sbc     #$30
         ldy     #$02
         jmp     L7_D7F9
+
+; ---- bank7.code_EA68 (code) $EA68-$EA72, 11 bytes
 L7_EA68:
         ldx     #$01
 L7_EA6A:
@@ -4415,9 +4455,13 @@ L7_EA6A:
         cpx     #$18
         bne     L7_EA6A
         rts
+
+; ---- bank7.code_EA73 (code) $EA73-$EA78, 6 bytes
 L7_EA73:
         lda     $0408,X
         sta     $0430,X
+
+; ---- bank7.code_EA79 (code) $EA79-$EA8B, 19 bytes
 L7_EA79:
         lda     $0440,X
         sta     $0450,X
@@ -4426,6 +4470,8 @@ L7_EA79:
         lda     $0418,X
         sta     $0428,X
         rts
+
+; ---- bank7.code_EA8C (code) $EA8C-$EACB, 64 bytes
 L7_EA8C:
         ldy     #$17
 L7_EA8E:
@@ -4469,6 +4515,8 @@ L7_EAC1:
 L7_EACA:
         clc
         rts
+
+; ---- bank7.code_EACC (code) $EACC-$EAE1, 22 bytes
 L7_EACC:
         lda     $AE
         asl     A
