@@ -6659,7 +6659,7 @@ L7_F9CA:
         lda     $11
         rts
 
-; ---- bank7.code_F9D1 (code) $F9D1-$FA5A, 138 bytes
+; ---- bank7.code_F9D1 (code) $F9D1-$F9E8, 24 bytes
 L7_F9D1:
         stx     $10
         rol     A
@@ -6673,6 +6673,8 @@ L7_F9D1:
         sbc     $41
         sta     $2A
         rts
+
+; ---- bank7.code_F9E9 (code) $F9E9-$FA16, 46 bytes
 L7_F9E9:
         jsr     L7_F9D1
         sty     $10
@@ -6699,6 +6701,8 @@ L7_FA05:
         sta     $0518,X
         ldy     $10
         rts
+
+; ---- bank7.code_FA17 (code) $FA17-$FA4A, 52 bytes
 L7_FA17:
         jsr     L7_F9E9
         ldy     $2A
@@ -6726,6 +6730,8 @@ L7_FA3F:
         adc     $0200,Y
         sta     $2A
         rts
+
+; ---- bank7.code_FA4B (code) $FA4B-$FA5A, 16 bytes
 L7_FA4B:
         sta     $0500,Y
         lda     $0530,X

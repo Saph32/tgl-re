@@ -1,0 +1,38 @@
+{
+  "_comment": "Hand-authored. The random number and the two random-position helpers, bank 7 $F9D1-$FA4A. The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank7.code_F9D1",
+      "offset": 129505,
+      "size": 24,
+      "kind": "code",
+      "name": "The random number: a mix of machine state",
+      "confidence": "confirmed",
+      "cpu_addr": 63953,
+      "sha1": "3402f8aad30c1586877d74b0c18f34608f908e15",
+      "description": "Slot $C0EA (27 callers: banks 0, 1, 3 and 6, the demo's input timer $DAF4, the demo's corridor pick $EB53, the explosion box $FB27, $F9E9). In: nothing is required, but the result DEPENDS on A (and the carry), X, Y, the live bank and the stack depth. Out: A = the new $2A (also stored there); X and Y preserved ($10 holds X). The arithmetic, in order: A = ROL A (carry in); + $2A + carry; EOR the byte at $8000 + X (whichever bank is live: the ROM is an entropy source); + $0400,Y (RAM indexed by Y); EOR $0200 + the stack pointer (a sprite byte, indexed by how deep the stack is); + $2A + carry; - $41 (the frame counter) - borrow. So it is not a generator with a period of its own: it is stirred by the game's running state, and the DMC IRQ stirs $2A as well ($DCE8). RUN: 400 random states against a Python model of exactly this arithmetic: 0 differences (single-stepped; a frame run between would change $41 and the OAM). In 3,000 frames of play, one call per frame with A = X = Y = 0, all 256 values appeared, the top-nibble histogram was flat (162-213 per bin of 187.5 expected) and consecutive equal values occurred twice. With the machine frozen except $41 += 1 it gave 38 distinct values in 40 calls. Not established: how the sequence behaves on hardware, which has the IRQ stirring."
+    },
+    {
+      "id": "bank7.code_F9E9",
+      "offset": 129529,
+      "size": 46,
+      "kind": "code",
+      "name": "Random x at the top of the screen",
+      "confidence": "confirmed",
+      "cpu_addr": 63977,
+      "sha1": "2e5a3a6d20976b209724e8bb67f0b2f915fc2274",
+      "description": "Slot $C0F0 (17 callers in banks 3 and 6: enemies that enter from the top). In: X = the object. Out: x ($0530,X) = a random value, y ($0518,X) = 8; X and Y preserved. The x comes from $F9D1: a value from $20 to $DF is used as it is; a value under $20 or $E0 and over is folded to $20 + (v AND $1F) + 2 x (v AND $3F), 32-189. Then $2A is re-stirred with the zero-page byte at (x / 2). RUN, 3,000 calls: x from 32 to 223 (191 of the 192 values seen, no value outside $20-$DF), y always 8; the folded values make the middle bins a little heavier (509 against about 375)."
+    },
+    {
+      "id": "bank7.code_FA17",
+      "offset": 129575,
+      "size": 52,
+      "kind": "code",
+      "name": "Random position in the playing field",
+      "confidence": "confirmed",
+      "cpu_addr": 64023,
+      "sha1": "ff129068c533fcd8aa0fe2c2d7ffb3a987402f1a",
+      "description": "Slot $C0F3 (10 callers in bank 6). In: X = the object. Out: x as above ($F9E9), y ($0518,X) = a random value from $28 to $B7 built from a sprite byte ($0200,$2A), $2A and the x ($11 AND $7F + $12 AND $3F + $28, reduced by $90 when it reaches $B8); X preserved, Y = the new y (NOT preserved: the routine ends with TAY). $2A is re-stirred with another sprite byte. RUN, 3,000 calls: x 32-223, y 40-183 (the whole of $28-$B7), 1,265 distinct positions."
+    }
+  ]
+}
