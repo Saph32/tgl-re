@@ -1,0 +1,280 @@
+{
+  "_comment": "Hand-authored. Stage clear, key award, the ship's exit, the final-score screen and the sprite-sheet loaders, bank 7 $F493-$F771 (inline data, tables and the launch code are claimed elsewhere). The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank7.code_F493",
+      "offset": 128163,
+      "size": 10,
+      "kind": "code",
+      "name": "Read the pads, then the pause check",
+      "confidence": "confirmed",
+      "cpu_addr": 62611,
+      "sha1": "a35cdfd3424efdb4ddf844e17b34939a6e3d9103",
+      "description": "Slot $C16B; called once per game-loop pass ($FF92), by the launch flight loop, the stage-clear loops and the key-panel wait. $D64C reads the pads (so $F5/$F6 hold new presses, $F7/$F8 held buttons); if $30 bit 7 is clear (not a demo) it jumps to the pause/status routine $E4B3, whose RTS returns to the caller."
+    },
+    {
+      "id": "bank7.code_F49D",
+      "offset": 128173,
+      "size": 10,
+      "kind": "code",
+      "name": "Demo: a new Start ends it",
+      "confidence": "confirmed",
+      "cpu_addr": 62621,
+      "sha1": "3e5bab3c040612b398ac40056e9beb451de7e79a",
+      "description": "In a demo ($30 bit 7) a new Start press ($F5 bit 4) jumps to $FF4A (the game's start-up, i.e. leaves the attract mode); anything else returns. The pause routine is not reachable in a demo."
+    },
+    {
+      "id": "bank7.code_F4A7",
+      "offset": 128183,
+      "size": 16,
+      "kind": "code",
+      "name": "Which key does this corridor award?",
+      "confidence": "confirmed",
+      "cpu_addr": 62631,
+      "sha1": "2c97e6270b42ab4c55934801f195cb5841ae4574",
+      "description": "In: $51. Out: A = the key number (Z set when none). Corridor 0 and every corridor from 11 up: 0; corridors 1-10: $F6DA[corridor] (the table at $F6DB, read one byte early because the index starts at 1) = 1 2 3 4 0 5 0 6 7 0. Called by the stage-clear code only."
+    },
+    {
+      "id": "bank7.code_F4B7",
+      "offset": 128199,
+      "size": 79,
+      "kind": "code",
+      "name": "Scripted ship entrance on the cleared-corridor gate screen",
+      "confidence": "confirmed",
+      "cpu_addr": 62647,
+      "sha1": "487f518a0ea10717f40f5e3c53a2f3943c44f97a",
+      "description": "Called from $EC4C when the labyrinth's special screen type $51 is 5 (the gate once its corridor is cleared; $EC43). Sets slot 0 to type $81 (the player's type $01 with bit 7 set), metasprite $50, flags $03, x $70, y $C8, y velocity and target $FB (-5), the state counter $07E8 = 2, then (bank 6 selected) loops one frame at a time - pads ($F493) and one object-loop pass ($8000) - until $07E8 reaches 0. RUN from a corridor savestate (so the room is not the real one): it returned after 420 frames with $07E8 stepping 2 -> 3 -> 0 and the ship ending near (152, 202). What the type-$81 ship does with its state counter, and the screen it plays on, were not worked out (LEAD)."
+    },
+    {
+      "id": "bank7.code_F506",
+      "offset": 128278,
+      "size": 13,
+      "kind": "code",
+      "name": "STAGE CLEAR: the jingle",
+      "confidence": "confirmed",
+      "cpu_addr": 62726,
+      "sha1": "3e8ed7d5621cff932c5d51ac677bfdb51c6fcc51",
+      "description": "Entered by JSR from the stage-end code $ECBD (corridor 21 at $ECC7, 22 at $ECE1, corridors 0-20 at $ECE7 - 1-20 after marking the corridor cleared, $EFBA). Plays sound $17 (the clear jingle; id not looked up) unless the corridor is 0 or 22, then selects bank 6."
+    },
+    {
+      "id": "bank7.code_F513",
+      "offset": 128291,
+      "size": 35,
+      "kind": "code",
+      "name": "Stage clear: stop the spawning, run the scroll down to a stop",
+      "confidence": "confirmed",
+      "cpu_addr": 62739,
+      "sha1": "c83853c3f16f6aac38cc684d41bebf5b461ada52",
+      "description": "$60 low two bits cleared (the spawn script stops), $A0 bit 0 cleared (the end-of-stage request that brought us here), then loops: speed target $BA/$BB = 0, the scroll step and speed ramp ($E66A: 2/256 a frame), one full game-loop pass ($FF8B: the ship, shots and enemies keep running) until the speed $B8/$B9 is 0. RUN: it takes speed / 2 frames - 19 for corridor 4 (speed 38), 20 for 21, 1,264 for corridor 0 (speed 2,528, the Defense System's stage)."
+    },
+    {
+      "id": "bank7.code_F536",
+      "offset": 128326,
+      "size": 17,
+      "kind": "code",
+      "name": "Stage clear: clear the objects, then the key if there is one",
+      "confidence": "confirmed",
+      "cpu_addr": 62774,
+      "sha1": "7320af9a62dcfe3cb28ad843235dbc90cae5196a",
+      "description": "$EA68 removes objects 1-23. A TGL game ($30 bit 1) goes straight to the flight at $F5DE; otherwise $F4A7 gives the corridor's key and none (corridors 0, 5, 7, 10, 11 and up) goes there too."
+    },
+    {
+      "id": "bank7.code_F547",
+      "offset": 128343,
+      "size": 31,
+      "kind": "code",
+      "name": "Stage clear: award the key",
+      "confidence": "confirmed",
+      "cpu_addr": 62791,
+      "sha1": "8efaf91bf5ccc423091f149e1ce027788ee53eac",
+      "description": "Y = the key number: bit (key - 1) is ORed into the key inventory $04B0 (the mask table at $EFD8, read from $EFD7 + key), sound $36 plays, $19:$18 = $15C0 (the pattern-table address the key's icon is built at) and A = the key number goes to the icon builder: far call to bank 2 slot $8006 (-> $8212; the 3 inline bytes follow at $F566). RUN, corridor 4: $04B0 went $00 -> $08 at frame 18, sound $36 at 18."
+    },
+    {
+      "id": "bank7.code_F569",
+      "offset": 128377,
+      "size": 53,
+      "kind": "code",
+      "name": "Key panel: paint a black 10 x 3 block of metatile $20",
+      "confidence": "confirmed",
+      "cpu_addr": 62825,
+      "sha1": "4bd77c6f8478ea701df0a6c811e58b90b4a04fdd",
+      "description": "Cells x = $30, $40 ... $C0 by y = $40, $50, $60 (pixel positions, 10 columns x 3 rows) are each filled with metatile $20 through $FAB7 (the block-redraw routine behind $FA96: it adds the scroll $A6 to y, wrapping at $F0, converts the position to a PPU address and queues the tiles; in a corridor, $30 bit 6, it skips the labyrinth's class write). The result is a plain black rectangle over the corridor (picture from the run)."
+    },
+    {
+      "id": "bank7.code_F59E",
+      "offset": 128430,
+      "size": 19,
+      "kind": "code",
+      "name": "Key panel: the icon's cell",
+      "confidence": "confirmed",
+      "cpu_addr": 62878,
+      "sha1": "1d261d7114958a6356910ce5db32befb84f62b52",
+      "description": "One more $FAB7 call with metatile $5C at (x $B0, y $50): the cell the key's icon sprite sits in."
+    },
+    {
+      "id": "bank7.code_F5B1",
+      "offset": 128449,
+      "size": 27,
+      "kind": "code",
+      "name": "Key panel: the text position and the message",
+      "confidence": "confirmed",
+      "cpu_addr": 62897,
+      "sha1": "fa0a6124aadaaf9cf99a37547269f652775e0662",
+      "description": "$19:$18 = (x $40, y $50 + scroll, wrapped and masked to a tile row) converted by $FA6B to a PPU address, then JSR $D53F with the inline string ' YOU GOT KEY' (12 characters, at $F5CC): the line is written at column 8 of the panel's middle row. RUN: the picture shows the black panel, YOU GOT KEY and the key icon."
+    },
+    {
+      "id": "bank7.code_F5D9",
+      "offset": 128489,
+      "size": 5,
+      "kind": "code",
+      "name": "Key panel: hold for 40 game-loop passes",
+      "confidence": "confirmed",
+      "cpu_addr": 62937,
+      "sha1": "e65637f487a6542d04702e0814c05403818adf6a",
+      "description": "LDY #$28 / JSR $FF8B: 40 passes (43 frames from the award to the flight in the run), then falls into the flight."
+    },
+    {
+      "id": "bank7.code_F5DE",
+      "offset": 128494,
+      "size": 52,
+      "kind": "code",
+      "name": "The ship flies away: set it up",
+      "confidence": "confirmed",
+      "cpu_addr": 62942,
+      "sha1": "41c1baf3653def2e6c4060b58646174739f6aeb4",
+      "description": "Slot 0 becomes type 5 (the flight ship), metasprite 1, $0560, tile base $06C8, phase $0638 and the y fraction cleared. Corridors 0 and 22: phase 1 at once and velocity/target 0 (it will climb); every other corridor: phase 0, y velocity and target $0668 = $FE, flags $0620 = 5."
+    },
+    {
+      "id": "bank7.code_F612",
+      "offset": 128546,
+      "size": 54,
+      "kind": "code",
+      "name": "The ship flies away: phase 0 (normal corridors)",
+      "confidence": "confirmed",
+      "cpu_addr": 62994,
+      "sha1": "bd6b8877c05ced31cfdf6d822b21c94bf7a3b42b",
+      "description": "Each pass: a game-loop pass ($FF8B, Y = 1), pads, sprite reset ($CDB4), X = 0. Phase 0: when y is below $20 it applies thrust $0C toward the target ($CD12), draws the ship ($CBE8; carry = it has left the screen) and, when it has, steps the phase, y := 0, y fraction and velocity := 0. RUN (corridor 4): the ship climbs at 2 px a frame from y 160, left the top at frame 85 of the flight and re-appeared at y 0 as phase 1."
+    },
+    {
+      "id": "bank7.code_F648",
+      "offset": 128600,
+      "size": 13,
+      "kind": "code",
+      "name": "The ship flies away: phase 1",
+      "confidence": "confirmed",
+      "cpu_addr": 63048,
+      "sha1": "2eb871f284154be7fb5f031253ee4b4910f7d2c2",
+      "description": "Thrust $20 toward the target $0668, draw, and leave the loop when the ship is off the screen. Target $0668 = $FE for normal corridors, so the ship comes in again from the top and DIVES, accelerating (y velocity 3, 6, 7 px a frame; off the bottom 57 frames later); target 0 for corridors 0 and 22, so from its place on the screen it climbs off the top (51 frames in corridor 0)."
+    },
+    {
+      "id": "bank7.code_F655",
+      "offset": 128613,
+      "size": 18,
+      "kind": "code",
+      "name": "The ship is gone: corridor 0 (and TGL) end here",
+      "confidence": "confirmed",
+      "cpu_addr": 63061,
+      "sha1": "31da94998ba07ba50aeec6842ff8cb73f145d235",
+      "description": "$CE88 finishes the sprites; corridor 0 (and the TGL path from $F6B2) sets $0680 = 1 (landing mode), fades out ($EDD1), turns the screen off ($D4E3) and jumps to the landing tail $F43C: no landing flight. Corridor 22 goes on at $F667, all others at $F6B2."
+    },
+    {
+      "id": "bank7.code_F667",
+      "offset": 128631,
+      "size": 32,
+      "kind": "code",
+      "name": "Corridor 22: the final score screen (set-up)",
+      "confidence": "confirmed",
+      "cpu_addr": 63079,
+      "sha1": "2b4160e4ca1fac8db02d9c46226740d22e06bc26",
+      "description": "Fade out, hide all sprites ($D534: $F8 to every OAM byte), screen off, sound $1F, scroll zeroed ($D4FD), nametable 0 blanked ($E445 with A = $20), wait for the decompressor, then the inline string 'YOUR FINAL SCORE' at PPU $2086."
+    },
+    {
+      "id": "bank7.code_F69A",
+      "offset": 128682,
+      "size": 3,
+      "kind": "code",
+      "name": "Final score: the fixed trailing zero",
+      "confidence": "confirmed",
+      "cpu_addr": 63130,
+      "sha1": "03da2e33aa5b962f9a2a263d206f6d662d7b7a30",
+      "description": "A second inline string, a single '0' at PPU $20CE: the score is kept in tens, so the screen prints a constant 0 after its six digits."
+    },
+    {
+      "id": "bank7.code_F6A1",
+      "offset": 128689,
+      "size": 14,
+      "kind": "code",
+      "name": "Final score: print the digits, then the ending",
+      "confidence": "confirmed",
+      "cpu_addr": 63137,
+      "sha1": "970b21d370eeae61dfd893ed46a6c35b685e46b8",
+      "description": "$19:$18 = $20C8 and $E118 prints the six score digits ($0170-$0175, leading zeros blanked); then the far call to bank 2 slot $8021 (-> $8A69, the ending; it never returns - see the ending notes)."
+    },
+    {
+      "id": "bank7.code_F6B2",
+      "offset": 128706,
+      "size": 17,
+      "kind": "code",
+      "name": "Normal corridors: fade out and start the LANDING flight",
+      "confidence": "confirmed",
+      "cpu_addr": 63154,
+      "sha1": "d5b5aa34d96eafc51fd3f14f39c7263951cde34a",
+      "description": "TGL games take $F659 (no flight). Otherwise: fade ($EDD1), bank 5, A = 1 and JMP $F2BB, the launch routine with the mode set to 1 - the landing flight - whose RTS returns to the caller of $F506. RUN: corridor 4 flew from $F6B8 at frame 203 to $F2BB at 211 and the landing finished 352 frames later; **corridor 21 takes the same path and DOES reach the 'entry 0' block**: sound $2D and bank 4 entry 0 ($826D), a landing 1,061 frames long (CORRECTION: the launch-flight notes called this unreached)."
+    },
+    {
+      "id": "bank7.code_F6C3",
+      "offset": 128723,
+      "size": 24,
+      "kind": "code",
+      "name": "The ship's exhaust flame",
+      "confidence": "confirmed",
+      "cpu_addr": 63171,
+      "sha1": "c09dc1ee8409ae96497ef724bae9dc724f48a3c9",
+      "description": "$0788 counts frames; tile base $87 = $32 + ($0788 AND 2) (alternating $32 / $34), metasprite $1D drawn with $CC34 at the ship, then $CE88 and back to the loop at $F612. The same flame the launch flight draws."
+    },
+    {
+      "id": "bank7.code_F6E5",
+      "offset": 128757,
+      "size": 16,
+      "kind": "code",
+      "name": "Load the corridor ship's sprite sheet",
+      "confidence": "confirmed",
+      "cpu_addr": 63205,
+      "sha1": "eeb7c65916758fbf70ddd9be420b70aaa0d1c592",
+      "description": "$19:$18 = 0 (PPU $0000), block 5 of bank 2 armed for the decompressor ($D7F9) and waited for. Callers: $ECD0, $F295, $F2BE. RUN."
+    },
+    {
+      "id": "bank7.code_F6F5",
+      "offset": 128773,
+      "size": 16,
+      "kind": "code",
+      "name": "Load the labyrinth ship's sprite sheet",
+      "confidence": "confirmed",
+      "cpu_addr": 63221,
+      "sha1": "1f6cf87265dd4ad93b3d58d1406f6b3c3059a816",
+      "description": "Block 4 of bank 2 to PPU $0000. Callers: $EB66 and the landing tail $F468. RUN."
+    },
+    {
+      "id": "bank7.code_F705",
+      "offset": 128789,
+      "size": 18,
+      "kind": "code",
+      "name": "Load block $0C of bank 2 to PPU $0740",
+      "confidence": "confirmed",
+      "cpu_addr": 63237,
+      "sha1": "cec4c1b01413eccaf8ef63ef654decc05496c6cb",
+      "description": "The common sprite tiles of the corridors (what they hold was not drawn). Reached by JMP from $F455 at the end of a launch. RUN."
+    },
+    {
+      "id": "bank7.code_F717",
+      "offset": 128807,
+      "size": 91,
+      "kind": "code",
+      "name": "Load the sprite tiles for the selected weapon",
+      "confidence": "confirmed",
+      "cpu_addr": 63255,
+      "sha1": "0b7df5e68148915ade9d690ec14f23fbc51e2661",
+      "description": "Block 6 of bank 2 to PPU $0680 always, then by the weapon $3C and its level $3D: tables $F77F (0 none, 1/2 a level threshold, $FF the beam), $F772 (the block) and $F78B (the beam's block by level). RUN, every weapon x level 0-3: no weapon or the Enemy Eraser (12): nothing more; 1 MultiBullets, 4 Bullet Shield, 8 Repeller: block 7 at $0760, but block $0A at $0780 instead at level 3; 6 Fireball the same from level 2; 2 Back Fire and 3 Wave Attack: block $0B at $0760; 5 Grenade: $0A at $0780 and 8 at $0760; 7, 10, 11: block 7 at $0760; 9 Hyper Laser: blocks $1E, $1F, $20 at $0760 for levels 1-3 (none at 0). Callers: $EB69, $ECD3, $F452 and by JMP $F46B."
+    }
+  ]
+}

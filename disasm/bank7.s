@@ -5864,12 +5864,14 @@ L7_F46E:
 ; Table, 12 bytes (structural extent)
         .byte   $00,$40,$40,$40,$40,$40,$40,$00,$00,$00,$00,$00
 
-; ---- bank7.code_F493 (code) $F493-$F565, 211 bytes
+; ---- bank7.code_F493 (code) $F493-$F49C, 10 bytes
 L7_F493:
         jsr     L7_D64C
         lda     $30
         bmi     L7_F49D
         jmp     L7_E4B3
+
+; ---- bank7.code_F49D (code) $F49D-$F4A6, 10 bytes
 L7_F49D:
         lda     $F5
         and     #$10
@@ -5877,6 +5879,8 @@ L7_F49D:
         jmp     L7_FF4A
 L7_F4A6:
         rts
+
+; ---- bank7.code_F4A7 (code) $F4A7-$F4B6, 16 bytes
 L7_F4A7:
         ldy     $51
         beq     L7_F4B6
@@ -5888,6 +5892,8 @@ L7_F4B3:
         lda     $F6DA,Y
 L7_F4B6:
         rts
+
+; ---- bank7.code_F4B7 (code) $F4B7-$F505, 79 bytes
 L7_F4B7:
         lda     #$81
         sta     $0500
@@ -5921,6 +5927,8 @@ L7_F4F5:
         lda     $07E8
         bne     L7_F4F5
         rts
+
+; ---- bank7.code_F506 (code) $F506-$F512, 13 bytes
 L7_F506:
         lda     #$17
         ldy     $51
@@ -5928,6 +5936,8 @@ L7_F506:
         cpy     #$16
         beq     L7_F513
         jsr     L7_D852
+
+; ---- bank7.code_F513 (code) $F513-$F535, 35 bytes
 L7_F513:
         jsr     L7_D762
         lda     $60
@@ -5946,6 +5956,8 @@ L7_F522:
         lda     $B8
         ora     $B9
         bne     L7_F522
+
+; ---- bank7.code_F536 (code) $F536-$F546, 17 bytes
         jsr     L7_EA68
         lda     $30
         and     #$02
@@ -5954,6 +5966,8 @@ L7_F522:
         bne     L7_F547
 L7_F544:
         jmp     L7_F5DE
+
+; ---- bank7.code_F547 (code) $F547-$F565, 31 bytes
 L7_F547:
         tay
         lda     $EFD7,Y
@@ -5973,7 +5987,7 @@ L7_F547:
 ; Far-call argument at $F566
         .byte   $02,$05,$80
 
-; ---- bank7.code_F569 (code) $F569-$F5CB, 99 bytes
+; ---- bank7.code_F569 (code) $F569-$F59D, 53 bytes
         lda     #$30
         sta     $1B
         lda     #$40
@@ -6002,6 +6016,8 @@ L7_F571:
 L7_F599:
         sta     $1B
         jmp     L7_F571
+
+; ---- bank7.code_F59E (code) $F59E-$F5B0, 19 bytes
 L7_F59E:
         lda     #$B0
         sta     $19
@@ -6012,6 +6028,8 @@ L7_F59E:
         lda     #$00
         sta     $17
         jsr     L7_FAB7
+
+; ---- bank7.code_F5B1 (code) $F5B1-$F5CB, 27 bytes
         lda     #$40
         sta     $19
         lda     #$50
@@ -6032,9 +6050,11 @@ L7_F5C2:
 ; " YOU GOT KEY" at $F5CC
         .byte   $0C,$20,$59,$4F,$55,$20,$47,$4F,$54,$20,$4B,$45,$59
 
-; ---- bank7.code_F5D9 (code) $F5D9-$F686, 174 bytes
+; ---- bank7.code_F5D9 (code) $F5D9-$F5DD, 5 bytes
         ldy     #$28
         jsr     L7_FF8B
+
+; ---- bank7.code_F5DE (code) $F5DE-$F611, 52 bytes
 L7_F5DE:
         lda     #$05
         sta     $0500
@@ -6060,6 +6080,8 @@ L7_F607:
         sta     $0668
         lda     #$05
         sta     $0620
+
+; ---- bank7.code_F612 (code) $F612-$F647, 54 bytes
 L7_F612:
         ldy     #$01
         jsr     L7_FF8B
@@ -6084,12 +6106,16 @@ L7_F638:
         sta     $05C0
         sta     $05D8
         bne     L7_F6C3
+
+; ---- bank7.code_F648 (code) $F648-$F654, 13 bytes
 L7_F648:
         lda     #$20
         jsr     L7_CD12
         jsr     L7_CBE8
         bcc     L7_F6C3
         jsr     L7_CE88
+
+; ---- bank7.code_F655 (code) $F655-$F666, 18 bytes
         lda     $51
         bne     L7_F667
 L7_F659:
@@ -6098,6 +6124,8 @@ L7_F659:
         jsr     L7_EDD1
         jsr     L7_D4E3
         jmp     L7_F43C
+
+; ---- bank7.code_F667 (code) $F667-$F686, 32 bytes
 L7_F667:
         cmp     #$16
         bne     L7_F6B2
@@ -6136,7 +6164,7 @@ L7_F667:
 ; Far-call argument at $F6AF
         .byte   $02,$20,$80
 
-; ---- bank7.code_F6B2 (code) $F6B2-$F6DA, 41 bytes
+; ---- bank7.code_F6B2 (code) $F6B2-$F6C2, 17 bytes
 L7_F6B2:
         lda     $30
         and     #$02
@@ -6145,6 +6173,8 @@ L7_F6B2:
         jsr     L7_D755
         lda     #$01
         jmp     L7_F2BB
+
+; ---- bank7.code_F6C3 (code) $F6C3-$F6DA, 24 bytes
 L7_F6C3:
         inc     $0788
         lda     $0788
@@ -6161,7 +6191,7 @@ L7_F6C3:
 ; Key awarded by corridors 1-10
         .byte   $01,$02,$03,$04,$00,$05,$00,$06,$07,$00
 
-; ---- bank7.code_F6E5 (code) $F6E5-$F771, 141 bytes
+; ---- bank7.code_F6E5 (code) $F6E5-$F6F4, 16 bytes
 L7_F6E5:
         lda     #$00
         sta     $19
@@ -6170,6 +6200,8 @@ L7_F6E5:
         ldy     #$02
         jsr     L7_D7F9
         jmp     L7_D7C3
+
+; ---- bank7.code_F6F5 (code) $F6F5-$F704, 16 bytes
 L7_F6F5:
         lda     #$00
         sta     $19
@@ -6178,6 +6210,8 @@ L7_F6F5:
         ldy     #$02
         jsr     L7_D7F9
         jmp     L7_D7C3
+
+; ---- bank7.code_F705 (code) $F705-$F716, 18 bytes
 L7_F705:
         lda     #$07
         sta     $19
@@ -6187,6 +6221,8 @@ L7_F705:
         ldy     #$02
         jsr     L7_D7F9
         jmp     L7_D7C3
+
+; ---- bank7.code_F717 (code) $F717-$F771, 91 bytes
 L7_F717:
         lda     #$06
         sta     $19
