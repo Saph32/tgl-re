@@ -1,0 +1,170 @@
+{
+  "_comment": "Hand-authored. Drawing a whole room and one row band of it, bank 7 $EFF3-$F099. The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank7.code_EFF3",
+      "offset": 126979,
+      "size": 14,
+      "kind": "code",
+      "name": "Draw a whole room: set up",
+      "confidence": "confirmed",
+      "cpu_addr": 61427,
+      "sha1": "2f86b1558e8b1326f23bc3f9c1622f40764e5c16",
+      "description": "In: A = the high byte of the nametable to draw into ($20 = nametable 0, $24 = nametable 1). Callers: the room load ($EF08), $EEA2 and the room-change scrolls ($F0B1, $F1C8, $F1DC). Band index $AE = 0, room-buffer offset $16 = 0, $17 = A, the scroll step $B7 = 0 and the pixel counter $AF = $20 (advanced 16 a band; nothing here reads it)."
+    },
+    {
+      "id": "bank7.code_F001",
+      "offset": 126993,
+      "size": 30,
+      "kind": "code",
+      "name": "Draw a whole room: thirteen bands",
+      "confidence": "confirmed",
+      "cpu_addr": 61441,
+      "sha1": "6f15e8eba6a5ab92e791b1a2c10916c63de4a8ee",
+      "description": "Thirteen times: wait for queue room ($E5EB), draw one band ($F03D), and, when drawing into nametable 0 only ($17 = $20), call bank 5 $802A (-> $89FB: spawn the ground objects the band's metatiles name, through their fifth byte's high nibble). So a room's objects appear once, from the nametable-0 draw; the nametable-1 draw that precedes a scroll spawns nothing. Bands 0-11 are the room's twelve 16-pixel rows (192 bytes of the room buffer $0740, 16 a band); band 12 is the blank row 24. RUN: 13 calls with ($AE, $16) = (0, 0), (1, 16) ... (12, 192). The room buffer must be fresh: it shares its page with the object fields, so after play it is garbage (a redraw of the stale buffer put the wrong tiles in all 192 cells; after bank 5 $8003 rebuilt it, 191 of 192 cells matched the savestate, the odd one being under an object)."
+    },
+    {
+      "id": "bank7.code_F01F",
+      "offset": 127023,
+      "size": 6,
+      "kind": "code",
+      "name": "Draw a whole room: nametable 0 clears the rest",
+      "confidence": "confirmed",
+      "cpu_addr": 61471,
+      "sha1": "955a7810cf182f5e2fabd3e2c34bc1910a3edcf3",
+      "description": "Only for nametable 0 ($17 = $20) the three blank fills below run; others jump to the wait at $F03A."
+    },
+    {
+      "id": "bank7.code_F025",
+      "offset": 127029,
+      "size": 3,
+      "kind": "code",
+      "name": "Blank row 25 of nametable 0",
+      "confidence": "confirmed",
+      "cpu_addr": 61477,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "JSR $D5CC (the fill routine); its four inline bytes follow."
+    },
+    {
+      "id": "bank7.fill_F028",
+      "offset": 127032,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 32 blanks at PPU $2320",
+      "confidence": "confirmed",
+      "cpu_addr": 61480,
+      "sha1": "751e762092e1c940db521d64ef31b1593891b4f6",
+      "description": "[count $20][$23][$20][value $20]: nametable 0 row 25."
+    },
+    {
+      "id": "bank7.code_F02C",
+      "offset": 127036,
+      "size": 3,
+      "kind": "code",
+      "name": "Blank rows 26-27 of nametable 0",
+      "confidence": "confirmed",
+      "cpu_addr": 61484,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "The next fill call."
+    },
+    {
+      "id": "bank7.fill_F02F",
+      "offset": 127039,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 64 blanks at PPU $2340",
+      "confidence": "confirmed",
+      "cpu_addr": 61487,
+      "sha1": "244885905272abcbd14120f4f145ac89d2f86e06",
+      "description": "[count $40][$23][$40][value $20]: rows 26 and 27."
+    },
+    {
+      "id": "bank7.code_F033",
+      "offset": 127043,
+      "size": 3,
+      "kind": "code",
+      "name": "Blank rows 28-29 of nametable 0",
+      "confidence": "confirmed",
+      "cpu_addr": 61491,
+      "sha1": "e245732b7455ac5fc504bf46ceafaacdfb17b35f",
+      "description": "The third fill call."
+    },
+    {
+      "id": "bank7.fill_F036",
+      "offset": 127046,
+      "size": 4,
+      "kind": "data",
+      "name": "Fill arguments: 64 blanks at PPU $2380",
+      "confidence": "confirmed",
+      "cpu_addr": 61494,
+      "sha1": "e621bd3be6ff24997a1b872690c3425231186733",
+      "description": "[count $40][$23][$80][value $20]: rows 28 and 29. With band 12 (row 24) the whole of nametable 0 below the room is blank. RUN: after a draw rows 25-29 were all $20."
+    },
+    {
+      "id": "bank7.code_F03A",
+      "offset": 127050,
+      "size": 3,
+      "kind": "code",
+      "name": "Draw a whole room: wait for the queue to drain",
+      "confidence": "confirmed",
+      "cpu_addr": 61498,
+      "sha1": "63272467052f4a1fc79aca7d9b2275d3dc68361e",
+      "description": "JMP $D7C3 (wait for the decompressor and queue); its RTS returns to the caller."
+    },
+    {
+      "id": "bank7.code_F03D",
+      "offset": 127053,
+      "size": 9,
+      "kind": "code",
+      "name": "Draw one row band: its address",
+      "confidence": "confirmed",
+      "cpu_addr": 61501,
+      "sha1": "a64e009ad0e5b8ab589c1754230c8f521af843af",
+      "description": "Slot-less helper (callers: $F004, the north/south scroll bands $F189 and $F207). $EACC turns the band index $AE into the attribute offset $AA and the PPU address $AC/$AD (the pair table at $EAE2); $AD is ORed with $17, which selects the nametable ($20, $24, or $28 for the corridor-style alias the north scroll uses)."
+    },
+    {
+      "id": "bank7.code_F046",
+      "offset": 127062,
+      "size": 6,
+      "kind": "code",
+      "name": "Draw one row band: ordinary band or the blank row?",
+      "confidence": "confirmed",
+      "cpu_addr": 61510,
+      "sha1": "f526c25683bb3fe2051a90b0f0b594ededd1eeb5",
+      "description": "$16 is the room-buffer offset of the band: $C0 (192, one past the twelve bands) means the blank row, anything else is an ordinary band."
+    },
+    {
+      "id": "bank7.code_F04C",
+      "offset": 127068,
+      "size": 54,
+      "kind": "code",
+      "name": "Draw one row band: the blank row 24",
+      "confidence": "confirmed",
+      "cpu_addr": 61516,
+      "sha1": "2329102add5c0a29ed52e2823f02cefb935d2af0",
+      "description": "The row under the room, where the HUD split happens. $10 = 0 for an even band index, $0F for an odd one; the 32 tiles at $0130 are set to $20 (blank) and then tile 0 to $FE, the SOLID SPLIT MARKER (column 0 is what the sprite-0 hit sees); the eight attribute bytes $04E8-$04EF are ANDed with $10 (cleared for an even index, the low nibble kept for an odd one) and the 16 metatile ids $04C0-$04CF zeroed; $A5 = 3 (attributes and one row). RUN: row 24 read FE 20 20 20 ... after a draw."
+    },
+    {
+      "id": "bank7.code_F082",
+      "offset": 127122,
+      "size": 14,
+      "kind": "code",
+      "name": "Draw one row band: copy the band's 16 ids",
+      "confidence": "confirmed",
+      "cpu_addr": 61570,
+      "sha1": "319965f64ad5040da4e17fe862554eb454213471",
+      "description": "16 bytes from the room buffer $0740 + $16 into $04C0-$04CF (the ids the metatile drawer reads), Y advancing."
+    },
+    {
+      "id": "bank7.code_F090",
+      "offset": 127136,
+      "size": 10,
+      "kind": "code",
+      "name": "Draw one row band: draw it and hand it to the NMI",
+      "confidence": "confirmed",
+      "cpu_addr": 61584,
+      "sha1": "1e5723c5bbbfdbd825cb1e7b20ceb2371a5e83d8",
+      "description": "$16 = Y (the next band's offset); bank 5 $8009 (-> $83B3) draws the 16 metatiles into the tile rows $0130/$0150 and the attributes $04E8, writing each metatile's fifth byte back; $A5 = 1 (a row is waiting: the NMI sends the attributes and the first tile row, and the second goes into the queue through $E619). Returns. RUN: for the savestate's room the nametable and ALL 64 attribute bytes came out equal to the live ones."
+    }
+  ]
+}
