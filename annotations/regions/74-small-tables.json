@@ -717,28 +717,6 @@
       "description": "$F4A7: LDY $51 (the corridor) / BEQ / CPY #$0B / BCC - so corridors 1-10 only - LDA $F6DA,Y. $F4B7 passes the same value to the far call to bank 2 $8006, the key-icon builder, after LDA #$81 / STA $0500 / ORA $04B0 / STA $04B0 on the key inventory. Values 1 2 3 4 0 5 0 6 7 0. Checked against the world map: corridor n gives the key that labyrinth area n+1 needs (areas 1-10 need 0,1,2,3,4,4,5,5,6,7), and corridors 5, 7 and 10 give none because the next area needs a key already held."
     },
     {
-      "id": "bank7.tbl_F95B",
-      "offset": 129387,
-      "size": 3,
-      "kind": "data",
-      "name": "Aiming thresholds: tan(33.75, 22.5, 11.25 degrees) x 256",
-      "confidence": "confirmed",
-      "cpu_addr": 63835,
-      "sha1": "ca7560d526c174a3c60b337e80172bf42878af86",
-      "description": "$F8BE: CMP $F95A,Y for Y = 3 down to 1 against the ratio min(|dx|,|dy|) x 256 / max(|dx|,|dy|) that $F9B6 divides out. AB 6A 32 = 171, 106, 50; tan 33.75 = 0.668 (171), tan 22.5 = 0.414 (106), tan 11.25 = 0.199 (51). So the step Y (0-3) is which of four 22.5-degree slices of an octant the direction falls in. Y is never 0 at the compare, so the read base is one byte early; $F95A is the RTS before."
-    },
-    {
-      "id": "bank7.tbl_F95E",
-      "offset": 129390,
-      "size": 32,
-      "kind": "data",
-      "name": "Aiming: octant and step to one of 16 directions",
-      "confidence": "confirmed",
-      "cpu_addr": 63838,
-      "sha1": "c81c5cda5766ff44968adf266b23cc0c468532b3",
-      "description": "$F8C6: TYA / ORA $38 / TAY / LDA $F95E,Y. $F863 builds $38 from the two objects' positions: bit 2 = the target is left, bit 3 = above, bit 4 = the vertical distance is the larger. With the step 0-3 from the thresholds, Y covers 0-31 and every value in the table is 0-15 - a direction in sixteenths of a turn. 32 bytes, ending exactly where the tables at $F97E begin."
-    },
-    {
       "id": "bank7.tbl_FD4B",
       "offset": 130395,
       "size": 8,

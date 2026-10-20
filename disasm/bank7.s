@@ -6428,10 +6428,12 @@ L7_F852:
 L7_F85C:
         rts
 
-; ---- bank7.code_F85D (code) $F85D-$F95A, 254 bytes
+; ---- bank7.code_F85D (code) $F85D-$F862, 6 bytes
 L7_F85D:
         jsr     L7_F863
         jmp     L7_F8CE
+
+; ---- bank7.code_F863 (code) $F863-$F885, 35 bytes
 L7_F863:
         ldy     #$00
 L7_F865:
@@ -6452,6 +6454,8 @@ L7_F865:
 L7_F882:
         bne     L7_F886
         inc     $10
+
+; ---- bank7.code_F886 (code) $F886-$F8A2, 29 bytes
 L7_F886:
         lda     $0530,Y
         sec
@@ -6468,6 +6472,8 @@ L7_F886:
 L7_F89F:
         bne     L7_F8A3
         inc     $11
+
+; ---- bank7.code_F8A3 (code) $F8A3-$F8B4, 18 bytes
 L7_F8A3:
         lda     $11
         cmp     $10
@@ -6478,6 +6484,8 @@ L7_F8A3:
         lda     $38
         ora     #$10
         sta     $38
+
+; ---- bank7.code_F8B5 (code) $F8B5-$F8CD, 25 bytes
 L7_F8B5:
         ldy     $11
         lda     $10
@@ -6494,6 +6502,8 @@ L7_F8C6:
         tay
         lda     $F95E,Y
         rts
+
+; ---- bank7.code_F8CE (code) $F8CE-$F8EB, 30 bytes
 L7_F8CE:
         and     #$0F
         sty     $38
@@ -6511,6 +6521,8 @@ L7_F8E3:
         sta     $13
         bpl     L7_F8EC
         dec     $11
+
+; ---- bank7.code_F8EC (code) $F8EC-$F91C, 49 bytes
 L7_F8EC:
         lda     $0698,X
         bpl     L7_F909
@@ -6537,6 +6549,8 @@ L7_F909:
         rol     $11
         asl     $13
         rol     $11
+
+; ---- bank7.code_F91D (code) $F91D-$F957, 59 bytes
 L7_F91D:
         lda     $0698,X
         and     #$3F
@@ -6564,48 +6578,53 @@ L7_F933:
         sta     $0608,X
         dey
         bne     L7_F933
+
+; ---- bank7.code_F958 (code) $F958-$F95A, 3 bytes
 L7_F958:
         ldy     $38
         rts
 
 ; ---- bank7.tbl_F95B (data) $F95B-$F95D, 3 bytes
-; Aiming thresholds: tan(33.75, 22.5, 11.25 degrees) x 256
+; Aiming thresholds
         .byte   $AB,$6A,$32
 
 ; ---- bank7.tbl_F95E (data) $F95E-$F97D, 32 bytes
-; Aiming: octant and step to one of 16 directions
+; Aiming: direction by flags and angle step
         .byte   $02,$03,$03,$04,$0E,$0D,$0D,$0C,$06,$05,$05,$04,$0A,$0B,$0B,$0C
         .byte   $02,$01,$01,$00,$0E,$0F,$0F,$00,$06,$07,$07,$08,$0A,$09,$09,$08
 
-; ---- bank7.code_F97E (code) $F97E-$F985, 8 bytes
+; ---- bank7.code_F97E (code) $F97E-$F981, 4 bytes
 L7_F97E:
         lda     $F986,Y
         rts
+
+; ---- bank7.code_F982 (code) $F982-$F985, 4 bytes
 L7_F982:
         lda     $F98E,Y
         rts
 
-; ---- bank7.tbl_F986 (data) $F986-$F98D, 8 bytes
-; Table, 8 bytes
+; ---- bank7.tbl_F986 (data) $F986-$F9AD, 40 bytes
+; Sine table: 120 x sin(11.25 degrees x k), k = 0-39
+        .byte   $00,$17,$2D,$42,$54,$63,$6E,$75,$78,$75,$6E,$63,$54,$42,$2D,$17
+        .byte   $00,$E9,$D3,$BE,$AC,$9D,$92,$8B,$88,$8B,$92,$9D,$AC,$BE,$D3,$E9
         .byte   $00,$17,$2D,$42,$54,$63,$6E,$75
 
-; ---- bank7.tbl_F98E (data) $F98E-$F9AD, 32 bytes
-; Table, 32 bytes (structural extent)
-        .byte   $78,$75,$6E,$63,$54,$42,$2D,$17,$00,$E9,$D3,$BE,$AC,$9D,$92,$8B
-        .byte   $88,$8B,$92,$9D,$AC,$BE,$D3,$E9,$00,$17,$2D,$42,$54,$63,$6E,$75
-
-; ---- bank7.code_F9AE (code) $F9AE-$FA5A, 173 bytes
+; ---- bank7.code_F9AE (code) $F9AE-$F9B5, 8 bytes
 L7_F9AE:
         sta     $10
         sty     $11
         lda     #$00
         beq     L7_F9BD
+
+; ---- bank7.code_F9B6 (code) $F9B6-$F9BC, 7 bytes
 L7_F9B6:
         sta     $10
         lda     #$00
 L7_F9BA:
         sta     $11
         tya
+
+; ---- bank7.code_F9BD (code) $F9BD-$F9D0, 20 bytes
 L7_F9BD:
         ldy     #$08
 L7_F9BF:
@@ -6621,6 +6640,8 @@ L7_F9CA:
         tay
         lda     $11
         rts
+
+; ---- bank7.code_F9D1 (code) $F9D1-$FA5A, 138 bytes
 L7_F9D1:
         stx     $10
         rol     A

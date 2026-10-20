@@ -1,0 +1,192 @@
+{
+  "_comment": "Hand-authored. Aiming (direction to the player), direction to velocity, the sine table and the 8-bit division, bank 7 $F85D-$F9D0. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank7.code_F85D",
+      "offset": 129133,
+      "size": 6,
+      "kind": "code",
+      "name": "Aim at the player and fly that way",
+      "confidence": "confirmed",
+      "cpu_addr": 63581,
+      "sha1": "19eb40d3b719583412eba8cbc4570664ab55fcfe",
+      "description": "Slot $C0FC. $F863 (the direction to slot 0) and then $F8CE (turn that direction into a velocity for object X): the bullet and homing-enemy idiom. Called from $FE71 and through the slot. RUN on the harness."
+    },
+    {
+      "id": "bank7.code_F863",
+      "offset": 129139,
+      "size": 35,
+      "kind": "code",
+      "name": "Aim: the vertical distance",
+      "confidence": "confirmed",
+      "cpu_addr": 63587,
+      "sha1": "03910c6d61d119165e58a6eb9d807245ece1c5c9",
+      "description": "Slot $C0FF. In: X = the shooter, Y = 0 (the target is slot 0, the player's ship). $38 = 0 collects flags. dy = $0518,Y - $0518,X is made positive in $10 (flag $04 when the target is ABOVE, i.e. negative) and a zero becomes 1, so the division below never has a zero. Positions are the objects' own y and x fields, not their centres. RUN on the harness."
+    },
+    {
+      "id": "bank7.code_F886",
+      "offset": 129174,
+      "size": 29,
+      "kind": "code",
+      "name": "Aim: the horizontal distance",
+      "confidence": "confirmed",
+      "cpu_addr": 63622,
+      "sha1": "af7b941c7b944971372131fb9c19ef582faa940b",
+      "description": "The same for x into $11: flag $08 when the target is to the LEFT; zero becomes 1."
+    },
+    {
+      "id": "bank7.code_F8A3",
+      "offset": 129203,
+      "size": 18,
+      "kind": "code",
+      "name": "Aim: put the larger distance first",
+      "confidence": "confirmed",
+      "cpu_addr": 63651,
+      "sha1": "13ccf153310cb088338e4caafe293e2b5c24e280",
+      "description": "If |dx| >= |dy| the two are swapped (so $10 is always the larger, $11 the smaller) and flag $10 is set: the line is more horizontal than vertical."
+    },
+    {
+      "id": "bank7.code_F8B5",
+      "offset": 129221,
+      "size": 25,
+      "kind": "code",
+      "name": "Aim: the angle from a ratio, then the direction",
+      "confidence": "confirmed",
+      "cpu_addr": 63669,
+      "sha1": "e445b0c29430a4acaccabc52587e645528a31e8d",
+      "description": "$F9B6 computes smaller x 256 / larger (tan of the angle off the major axis, 0-255). It is compared with the three thresholds at $F95B ($AB, $6A, $32 = tan 33.75, 22.5 and 11.25 degrees x 256, tried from the smallest) giving Y = 3 (within 11.25 degrees of the axis) down to 0 (33.75 degrees or more); Y OR the flags indexes the 32-byte table $F95E, which holds the direction 0-15. Out: A = the direction (0 right, 4 down, 8 left, 12 up, 22.5 degrees each); X unchanged; Y = the table index, NOT preserved. RUN: the 16 directions come out at every 22.5 degrees; a 910-point grid matches an independent model built from the thresholds, and 529 offsets match 'nearest of 16 by atan2' with no difference; a target on top of the shooter gives 2 (down-right); a target in slot 3 works the same."
+    },
+    {
+      "id": "bank7.code_F8CE",
+      "offset": 129246,
+      "size": 30,
+      "kind": "code",
+      "name": "Direction to velocity: the base vector",
+      "confidence": "confirmed",
+      "cpu_addr": 63694,
+      "sha1": "810464a513854a3a4778103c712e4c6e6aab2bb2",
+      "description": "Slot $C102. In: A = the direction (AND $0F), X = the object. Y is kept in $38. The 16-bit vector is built from the sine table: y = $F986[2 x dir] -> $12 (sign extended into $10) and x = $F98E[2 x dir] -> $13 (into $11), i.e. 120 x sin and 120 x cos of the direction in 1/256 pixel. RUN on the harness."
+    },
+    {
+      "id": "bank7.code_F8EC",
+      "offset": 129276,
+      "size": 49,
+      "kind": "code",
+      "name": "Direction to velocity: the speed class scale",
+      "confidence": "confirmed",
+      "cpu_addr": 63724,
+      "sha1": "20b86f4fe16f87ee85158b953859836e3fa9f100",
+      "description": "The object's $0698: bit 7 multiplies the vector by 8 (three shifts), bit 6 by 4 (two more); both give 32. The low six bits are the multiplier applied next."
+    },
+    {
+      "id": "bank7.code_F91D",
+      "offset": 129325,
+      "size": 59,
+      "kind": "code",
+      "name": "Direction to velocity: add it count times",
+      "confidence": "confirmed",
+      "cpu_addr": 63773,
+      "sha1": "0a8d3b9e234b698e3710d3a6b6aa56b3ac0b2a55",
+      "description": "Zeroes the object's velocity fields ($05C0/$05D8 y fraction/integer, $05F0/$0608 x) and adds the scaled vector (low six bits of $0698) times. A count of 0 returns BEFORE this, leaving the velocity as it was. So speed = 120 x scale x count / 256 pixels a frame: $0698 = $81 is 3.75, $43 5.62, $82 7.5, $83 11.25, $C1 15.0, $01 0.47, $7F 118 - the gun's speed classes. RUN, all of these."
+    },
+    {
+      "id": "bank7.code_F958",
+      "offset": 129384,
+      "size": 3,
+      "kind": "code",
+      "name": "Direction to velocity: restore Y",
+      "confidence": "confirmed",
+      "cpu_addr": 63832,
+      "sha1": "7e12afa8e50393be997de5a7fc0b25da7ac03205",
+      "description": "LDY $38 and RTS (also the end byte the table below is indexed from)."
+    },
+    {
+      "id": "bank7.tbl_F95B",
+      "offset": 129387,
+      "size": 3,
+      "kind": "data",
+      "name": "Aiming thresholds",
+      "confidence": "confirmed",
+      "cpu_addr": 63835,
+      "sha1": "ca7560d526c174a3c60b337e80172bf42878af86",
+      "description": "$AB $6A $32 = tan(33.75), tan(22.5), tan(11.25) x 256 (171, 106 and 50; the exact values are 171.1, 106.0 and 50.9). Read as $F95A + Y for Y = 3, 2, 1: the base is the RTS byte before the table, the overlap trick again."
+    },
+    {
+      "id": "bank7.tbl_F95E",
+      "offset": 129390,
+      "size": 32,
+      "kind": "data",
+      "name": "Aiming: direction by flags and angle step",
+      "confidence": "confirmed",
+      "cpu_addr": 63838,
+      "sha1": "c81c5cda5766ff44968adf266b23cc0c468532b3",
+      "description": "32 bytes in four groups of eight: index = flags ($04 target above, $08 target left, $10 more horizontal than vertical) + the step Y = 0-3 above. Not swapped (vertical major): down-right 2 3 3 4, up-right 14 13 13 12, down-left 6 5 5 4, up-left 10 11 11 12; swapped (horizontal major): 2 1 1 0, 14 15 15 0, 6 7 7 8, 10 9 9 8. Step 3 is the pure axis direction (4 down, 12 up, 0 right, 8 left), step 0 the diagonal."
+    },
+    {
+      "id": "bank7.code_F97E",
+      "offset": 129422,
+      "size": 4,
+      "kind": "code",
+      "name": "Sine lookup",
+      "confidence": "confirmed",
+      "cpu_addr": 63870,
+      "sha1": "7e3985ca996b6c9434a6c8d824cd8b8cd1e0c074",
+      "description": "Slot $C0F6: A = $F986,Y: 120 x sin(11.25 degrees x Y) as a signed byte (Y 0-31). Callers: the orbiting weapon in bank 6 ($88A0, $88B7: the Bullet Shield's position round the ship from a 32-step phase, the result scaled down by arithmetic shifts). RUN: Y = 4, 8, 16, 24 gave 84, 120, 0, -120."
+    },
+    {
+      "id": "bank7.code_F982",
+      "offset": 129426,
+      "size": 4,
+      "kind": "code",
+      "name": "Cosine lookup",
+      "confidence": "confirmed",
+      "cpu_addr": 63874,
+      "sha1": "0d1eeee15cc61931270c61bddc5693829a5cc839",
+      "description": "Slot $C0F9: A = $F98E,Y, the same table eight entries on (+90 degrees): 120 x cos. RUN: Y = 0 gave 120, 16 gave -120."
+    },
+    {
+      "id": "bank7.tbl_F986",
+      "offset": 129430,
+      "size": 40,
+      "kind": "data",
+      "name": "Sine table: 120 x sin(11.25 degrees x k), k = 0-39",
+      "confidence": "confirmed",
+      "cpu_addr": 63878,
+      "sha1": "d09275983c80f64a1f323a8cd58c17bc35660cd3",
+      "description": "00 17 2d 42 54 63 6e 75 78 75 6e 63 54 42 2d 17 00 e9 d3 be ac 9d 92 8b 88 8b 92 9d ac be d3 e9 then 00 17 2d 42 54 63 6e 75 again: a full circle of 32 signed bytes (peak $78 = 120) and the first eight repeated so that cosine = the same table read eight entries (a quarter turn) later, up to k = 31 + 8. The direction routine reads every second entry (2 x direction); the odd ones serve the 32-step phase of the orbiting weapon. CORRECTION: this was claimed as an 8-byte table 'whose meaning is not established' and a 32-byte structural-extent lead."
+    },
+    {
+      "id": "bank7.code_F9AE",
+      "offset": 129470,
+      "size": 8,
+      "kind": "code",
+      "name": "Divide: Y / A (entry 1)",
+      "confidence": "confirmed",
+      "cpu_addr": 63918,
+      "sha1": "7fdf2c3b4a4b261d4758fafb42fa54ed8b79786b",
+      "description": "Slot $C10B. In: A = the divisor, Y = the dividend. Out: A = the quotient, Y = the remainder (the 8-bit restoring divide at $F9BD). Callers: $D2DF, and the launch flight's pose cycle ($F370, $F3DB, which use the remainder). RUN: 10/3 = 3 rem 1, 7/7 = 1 rem 0, 3/10 = 0 rem 3, 200/1 = 200."
+    },
+    {
+      "id": "bank7.code_F9B6",
+      "offset": 129478,
+      "size": 7,
+      "kind": "code",
+      "name": "Divide: Y x 256 / A (entry 2, the aiming ratio)",
+      "confidence": "confirmed",
+      "cpu_addr": 63926,
+      "sha1": "e24c8ab5536ccb518fb745f5b5118bfbbbcf5e63",
+      "description": "In: A = the divisor, Y = the numerator. The dividend is Y x 256, so the quotient is the fraction Y/A as 0-255 (for Y = A it gives 255, not 256: 100 x 256 / 100 returned 255 with remainder 100 on the model). Called only by the aiming code, where Y < A always except for equal distances. RUN on the harness."
+    },
+    {
+      "id": "bank7.code_F9BD",
+      "offset": 129485,
+      "size": 20,
+      "kind": "code",
+      "name": "Divide: the shift-and-subtract loop",
+      "confidence": "confirmed",
+      "cpu_addr": 63933,
+      "sha1": "bdb96648b54387bf409c9dc82c8cc1d9d038fbb5",
+      "description": "Eight rounds of: shift the dividend left through the accumulator, subtract the divisor when it fits and set the quotient bit in $11. Ends with TAY (the remainder), LDA $11 (the quotient)."
+    }
+  ]
+}
