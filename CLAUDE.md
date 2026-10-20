@@ -1017,7 +1017,7 @@ Do not re-derive these; do check anything that depends on them.
   `$DFAE`) draws the bar's new empty end tile when max life grows - not run. NOT established: `$E110` (the score row) and `$E0F9`'s other branches were not re-read here; hardware.
   Harness lesson: the HUD only redraws on a CHANGE, so a snapshot of a steady state shows stale text.
 - **Object helpers, bank 7 `$FA5B-$FCE6` (`annotations/regions/23-object-helpers.json`; found as the largest stretch of traced code nothing explained).**
-  Ten regions now replace the generated extent-only cards. **`$FA5B`** find a free slot (5-23; slot `$C108`). **`$FA6B`** pixel position -> PPU address of the
+  Ten regions now replace the generated extent-only cards. **`$FA5B`** find a free slot (5-23; slot `$C108`). **`$FA4B`** (slot `$C105`, ~25 callers) creates a child: type A in slot Y (from `$FA5B`) at the position of object X (copies `$0530`/`$0518` only; RUN). **`$FA6B`** pixel position -> PPU address of the
   8x8 tile (`$2000 + 32(y/8) + x/8`) and attribute offset (slot `$C111`). **`$FA96` BREAK A BLOCK** (slot `$C117`; callers: the weapon-hits-cell code bank 6 `$854B`,
   bank 3 `$92B2`/`$9336`, bank 1 `$8159`): a type-`$30` blast at the cell centre (skipped if no slot), the new tiles queued through `$D865` with `$16`, then the class
   write. **`$FADE`** (slot `$C11D`) writes `$15` into the nibble of the class map `$0400` for the cell at (`$18`, `$19`) - labyrinth only, nothing when `$30` bit 6 is

@@ -1,0 +1,16 @@
+{
+  "_comment": "Hand-authored. The spawn-at-parent helper, bank 7 $FA4B-$FA5A. The generator for 20-traced.json subtracts it.",
+  "regions": [
+    {
+      "id": "bank7.code_FA4B",
+      "offset": 129627,
+      "size": 16,
+      "kind": "code",
+      "name": "Spawn an object at another object's position",
+      "confidence": "confirmed",
+      "cpu_addr": 64075,
+      "sha1": "94f2113d9a2674ecea9ba72b3963ac138d07fa78",
+      "description": "Slot $C105 (about 25 callers in banks 1, 3 and 6, and $FE3F). In: A = the type to create, X = the object whose position is copied (the parent), Y = the slot to fill (usually just found by $FA5B). Stores the type in $0500,Y and copies the parent's x ($0530) and y ($0518) into the new slot; nothing else is written, so the slot must be a free one, whose other fields were zeroed when it was freed ($CCBF), and the child's handler sets the rest on its first frame. Out: A = the parent's y, X and Y unchanged. RUN: A = $2B, X = 9 at (111, 77), Y = 12 gave type $2B at x 111, y 77 with the other fields left at 0. The usual sequence is $FA5B (find a slot) then this, then the caller sets velocity and other fields. Boss and enemy shots use it."
+    }
+  ]
+}
