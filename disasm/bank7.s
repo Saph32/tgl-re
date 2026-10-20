@@ -6284,10 +6284,12 @@ L7_F76F:
 ; Table, 4 bytes (structural extent)
         .byte   $00,$1E,$1F,$20
 
-; ---- bank7.code_F78F (code) $F78F-$F7C8, 58 bytes
+; ---- bank7.code_F78F (code) $F78F-$F793, 5 bytes
 L7_F78F:
         lda     $7F
         jsr     L7_D705
+
+; ---- bank7.code_F794 (code) $F794-$F7B2, 31 bytes
         lda     $60
         and     #$02
         beq     L7_F7B0
@@ -6305,6 +6307,8 @@ L7_F7AC:
         beq     L7_F7B3
 L7_F7B0:
         jmp     L7_F85C
+
+; ---- bank7.code_F7B3 (code) $F7B3-$F7C5, 19 bytes
 L7_F7B3:
         lda     #$3C
         sta     $69
@@ -6317,19 +6321,23 @@ L7_F7BD:
         sty     $15
         cmp     #$03
         bcs     L7_F7F4
+
+; ---- bank7.code_F7C6 (code) $F7C6-$F7C8, 3 bytes
         jsr     L7_D6AE
 
 ; ---- bank7.tbl_F7C9 (pointer_table) $F7C9-$F7CE, 6 bytes
 ; Spawn-script commands: 3 entries
         .byte   $CE,$F7,$D8,$F7,$EA,$F7
 
-; ---- bank7.code_F7CF (code) $F7CF-$F95A, 396 bytes
+; ---- bank7.code_F7CF (code) $F7CF-$F7D8, 10 bytes
 L7_F7CF:
         ldy     $15
         lda     ($66),Y
         sta     $68
         iny
         jmp     L7_F852
+
+; ---- bank7.code_F7D9 (code) $F7D9-$F7EA, 18 bytes
 L7_F7D9:
         ldy     $15
         lda     ($66),Y
@@ -6341,11 +6349,15 @@ L7_F7D9:
         sta     $66
         ldy     #$00
         jmp     L7_F7BD
+
+; ---- bank7.code_F7EB (code) $F7EB-$F7F3, 9 bytes
 L7_F7EB:
         lda     $60
         and     #$FD
         sta     $60
         jmp     L7_F85C
+
+; ---- bank7.code_F7F4 (code) $F7F4-$F804, 17 bytes
 L7_F7F4:
         sta     $16
         lda     $60
@@ -6357,6 +6369,8 @@ L7_F7FC:
         iny
         iny
         jmp     L7_F843
+
+; ---- bank7.code_F805 (code) $F805-$F81B, 23 bytes
 L7_F805:
         sty     $15
         lda     $16
@@ -6368,6 +6382,8 @@ L7_F805:
         jmp     L7_F81C
 L7_F819:
         jsr     L7_EA8C
+
+; ---- bank7.code_F81C (code) $F81C-$F842, 39 bytes
 L7_F81C:
         sty     $17
         ldy     $15
@@ -6388,6 +6404,8 @@ L7_F82D:
         sta     $07A0,X
         lda     #$29
         sta     $0500,X
+
+; ---- bank7.code_F843 (code) $F843-$F851, 15 bytes
 L7_F843:
         lda     ($66),Y
         php
@@ -6398,6 +6416,8 @@ L7_F843:
         bne     L7_F852
         iny
         jmp     L7_F7BD
+
+; ---- bank7.code_F852 (code) $F852-$F85C, 11 bytes
 L7_F852:
         tya
         clc
@@ -6407,6 +6427,8 @@ L7_F852:
         inc     $67
 L7_F85C:
         rts
+
+; ---- bank7.code_F85D (code) $F85D-$F95A, 254 bytes
 L7_F85D:
         jsr     L7_F863
         jmp     L7_F8CE
