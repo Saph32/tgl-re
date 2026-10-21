@@ -4813,7 +4813,7 @@ L7_ECF6:
         .byte   $01,$0B,$0C,$02,$0D,$03,$0E,$04,$0F,$05,$10,$06,$11,$07,$12,$08
         .byte   $13,$09,$14,$0A,$15
 
-; ---- bank7.code_ED1D (code) $ED1D-$ED6D, 81 bytes
+; ---- bank7.code_ED1D (code) $ED1D-$ED2D, 17 bytes
 L7_ED1D:
         sta     $0578
         bit     $0578
@@ -4822,6 +4822,8 @@ L7_ED1D:
         bvs     L7_ED2E
         lda     #$3C
         jsr     L7_D852
+
+; ---- bank7.code_ED2E (code) $ED2E-$ED43, 22 bytes
 L7_ED2E:
         lda     #$40
         sta     $0788
@@ -4832,6 +4834,8 @@ L7_ED2E:
         sta     $A0
         jsr     L7_E15F
         jmp     L7_D762
+
+; ---- bank7.code_ED44 (code) $ED44-$ED50, 13 bytes
 L7_ED44:
         ldy     #$03
 L7_ED46:
@@ -4840,6 +4844,8 @@ L7_ED46:
         sta     a:$0058,y
         dey
         bpl     L7_ED46
+
+; ---- bank7.code_ED51 (code) $ED51-$ED6D, 29 bytes
 L7_ED51:
         lda     #$10
         sta     $19
@@ -4884,17 +4890,23 @@ L7_ED7E:
 ; Far-call argument at $ED8E
         .byte   $02,$05,$80
 
-; ---- bank7.code_ED91 (code) $ED91-$EE14, 132 bytes
+; ---- bank7.code_ED91 (code) $ED91-$ED91, 1 bytes
         rts
+
+; ---- bank7.code_ED92 (code) $ED92-$ED97, 6 bytes
 L7_ED92:
         iny
         cpy     #$04
         bne     L7_ED7E
         rts
+
+; ---- bank7.code_ED98 (code) $ED98-$EDA0, 9 bytes
 L7_ED98:
         jsr     L7_EDA1
         jsr     L7_EDE8
         jmp     L7_EDBD
+
+; ---- bank7.code_EDA1 (code) $EDA1-$EDB6, 22 bytes
 L7_EDA1:
         ldy     #$18
 L7_EDA3:
@@ -4907,9 +4919,13 @@ L7_EDA3:
         lda     #$03
         sta     $017F
         rts
+
+; ---- bank7.code_EDB7 (code) $EDB7-$EDBC, 6 bytes
 L7_EDB7:
         jsr     L7_EDA1
         jsr     L7_EDF4
+
+; ---- bank7.code_EDBD (code) $EDBD-$EDD0, 20 bytes
 L7_EDBD:
         jsr     L7_D950
         lda     $15
@@ -4921,6 +4937,8 @@ L7_EDC5:
         ldy     #$02
         jsr     L7_FFD1
         jmp     L7_EDBD
+
+; ---- bank7.code_EDD1 (code) $EDD1-$EDE4, 20 bytes
 L7_EDD1:
         ldy     #$18
 L7_EDD3:
@@ -4932,6 +4950,8 @@ L7_EDD3:
         jsr     L7_EDBD
         sei
         jmp     L7_D4C7
+
+; ---- bank7.code_EDE5 (code) $EDE5-$EDF3, 15 bytes
 L7_EDE5:
         jsr     L7_D51E
 L7_EDE8:
@@ -4941,6 +4961,8 @@ L7_EDE8:
         jsr     L7_EDF4
         cli
         rts
+
+; ---- bank7.code_EDF4 (code) $EDF4-$EE08, 21 bytes
 L7_EDF4:
         lda     $2002
         bmi     L7_EDF4
@@ -4951,6 +4973,8 @@ L7_EDF9:
         ldy     #$02
         jsr     L7_FFD1
         jmp     L7_D4D5
+
+; ---- bank7.code_EE09 (code) $EE09-$EE14, 12 bytes
 L7_EE09:
         ldy     #$07
 L7_EE0B:
