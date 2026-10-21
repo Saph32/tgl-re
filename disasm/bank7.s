@@ -4548,7 +4548,7 @@ L7_EACC:
 ; Table, 4 bytes (structural extent)
         .byte   $03,$0C,$30,$C0
 
-; ---- bank7.code_EB08 (code) $EB08-$EC37, 304 bytes
+; ---- bank7.code_EB08 (code) $EB08-$EB17, 16 bytes
 L7_EB08:
         lda     #$78
         sta     $0530
@@ -4557,9 +4557,13 @@ L7_EB08:
         lda     #$04
         sta     $0668
         rts
+
+; ---- bank7.code_EB18 (code) $EB18-$EB1C, 5 bytes
 L7_EB18:
         lda     $0500
         bne     L7_EB78
+
+; ---- bank7.code_EB1D (code) $EB1D-$EB2F, 19 bytes
         jsr     L7_E15F
         lda     $2F
         cmp     #$03
@@ -4570,6 +4574,8 @@ L7_EB2A:
         sta     $04F0,X
         dex
         bpl     L7_EB2A
+
+; ---- bank7.code_EB30 (code) $EB30-$EB46, 23 bytes
 L7_EB30:
         lda     #$00
         sta     $2F
@@ -4581,6 +4587,8 @@ L7_EB30:
         lda     $30
         and     #$20
         bne     L7_EB60
+
+; ---- bank7.code_EB47 (code) $EB47-$EB5F, 25 bytes
         lda     #$00
         sta     $50
         sta     $51
@@ -4593,6 +4601,8 @@ L7_EB30:
 L7_EB5A:
         jsr     L7_D4F3
         jmp     L7_EC94
+
+; ---- bank7.code_EB60 (code) $EB60-$EB77, 24 bytes
 L7_EB60:
         lda     $30
         and     #$02
@@ -4605,6 +4615,8 @@ L7_EB60:
         jmp     L7_EC76
 L7_EB75:
         jmp     L7_EC23
+
+; ---- bank7.code_EB78 (code) $EB78-$EB8B, 20 bytes
 L7_EB78:
         ldy     $A4
         cpy     #$04
@@ -4616,10 +4628,14 @@ L7_EB80:
         dex
         bne     L7_EB80
         sty     $04F0
+
+; ---- bank7.code_EB8C (code) $EB8C-$EB91, 6 bytes
 L7_EB8C:
         lda     $A0
         and     #$02
         bne     L7_EBD4
+
+; ---- bank7.code_EB92 (code) $EB92-$EBA4, 19 bytes
         lda     #$FF
         sta     $56
         jsr     L7_EA68
@@ -4628,6 +4644,8 @@ L7_EB8C:
         bvc     L7_EBA5
         bpl     L7_EBFE
         jmp     L7_FF4A
+
+; ---- bank7.code_EBA5 (code) $EBA5-$EBB9, 21 bytes
 L7_EBA5:
         lda     $70
         beq     L7_EBBA
@@ -4638,6 +4656,8 @@ L7_EBA5:
         jsr     L7_D852
         lda     #$00
         sta     $70
+
+; ---- bank7.code_EBBA (code) $EBBA-$EBD3, 26 bytes
 L7_EBBA:
         jsr     L5_802D
         jsr     L5_8015
@@ -4648,6 +4668,8 @@ L7_EBBA:
         jsr     L5_8039
         lda     #$00
         jmp     L7_ED1D
+
+; ---- bank7.code_EBD4 (code) $EBD4-$EBED, 26 bytes
 L7_EBD4:
         lda     $A4
         cmp     #$04
@@ -4660,6 +4682,8 @@ L7_EBD4:
         sta     $0788
         ldy     #$3C
         jsr     L7_FF8B
+
+; ---- bank7.code_EBEE (code) $EBEE-$EBFD, 16 bytes
 L7_EBEE:
         lda     #$00
         sta     $0500
@@ -4667,6 +4691,8 @@ L7_EBEE:
         jsr     L7_FF8B
         jsr     L7_EA68
         jsr     L7_D755
+
+; ---- bank7.code_EBFE (code) $EBFE-$EC11, 20 bytes
 L7_EBFE:
         lda     #$00
         sta     $70
@@ -4678,6 +4704,8 @@ L7_EBFE:
         lda     $30
         and     #$60
         bne     L7_EC54
+
+; ---- bank7.code_EC12 (code) $EC12-$EC22, 17 bytes
 L7_EC12:
         jsr     L7_EDD1
         lda     #$1F
@@ -4685,9 +4713,13 @@ L7_EC12:
         jsr     L7_D4E3
         jsr     L7_F269
         jsr     L5_802D
+
+; ---- bank7.code_EC23 (code) $EC23-$EC28, 6 bytes
 L7_EC23:
         jsr     L7_EE1D
         jsr     L7_ED44
+
+; ---- bank7.code_EC29 (code) $EC29-$EC37, 15 bytes
         lda     #$00
         sta     $0500
         sta     $36
@@ -4699,7 +4731,7 @@ L7_EC23:
 ; Far-call argument at $EC38
         .byte   $06,$FF,$7F
 
-; ---- bank7.code_EC3B (code) $EC3B-$ECCC, 146 bytes
+; ---- bank7.code_EC3B (code) $EC3B-$EC4B, 17 bytes
         jsr     L7_D4FD
         jsr     L7_ED98
         lda     $51
@@ -4707,20 +4739,28 @@ L7_EC23:
         beq     L7_EC4C
         lda     #$80
         jmp     L7_ED1D
+
+; ---- bank7.code_EC4C (code) $EC4C-$EC53, 8 bytes
 L7_EC4C:
         jsr     L7_F4B7
         lda     #$00
         jmp     L7_ED1D
+
+; ---- bank7.code_EC54 (code) $EC54-$EC5A, 7 bytes
 L7_EC54:
         cmp     #$20
         beq     L7_EC5B
         jmp     L7_ECBD
+
+; ---- bank7.code_EC5B (code) $EC5B-$EC64, 10 bytes
 L7_EC5B:
         cpx     #$04
         beq     L7_EC8C
         ldy     #$00
         lda     ($18),Y
         bmi     L7_EC12
+
+; ---- bank7.code_EC65 (code) $EC65-$EC8B, 39 bytes
         jsr     L7_EDD1
         lda     #$1F
         jsr     L7_D852
@@ -4736,11 +4776,15 @@ L7_EC76:
         jsr     L7_ED98
         lda     #$80
         jmp     L7_ED1D
+
+; ---- bank7.code_EC8C (code) $EC8C-$EC93, 8 bytes
 L7_EC8C:
         ldy     #$02
         lda     ($18),Y
         and     #$7F
         sta     $51
+
+; ---- bank7.code_EC94 (code) $EC94-$ECBC, 41 bytes
 L7_EC94:
         lda     #$1F
         jsr     L7_D852
@@ -4758,12 +4802,16 @@ L7_EC94:
         jsr     L7_D852
         lda     #$00
         beq     L7_ED1D
+
+; ---- bank7.code_ECBD (code) $ECBD-$ECC6, 10 bytes
 L7_ECBD:
         lda     $51
         beq     L7_ECE7
         cmp     #$15
         bcc     L7_ECE4
         bne     L7_ECE1
+
+; ---- bank7.code_ECC7 (code) $ECC7-$ECCC, 6 bytes
         jsr     L7_F506
         jsr     L7_D76F
 
@@ -4771,29 +4819,41 @@ L7_ECBD:
 ; Far-call argument at $ECCD
         .byte   $00,$11,$80
 
-; ---- bank7.code_ECD0 (code) $ECD0-$ECD8, 9 bytes
+; ---- bank7.code_ECD0 (code) $ECD0-$ECD5, 6 bytes
         jsr     L7_F6E5
         jsr     L7_F717
+
+; ---- bank7.code_ECD6 (code) $ECD6-$ECD8, 3 bytes
         jsr     L7_D76F
 
 ; ---- bank7.inline_ECD9 (data) $ECD9-$ECDB, 3 bytes
 ; Far-call argument at $ECD9
         .byte   $02,$1A,$80
 
-; ---- bank7.code_ECDC (code) $ECDC-$ECF8, 29 bytes
+; ---- bank7.code_ECDC (code) $ECDC-$ECE0, 5 bytes
         inc     $51
         jmp     L7_EC94
+
+; ---- bank7.code_ECE1 (code) $ECE1-$ECE3, 3 bytes
 L7_ECE1:
         jsr     L7_F506
+
+; ---- bank7.code_ECE4 (code) $ECE4-$ECE6, 3 bytes
 L7_ECE4:
         jsr     L7_EFBA
+
+; ---- bank7.code_ECE7 (code) $ECE7-$ECEF, 9 bytes
 L7_ECE7:
         jsr     L7_F506
         lda     $30
         and     #$02
         bne     L7_ECF6
+
+; ---- bank7.code_ECF0 (code) $ECF0-$ECF5, 6 bytes
         jsr     L7_EB08
         jmp     L7_EC23
+
+; ---- bank7.code_ECF6 (code) $ECF6-$ECF8, 3 bytes
 L7_ECF6:
         jsr     L7_D76F
 

@@ -1652,7 +1652,7 @@
       },
       {
         "bit": 1,
-        "what": "The player died (or left a labyrinth room): tested at $EB8C.",
+        "what": "CORRECTION: not 'the player died'. A warp-style exit: set (with bit 0) by bank 3 $9009 (the warp panel with its key, sound $3B) and bank 1 $8057 (the gate's ship being pushed up); $EB8C sends it to $EBD4: a 60-frame ship flash (unless the exit code $A4 is 4, into a corridor), 20 more frames, then a fade and a load of the target. The real death goes through bank 6 $8239 to GAME OVER.",
         "status": "confirmed",
         "evidence": "bank 3 $9009, bank 1 $8044; bank 7 $EB8C"
       },
