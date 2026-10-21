@@ -43,7 +43,7 @@
       "confidence": "confirmed",
       "cpu_addr": 60208,
       "sha1": "39d9f58c58e6454990d06eacaba1ed6f89abab83",
-      "description": "$2F := 0, bank 5, the ship placed ($EB08), exit code $A4 := 4, bank 5 $802D (find the map record of ($52, $53) -> $E4). Then $30 bit 5 (a labyrinth special-screen game: CONTINUE or a password restores one) goes to $EB60, otherwise the corridor start below."
+      "description": "$2F := 0, bank 5, the ship placed ($EB08), exit code $A4 := 4, bank 5 $802D (-> $8071: applies the exit $A4 to the position ($52, $53) - 4 means no move - and builds the neighbour record pointers $E0-$E8, $E4 being the room itself). Then $30 bit 5 (a labyrinth special-screen game: CONTINUE or a password restores one) goes to $EB60, otherwise the corridor start below."
     },
     {
       "id": "bank7.code_EB47",
@@ -120,7 +120,7 @@
       "confidence": "confirmed",
       "cpu_addr": 60346,
       "sha1": "fe547746080d6b1aba27aec1446ce8c105bba8be",
-      "description": "The order, RUN: bank 5 $802D (find the record of the new position), $8015 (read it: the position $52/$53 moves one cell), $8003 (build the room buffer), $8030, $F09A (the scroll, which ends by calling $8006 for the cell classes), $ED44 (the key-door pictures), $8039, then A = 0 and JMP $ED1D (begin play, no jingle). RUN: the north exit took 81 frames in all, the east exit 98; ($52, $53) went (8, 12) -> (8, 11) and (9, 12)."
+      "description": "The order, RUN: bank 5 $802D (moves the position $52/$53 one cell in the direction $A4 and rebuilds the neighbour pointers $E0-$E8; CORRECTION: an earlier note gave this to $8015), $8015 (read the record at $E4), $8003 (build the room buffer), $8030, $F09A (the scroll, which ends by calling $8006 for the cell classes), $ED44 (the key-door pictures), $8039, then A = 0 and JMP $ED1D (begin play, no jingle). RUN: the north exit took 81 frames in all, the east exit 98; ($52, $53) went (8, 12) -> (8, 11) and (9, 12)."
     },
     {
       "id": "bank7.code_EBD4",

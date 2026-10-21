@@ -5048,23 +5048,31 @@ L7_EE0B:
 ; Table, 8 bytes (structural extent)
         .byte   $00,$55,$AA,$FF,$00,$55,$AA,$FF
 
-; ---- bank7.code_EE1D (code) $EE1D-$EEC3, 167 bytes
+; ---- bank7.code_EE1D (code) $EE1D-$EE21, 5 bytes
 L7_EE1D:
         jsr     L7_EECC
         bpl     L7_EE56
+
+; ---- bank7.code_EE22 (code) $EE22-$EE2C, 11 bytes
         and     #$7F
         tay
         lda     $EF40,Y
         sta     $55
         tya
         sta     $15
+
+; ---- bank7.code_EE2D (code) $EE2D-$EE31, 5 bytes
         jsr     L7_EFAC
         bcs     L7_EE3C
+
+; ---- bank7.code_EE32 (code) $EE32-$EE3B, 10 bytes
         bit     $30
         lda     #$05
         bvs     L7_EE6B
         lda     #$04
         bne     L7_EE6B
+
+; ---- bank7.code_EE3C (code) $EE3C-$EE55, 26 bytes
 L7_EE3C:
         lda     $15
         cmp     #$15
@@ -5079,6 +5087,8 @@ L7_EE3C:
 L7_EE52:
         lda     #$08
         bne     L7_EE6B
+
+; ---- bank7.code_EE56 (code) $EE56-$EE6A, 21 bytes
 L7_EE56:
         and     #$0F
         cmp     #$02
@@ -5092,6 +5102,8 @@ L7_EE60:
         pla
         bcs     L7_EE6B
         lda     #$07
+
+; ---- bank7.code_EE6B (code) $EE6B-$EE7F, 21 bytes
 L7_EE6B:
         sta     $51
         ora     #$10
@@ -5103,7 +5115,11 @@ L7_EE6B:
         and     #$8F
         ora     #$20
         sta     $30
+
+; ---- bank7.code_EE80 (code) $EE80-$EE82, 3 bytes
         jsr     L5_8003
+
+; ---- bank7.code_EE83 (code) $EE83-$EE9C, 26 bytes
         lda     $51
         cmp     #$05
         bne     L7_EE9D
@@ -5115,17 +5131,23 @@ L7_EE6B:
         jsr     L7_EEB7
         ldx     #$A7
         jsr     L7_EEB7
+
+; ---- bank7.code_EE9D (code) $EE9D-$EEA7, 11 bytes
 L7_EE9D:
         jsr     L5_8006
         lda     #$20
         jsr     L7_EFF3
         jsr     L5_8036
+
+; ---- bank7.code_EEA8 (code) $EEA8-$EEB6, 15 bytes
         lda     #$35
         sta     $0505
         ldy     $51
         lda     $EF21,Y
         beq     L7_EEC3
         jmp     L7_D852
+
+; ---- bank7.code_EEB7 (code) $EEB7-$EEC3, 13 bytes
 L7_EEB7:
         lda     $0740,X
         cmp     #$08
@@ -5139,7 +5161,7 @@ L7_EEC3:
 ; Palette-list-shaped table, no reader found
         .byte   $00,$01,$02,$03,$05,$06,$09,$0A
 
-; ---- bank7.code_EECC (code) $EECC-$EF15, 74 bytes
+; ---- bank7.code_EECC (code) $EECC-$EEDF, 20 bytes
 L7_EECC:
         lda     #$FF
         sta     $56
@@ -5150,6 +5172,8 @@ L7_EECC:
         ldy     #$02
         lda     ($E4),Y
         rts
+
+; ---- bank7.code_EEE0 (code) $EEE0-$EEF3, 20 bytes
 L7_EEE0:
         jsr     L7_EECC
         pha
@@ -5164,6 +5188,8 @@ L7_EEE0:
         clc
         adc     #$05
         sta     $5C
+
+; ---- bank7.code_EEF4 (code) $EEF4-$EF05, 18 bytes
         jsr     L5_8000
         lda     $30
         and     #$8F
@@ -5171,9 +5197,13 @@ L7_EEE0:
         jsr     L5_8003
         jsr     L5_8030
         jsr     L5_8006
+
+; ---- bank7.code_EF06 (code) $EF06-$EF0D, 8 bytes
         lda     #$20
         jsr     L7_EFF3
         jsr     L5_8039
+
+; ---- bank7.code_EF0E (code) $EF0E-$EF15, 8 bytes
         ldy     $50
         lda     $EF16,Y
         jmp     L7_D852
@@ -5183,7 +5213,7 @@ L7_EEE0:
         .byte   $09,$07,$07,$02,$02,$07,$0D,$07,$02,$0D,$0E
 
 ; ---- bank7.tbl_EF21 (data) $EF21-$EF29, 9 bytes
-; Corridor sound, first 9 corridors
+; Special-screen sound, by screen type 0-8
         .byte   $10,$18,$18,$13,$10,$00,$18,$18,$12
 
 ; ---- bank7.tbl_EF2A (data) $EF2A-$EF3F, 22 bytes

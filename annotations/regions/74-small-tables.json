@@ -666,11 +666,11 @@
       "offset": 126769,
       "size": 9,
       "kind": "data",
-      "name": "Corridor sound, first 9 corridors",
-      "confidence": "lead",
+      "name": "Special-screen sound, by screen type 0-8",
+      "confidence": "confirmed",
       "cpu_addr": 61217,
       "sha1": "9ac559152e615727161907bb610db7076065d825",
-      "description": "LDA $EF21,Y with Y = $51, the corridor, at $EEAF; zero means nothing, otherwise JMP $D852. Only 9 bytes lie between $EF21 and the next table at $EF2A, so corridors 9 and up read that table's bytes - either they never reach this code or the overlap is deliberate. THE 9 IS STRUCTURAL; a LEAD."
+      "description": "LDA $EF21,Y with Y = $51 at $EEAF, and in the special-screen loader $51 is the SCREEN TYPE 0-8 (nine values, so the nine bytes are exact), not a corridor. Zero = no sound, otherwise JMP $D852: $10 $18 $18 $13 $10 0 $18 $18 $12. RUN: every type played exactly its entry. CORRECTION: this was named 'Corridor sound, first 9 corridors' and left a lead on the misreading that $51 was a corridor number."
     },
     {
       "id": "bank7.tbl_EF2A",
