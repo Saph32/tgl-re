@@ -2447,11 +2447,13 @@ L5_A0E4:
 L5_A0F6:
         rts
 
-; ---- bank5.code_A0F7 (code) $A0F7-$A1C3, 205 bytes
+; ---- bank5.code_A0F7 (code) $A0F7-$A0FE, 8 bytes
 L5_A0F7:
         lda     $0620,X
         beq     L5_A0FF
         jmp     L5_A192
+
+; ---- bank5.code_A0FF (code) $A0FF-$A117, 25 bytes
 L5_A0FF:
         lda     $0788,X
         beq     L5_A118
@@ -2463,6 +2465,8 @@ L5_A0FF:
         lda     #$08
         sta     $0650,X
         inc     $0638,X
+
+; ---- bank5.code_A118 (code) $A118-$A141, 42 bytes
 L5_A118:
         lda     #$E2
         sta     $86
@@ -2484,19 +2488,27 @@ L5_A118:
         sta     $85
         lda     #$8B
         jsr     L7_C093
+
+; ---- bank5.code_A142 (code) $A142-$A148, 7 bytes
         lda     $0638,X
         cmp     #$10
         bcc     L5_A19A
+
+; ---- bank5.code_A149 (code) $A149-$A152, 10 bytes
         ldy     #$00
         jsr     L5_A30E
         jsr     L7_C0C9
         bcc     L5_A19A
+
+; ---- bank5.code_A153 (code) $A153-$A160, 14 bytes
         lda     $6E
         bne     L5_A19A
         lda     #$01
         cmp     $07E8
         sta     $07E8
         beq     L5_A19A
+
+; ---- bank5.code_A161 (code) $A161-$A191, 49 bytes
         lda     #$00
         sta     $05C0
         sta     $0608
@@ -2521,12 +2533,16 @@ L5_A188:
         lda     #$04
         sta     $A4
         rts
+
+; ---- bank5.code_A192 (code) $A192-$A19A, 9 bytes
 L5_A192:
         lda     $07A0,X
         beq     L5_A19B
         dec     $07A0,X
 L5_A19A:
         rts
+
+; ---- bank5.code_A19B (code) $A19B-$A1A9, 15 bytes
 L5_A19B:
         ldy     #$02
         lda     ($E4),Y
@@ -2536,16 +2552,22 @@ L5_A19B:
         sta     $15
         cmp     #$0A
         bcc     L5_A1B7
+
+; ---- bank5.code_A1AA (code) $A1AA-$A1B6, 13 bytes
 L5_A1AA:
         lda     #$01
         sta     $0787,X
         lda     #$3F
         jsr     L7_C030
         jmp     L7_C048
+
+; ---- bank5.code_A1B7 (code) $A1B7-$A1BE, 8 bytes
 L5_A1B7:
         jsr     L7_C078
         and     $04B1,Y
         bne     L5_A1AA
+
+; ---- bank5.code_A1BF (code) $A1BF-$A1C3, 5 bytes
         lda     $15
         jsr     L5_9F10
 
@@ -2554,13 +2576,17 @@ L5_A1B7:
         .byte   $1C,$A2,$5A,$A2,$D7,$A1,$DE,$A1,$55,$A2,$DF,$A1,$16,$A2,$F4,$A1
         .byte   $1C,$A2,$01,$A2
 
-; ---- bank5.code_A1D8 (code) $A1D8-$A28F, 184 bytes
+; ---- bank5.code_A1D8 (code) $A1D8-$A1DE, 7 bytes
 L5_A1D8:
         jsr     L5_A2F8
         cmp     #$14
         bcs     L5_A245
+
+; ---- bank5.code_A1DF (code) $A1DF-$A1DF, 1 bytes
 L5_A1DF:
         rts
+
+; ---- bank5.code_A1E0 (code) $A1E0-$A1F4, 21 bytes
 L5_A1E0:
         lda     $0668,X
         bne     L5_A1ED
@@ -2572,6 +2598,8 @@ L5_A1ED:
         cmp     $4C
         bne     L5_A245
         rts
+
+; ---- bank5.code_A1F5 (code) $A1F5-$A201, 13 bytes
 L5_A1F5:
         lda     $3C
         bne     L5_A201
@@ -2581,6 +2609,8 @@ L5_A1F5:
         bne     L5_A245
 L5_A201:
         rts
+
+; ---- bank5.code_A202 (code) $A202-$A216, 21 bytes
 L5_A202:
         lda     $F7
         ora     $F8
@@ -2593,10 +2623,14 @@ L5_A20F:
         cmp     #$0A
         bcs     L5_A245
         rts
+
+; ---- bank5.code_A217 (code) $A217-$A21C, 6 bytes
 L5_A217:
         jsr     L5_A2E7
         beq     L5_A245
         rts
+
+; ---- bank5.code_A21D (code) $A21D-$A244, 40 bytes
 L5_A21D:
         ldy     #$00
 L5_A21F:
@@ -2616,19 +2650,27 @@ L5_A21F:
         lda     $0680,X
         cmp     #$32
         bcc     L5_A201
+
+; ---- bank5.code_A245 (code) $A245-$A250, 12 bytes
 L5_A245:
         lda     $15
         jsr     L7_C078
         ora     $04B1,Y
         sta     $04B1,Y
         rts
+
+; ---- bank5.code_A251 (code) $A251-$A255, 5 bytes
 L5_A251:
         lda     $6E
         beq     L5_A245
         rts
+
+; ---- bank5.code_A256 (code) $A256-$A25A, 5 bytes
 L5_A256:
         ldy     #$04
         jmp     L5_A21F
+
+; ---- bank5.code_A25B (code) $A25B-$A28F, 53 bytes
 L5_A25B:
         ldy     #$00
 L5_A25D:
@@ -2675,21 +2717,9 @@ L5_A298:
         beq     L5_A245
         rts
 
-; ---- bank5.tbl_A2A9 (data) $A2A9-$A2A9, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $01
-
-; ---- bank5.tbl_A2AA (data) $A2AA-$A2AA, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $08
-
-; ---- bank5.tbl_A2AB (data) $A2AB-$A2AB, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $50
-
-; ---- bank5.tbl_A2AC (data) $A2AC-$A2B8, 13 bytes
-; Table, 13 bytes (structural extent)
-        .byte   $40,$02,$0C,$90,$40,$04,$10,$50,$80,$08,$14,$90,$80
+; ---- bank5.tbl_A2A9 (data) $A2A9-$A2B8, 16 bytes
+; Seal 2 zones: 4 x [bit][box offset][spark x][spark y]
+        .byte   $01,$08,$50,$40,$02,$0C,$90,$40,$04,$10,$50,$80,$08,$14,$90,$80
 
 ; ---- bank5.code_A2B9 (code) $A2B9-$A2D6, 30 bytes
 L5_A2B9:
@@ -2737,7 +2767,7 @@ L5_A2E9:
 L5_A2F7:
         rts
 
-; ---- bank5.code_A2F8 (code) $A2F8-$A326, 47 bytes
+; ---- bank5.code_A2F8 (code) $A2F8-$A30D, 22 bytes
 L5_A2F8:
         inc     $0668,X
         lda     $0668,X
@@ -2749,6 +2779,8 @@ L5_A2F8:
 L5_A30A:
         lda     $0680,X
         rts
+
+; ---- bank5.code_A30E (code) $A30E-$A326, 25 bytes
 L5_A30E:
         lda     $A327,Y
         sta     $06E0,X
@@ -2760,22 +2792,10 @@ L5_A30E:
         sta     $0728,X
         rts
 
-; ---- bank5.tbl_A327 (data) $A327-$A327, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $74
-
-; ---- bank5.tbl_A328 (data) $A328-$A328, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $8C
-
-; ---- bank5.tbl_A329 (data) $A329-$A329, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $60
-
-; ---- bank5.tbl_A32A (data) $A32A-$A33E, 21 bytes
-; Table, 21 bytes (structural extent)
-        .byte   $78,$60,$8F,$10,$38,$50,$70,$40,$60,$90,$B0,$40,$60,$50,$70,$80
-        .byte   $A0,$90,$B0,$80,$A0
+; ---- bank5.tbl_A327 (data) $A327-$A33E, 24 bytes
+; Hit boxes: 6 x [left][right][top][bottom]
+        .byte   $74,$8C,$60,$78,$60,$8F,$10,$38,$50,$70,$40,$60,$90,$B0,$40,$60
+        .byte   $50,$70,$80,$A0,$90,$B0,$80,$A0
 
 ; ---- bank5.code_A33F (code) $A33F-$A376, 56 bytes
 L5_A33F:
