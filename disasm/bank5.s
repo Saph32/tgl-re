@@ -2864,7 +2864,7 @@ L5_A66B:
         .byte   $34,$80,$81,$35,$A0,$80,$29,$80,$00,$05,$80,$81,$4B,$90,$80,$4B
         .byte   $80
 
-; ---- bank5.code_A6EB (code) $A6EB-$A7A6, 188 bytes
+; ---- bank5.code_A6EB (code) $A6EB-$A6F9, 15 bytes
 L5_A6EB:
         lda     ($18),Y
         sta     $10
@@ -2875,10 +2875,14 @@ L5_A6EB:
         and     #$7F
         sta     $11
         iny
+
+; ---- bank5.code_A6FA (code) $A6FA-$A6FF, 6 bytes
         lda     $19
         pha
         lda     $18
         pha
+
+; ---- bank5.code_A700 (code) $A700-$A71A, 27 bytes
         lda     ($18),Y
         bpl     L5_A718
         and     #$7F
@@ -2896,6 +2900,8 @@ L5_A6EB:
 L5_A718:
         sta     $12
         iny
+
+; ---- bank5.code_A71B (code) $A71B-$A72B, 17 bytes
 L5_A71B:
         lda     ($18),Y
         beq     L5_A722
@@ -2908,6 +2914,8 @@ L5_A727:
         inx
         dec     $11
         bne     L5_A71B
+
+; ---- bank5.code_A72C (code) $A72C-$A741, 22 bytes
         lda     $13
         and     #$7F
         sta     $11
@@ -2920,17 +2928,23 @@ L5_A727:
         bcs     L5_A742
         dec     $12
         bne     L5_A71B
+
+; ---- bank5.code_A742 (code) $A742-$A748, 7 bytes
 L5_A742:
         pla
         sta     $18
         pla
         sta     $19
         rts
+
+; ---- bank5.code_A749 (code) $A749-$A750, 8 bytes
 L5_A749:
         lda     #$A9
         sta     $17
         lda     #$16
         sta     $16
+
+; ---- bank5.code_A751 (code) $A751-$A75D, 13 bytes
         lda     $30
         and     #$60
         bne     L5_A75E
@@ -2939,6 +2953,8 @@ L5_A749:
         tax
         tay
         bcc     L5_A792
+
+; ---- bank5.code_A75E (code) $A75E-$A773, 22 bytes
 L5_A75E:
         lda     $51
         asl     A
@@ -2951,6 +2967,8 @@ L5_A75E:
         beq     L5_A774
         cpy     #$10
         bne     L5_A78A
+
+; ---- bank5.code_A774 (code) $A774-$A789, 22 bytes
 L5_A774:
         ldy     #$02
         lda     ($E4),Y
@@ -2963,11 +2981,15 @@ L5_A774:
         sta     $16
         lda     #$A9
         sta     $17
+
+; ---- bank5.code_A78A (code) $A78A-$A791, 8 bytes
 L5_A78A:
         ldx     #$16
         ldy     $51
         lda     $A7A7,Y
         tay
+
+; ---- bank5.code_A792 (code) $A792-$A7A6, 21 bytes
 L5_A792:
         lda     $A7B0,Y
         sta     $18

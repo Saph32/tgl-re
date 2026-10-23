@@ -1,0 +1,137 @@
+{
+  "_comment": "Hand-authored. Bank 5 $A6EB-$A7A6: the item drawer and the structure / door set / item list picker. The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank5.code_A6EB",
+      "offset": 91899,
+      "size": 15,
+      "kind": "code",
+      "name": "DRAW ONE ITEM: header",
+      "confidence": "confirmed",
+      "cpu_addr": 42731,
+      "sha1": "cfedf8ce6da27b33572458aaf834fe89afaacc9c",
+      "description": "In: $19:$18 = a base address and Y = the offset of an ITEM [dest][width][height][tiles] (or, from the room builder, the item list's pointer with Y = 0). $10 and X := dest (the buffer offset of the item's top-left cell); $13 := the width byte (bit 7 = ONE tile repeated across the width) and $11 := width AND $7F. Every item of every room goes through this routine, so the 302-room comparison of the room builder (equal to the independent model of tools/parse-structs.py) is also its test."
+    },
+    {
+      "id": "bank5.code_A6FA",
+      "offset": 91914,
+      "size": 6,
+      "kind": "code",
+      "name": "Draw one item: save the base pointer",
+      "confidence": "confirmed",
+      "cpu_addr": 42746,
+      "sha1": "f15552ea76048cde9bb1374c86b25ba0cf566266",
+      "description": "$19 and $18 are pushed: the tile pointer may be replaced below and is restored at the end."
+    },
+    {
+      "id": "bank5.code_A700",
+      "offset": 91920,
+      "size": 27,
+      "kind": "code",
+      "name": "Draw one item: where are the tiles?",
+      "confidence": "confirmed",
+      "cpu_addr": 42752,
+      "sha1": "b1c2aeeb408aaa8a5b70a48b38480f6fd7c8bd68",
+      "description": "The height byte: bit 7 clear = the tiles follow inline (the rows count := the byte, Y moves on). Bit 7 set = a POINTER to the tiles follows ([lo][hi]): $18/$19 := the pointer, Y := 0, the rows count := the byte AND $7F. Items that share a picture (a rock, a wall run) point at one copy."
+    },
+    {
+      "id": "bank5.code_A71B",
+      "offset": 91947,
+      "size": 17,
+      "kind": "code",
+      "name": "Draw one item: one row",
+      "confidence": "confirmed",
+      "cpu_addr": 42779,
+      "sha1": "5c288923e30e01cbfaf63ba3eebcb4ae44b7ce22",
+      "description": "Each tile: a non-zero tile is stored at $0740 + X, ZERO IS TRANSPARENT (the cell keeps what is already there); Y advances unless the width byte had bit 7 set (the same tile again); X advances; until `width` cells are done. A width that runs past column 15 simply carries on into the next buffer row: there is no clipping."
+    },
+    {
+      "id": "bank5.code_A72C",
+      "offset": 91964,
+      "size": 22,
+      "kind": "code",
+      "name": "Draw one item: next row",
+      "confidence": "confirmed",
+      "cpu_addr": 42796,
+      "sha1": "af3f5aeb0c9a67a3f5522f96272426edf637ad77",
+      "description": "$11 := width again; the row start $10 += $10 (the next 16-cell row below the item's dest, not below where X ended); X := $10. Stop when the start reaches $C0 (the bottom of the buffer) or after `height` rows."
+    },
+    {
+      "id": "bank5.code_A742",
+      "offset": 91986,
+      "size": 7,
+      "kind": "code",
+      "name": "Draw one item: restore and return",
+      "confidence": "confirmed",
+      "cpu_addr": 42818,
+      "sha1": "fe445f8ba4efb1202cb86f69ace58f8b5bfa8736",
+      "description": "$18/$19 popped; RTS."
+    },
+    {
+      "id": "bank5.code_A749",
+      "offset": 91993,
+      "size": 8,
+      "kind": "code",
+      "name": "PICK THE STRUCTURE, DOOR SET AND ITEM LIST: defaults",
+      "confidence": "confirmed",
+      "cpu_addr": 42825,
+      "sha1": "6e63df0b6bb5e32e43b9eb2b49970ffdca0bcb3f",
+      "description": "Called by the room builder ($8158). Out: structure $18/$19, door set $14/$15, item list $16/$17. The item list starts as the EMPTY list at $A916 (an ordinary room has none: its items come from the structure and the layout)."
+    },
+    {
+      "id": "bank5.code_A751",
+      "offset": 92001,
+      "size": 13,
+      "kind": "code",
+      "name": "Pick: ordinary room",
+      "confidence": "confirmed",
+      "cpu_addr": 42833,
+      "sha1": "df12b5f9af4629d4149492bb1a34234339d04354",
+      "description": "$30 bits 5-6 clear (an ordinary labyrinth room): X = Y = 2 x the area $50, then straight to the table reads at $A792. RUN: areas 0-10 gave the structures $A7F6, $AAD3, $AB6D, $AC07, $AC01, $AA8A and door sets $A7FB, $A9EE, $AAD9, $AC0D, $AB73, $A9EE; areas 1-2, 3-4, 5-6, 7-8 and 9-10 share a structure each (and 1-2 and 9-10 share a door set), matching the scene sharing."
+    },
+    {
+      "id": "bank5.code_A75E",
+      "offset": 92014,
+      "size": 22,
+      "kind": "code",
+      "name": "Pick: special screen - the item list by screen type",
+      "confidence": "confirmed",
+      "cpu_addr": 42846,
+      "sha1": "0f9b35b1416a6a30248fd7ccf5c5eb373e548428",
+      "description": "$30 bit 5 or 6 set: Y = 2 x the screen type $51; the item list := $A7E2[type] (ten pointers). Types 5 (a cleared gate) and 8 (the sealed gate), Y = $0A or $10, go on to the corridor test."
+    },
+    {
+      "id": "bank5.code_A774",
+      "offset": 92036,
+      "size": 22,
+      "kind": "code",
+      "name": "Pick: gates of corridors 11-20 have a different list",
+      "confidence": "confirmed",
+      "cpu_addr": 42868,
+      "sha1": "9060edb81d33ecd427c67464a0a8cbd68e55b1ef",
+      "description": "The gate's corridor = byte 2 of the room record AND $7F. Corridor 21 or 1-10 keep the type's list; corridors 11-20 get $A938 instead: the same gate WITHOUT the seal items, which only corridors 1-10 have. RUN: type 5 and 8 gave $A926 for corridors 3 and 21 and $A938 for 12."
+    },
+    {
+      "id": "bank5.code_A78A",
+      "offset": 92058,
+      "size": 8,
+      "kind": "code",
+      "name": "Pick: the structure for the screen type",
+      "confidence": "confirmed",
+      "cpu_addr": 42890,
+      "sha1": "995c73305d6611d1c09fb046d6ab6f780a16a653",
+      "description": "X := $16 (the door set entry 11, shared by every special screen) and Y := $A7A7[type] = 16 16 18 16 16 16 18 18 16: structure 11 for most screens, structure 12 for the shops (types 2, 6, 7)."
+    },
+    {
+      "id": "bank5.code_A792",
+      "offset": 92066,
+      "size": 21,
+      "kind": "code",
+      "name": "Pick: read the pointers",
+      "confidence": "confirmed",
+      "cpu_addr": 42898,
+      "sha1": "752890e810e4885af908c5f4e782e654e5bef5c9",
+      "description": "$18/$19 := $A7B0[Y] (the structure), $14/$15 := $A7CA[X] (the door set); RTS. RUN: for areas 0-10 and screen types 0-8 (with corridors 3, 12 and 21 for the gates) every result equalled the model's: types 0-8 use structures $A897 / $A8A0, the door set $A8A6, item lists $A916, $A8FE, $A918, $A90C, $A932, $A926 (or $A938), $A918, $A918, $A926."
+    }
+  ]
+}
