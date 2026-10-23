@@ -336,11 +336,11 @@
       "offset": 83580,
       "size": 3,
       "kind": "code",
-      "name": "Open: the map's markers",
+      "name": "Open: the weapon's power and chips per use",
       "confidence": "confirmed",
       "cpu_addr": 34412,
       "sha1": "69eb876e3955aee656f566e12053980c0f6a55ce",
-      "description": "`JSR $89CB`, the second half of the world-map drawing (the next stretch; it is also called from the per-frame handler at `$89C2`)."
+      "description": "`JSR $89CB`: prints the selected weapon's level `$3D` (one ASCII digit, PPU `$2D3D`) and the chips per use `$45` (three digits at `$2D5B`), the numbers beside WEAPON POWER and USE CHIP. **CORRECTION: an earlier version of this note called `$89CB` 'the map's markers'; the entrance markers are drawn by `$8805`'s own loop.** It is also called by the per-frame handler (`$89BF`)."
     },
     {
       "id": "bank5.code_866F",
@@ -358,11 +358,11 @@
       "offset": 83599,
       "size": 11,
       "kind": "code",
-      "name": "Open: put the markers up",
+      "name": "Open: start the cursor repeat counter, blink the marker",
       "confidence": "confirmed",
       "cpu_addr": 34431,
       "sha1": "827d1f583b7e3cf3b86d5ca004e5d874d9419172",
-      "description": "`$15` := 5, `$14` := 0, a far call (inline `02 1D 80`) to bank 2 `$801E` (-> `$8998`): the blinking marker routine (it writes sprites 60-63 near the end of OAM, one pattern per call, `$02F2` stepping 0-3). The meaning of the two arguments `$14`/`$15` is a lead: `$8998` was not read for them here. In the run the OAM held the map's entrance markers and the player's marker at (column x 4 + `$10`, row x 4 + `$3B`) = (`$30`, `$6B`) for position (8, 12)."
+      "description": "`$15` := 5 and `$14` := 0, then a far call (inline `02 1D 80`) to bank 2 `$801E` (-> `$8998`), the blinking player marker (it writes the last four sprites, OAM `$02F0-$02FF`, one pattern per call; it reads neither `$14` nor `$15`). **CORRECTION: the 5 and 0 are not arguments of `$8998` (the first version of this note called them a lead): `$15` is the cursor handler's auto-repeat counter, read only by `$8946`, so a direction held from before the screen opened waits 5 frames; `$14` is not read by the handler.** The marker sits at (column x 4 + `$10`, row x 4 + `$3B`) = (`$30`, `$6B`) for position (8, 12)."
     },
     {
       "id": "bank5.code_868D",

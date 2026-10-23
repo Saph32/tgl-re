@@ -1328,10 +1328,12 @@ L5_87D7:
         .byte   $01,$27,$A1,$07,$01,$27,$AE,$0B,$01,$2D,$81,$0D,$01,$2D,$8E,$0E
         .byte   $FF
 
-; ---- bank5.code_8805 (code) $8805-$89C7, 451 bytes
+; ---- bank5.code_8805 (code) $8805-$8808, 4 bytes
 L5_8805:
         lda     $A5
         bne     L5_8805
+
+; ---- bank5.code_8809 (code) $8809-$882C, 36 bytes
         ldx     #$00
 L5_880B:
         lda     $87E4,X
@@ -1350,6 +1352,8 @@ L5_880B:
         adc     #$04
         tax
         bne     L5_880B
+
+; ---- bank5.code_882D (code) $882D-$8844, 24 bytes
 L5_882D:
         lda     #$8A
         sta     $1B
@@ -1363,6 +1367,8 @@ L5_882D:
         sta     $17
         lda     #$00
         sta     $14
+
+; ---- bank5.code_8845 (code) $8845-$884E, 10 bytes
 L5_8845:
         ldx     #$0B
         lda     #$00
@@ -1370,14 +1376,20 @@ L5_8849:
         sta     $0150,X
         dex
         bpl     L5_8849
+
+; ---- bank5.code_884F (code) $884F-$8852, 4 bytes
 L5_884F:
         lda     #$00
         sta     $15
+
+; ---- bank5.code_8853 (code) $8853-$885A, 8 bytes
 L5_8853:
         ldy     #$00
         lda     ($1A),Y
         cmp     #$80
         beq     L5_88B9
+
+; ---- bank5.code_885B (code) $885B-$886D, 19 bytes
         ldy     #$01
         lda     ($1A),Y
         and     #$07
@@ -1387,14 +1399,20 @@ L5_8853:
         jsr     L7_C078
         and     $04B0
         beq     L5_88B9
+
+; ---- bank5.code_886E (code) $886E-$8870, 3 bytes
 L5_886E:
         jsr     L5_891F
+
+; ---- bank5.code_8871 (code) $8871-$887C, 12 bytes
         ldy     #$00
         lda     ($1A),Y
         bpl     L5_88B9
         ldy     #$02
         lda     ($1A),Y
         bpl     L5_88B9
+
+; ---- bank5.code_887D (code) $887D-$8895, 25 bytes
         and     #$7F
         cmp     #$15
         bne     L5_8891
@@ -1407,6 +1425,8 @@ L5_886E:
 L5_8891:
         jsr     L7_C07B
         bcc     L5_88B9
+
+; ---- bank5.code_8896 (code) $8896-$88B8, 35 bytes
 L5_8896:
         ldy     $17
         lda     $15
@@ -1426,6 +1446,8 @@ L5_8896:
         sta     $0201,Y
         lda     #$03
         sta     $0202,Y
+
+; ---- bank5.code_88B9 (code) $88B9-$88C9, 17 bytes
 L5_88B9:
         ldy     #$00
         lda     ($1A),Y
@@ -1436,17 +1458,23 @@ L5_88B9:
         lda     $1B
         adc     #$00
         sta     $1B
+
+; ---- bank5.code_88CA (code) $88CA-$88D4, 11 bytes
         inc     $15
         lda     $15
         cmp     #$18
         beq     L5_88D5
         jmp     L5_8853
+
+; ---- bank5.code_88D5 (code) $88D5-$88DE, 10 bytes
 L5_88D5:
         inc     $14
         lda     $14
         lsr     A
         bcc     L5_88DF
         jmp     L5_884F
+
+; ---- bank5.code_88DF (code) $88DF-$8914, 54 bytes
 L5_88DF:
         lda     #$0F
         jsr     L7_C04B
@@ -1475,12 +1503,16 @@ L5_8909:
         cpx     #$0C
         bne     L5_8902
         jsr     L7_C03F
+
+; ---- bank5.code_8915 (code) $8915-$891E, 10 bytes
         lda     $14
         cmp     #$18
         beq     L5_891E
         jmp     L5_8845
 L5_891E:
         rts
+
+; ---- bank5.code_891F (code) $891F-$8936, 24 bytes
 L5_891F:
         lda     $14
         lsr     A
@@ -1498,6 +1530,8 @@ L5_8930:
         ora     $0150,X
         sta     $0150,X
         rts
+
+; ---- bank5.code_8937 (code) $8937-$8945, 15 bytes
 L5_8937:
         lda     $F5
         ora     $F6
@@ -1506,6 +1540,8 @@ L5_8937:
         ora     $F8
         bne     L5_8946
         jmp     L5_89C5
+
+; ---- bank5.code_8946 (code) $8946-$8950, 11 bytes
 L5_8946:
         dec     $15
         beq     L5_894D
@@ -1513,16 +1549,22 @@ L5_8946:
 L5_894D:
         lda     #$06
         bne     L5_8953
+
+; ---- bank5.code_8951 (code) $8951-$8954, 4 bytes
 L5_8951:
         lda     #$14
 L5_8953:
         sta     $15
+
+; ---- bank5.code_8955 (code) $8955-$895F, 11 bytes
 L5_8955:
         lda     $F7
         ora     $F8
         and     #$0F
         bne     L5_8960
         jmp     L5_89C5
+
+; ---- bank5.code_8960 (code) $8960-$896F, 16 bytes
 L5_8960:
         cmp     #$01
         bne     L5_8970
@@ -1532,6 +1574,8 @@ L5_8960:
         bcc     L5_89AA
         lda     #$00
         beq     L5_89A8
+
+; ---- bank5.code_8970 (code) $8970-$897B, 12 bytes
 L5_8970:
         cmp     #$02
         bne     L5_897C
@@ -1539,6 +1583,8 @@ L5_8970:
         bpl     L5_89AA
         lda     #$0C
         bne     L5_89A8
+
+; ---- bank5.code_897C (code) $897C-$8990, 21 bytes
 L5_897C:
         cmp     #$08
         bne     L5_8991
@@ -1551,6 +1597,8 @@ L5_897C:
         bcc     L5_89A8
         sbc     #$05
         bcs     L5_89A8
+
+; ---- bank5.code_8991 (code) $8991-$89A7, 23 bytes
 L5_8991:
         cmp     #$04
         bne     L5_89C5
@@ -1565,21 +1613,31 @@ L5_8991:
         bcs     L5_89A8
 L5_89A6:
         sbc     #$0F
+
+; ---- bank5.code_89A8 (code) $89A8-$89A9, 2 bytes
 L5_89A8:
         sta     $3C
+
+; ---- bank5.code_89AA (code) $89AA-$89B1, 8 bytes
 L5_89AA:
         lda     #$3E
         jsr     L7_C030
         jsr     L7_C135
+
+; ---- bank5.code_89B2 (code) $89B2-$89BB, 10 bytes
         lda     $3C
         beq     L5_89BC
         lda     $3D
         beq     L5_8955
         bne     L5_89BC
+
+; ---- bank5.code_89BC (code) $89BC-$89C4, 9 bytes
 L5_89BC:
         jsr     L5_86ED
         jsr     L7_C072
         jsr     L5_89CB
+
+; ---- bank5.code_89C5 (code) $89C5-$89C7, 3 bytes
 L5_89C5:
         jsr     L7_C006
 
@@ -1587,7 +1645,7 @@ L5_89C5:
 ; Far-call argument at $89C8
         .byte   $02,$1D,$80
 
-; ---- bank5.code_89CB (code) $89CB-$8A6D, 163 bytes
+; ---- bank5.code_89CB (code) $89CB-$89ED, 35 bytes
 L5_89CB:
         lda     #$04
         jsr     L7_C04B
@@ -1604,12 +1662,16 @@ L5_89CB:
         adc     #$30
         sta     $0103,Y
         jsr     L7_C03F
+
+; ---- bank5.code_89EE (code) $89EE-$89FA, 13 bytes
         lda     #$2D
         sta     $19
         lda     #$5B
         sta     $18
         lda     $45
         jmp     L7_C051
+
+; ---- bank5.code_89FB (code) $89FB-$8A6D, 115 bytes
 L5_89FB:
         lda     #$E8
         clc
