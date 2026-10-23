@@ -1,0 +1,258 @@
+{
+  "_comment": "Hand-authored. Bank 5 $8155-$8353: the room buffer builder (slot $8003) - structure, door set, item list, layout and key doors. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank5.code_8155",
+      "offset": 82277,
+      "size": 3,
+      "kind": "code",
+      "name": "BUILD THE ROOM BUFFER (slot $8003): wait for the decompressor",
+      "confidence": "confirmed",
+      "cpu_addr": 33109,
+      "sha1": "e34abb43bddef88ca5bfecb6d80f65b0a9158f1c",
+      "description": "Slot $8003 -> $8155, called by every room loader ($EBC0, $EE80, $EEFD and others). JSR $C045 (-> $D7C3) waits until the tile decompressor is idle: the scene's tiles must be in before a room is drawn. (A harness without NMIs spins here; the checks below start at $8158.) The result is the 16 x 12 buffer at $0740 (192 bytes, one metatile id per 16-pixel cell, row by row) plus the four exit/key bytes $58-$5B and $54."
+    },
+    {
+      "id": "bank5.code_8158",
+      "offset": 82280,
+      "size": 3,
+      "kind": "code",
+      "name": "Room buffer: pick the structure, door set and item list",
+      "confidence": "confirmed",
+      "cpu_addr": 33112,
+      "sha1": "55867512eb643fddb80380a4c53e040ba23dcec4",
+      "description": "JSR $A749 selects the room's STRUCTURE ($18/$19), DOOR SET ($14/$15) and ITEM LIST ($16/$17): for an ordinary room entry 2 x $50 (the area) of the three tables, for a special screen the tables indexed by the screen type $51 (see the room-drawing notes)."
+    },
+    {
+      "id": "bank5.code_815B",
+      "offset": 82283,
+      "size": 73,
+      "kind": "code",
+      "name": "Room buffer: tile the structure's pattern",
+      "confidence": "confirmed",
+      "cpu_addr": 33115,
+      "sha1": "6e9298afc03a19e3ed1c23d0c770db70a281a844",
+      "description": "A structure is [list offset][dest][width][height][pattern: width x height ids]. The pattern is copied into the buffer from offset dest and TILED: each row of the pattern repeats across to the end of the 16-cell row, rows are taken in turn, and after `height` rows the pattern starts again, until the buffer is full ($C0). A 1 x 1 structure is a plain floor. $12 is the row's start offset, $1B/$11 the width counter and width, $1A the rows left, $10 the pattern offset. RUN: the real routine built the room buffer for 302 rooms (ordinary rooms and special screens: every map record except the 21 gates and the empty cells) and the buffer equalled the independent model in tools/parse-structs.py in all of them, apart from the key-door cells noted at $82DD."
+    },
+    {
+      "id": "bank5.code_81A4",
+      "offset": 82356,
+      "size": 12,
+      "kind": "code",
+      "name": "Room buffer: the structure's own items",
+      "confidence": "confirmed",
+      "cpu_addr": 33188,
+      "sha1": "9c52385d3be94c7c38ab948145480f66d6e7feb6",
+      "description": "The structure's first byte is an offset to a group of four [length][item] records (or to a zero byte for none); when it is not zero JSR $8379 draws them."
+    },
+    {
+      "id": "bank5.code_81B0",
+      "offset": 82368,
+      "size": 15,
+      "kind": "code",
+      "name": "Room buffer: the door set's four fixed items",
+      "confidence": "confirmed",
+      "cpu_addr": 33200,
+      "sha1": "7f75844e42e694b0070a75b4642e9c1d674c6d8d",
+      "description": "$19:$18 := the door set; $8379 draws its first four [length][item]s (walls and decoration that every room of the area has); $14 := the offset reached, where the four per-exit items follow."
+    },
+    {
+      "id": "bank5.code_81BF",
+      "offset": 82383,
+      "size": 6,
+      "kind": "code",
+      "name": "Room buffer: special screens have no exits",
+      "confidence": "confirmed",
+      "cpu_addr": 33215,
+      "sha1": "cbc49eb14d65ee615b8439bc20e9b94a6840465a",
+      "description": "$30 bit 5 (a special screen) skips the four exit walls and goes straight to the item list at $8227."
+    },
+    {
+      "id": "bank5.code_81C5",
+      "offset": 82389,
+      "size": 8,
+      "kind": "code",
+      "name": "Room buffer: read the openings",
+      "confidence": "confirmed",
+      "cpu_addr": 33221,
+      "sha1": "16f23023b1d1b18e37804f84027e236e768168c8",
+      "description": "$15 := byte 1 of the room's map record: bits 7, 6, 5, 4 = exits open to the north, west, east, south."
+    },
+    {
+      "id": "bank5.code_81CD",
+      "offset": 82397,
+      "size": 22,
+      "kind": "code",
+      "name": "Room buffer: north wall",
+      "confidence": "confirmed",
+      "cpu_addr": 33229,
+      "sha1": "01a79eea26a3ae50938dec89453a9e871631f9c2",
+      "description": "The door set's next item is the WALL across the north exit. It is drawn ($A6EB) when the north neighbour's record has bit 7 set in byte 0 (empty cell or special screen) or the room's north opening bit is clear; either way $14 advances past the item. So a wall is drawn across every exit that does not lead to an ordinary room."
+    },
+    {
+      "id": "bank5.code_81E3",
+      "offset": 82419,
+      "size": 24,
+      "kind": "code",
+      "name": "Room buffer: west wall",
+      "confidence": "confirmed",
+      "cpu_addr": 33251,
+      "sha1": "95471bfebc10d512a03b9d0d108acd374da7b6c8",
+      "description": "The same with the west neighbour ($E2) and opening bit 6."
+    },
+    {
+      "id": "bank5.code_81FB",
+      "offset": 82443,
+      "size": 26,
+      "kind": "code",
+      "name": "Room buffer: east wall",
+      "confidence": "confirmed",
+      "cpu_addr": 33275,
+      "sha1": "b8198beba1a80327c9af0c597f4163a41ca3f774",
+      "description": "The same with the east neighbour ($E6) and opening bit 5."
+    },
+    {
+      "id": "bank5.code_8215",
+      "offset": 82469,
+      "size": 18,
+      "kind": "code",
+      "name": "Room buffer: south wall",
+      "confidence": "confirmed",
+      "cpu_addr": 33301,
+      "sha1": "d33d3540fb6e1f0109c95423593a42b95eda4100",
+      "description": "The same with the south neighbour ($E8) and opening bit 4; an open south exit to an ordinary room jumps straight to $8227. At the map's EDGE the neighbour pointer has a high byte of 0 and the code reads ZERO PAGE: 47 rooms; the byte can have bit 7 set (129 and 137 were read), but the outcome is the same either way because an edge room has no opening there (all 47 matched the model)."
+    },
+    {
+      "id": "bank5.code_8227",
+      "offset": 82487,
+      "size": 28,
+      "kind": "code",
+      "name": "Room buffer: the item list",
+      "confidence": "confirmed",
+      "cpu_addr": 33319,
+      "sha1": "e84c429a7be4bc9404c05efee463e2e0473e4fb8",
+      "description": "The item list is a $0000-ended run of pointers to bare items [dest][width][height][tiles]; each is drawn with $A6EB (width bit 7 = one tile repeated, height bit 7 = the tiles are behind a pointer, $00 transparent). This is where a room's rocks, doors and decorations come from."
+    },
+    {
+      "id": "bank5.code_8243",
+      "offset": 82515,
+      "size": 36,
+      "kind": "code",
+      "name": "Room buffer: the room's own layout pointer",
+      "confidence": "confirmed",
+      "cpu_addr": 33347,
+      "sha1": "fd59bc118015715d6711a9a62a6b6852cf062fd9",
+      "description": "Byte 0 bit 4 of the record says a layout pointer is present, else jump to $82DD. The pointer follows the optional fields: Y = 3, +1 if there is a script id ($57), +1 if the kind is not 0 or $60 (a sub-id); $18/$19 := the layout."
+    },
+    {
+      "id": "bank5.code_8267",
+      "offset": 82551,
+      "size": 17,
+      "kind": "code",
+      "name": "Layout: the shape and its fill tile",
+      "confidence": "confirmed",
+      "cpu_addr": 33383,
+      "sha1": "be57be381476022223c3b942c37089bc482d15cc",
+      "description": "A layout is [shape | count << 5][tile] + count x [tile][pos][mask | dir]. $8042 turns the shape number (byte 0 AND $1F) into the shape's address ($16); $10 := the tile; X := $20 (row 2 of the buffer)."
+    },
+    {
+      "id": "bank5.code_8278",
+      "offset": 82568,
+      "size": 24,
+      "kind": "code",
+      "name": "Layout: paint the shape",
+      "confidence": "confirmed",
+      "cpu_addr": 33400,
+      "sha1": "5131cbb7594c880e1f77b78a254cfb5103141a91",
+      "description": "The shape is 18 bytes of 1 bit per cell, most significant bit first: every set bit stores the tile at the next buffer cell (144 cells = rows 2-10)."
+    },
+    {
+      "id": "bank5.code_8290",
+      "offset": 82592,
+      "size": 15,
+      "kind": "code",
+      "name": "Layout: how many extra lines?",
+      "confidence": "confirmed",
+      "cpu_addr": 33424,
+      "sha1": "0db85161a903eb840bb715bfaff5a831a2c1edb1",
+      "description": "Byte 0 bits 5-7 (rotated down) = the number of extra tile lines; zero goes to $82DD."
+    },
+    {
+      "id": "bank5.code_829F",
+      "offset": 82607,
+      "size": 58,
+      "kind": "code",
+      "name": "Layout: paint the extra lines",
+      "confidence": "confirmed",
+      "cpu_addr": 33439,
+      "sha1": "ba5a534e928632ed9ee00fc444d38036899a69b0",
+      "description": "Each line is [tile][start position][mask | dir]: the top two bits of the third byte pick a step from the table at $82D9 (-15, +1, +16, +17: up-right, right, down, down-right) and the low six bits say which of the six cells along that direction receive the tile. Used for the lone rocks, doors and special tiles."
+    },
+    {
+      "id": "bank5.code_82DD",
+      "offset": 82669,
+      "size": 10,
+      "kind": "code",
+      "name": "Key doors: reset the four exit keys",
+      "confidence": "confirmed",
+      "cpu_addr": 33501,
+      "sha1": "bb6a98235d6dfee783deeb1b0256c5a4feb84746",
+      "description": "$58-$5B := 8 for N, W, E, S: 'no key needed'."
+    },
+    {
+      "id": "bank5.code_82E7",
+      "offset": 82679,
+      "size": 13,
+      "kind": "code",
+      "name": "Key doors: the openings and this room's byte 0",
+      "confidence": "confirmed",
+      "cpu_addr": 33511,
+      "sha1": "3e162d746f91c0746b89299b1cda144d0c0c7d68",
+      "description": "$15 and $54 := byte 1 of the record (the openings, bits 7-4, and bit 3 = the room has enemies: CORRECTION to the note that bit 3 of $54 was unexplained) and $14 := byte 0."
+    },
+    {
+      "id": "bank5.code_82F4",
+      "offset": 82692,
+      "size": 23,
+      "kind": "code",
+      "name": "Key doors: north exit",
+      "confidence": "confirmed",
+      "cpu_addr": 33524,
+      "sha1": "bf880370d8da4a592f99d755246893380b52e0c2",
+      "description": "If the north opening bit is set and (the neighbour's byte 0 OR this room's byte 0) has bit 7 set, a special screen lies on one side: the exit gets a KEY DOOR. $58 := the neighbour's byte 1 AND 7 (the key number its record names, 0 = no key) and metatile 8 (the door) is written to buffer cell $0777 (row 3, column 7). RUN: every exit whose $58-$5B was not 8 had metatile 8 in its door cell, and those were the only cells that differed from the model: 131 doors in the 302 rooms (1 door in 83 rooms, 2 in 19, 3 in 2, 4 in 1)."
+    },
+    {
+      "id": "bank5.code_830B",
+      "offset": 82715,
+      "size": 23,
+      "kind": "code",
+      "name": "Key doors: west exit",
+      "confidence": "confirmed",
+      "cpu_addr": 33547,
+      "sha1": "bf33d57428107a4c4b6225de033516a77b7b6687",
+      "description": "The same for the west exit with opening bit 6: $59 and the door cell $07B2 (row 7, column 2). CORRECTION: the $0777 / $07B2 / $07BD / $07E7 lead in the weapons notes - they are these four door cells."
+    },
+    {
+      "id": "bank5.code_8322",
+      "offset": 82738,
+      "size": 25,
+      "kind": "code",
+      "name": "Key doors: east exit",
+      "confidence": "confirmed",
+      "cpu_addr": 33570,
+      "sha1": "dd9c2ebc4fbd3a181810e8a1b7645cb4888c9057",
+      "description": "$5A and the door cell $07BD (row 7, column 13)."
+    },
+    {
+      "id": "bank5.code_833B",
+      "offset": 82763,
+      "size": 25,
+      "kind": "code",
+      "name": "Key doors: south exit",
+      "confidence": "confirmed",
+      "cpu_addr": 33595,
+      "sha1": "3efff06aee43542898746729fcd318ff99ed0bac",
+      "description": "$5B and the door cell $07E7 (row 10, column 7); RTS. These four cells are the ones the cleared-gate code ($EEB7) opens (8 -> $0C)."
+    }
+  ]
+}

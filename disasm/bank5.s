@@ -234,10 +234,14 @@ L5_814B:
         sta     $55
         rts
 
-; ---- bank5.code_8155 (code) $8155-$82D8, 388 bytes
+; ---- bank5.code_8155 (code) $8155-$8157, 3 bytes
 L5_8155:
         jsr     L7_C045
+
+; ---- bank5.code_8158 (code) $8158-$815A, 3 bytes
         jsr     L5_A749
+
+; ---- bank5.code_815B (code) $815B-$81A3, 73 bytes
         ldy     #$01
         lda     ($18),Y
         tax
@@ -281,6 +285,8 @@ L5_818B:
         adc     $11
         sta     $10
         jmp     L5_8182
+
+; ---- bank5.code_81A4 (code) $81A4-$81AF, 12 bytes
 L5_81A4:
         ldy     #$00
         lda     ($18),Y
@@ -288,6 +294,8 @@ L5_81A4:
         lda     ($18),Y
         beq     L5_81B0
         jsr     L5_8379
+
+; ---- bank5.code_81B0 (code) $81B0-$81BE, 15 bytes
 L5_81B0:
         lda     $15
         sta     $19
@@ -296,13 +304,19 @@ L5_81B0:
         ldy     #$00
         jsr     L5_8379
         sty     $14
+
+; ---- bank5.code_81BF (code) $81BF-$81C4, 6 bytes
         lda     $30
         and     #$20
         bne     L5_8227
+
+; ---- bank5.code_81C5 (code) $81C5-$81CC, 8 bytes
         ldy     #$01
         lda     ($E4),Y
         sta     $15
         ldy     #$00
+
+; ---- bank5.code_81CD (code) $81CD-$81E2, 22 bytes
         lda     ($E0),Y
         bmi     L5_81D5
         bit     $15
@@ -317,6 +331,8 @@ L5_81DB:
         clc
         adc     ($18),Y
         sta     $14
+
+; ---- bank5.code_81E3 (code) $81E3-$81FA, 24 bytes
         ldy     #$00
         lda     ($E2),Y
         bmi     L5_81ED
@@ -332,6 +348,8 @@ L5_81F3:
         clc
         adc     ($18),Y
         sta     $14
+
+; ---- bank5.code_81FB (code) $81FB-$8214, 26 bytes
         ldy     #$00
         lda     ($E6),Y
         bmi     L5_8207
@@ -348,6 +366,8 @@ L5_820D:
         clc
         adc     ($18),Y
         sta     $14
+
+; ---- bank5.code_8215 (code) $8215-$8226, 18 bytes
         ldy     #$00
         lda     ($E8),Y
         bmi     L5_8221
@@ -358,6 +378,8 @@ L5_8221:
         ldy     $14
         iny
         jsr     L5_A6EB
+
+; ---- bank5.code_8227 (code) $8227-$8242, 28 bytes
 L5_8227:
         ldy     #$00
 L5_8229:
@@ -376,6 +398,8 @@ L5_8229:
         pla
         tay
         jmp     L5_8229
+
+; ---- bank5.code_8243 (code) $8243-$8266, 36 bytes
 L5_8243:
         ldy     #$00
         lda     ($E4),Y
@@ -399,6 +423,8 @@ L5_825E:
         iny
         lda     ($E4),Y
         sta     $19
+
+; ---- bank5.code_8267 (code) $8267-$8277, 17 bytes
         ldy     #$00
         lda     ($18),Y
         jsr     L5_8042
@@ -407,6 +433,8 @@ L5_825E:
         sta     $10
         ldx     #$20
         ldy     #$00
+
+; ---- bank5.code_8278 (code) $8278-$828F, 24 bytes
 L5_8278:
         lda     ($16),Y
         sta     $11
@@ -423,6 +451,8 @@ L5_8285:
         iny
         cpy     #$12
         bne     L5_8278
+
+; ---- bank5.code_8290 (code) $8290-$829E, 15 bytes
         ldy     #$00
         lda     ($18),Y
         rol     A
@@ -432,6 +462,8 @@ L5_8285:
         and     #$07
         bne     L5_829F
         jmp     L5_82DD
+
+; ---- bank5.code_829F (code) $829F-$82D8, 58 bytes
 L5_829F:
         sta     $17
         ldy     #$02
@@ -475,13 +507,15 @@ L5_82C9:
 ; Layout step directions: -15, 1, 16, 17
         .byte   $F1,$01,$10,$11
 
-; ---- bank5.code_82DD (code) $82DD-$83A4, 200 bytes
+; ---- bank5.code_82DD (code) $82DD-$82E6, 10 bytes
 L5_82DD:
         lda     #$08
         sta     $58
         sta     $59
         sta     $5A
         sta     $5B
+
+; ---- bank5.code_82E7 (code) $82E7-$82F3, 13 bytes
         ldy     #$01
         lda     ($E4),Y
         sta     $15
@@ -489,6 +523,8 @@ L5_82DD:
         dey
         lda     ($E4),Y
         sta     $14
+
+; ---- bank5.code_82F4 (code) $82F4-$830A, 23 bytes
         bit     $15
         bpl     L5_830B
         lda     ($E0),Y
@@ -501,6 +537,8 @@ L5_82DD:
         dey
         lda     #$08
         sta     $0777
+
+; ---- bank5.code_830B (code) $830B-$8321, 23 bytes
 L5_830B:
         bit     $15
         bvc     L5_8322
@@ -514,6 +552,8 @@ L5_830B:
         dey
         lda     #$08
         sta     $07B2
+
+; ---- bank5.code_8322 (code) $8322-$833A, 25 bytes
 L5_8322:
         lda     $15
         and     #$20
@@ -528,6 +568,8 @@ L5_8322:
         dey
         lda     #$08
         sta     $07BD
+
+; ---- bank5.code_833B (code) $833B-$8353, 25 bytes
 L5_833B:
         lda     $15
         and     #$10
@@ -543,6 +585,8 @@ L5_833B:
         sta     $07E7
 L5_8353:
         rts
+
+; ---- bank5.code_8354 (code) $8354-$83A4, 81 bytes
 L5_8354:
         ldx     #$00
         ldy     #$00
