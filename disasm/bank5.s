@@ -2561,27 +2561,35 @@ L5_A33F:
         .byte   $0F,$0C,$0B,$0D,$11,$10,$10,$10,$08,$09,$00,$01,$02,$03,$04,$00
         .byte   $01,$02,$03,$04
 
-; ---- bank5.code_A3BB (code) $A3BB-$A41A, 96 bytes
+; ---- bank5.code_A3BB (code) $A3BB-$A3C4, 10 bytes
 L5_A3BB:
         lda     #$FF
         sta     $56
         lda     $5D
         cmp     #$20
         bne     L5_A3DB
+
+; ---- bank5.code_A3C5 (code) $A3C5-$A3CF, 11 bytes
         ldy     #$03
         lda     ($E4),Y
         sta     $5E
         jsr     L7_C0E1
         bcs     L5_A3DA
+
+; ---- bank5.code_A3D0 (code) $A3D0-$A3DA, 11 bytes
         lda     #$06
         jsr     L5_A425
         lda     #$01
         sta     $073F,Y
 L5_A3DA:
         rts
+
+; ---- bank5.code_A3DB (code) $A3DB-$A3DE, 4 bytes
 L5_A3DB:
         cmp     #$60
         bne     L5_A3DA
+
+; ---- bank5.code_A3DF (code) $A3DF-$A404, 38 bytes
         lda     #$00
         sta     $15
         sta     $14
@@ -2602,6 +2610,8 @@ L5_A3E7:
         cpx     #$0A
         bne     L5_A3E7
         beq     L5_A3DA
+
+; ---- bank5.code_A405 (code) $A405-$A41A, 22 bytes
 L5_A405:
         ldy     #$C0
 L5_A407:
@@ -2618,15 +2628,11 @@ L5_A417:
         bne     L5_A407
         rts
 
-; ---- bank5.tbl_A41B (data) $A41B-$A41B, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $00
+; ---- bank5.tbl_A41B (data) $A41B-$A424, 10 bytes
+; Move displacements: x low byte, y high byte, by exit code
+        .byte   $00,$FF,$FF,$00,$00,$00,$01,$00,$00,$01
 
-; ---- bank5.tbl_A41C (data) $A41C-$A424, 9 bytes
-; Table, 9 bytes (structural extent)
-        .byte   $FF,$FF,$00,$00,$00,$01,$00,$00,$01
-
-; ---- bank5.code_A425 (code) $A425-$A496, 114 bytes
+; ---- bank5.code_A425 (code) $A425-$A42F, 11 bytes
 L5_A425:
         ldy     #$C0
 L5_A427:
@@ -2636,6 +2642,8 @@ L5_A427:
         bne     L5_A427
 L5_A42F:
         rts
+
+; ---- bank5.code_A430 (code) $A430-$A461, 50 bytes
 L5_A430:
         lda     #$05
         sta     $7E
@@ -2663,12 +2671,16 @@ L5_A444:
         ldy     #$03
         jsr     L7_C042
         jmp     L7_C045
+
+; ---- bank5.code_A462 (code) $A462-$A46D, 12 bytes
 L5_A462:
         jsr     L5_A430
         lda     $5D
         cmp     #$40
         bne     L5_A46E
         jmp     L5_A663
+
+; ---- bank5.code_A46E (code) $A46E-$A479, 12 bytes
 L5_A46E:
         lda     #$80
         sta     $27
@@ -2676,6 +2688,8 @@ L5_A46E:
         sta     $28
         lda     #$A4
         sta     $29
+
+; ---- bank5.code_A47A (code) $A47A-$A496, 29 bytes
         lda     $57
         beq     L5_A496
         asl     A

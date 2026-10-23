@@ -1,0 +1,137 @@
+{
+  "_comment": "Hand-authored. Bank 5 room special cases ($8030), the area set-up ($8036) and the room enemy set-up ($8039), $A3BB-$A496. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank5.code_A3BB",
+      "offset": 91083,
+      "size": 10,
+      "kind": "code",
+      "name": "ROOM SPECIAL CASES (slot $8030): which kind of room?",
+      "confidence": "confirmed",
+      "cpu_addr": 41915,
+      "sha1": "fdf495648bd47ba231a9d9b239e2463bfd7f2cf0",
+      "description": "Bank 5 slot $8030, called by the room loaders ($EBC3, $EF00) after the room buffer is built. $56 := $FF (no pick-up box open). The room kind $5D (from the map record's byte 0 bits 5-6): $20 = an item room -> $A3C5, $60 = a loop gate -> $A3DF, anything else returns. (Kind $40, the miniboss, is handled by the room-script setup $A462.)"
+    },
+    {
+      "id": "bank5.code_A3C5",
+      "offset": 91093,
+      "size": 11,
+      "kind": "code",
+      "name": "Item room: has the item been taken?",
+      "confidence": "confirmed",
+      "cpu_addr": 41925,
+      "sha1": "2a29a3603155f33c90c2b609ef07660527103185",
+      "description": "$5E := the record's sub-id (byte 3), then JSR $C0E1 (-> bank 7 $EFE0, item flag $5E): carry SET = not taken yet -> return, leaving the item metatile alone."
+    },
+    {
+      "id": "bank5.code_A3D0",
+      "offset": 91104,
+      "size": 11,
+      "kind": "code",
+      "name": "Item room: taken - remove the item",
+      "confidence": "confirmed",
+      "cpu_addr": 41936,
+      "sha1": "1ca43161816d642502f5e4055c7502b52c711e69",
+      "description": "The item's metatile 6 is found in the room buffer ($A425) and replaced by metatile 1 (floor), so no pick-up box spawns for it. RUN: an item room with its flag clear kept its metatile 6; with the flag set the 6 became a 1."
+    },
+    {
+      "id": "bank5.code_A3DB",
+      "offset": 91115,
+      "size": 4,
+      "kind": "code",
+      "name": "Loop gate?",
+      "confidence": "confirmed",
+      "cpu_addr": 41947,
+      "sha1": "0eb500cccb3368c717abedaee40262d22f3fc21a",
+      "description": "Kind $60 continues; others return."
+    },
+    {
+      "id": "bank5.code_A3DF",
+      "offset": 91119,
+      "size": 38,
+      "kind": "code",
+      "name": "Loop gate: does a recent stretch of the move history cancel out?",
+      "confidence": "confirmed",
+      "cpu_addr": 41951,
+      "sha1": "84fe481106842701e279f6dafd3abde617c1e0a8",
+      "description": "Walks the move history $04F0-$04F9 from the NEWEST move back (X = 0-9), adding each move's displacement from the table at $A41B into two separate 8-bit sums: $15 = x (west $FF, east 1) and $14 = y (north $FF, south 1); code 4 (no move) adds nothing. After each addition, if both sums are zero the player is back where that stretch of moves began: -> $A405. After all ten without a zero it returns. RUN: E then W opened it; E N W S (a square) opened it; E E N S W, N N S E W W and ten E did not; a history of all 4s opens it at once."
+    },
+    {
+      "id": "bank5.code_A405",
+      "offset": 91157,
+      "size": 22,
+      "kind": "code",
+      "name": "Loop gate: open it",
+      "confidence": "confirmed",
+      "cpu_addr": 41989,
+      "sha1": "21e3be323abeeb85b46fa2d43d194b9901f1918f",
+      "description": "Every metatile 4 or 5 in the room buffer (Y = $C0 down to 1) becomes metatile 3. RUN: the two 4s of a gate room became 3s."
+    },
+    {
+      "id": "bank5.tbl_A41B",
+      "offset": 91179,
+      "size": 10,
+      "kind": "data",
+      "name": "Move displacements: x low byte, y high byte, by exit code",
+      "confidence": "confirmed",
+      "cpu_addr": 42011,
+      "sha1": "ad9d85d1350044221df645896a1f6ba0221a0830",
+      "description": "Read as [$A41B + code] = x and [$A41C + code] = y for the exit codes 0 N, 2 W, 4 none, 6 E, 8 S: N (0, $FF), W ($FF, 0), none (0, 0), E (1, 0), S (0, 1). The first byte is the overlap trick again: the x column begins at $A41B, one byte before the y column at $A41C, which reads the same stream. CORRECTION: this was claimed as a 1-byte and a 9-byte table with no meaning; and the loop-gate note said the moves 'sum to zero', which hides that it is a two-dimensional displacement tested after every step."
+    },
+    {
+      "id": "bank5.code_A425",
+      "offset": 91189,
+      "size": 11,
+      "kind": "code",
+      "name": "Find metatile A in the room buffer",
+      "confidence": "confirmed",
+      "cpu_addr": 42021,
+      "sha1": "d8c53e9710f3782a0ee61149391fd812a77b6916",
+      "description": "In: A = a metatile id. Searches $0740 + Y - 1 from Y = $C0 down; out: Y = the buffer position + 1 where it was found (the LAST such cell), or 0 when there is none (callers then write to $073F, one byte before the buffer, harmlessly). Y is returned either way."
+    },
+    {
+      "id": "bank5.code_A430",
+      "offset": 91200,
+      "size": 50,
+      "kind": "code",
+      "name": "AREA SET-UP (slot $8036): clear the per-area state",
+      "confidence": "confirmed",
+      "cpu_addr": 42032,
+      "sha1": "d30a77346adb102849b77adc0982057751a28e80",
+      "description": "Called by the corridor loader ($EF81) and the special-screen loader ($EEA5), and the first thing the room set-up below does. $7E := $7F := 5 (the art-load stream and the spawn script are in bank 5); $27 := 0 (the art loader idle); $0740-$07FF := 0 (192 bytes: the room buffer and the tail of the object fields); the 16 loaded-block slots $0480-$048F := 0 (so every enemy waits for its art until a stream loads it); $60 AND $F4 (script flags bits 0, 1 and 3 off: no script running, spawning allowed); then the decompressor is armed with block $10 of bank 3 for PPU $0F80 and waited for ($C042, $C045). RUN: all of that, and the single decompressor arm (block $10, bank 3, PPU $0F80: sprite tiles $F8 on)."
+    },
+    {
+      "id": "bank5.code_A462",
+      "offset": 91250,
+      "size": 12,
+      "kind": "code",
+      "name": "ROOM ENEMY SET-UP (slot $8039): clear, then miniboss or ordinary",
+      "confidence": "confirmed",
+      "cpu_addr": 42082,
+      "sha1": "beec40ca613d3e42a7344729e56e919dd083cea7",
+      "description": "Called after a labyrinth room is drawn ($EBCC, $EF0B). $A430 first; then room kind $40 (a miniboss) jumps to $A663 (its boss and stream, see the special-rooms notes), anything else continues."
+    },
+    {
+      "id": "bank5.code_A46E",
+      "offset": 91262,
+      "size": 12,
+      "kind": "code",
+      "name": "Room set-up: start the default art stream",
+      "confidence": "confirmed",
+      "cpu_addr": 42094,
+      "sha1": "7b5d6639328f8c48d0a76ca0d14a06b7a02f5545",
+      "description": "$27 := $80 (start) and the stream pointer $28/$29 := $A497, the 16-record default stream every room loads (the common enemy graphics). The loader runs one record per stage step ($E99F)."
+    },
+    {
+      "id": "bank5.code_A47A",
+      "offset": 91274,
+      "size": 29,
+      "kind": "code",
+      "name": "Room set-up: start the room's spawn script",
+      "confidence": "confirmed",
+      "cpu_addr": 42106,
+      "sha1": "0b3745e474e197a9f088a044a77fe607c6452033",
+      "description": "$57 (the map record's script id; 0 = none, the record has no enemies) is doubled and the script pointer $66/$67 read from the table at $A4C5 + 2 x id ($A4C7 is entry 1, so id n = the (n-1)th pointer); $60 bit 1 set (a script is running), the wait counter $68 and the second counter $69 := 1, so the first tick comes at once. RUN: id 1 -> $A525 (the first script), 47 -> $A65C, 5 -> $A53C, 16 -> $A58D; id 0 leaves the pointer alone and does not set bit 1."
+    }
+  ]
+}
