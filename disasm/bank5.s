@@ -586,7 +586,7 @@ L5_833B:
 L5_8353:
         rts
 
-; ---- bank5.code_8354 (code) $8354-$83A4, 81 bytes
+; ---- bank5.code_8354 (code) $8354-$8378, 37 bytes
 L5_8354:
         ldx     #$00
         ldy     #$00
@@ -608,6 +608,8 @@ L5_8358:
         cpx     #$60
         bne     L5_8358
         rts
+
+; ---- bank5.code_8379 (code) $8379-$838D, 21 bytes
 L5_8379:
         lda     #$04
 L5_837B:
@@ -625,6 +627,8 @@ L5_837B:
         sbc     #$00
         bne     L5_837B
         rts
+
+; ---- bank5.code_838E (code) $838E-$83A4, 23 bytes
 L5_838E:
         cmp     #$A0
         bcs     L5_83A2
@@ -643,10 +647,10 @@ L5_83A2:
         rts
 
 ; ---- bank5.tbl_83A5 (data) $83A5-$83B2, 14 bytes
-; Table, 14 bytes (structural extent)
+; Cell class by set-0 metatile id (ids 0-13)
         .byte   $00,$08,$07,$06,$05,$01,$04,$04,$0A,$09,$00,$02,$0E,$00
 
-; ---- bank5.code_83B3 (code) $83B3-$8468, 182 bytes
+; ---- bank5.code_83B3 (code) $83B3-$83E5, 51 bytes
 L5_83B3:
         ldx     #$0F
 L5_83B5:
@@ -677,6 +681,8 @@ L5_83B5:
         sta     $10
         sty     $11
         ldy     #$00
+
+; ---- bank5.code_83E6 (code) $83E6-$8428, 67 bytes
         txa
         asl     A
         tax
@@ -720,6 +726,8 @@ L5_8423:
 L5_8425:
         sta     $0151,X
         iny
+
+; ---- bank5.code_8429 (code) $8429-$8456, 46 bytes
         lda     ($12),Y
         sta     $12
         and     #$07
@@ -744,6 +752,8 @@ L5_843E:
         and     $0199,Y
         ora     $10
         sta     $04E8,X
+
+; ---- bank5.code_8457 (code) $8457-$8468, 18 bytes
         ldx     $14
         lda     $12
         and     #$F0
@@ -756,11 +766,11 @@ L5_8468:
         rts
 
 ; ---- bank5.tbl_8469 (data) $8469-$846C, 4 bytes
-; Table, 4 bytes
+; Attribute clear masks by quadrant
         .byte   $FC,$F3,$CF,$3F
 
 ; ---- bank5.tbl_846D (data) $846D-$8470, 4 bytes
-; Table, 4 bytes (structural extent)
+; Attribute quadrant masks by quadrant
         .byte   $03,$0C,$30,$C0
 
 ; ---- bank5.code_8471 (code) $8471-$84AB, 59 bytes

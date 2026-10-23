@@ -1,0 +1,115 @@
+{
+  "_comment": "Hand-authored. Bank 5 $8354-$8470: the cell class map ($8006), the item-group drawer, the class function and the 16-metatile row drawer ($8009) with its attribute tables. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank5.code_8354",
+      "offset": 82788,
+      "size": 37,
+      "kind": "code",
+      "name": "CELL CLASSES (slot $8006): the room buffer to the class map",
+      "confidence": "confirmed",
+      "cpu_addr": 33620,
+      "sha1": "a34618b771cd3966b51103a9001dbadb41aa241a",
+      "description": "Called after a room is drawn (the scroll code ends with JMP $8006, and the loaders). Reads the 192 buffer cells $0740-$07FF two at a time, turns each metatile id into a class 0-14 through $838E, and packs the pair into one byte of $0400-$045F: the EVEN column in the HIGH nibble, the odd in the low (96 bytes). This map is what weapons, the ship and the item boxes look up. RUN over 312 ordinary rooms: equal to an independent model (class table below) in every room."
+    },
+    {
+      "id": "bank5.code_8379",
+      "offset": 82825,
+      "size": 21,
+      "kind": "code",
+      "name": "Draw a group of four items",
+      "confidence": "confirmed",
+      "cpu_addr": 33657,
+      "sha1": "f4d2ac54bcf229f5fdc99ef8a4d5dc2cc9628e64",
+      "description": "Called from the room builder with Y = the offset of a run of [length][item] records at ($18): draws four of them with $A6EB (a counter of 4 on the stack; each step adds the record's length byte to Y). Y is returned past the fourth, so the caller can carry on (the door set's per-exit walls follow)."
+    },
+    {
+      "id": "bank5.code_838E",
+      "offset": 82846,
+      "size": 23,
+      "kind": "code",
+      "name": "Metatile id to cell class",
+      "confidence": "confirmed",
+      "cpu_addr": 33678,
+      "sha1": "0b4854e4efc2bb78c965c6d27c928e48b93e573e",
+      "description": "In: A = a room-buffer byte (set number in bits 5-7, metatile in bits 0-4); Y preserved. Sets 5-7 (A >= $A0): class 9. Sets 1-4 ($20-$9F): class 0. Set 0 ($00-$1F): the byte at $83A5 + id. RUN over all 256 values: exactly that. The class meanings (blocks, key-door cover, floor, sphere) are in the cells notes."
+    },
+    {
+      "id": "bank5.tbl_83A5",
+      "offset": 82869,
+      "size": 14,
+      "kind": "data",
+      "name": "Cell class by set-0 metatile id (ids 0-13)",
+      "confidence": "confirmed",
+      "cpu_addr": 33701,
+      "sha1": "21f4e82a9e349b69e71c4c35aa8d92ed881d5064",
+      "description": "00 08 07 06 05 01 04 04 0A 09 00 02 0E 00: ids 1 -> class 8, 2 -> 7, 3 -> 6, 4 -> 5, 5 -> 1, 6 -> 4, 7 -> 4, 8 -> 10, 9 -> 9, 10 -> 0, 11 -> 2, 12 -> 14, 13 -> 0. Only 14 entries: an id of 14-31 would read the CODE after the table (RUN: those give $A2, $0F, $86 ...), but no room buffer of the 312 ordinary rooms contains one (ids in sets 1-4 reach $89)."
+    },
+    {
+      "id": "bank5.code_83B3",
+      "offset": 82883,
+      "size": 51,
+      "kind": "code",
+      "name": "DRAW 16 METATILES (slot $8009): find each metatile's five bytes",
+      "confidence": "confirmed",
+      "cpu_addr": 33715,
+      "sha1": "7e62026f899562d42ab9d2f26bacd5757677eb4f",
+      "description": "Slot $8009. The 16 metatile ids of one 16-pixel band are in $04C0-$04CF (one band = 16 cells; $AE = the band index, whose parity picks the attribute half). For cell X = 15 down to 0 ($14): id bits 0-4 x 5 + the set's pointer ($0460,set lo / $0468,set hi) = the metatile's 5 bytes; id bits 5-7 = the set 0-7; $10 := the set's tile base ($0470,set). Called by the room-band drawer ($F03D), the corridor row builder ($E974) and the room-scroll code."
+    },
+    {
+      "id": "bank5.code_83E6",
+      "offset": 82934,
+      "size": 67,
+      "kind": "code",
+      "name": "Draw 16 metatiles: the four tiles",
+      "confidence": "confirmed",
+      "cpu_addr": 33766,
+      "sha1": "847d855e43c4a366350f20c8eb2d4990bc3f883c",
+      "description": "The first four bytes of a metatile are its tiles top-left, top-right, bottom-left, bottom-right: each is $FF (blank: becomes tile $20) or the byte plus the set's tile base. They go to the band's two tile rows: $0130 + 2 x cell (top row, left and right) and $0150 + 2 x cell (bottom row). The 32-byte rows at $0130 and $0150 are what the NMI (or $E619) copies to the nametable."
+    },
+    {
+      "id": "bank5.code_8429",
+      "offset": 83001,
+      "size": 46,
+      "kind": "code",
+      "name": "Draw 16 metatiles: the attribute quadrant",
+      "confidence": "confirmed",
+      "cpu_addr": 33833,
+      "sha1": "d3a7eac33b797b0c0b625cdc41161afb32aa6cb0",
+      "description": "The fifth byte: its low three bits pick an attribute pattern in $0199 (00 55 AA FF: the palette repeated in all four quadrants). The attribute byte of the 32 x 32 block ($04E8 + cell / 2; eight per band) is updated for this cell's QUADRANT only: index = column parity + 2 x band parity (top-left, top-right, bottom-left, bottom-right = bits 0-1, 2-3, 4-5, 6-7), the old two bits cleared with the mask $8469[index] and the pattern's two bits ORed in through $846D[index]. Two bands therefore build one attribute row; the second (odd) band completes it. RUN: all six attribute rows ($04E8, 48 bytes) of the labyrinth savestate's room were reproduced exactly."
+    },
+    {
+      "id": "bank5.code_8457",
+      "offset": 83047,
+      "size": 18,
+      "kind": "code",
+      "name": "Draw 16 metatiles: write the fifth byte back, next cell",
+      "confidence": "confirmed",
+      "cpu_addr": 33879,
+      "sha1": "5539cc3235452dcca4fd923758c1d3a530a352c6",
+      "description": "$04C0 + cell := (the fifth byte AND $F0) OR the set number: the id byte is REPLACED by the object nibble (high 4 bits) and the set (low bits), which the ground-object spawner ($89FB, slot $802A) reads next. Then the next cell, until all 16 are done; RTS. RUN: the 768 tiles of the savestate room's 12 bands matched its nametable except 4 under an object (the one object-covered cell); written-back values 3 and 6 are the room's sets."
+    },
+    {
+      "id": "bank5.tbl_8469",
+      "offset": 83065,
+      "size": 4,
+      "kind": "data",
+      "name": "Attribute clear masks by quadrant",
+      "confidence": "confirmed",
+      "cpu_addr": 33897,
+      "sha1": "f0c111162514509101dd5007098a47857addd386",
+      "description": "FC F3 CF 3F: clear bits 0-1, 2-3, 4-5, 6-7 of an attribute byte."
+    },
+    {
+      "id": "bank5.tbl_846D",
+      "offset": 83069,
+      "size": 4,
+      "kind": "data",
+      "name": "Attribute quadrant masks by quadrant",
+      "confidence": "confirmed",
+      "cpu_addr": 33901,
+      "sha1": "97bde594c7931b8dac2d1796f876b8440e7a8658",
+      "description": "03 0C 30 C0: the bits of the quadrant, ANDed with the pattern byte before it is ORed in."
+    }
+  ]
+}
