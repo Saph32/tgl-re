@@ -1671,7 +1671,7 @@ L5_89CB:
         lda     $45
         jmp     L7_C051
 
-; ---- bank5.code_89FB (code) $89FB-$8A6D, 115 bytes
+; ---- bank5.code_89FB (code) $89FB-$8A04, 10 bytes
 L5_89FB:
         lda     #$E8
         clc
@@ -1679,11 +1679,17 @@ L5_89FB:
         sec
         sbc     $B7
         sta     $14
+
+; ---- bank5.code_8A05 (code) $8A05-$8A06, 2 bytes
         ldx     #$0F
+
+; ---- bank5.code_8A07 (code) $8A07-$8A0D, 7 bytes
 L5_8A07:
         lda     $04C0,X
         and     #$F0
         beq     L5_8A6A
+
+; ---- bank5.code_8A0E (code) $8A0E-$8A2B, 30 bytes
         sta     $10
         lda     $04C0,X
         and     #$0F
@@ -1701,15 +1707,23 @@ L5_8A07:
         lsr     A
         lsr     A
         tay
+
+; ---- bank5.code_8A2C (code) $8A2C-$8A31, 6 bytes
         lda     ($11),Y
         beq     L5_8A6A
         sta     $15
+
+; ---- bank5.code_8A32 (code) $8A32-$8A36, 5 bytes
         jsr     L7_C027
         bcs     L5_8A6D
+
+; ---- bank5.code_8A37 (code) $8A37-$8A41, 11 bytes
         lda     $15
         sta     $0500,Y
         lda     $04C0,X
         sta     $0698,Y
+
+; ---- bank5.code_8A42 (code) $8A42-$8A52, 17 bytes
         lda     $AE
         sta     $05F0,Y
         txa
@@ -1718,6 +1732,8 @@ L5_8A07:
         sta     $05C0,Y
         lda     $AD
         sta     $05D8,Y
+
+; ---- bank5.code_8A53 (code) $8A53-$8A5C, 10 bytes
         txa
         asl     A
         asl     A
@@ -1725,6 +1741,8 @@ L5_8A07:
         asl     A
         adc     #$08
         sta     $0530,Y
+
+; ---- bank5.code_8A5D (code) $8A5D-$8A69, 13 bytes
         lda     $14
         sta     $0518,Y
         txa
@@ -1732,9 +1750,13 @@ L5_8A07:
         clc
         adc     $AA
         sta     $0608,Y
+
+; ---- bank5.code_8A6A (code) $8A6A-$8A6C, 3 bytes
 L5_8A6A:
         dex
         bpl     L5_8A07
+
+; ---- bank5.code_8A6D (code) $8A6D-$8A6D, 1 bytes
 L5_8A6D:
         rts
 
