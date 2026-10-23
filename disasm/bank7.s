@@ -5231,7 +5231,7 @@ L7_EEE0:
         .byte   $20,$21,$21,$22,$22,$23,$23,$24,$24,$26,$26,$21,$21,$22,$22,$23
         .byte   $23,$24,$24,$25,$25,$25,$20
 
-; ---- bank7.code_EF6C (code) $EF6C-$EFD7, 108 bytes
+; ---- bank7.code_EF6C (code) $EF6C-$EF83, 24 bytes
 L7_EF6C:
         jsr     L7_EECC
         lda     #$01
@@ -5242,24 +5242,38 @@ L7_EF6C:
         jsr     L5_8000
         jsr     L7_D7C3
         jsr     L5_8036
+
+; ---- bank7.code_EF84 (code) $EF84-$EF8E, 11 bytes
         ldy     #$06
 L7_EF86:
         lda     $016F,Y
         sta     $04B8,Y
         dey
         bne     L7_EF86
+
+; ---- bank7.code_EF8F (code) $EF8F-$EF92, 4 bytes
         lda     $47
         sta     $78
+
+; ---- bank7.code_EF93 (code) $EF93-$EF9A, 8 bytes
         lda     $30
         and     #$9F
         ora     #$50
         sta     $30
+
+; ---- bank7.code_EF9B (code) $EF9B-$EFA2, 8 bytes
         jsr     L7_D748
         lda     $51
         jsr     L4_8000
+
+; ---- bank7.code_EFA3 (code) $EFA3-$EFA8, 6 bytes
         jsr     L7_E560
         jsr     L7_E5BD
+
+; ---- bank7.code_EFA9 (code) $EFA9-$EFAB, 3 bytes
         jmp     L7_D755
+
+; ---- bank7.code_EFAC (code) $EFAC-$EFB9, 14 bytes
 L7_EFAC:
         sec
         sbc     #$01
@@ -5271,6 +5285,8 @@ L7_EFB5:
         sec
 L7_EFB9:
         rts
+
+; ---- bank7.code_EFBA (code) $EFBA-$EFC6, 13 bytes
 L7_EFBA:
         sec
         sbc     #$01
@@ -5278,6 +5294,8 @@ L7_EFBA:
         ora     $04A9,Y
         sta     $04A9,Y
         rts
+
+; ---- bank7.code_EFC7 (code) $EFC7-$EFD7, 17 bytes
 L7_EFC7:
         pha
         and     #$07
@@ -5296,11 +5314,13 @@ L7_EFC7:
 ; Bit masks $01-$80
         .byte   $01,$02,$04,$08,$10,$20,$40,$80
 
-; ---- bank7.code_EFE0 (code) $EFE0-$EFF2, 19 bytes
+; ---- bank7.code_EFE0 (code) $EFE0-$EFE8, 9 bytes
 L7_EFE0:
         jsr     L7_EFC7
         and     $04A0,Y
         jmp     L7_EFB5
+
+; ---- bank7.code_EFE9 (code) $EFE9-$EFF2, 10 bytes
 L7_EFE9:
         jsr     L7_EFC7
         ora     $04A0,Y

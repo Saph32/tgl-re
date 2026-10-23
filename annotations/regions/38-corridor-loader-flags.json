@@ -1,0 +1,137 @@
+{
+  "_comment": "Hand-authored. The corridor data loader and the flag helpers, bank 7 $EF6C-$EFF2 (the bit-mask table $EFD8 is claimed elsewhere). The generator for 20-traced.json subtracts these.",
+  "regions": [
+    {
+      "id": "bank7.code_EF6C",
+      "offset": 126844,
+      "size": 24,
+      "kind": "code",
+      "name": "CORRIDOR DATA LOADER: the corridor's scenes",
+      "confidence": "confirmed",
+      "cpu_addr": 61292,
+      "sha1": "c4ae49e86cda246057f59b2c8db3d1bfa9d5b533",
+      "description": "Called by JSR from $EC9C, after the launch flight ($F282). $EECC (the common start: $56 := $FF, attribute patterns, read the record at $E4, common scene 0), then bank 5 $8000 with A = 1 (scene 1, the corridors' common scene), then the corridor's own scene $EF55[$51] (23 entries: $20 $21 $21 $22 $22 $23 $23 $24 $24 $26 $26 $21 $21 $22 $22 $23 $23 $24 $24 $25 $25 $25 $20), a wait for the decompressor ($D7C3), and bank 5 $8036 (-> $A430, not read through). RUN (corridor 5, after the flight): $5C = $23 = $EF55[5]; $EF6C at frame 373 of the start, $E560 nine frames later, finished at 390."
+    },
+    {
+      "id": "bank7.code_EF84",
+      "offset": 126868,
+      "size": 11,
+      "kind": "code",
+      "name": "Corridor start: remember the score",
+      "confidence": "confirmed",
+      "cpu_addr": 61316,
+      "sha1": "bf03f0ce1f45a359fe05eede1ee944dd8294263d",
+      "description": "Copies the six score bytes $0170-$0175 to $04B9-$04BE (Y = 6 down to 1). The corridor's boss routine turns the difference into the points gained, which the TGL reward uses. RUN with a score of 1..6: $04B9-$04BE = 1..6, $04B8 and $04BF untouched."
+    },
+    {
+      "id": "bank7.code_EF8F",
+      "offset": 126879,
+      "size": 4,
+      "kind": "code",
+      "name": "Corridor start: remember the maximum life",
+      "confidence": "confirmed",
+      "cpu_addr": 61327,
+      "sha1": "4a94d3309354078d691b43e0c0c664e89037fa41",
+      "description": "$78 := $47. A TGL CONTINUE restores $47 from $78 (see the start-mode notes). RUN."
+    },
+    {
+      "id": "bank7.code_EF93",
+      "offset": 126883,
+      "size": 8,
+      "kind": "code",
+      "name": "Corridor start: set the corridor flags",
+      "confidence": "confirmed",
+      "cpu_addr": 61331,
+      "sha1": "be82a68c3bb0f573d2d8482de11d98bbb13f3f52",
+      "description": "$30 := ($30 AND $9F) OR $50: bits 6 and 4 set (a corridor; the NMI moves the split marker), bit 5 cleared (not a special screen), bit 7 and the low bits kept. RUN: $A7 -> $D7; after a real start $50."
+    },
+    {
+      "id": "bank7.code_EF9B",
+      "offset": 126891,
+      "size": 8,
+      "kind": "code",
+      "name": "Corridor start: the screen-data block",
+      "confidence": "confirmed",
+      "cpu_addr": 61339,
+      "sha1": "30bc8cfa1979b4403a5fdf254c57536985e9ec83",
+      "description": "Selects bank 4 and calls its entry $8000 with A = $51, which returns the corridor's block address in $18/$19 (the entry returns a pointer rather than running code)."
+    },
+    {
+      "id": "bank7.code_EFA3",
+      "offset": 126899,
+      "size": 6,
+      "kind": "code",
+      "name": "Corridor start: start the stage engine and fill the screen",
+      "confidence": "confirmed",
+      "cpu_addr": 61347,
+      "sha1": "71319102c4635ca00c525f3a247ab36a7558ac0b",
+      "description": "$E560 (reset the row engine, read the block's first trigger) and $E5BD (prime a whole screen of 15 rows at 16 px a frame); see the stage-engine notes. RUN: $E560 at frame 382, the priming finished at 390."
+    },
+    {
+      "id": "bank7.code_EFA9",
+      "offset": 126905,
+      "size": 3,
+      "kind": "code",
+      "name": "Corridor start: back to bank 5",
+      "confidence": "confirmed",
+      "cpu_addr": 61353,
+      "sha1": "69c8d1072835c4270383b18f986024f981a8573b",
+      "description": "JMP $D755: bank 5 is selected and the routine returns to the corridor loader."
+    },
+    {
+      "id": "bank7.code_EFAC",
+      "offset": 126908,
+      "size": 14,
+      "kind": "code",
+      "name": "Is flag (A - 1) set? - the corridor-cleared test",
+      "confidence": "confirmed",
+      "cpu_addr": 61356,
+      "sha1": "c8e2d2c34eed0682c1bb729578fdb2f545d7a5f5",
+      "description": "In: A = the corridor number c (1-21). Tests bit (c - 1) of the array $04A9-$04AB (corridors 1-8 in $04A9, 9-16 in $04AA, 17-21 in $04AB) through the bit-address helper $EFC7. Out: carry CLEAR = the bit is set (the corridor is cleared), carry SET = not. $EFB5 is shared with the item-flag test below. RUN: after marking 1, 5, 8, 9, 10, 17 and 21 exactly those gave carry clear; the bytes were $91 $03 $11."
+    },
+    {
+      "id": "bank7.code_EFBA",
+      "offset": 126922,
+      "size": 13,
+      "kind": "code",
+      "name": "Mark corridor A cleared",
+      "confidence": "confirmed",
+      "cpu_addr": 61370,
+      "sha1": "c8dd0a9a9efda3927c4275f2f01d6ab3be786871",
+      "description": "Sets bit (A - 1) of $04A9-$04AB. Called from the stage end ($ECE4) for corridors 1-20; the flags are part of the password payload (bytes 0-16 land at $04A0-$04B0). RUN."
+    },
+    {
+      "id": "bank7.code_EFC7",
+      "offset": 126935,
+      "size": 17,
+      "kind": "code",
+      "name": "Bit address: byte index and mask for a bit number",
+      "confidence": "confirmed",
+      "cpu_addr": 61383,
+      "sha1": "e356361e63d2db042872e663792b5a9fb81a2cb7",
+      "description": "Slot $C078. In: A = a bit number n. Out: Y = n / 8, A and $10 = 1 << (n AND 7) (the mask from the 8-byte table at $EFD8). Used by the cleared flags, the item flags and the corridor seals ($04B1/$04B2). RUN: n = 0, 1, 7, 8, 15, 16, 20, 39 gave (Y, mask) = (0,1) (0,2) (0,$80) (1,1) (1,$80) (2,1) (2,$10) (4,$80)."
+    },
+    {
+      "id": "bank7.code_EFE0",
+      "offset": 126960,
+      "size": 9,
+      "kind": "code",
+      "name": "Is item flag A set?",
+      "confidence": "confirmed",
+      "cpu_addr": 61408,
+      "sha1": "346ce59ab988498e7359738758b6a580fd68a14e",
+      "description": "Tests bit A of the array at $04A0 (the pick-up and shop flags: a room's sub-id is its flag number). Out: carry CLEAR = set, SET = not, through the shared tail $EFB5. Used by the special-screen loader for the shops and by the item rooms. RUN: flags 0, 9 and 20 set were the only carry-clear results among 0-21."
+    },
+    {
+      "id": "bank7.code_EFE9",
+      "offset": 126969,
+      "size": 10,
+      "kind": "code",
+      "name": "Set item flag A",
+      "confidence": "confirmed",
+      "cpu_addr": 61417,
+      "sha1": "6eead004b77a731f80da210f7a72b262aadccb8e",
+      "description": "Sets bit A of the array at $04A0. RUN: flags 0, 9, 20 -> $04A0 = $01, $04A1 = $02, $04A2 = $10."
+    }
+  ]
+}
