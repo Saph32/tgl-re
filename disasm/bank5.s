@@ -2745,12 +2745,14 @@ L5_A496:
         .byte   $F3,$05,$0A,$94,$03,$14,$01,$02,$9C,$3C,$1E,$8E,$04,$0F,$01,$02
         .byte   $9C,$3C,$1E,$01,$1E,$01,$02,$F4,$04,$1E,$01,$1F,$01,$02
 
-; ---- bank5.code_A663 (code) $A663-$A68C, 42 bytes
+; ---- bank5.code_A663 (code) $A663-$A66A, 8 bytes
 L5_A663:
         lda     $5E
         jsr     L7_C0E1
         bcs     L5_A66B
         rts
+
+; ---- bank5.code_A66B (code) $A66B-$A68C, 34 bytes
 L5_A66B:
         ldy     $5E
         lda     $A682,Y
