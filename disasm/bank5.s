@@ -2171,7 +2171,7 @@ L5_8A6D:
         .byte   $0D,$6C,$61,$73,$74,$20,$73,$65,$61,$6C,$20,$77,$69,$6C,$6C,$0D
         .byte   $62,$65,$20,$72,$65,$6D,$6F,$76,$65,$64,$5B,$00
 
-; ---- bank5.code_9F10 (code) $9F10-$9F31, 34 bytes
+; ---- bank5.code_9F10 (code) $9F10-$9F21, 18 bytes
 L5_9F10:
         asl     A
         tay
@@ -2188,10 +2188,14 @@ L5_9F12:
         lda     ($00),Y
         pha
         rts
+
+; ---- bank5.code_9F22 (code) $9F22-$9F29, 8 bytes
 L5_9F22:
         lda     $0500,X
         bpl     L5_9F2A
         jmp     L5_A0AE
+
+; ---- bank5.code_9F2A (code) $9F2A-$9F31, 8 bytes
 L5_9F2A:
         jsr     L7_C0AE
         lda     $51
@@ -2202,7 +2206,7 @@ L5_9F2A:
         .byte   $47,$C0,$B5,$9F,$E8,$9F,$C3,$9F,$87,$9F,$74,$9F,$75,$A0,$CE,$9F
         .byte   $43,$9F
 
-; ---- bank5.code_9F44 (code) $9F44-$9F97, 84 bytes
+; ---- bank5.code_9F44 (code) $9F44-$9F74, 49 bytes
 L5_9F44:
         jsr     L5_9F88
         lda     #$B5
@@ -2222,6 +2226,8 @@ L5_9F44:
         lda     #$3C
         sta     $07A1,X
         jmp     L5_A0F7
+
+; ---- bank5.code_9F75 (code) $9F75-$9F87, 19 bytes
 L5_9F75:
         jsr     L5_9F88
         lda     #$80
@@ -2231,11 +2237,15 @@ L5_9F75:
         lda     #$31
         sta     $0505
         rts
+
+; ---- bank5.code_9F88 (code) $9F88-$9F91, 10 bytes
 L5_9F88:
         lda     #$00
         sta     $0788,X
         lda     #$06
         sta     $0620,X
+
+; ---- bank5.code_9F92 (code) $9F92-$9F97, 6 bytes
 L5_9F92:
         jsr     L7_C045
         jsr     L7_C006
@@ -2244,11 +2254,15 @@ L5_9F92:
 ; Far-call argument at $9F98
         .byte   $02,$08,$80
 
-; ---- bank5.code_9F9B (code) $9F9B-$A04D, 179 bytes
+; ---- bank5.code_9F9B (code) $9F9B-$9FA1, 7 bytes
         lda     $0788,X
         cmp     #$83
         bne     L5_9F92
+
+; ---- bank5.code_9FA2 (code) $9FA2-$9FA4, 3 bytes
         jsr     L7_C048
+
+; ---- bank5.code_9FA5 (code) $9FA5-$9FB5, 17 bytes
         lda     #$20
         sta     $19
         lda     #$91
@@ -2257,6 +2271,8 @@ L5_9F92:
         lda     ($E4),Y
         and     #$7F
         jmp     L7_C051
+
+; ---- bank5.code_9FB6 (code) $9FB6-$9FC3, 14 bytes
 L5_9FB6:
         lda     $52
         sta     $7C
@@ -2265,6 +2281,8 @@ L5_9FB6:
         inx
         lda     #$04
         jmp     L5_9FC6
+
+; ---- bank5.code_9FC4 (code) $9FC4-$9FCE, 11 bytes
 L5_9FC4:
         lda     $5E
 L5_9FC6:
@@ -2272,11 +2290,15 @@ L5_9FC6:
         lda     #$34
         sta     $0500,X
         rts
+
+; ---- bank5.code_9FCF (code) $9FCF-$9FD7, 9 bytes
 L5_9FCF:
         jsr     L5_A2E7
         beq     L5_9FD8
         lda     #$0A
         bne     L5_9FC6
+
+; ---- bank5.code_9FD8 (code) $9FD8-$9FE8, 17 bytes
 L5_9FD8:
         lda     $04B1
         ora     #$08
@@ -2285,6 +2307,8 @@ L5_9FD8:
         jsr     L7_C030
         lda     #$0B
         bne     L5_9FC6
+
+; ---- bank5.code_9FE9 (code) $9FE9-$A00C, 36 bytes
 L5_9FE9:
         lda     #$65
         ldy     #$06
@@ -2301,10 +2325,14 @@ L5_9FE9:
         jsr     L5_A33F
         lda     #$DC
         sta     $06A0
+
+; ---- bank5.code_A00D (code) $A00D-$A017, 11 bytes
         lda     #$33
         sta     $0506
         sta     $0507
         sta     $0508
+
+; ---- bank5.code_A018 (code) $A018-$A040, 41 bytes
         lda     $55
         asl     A
         asl     A
@@ -2326,6 +2354,8 @@ L5_A02B:
         inx
         cpx     #$09
         bne     L5_A02B
+
+; ---- bank5.code_A041 (code) $A041-$A04D, 13 bytes
         jsr     L5_A2E7
         bne     L5_A049
         jmp     L5_9FD8
@@ -2333,32 +2363,16 @@ L5_A049:
         lda     #$08
         jmp     L5_9FC6
 
-; ---- bank5.tbl_A04E (data) $A04E-$A04E, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $96
+; ---- bank5.tbl_A04E (data) $A04E-$A066, 25 bytes
+; Shop 1 stock: 5 x [price lo][price hi][item][item][item]
+        .byte   $96,$00,$10,$14,$00,$E8,$03,$10,$14,$02,$90,$01,$0D,$0C,$03,$58
+        .byte   $02,$11,$0C,$04,$D0,$07,$06,$0C,$05
 
-; ---- bank5.tbl_A04F (data) $A04F-$A04F, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $00
+; ---- bank5.tbl_A067 (data) $A067-$A075, 15 bytes
+; Shop 2 stock: 5 x [price lo][price hi][item]
+        .byte   $32,$00,$02,$64,$00,$06,$96,$00,$01,$F4,$01,$07,$2C,$01,$08
 
-; ---- bank5.tbl_A050 (data) $A050-$A066, 23 bytes
-; Table, 23 bytes (structural extent)
-        .byte   $10,$14,$00,$E8,$03,$10,$14,$02,$90,$01,$0D,$0C,$03,$58,$02,$11
-        .byte   $0C,$04,$D0,$07,$06,$0C,$05
-
-; ---- bank5.tbl_A067 (data) $A067-$A067, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $32
-
-; ---- bank5.tbl_A068 (data) $A068-$A068, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $00
-
-; ---- bank5.tbl_A069 (data) $A069-$A075, 13 bytes
-; Table, 13 bytes (structural extent)
-        .byte   $02,$64,$00,$06,$96,$00,$01,$F4,$01,$07,$2C,$01,$08
-
-; ---- bank5.code_A076 (code) $A076-$A1C3, 334 bytes
+; ---- bank5.code_A076 (code) $A076-$A086, 17 bytes
 L5_A076:
         lda     #$67
         ldy     #$06
@@ -2367,6 +2381,8 @@ L5_A076:
         sta     $0506
         lda     #$5C
         sta     $069E
+
+; ---- bank5.code_A087 (code) $A087-$A0A0, 26 bytes
         lda     $55
         asl     A
         adc     $55
@@ -2378,12 +2394,16 @@ L5_A076:
         lda     $A069,Y
         sta     $0686
         ldx     #$09
+
+; ---- bank5.code_A0A1 (code) $A0A1-$A0AD, 13 bytes
         jsr     L5_A2E7
         bne     L5_A0A9
         jmp     L5_9FD8
 L5_A0A9:
         lda     #$07
         jmp     L5_9FC6
+
+; ---- bank5.code_A0AE (code) $A0AE-$A0BE, 17 bytes
 L5_A0AE:
         lda     $51
         cmp     #$08
@@ -2393,6 +2413,8 @@ L5_A0AE:
         cmp     #$01
         bne     L5_A0BF
         jmp     L5_A2B9
+
+; ---- bank5.code_A0BF (code) $A0BF-$A0DE, 32 bytes
 L5_A0BF:
         lda     $0506
         and     $0507
@@ -2407,9 +2429,13 @@ L5_A0BF:
         sta     $07A7
         sta     $07A8
         bne     L5_A0E4
+
+; ---- bank5.code_A0DF (code) $A0DF-$A0E3, 5 bytes
 L5_A0DF:
         lda     $0506
         bne     L5_A0F6
+
+; ---- bank5.code_A0E4 (code) $A0E4-$A0F6, 19 bytes
 L5_A0E4:
         lda     $5E
         jsr     L7_C066
@@ -2420,6 +2446,8 @@ L5_A0E4:
         sta     $0791
 L5_A0F6:
         rts
+
+; ---- bank5.code_A0F7 (code) $A0F7-$A1C3, 205 bytes
 L5_A0F7:
         lda     $0620,X
         beq     L5_A0FF
@@ -2686,7 +2714,7 @@ L5_A2C6:
 ; Far-call argument at $A2D7
         .byte   $03,$08,$80
 
-; ---- bank5.code_A2DA (code) $A2DA-$A326, 77 bytes
+; ---- bank5.code_A2DA (code) $A2DA-$A2E6, 13 bytes
         lda     #$03
         sta     $A0
         lda     #$20
@@ -2694,6 +2722,8 @@ L5_A2C6:
         lda     #$03
         sta     $2F
         rts
+
+; ---- bank5.code_A2E7 (code) $A2E7-$A2F7, 17 bytes
 L5_A2E7:
         ldy     #$06
 L5_A2E9:
@@ -2706,6 +2736,8 @@ L5_A2E9:
         bne     L5_A2E9
 L5_A2F7:
         rts
+
+; ---- bank5.code_A2F8 (code) $A2F8-$A326, 47 bytes
 L5_A2F8:
         inc     $0668,X
         lda     $0668,X
