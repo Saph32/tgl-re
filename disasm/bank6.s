@@ -5,21 +5,35 @@
 .org $8000
 
 
-; ---- bank6.code_8000 (code) $8000-$8026, 39 bytes
+; ---- bank6.code_8000 (code) $8000-$8002, 3 bytes
 L6_8000:
         jmp     L6_81FB
+
+; ---- bank6.code_8003 (code) $8003-$8005, 3 bytes
 L6_8003:
         jmp     L6_8BCE
+
+; ---- bank6.code_8006 (code) $8006-$8008, 3 bytes
 L6_8006:
         jmp     L6_8435
+
+; ---- bank6.code_8009 (code) $8009-$800B, 3 bytes
 L6_8009:
         jmp     L6_826D
+
+; ---- bank6.code_800C (code) $800C-$800E, 3 bytes
 L6_800C:
         jmp     L6_81F5
+
+; ---- bank6.code_800F (code) $800F-$8011, 3 bytes
 L6_800F:
         jmp     L6_8015
+
+; ---- bank6.code_8012 (code) $8012-$8014, 3 bytes
 L6_8012:
         jmp     L6_805A
+
+; ---- bank6.code_8015 (code) $8015-$8026, 18 bytes
 L6_8015:
         lda     #$00
         sta     $A5
@@ -34,7 +48,7 @@ L6_8015:
 ; Far-call argument at $8027
         .byte   $00,$FF,$7F
 
-; ---- bank6.code_802A (code) $802A-$80DE, 181 bytes
+; ---- bank6.code_802A (code) $802A-$803F, 22 bytes
         lda     #$81
         sta     $4010
         sta     $05
@@ -44,12 +58,16 @@ L6_8015:
         sta     $4012
         lda     #$01
         sta     $4013
+
+; ---- bank6.code_8040 (code) $8040-$8049, 10 bytes
         ldx     #$05
 L6_8042:
         lda     #$00
         sta     $0170,X
         dex
         bpl     L6_8042
+
+; ---- bank6.code_804A (code) $804A-$8054, 11 bytes
         ldx     #$0A
         lda     #$00
 L6_804E:
@@ -57,9 +75,13 @@ L6_804E:
         inx
         cpx     #$F9
         bne     L6_804E
+
+; ---- bank6.code_8055 (code) $8055-$8059, 5 bytes
         lda     #$04
         sta     $83
         rts
+
+; ---- bank6.code_805A (code) $805A-$8070, 23 bytes
 L6_805A:
         ldy     #$05
         clc
@@ -74,6 +96,8 @@ L6_8069:
         dey
         bpl     L6_805D
         bcs     L6_8093
+
+; ---- bank6.code_8071 (code) $8071-$8080, 16 bytes
         lda     $04B3
         tay
         beq     L6_8081
@@ -82,6 +106,8 @@ L6_8069:
         beq     L6_8081
         ldy     #$64
         bcs     L6_8093
+
+; ---- bank6.code_8081 (code) $8081-$8094, 20 bytes
 L6_8081:
         sty     $10
         lda     $04B4
@@ -94,6 +120,8 @@ L6_8081:
         bcc     L6_8095
 L6_8093:
         lda     #$FF
+
+; ---- bank6.code_8095 (code) $8095-$80A5, 17 bytes
 L6_8095:
         sta     $15
         lda     #$20
@@ -103,6 +131,8 @@ L6_8095:
         lda     $15
         beq     L6_80A6
         jsr     L7_C051
+
+; ---- bank6.code_80A6 (code) $80A6-$80DE, 57 bytes
 L6_80A6:
         lda     #$07
         jsr     L7_C04B
@@ -151,20 +181,24 @@ L6_80A6:
         .byte   $B2,$B3,$B6,$B9,$B9,$B4,$B4,$C0,$C0,$C0,$B9,$B7,$B5,$B7,$B8,$B8
 
 ; ---- bank6.tbl_81DD (data) $81DD-$81F4, 24 bytes
-; Table, 24 bytes (structural extent)
+; Slot order for the reversed pass: 0-4, then 23 down to 5
         .byte   $00,$01,$02,$03,$04,$17,$16,$15,$14,$13,$12,$11,$10,$0F,$0E,$0D
         .byte   $0C,$0B,$0A,$09,$08,$07,$06,$05
 
-; ---- bank6.code_81F5 (code) $81F5-$8269, 117 bytes
+; ---- bank6.code_81F5 (code) $81F5-$81FA, 6 bytes
 L6_81F5:
         ldx     #$01
         stx     $35
         bne     L6_8204
+
+; ---- bank6.code_81FB (code) $81FB-$8203, 9 bytes
 L6_81FB:
         jsr     L7_C096
         ldx     #$00
         stx     $35
         inc     $36
+
+; ---- bank6.code_8204 (code) $8204-$820F, 12 bytes
 L6_8204:
         lda     $36
         and     #$02
@@ -173,6 +207,8 @@ L6_8204:
         tax
 L6_820E:
         stx     $37
+
+; ---- bank6.code_8210 (code) $8210-$8226, 23 bytes
         lda     $0500,X
         beq     L6_8227
         and     #$7F
@@ -186,12 +222,18 @@ L6_820E:
         lda     $80DE,Y
         pha
         rts
+
+; ---- bank6.code_8227 (code) $8227-$822E, 8 bytes
 L6_8227:
         inc     $35
         ldx     $35
         cpx     #$18
         bne     L6_8204
+
+; ---- bank6.code_822F (code) $822F-$8231, 3 bytes
         jsr     L7_C099
+
+; ---- bank6.code_8232 (code) $8232-$8246, 21 bytes
         lda     $0500
         cmp     #$04
         bne     L6_8246
@@ -203,6 +245,8 @@ L6_8227:
         sta     $0500
 L6_8246:
         rts
+
+; ---- bank6.code_8247 (code) $8247-$8269, 35 bytes
 L6_8247:
         lda     #$84
         sta     $0500
