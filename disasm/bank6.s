@@ -10950,11 +10950,15 @@ L6_BDAD:
 L6_BDBB:
         rts
 
-; ---- bank6.code_BDBC (code) $BDBC-$BEAD, 242 bytes
+; ---- bank6.code_BDBC (code) $BDBC-$BDBE, 3 bytes
 L6_BDBC:
         jsr     L6_BA51
+
+; ---- bank6.code_BDBF (code) $BDBF-$BDC3, 5 bytes
         lda     $0500,X
         bmi     L6_BDE2
+
+; ---- bank6.code_BDC4 (code) $BDC4-$BDE1, 30 bytes
         jsr     L7_C0AE
         lda     #$2F
         sta     $0548,X
@@ -10967,18 +10971,30 @@ L6_BDBC:
         sta     $0518,X
         lda     #$00
         sta     $07B8,X
+
+; ---- bank6.code_BDE2 (code) $BDE2-$BDE9, 8 bytes
 L6_BDE2:
         lda     $0518,X
         cmp     #$30
         bcs     L6_BDEA
         rts
+
+; ---- bank6.code_BDEA (code) $BDEA-$BDEE, 5 bytes
 L6_BDEA:
         lda     $07B8,X
         bne     L6_BE25
+
+; ---- bank6.code_BDEF (code) $BDEF-$BDF3, 5 bytes
         lda     #$40
         jsr     L6_BBEC
+
+; ---- bank6.code_BDF4 (code) $BDF4-$BDF5, 2 bytes
         bcs     L6_BE22
+
+; ---- bank6.code_BDF6 (code) $BDF6-$BDF7, 2 bytes
         lda     #$03
+
+; ---- bank6.code_BDF8 (code) $BDF8-$BE05, 14 bytes
 L6_BDF8:
         sta     $14
         lda     #$06
@@ -10987,8 +11003,12 @@ L6_BDF8:
         sta     $16
         lda     #$BE
         sta     $17
+
+; ---- bank6.code_BE06 (code) $BE06-$BE0B, 6 bytes
         jsr     L6_BF71
         jsr     L6_BEA3
+
+; ---- bank6.code_BE0C (code) $BE0C-$BE21, 22 bytes
         lda     $07B8,X
         cmp     #$01
         bne     L6_BE22
@@ -10999,15 +11019,23 @@ L6_BDF8:
         lda     #$BE
         sta     $17
         jsr     L7_C07E
+
+; ---- bank6.code_BE22 (code) $BE22-$BE24, 3 bytes
 L6_BE22:
         jmp     L6_BE76
+
+; ---- bank6.code_BE25 (code) $BE25-$BE28, 4 bytes
 L6_BE25:
         cmp     #$01
         bne     L6_BE41
+
+; ---- bank6.code_BE29 (code) $BE29-$BE31, 9 bytes
         lda     #$48
         ldy     #$01
         jsr     L6_BBEC
         bcs     L6_BE22
+
+; ---- bank6.code_BE32 (code) $BE32-$BE40, 15 bytes
         lda     #$00
         sta     $15
         lda     #$FE
@@ -11015,36 +11043,64 @@ L6_BE25:
         jsr     L6_BBA3
         lda     #$05
         bne     L6_BDF8
+
+; ---- bank6.code_BE41 (code) $BE41-$BE45, 5 bytes
 L6_BE41:
         dec     $07A0,X
         bne     L6_BE76
+
+; ---- bank6.code_BE46 (code) $BE46-$BE4A, 5 bytes
         lda     #$1E
         sta     $07A0,X
+
+; ---- bank6.code_BE4B (code) $BE4B-$BE4F, 5 bytes
         jsr     L7_C0FF
         sta     $15
+
+; ---- bank6.code_BE50 (code) $BE50-$BE53, 4 bytes
         lda     #$02
         sta     $14
+
+; ---- bank6.code_BE54 (code) $BE54-$BE5D, 10 bytes
 L6_BE54:
         ldy     $14
         lda     $BEAE,Y
         clc
         adc     $15
         sta     $17
+
+; ---- bank6.code_BE5E (code) $BE5E-$BE62, 5 bytes
         jsr     L7_C108
         bcs     L6_BE76
+
+; ---- bank6.code_BE63 (code) $BE63-$BE67, 5 bytes
         lda     #$17
         jsr     L7_C105
+
+; ---- bank6.code_BE68 (code) $BE68-$BE6C, 5 bytes
         lda     #$03
         sta     $0698,Y
+
+; ---- bank6.code_BE6D (code) $BE6D-$BE71, 5 bytes
         lda     $17
         sta     $0788,Y
+
+; ---- bank6.code_BE72 (code) $BE72-$BE75, 4 bytes
         dec     $14
         bpl     L6_BE54
+
+; ---- bank6.code_BE76 (code) $BE76-$BE78, 3 bytes
 L6_BE76:
         jsr     L7_C0CF
+
+; ---- bank6.code_BE79 (code) $BE79-$BE7B, 3 bytes
         jsr     L7_C0D2
+
+; ---- bank6.code_BE7C (code) $BE7C-$BE80, 5 bytes
         lda     $0500,X
         bmi     L6_BEAD
+
+; ---- bank6.code_BE81 (code) $BE81-$BE91, 17 bytes
         lda     #$00
         sta     $15
         sta     $14
@@ -11053,6 +11109,8 @@ L6_BE76:
         beq     L6_BE92
         lda     #$FE
         sta     $14
+
+; ---- bank6.code_BE92 (code) $BE92-$BEA2, 17 bytes
 L6_BE92:
         jsr     L6_BBA3
         lda     #$06
@@ -11062,40 +11120,48 @@ L6_BE92:
         sta     $16
         lda     #$BE
         sta     $17
+
+; ---- bank6.code_BEA3 (code) $BEA3-$BEAC, 10 bytes
 L6_BEA3:
         lda     $0518,X
         sec
         sbc     #$20
         tay
         jmp     L7_C07E
+
+; ---- bank6.code_BEAD (code) $BEAD-$BEAD, 1 bytes
 L6_BEAD:
         rts
 
 ; ---- bank6.tbl_BEAE (data) $BEAE-$BEB0, 3 bytes
-; Three direction offsets
+; Type $3D shot heading offsets
         .byte   $02,$FE,$00
 
-; ---- bank6.tbl_BEB1 (level) $BEB1-$BECE, 30 bytes
-; Tile rectangle 6 x 5
+; ---- bank6.tbl_BEB1 (data) $BEB1-$BECE, 30 bytes
+; Type $3D structure (6 x 5 tiles)
         .byte   $80,$C0,$C1,$C2,$C3,$80,$C4,$C5,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD
         .byte   $CE,$CF,$D0,$D1,$20,$20,$D2,$D3,$D4,$20,$20,$20,$20,$D5
 
-; ---- bank6.tbl_BECF (level) $BECF-$BED4, 6 bytes
-; Tile rectangle 6 x 1
+; ---- bank6.tbl_BECF (data) $BECF-$BED4, 6 bytes
+; Type $3D bottom row (6 x 1 tiles)
         .byte   $D6,$D7,$20,$20,$D8,$D9
 
-; ---- bank6.tbl_BED5 (level) $BED5-$BEF8, 36 bytes
-; Tile rectangle 6 x 6
+; ---- bank6.tbl_BED5 (data) $BED5-$BEF8, 36 bytes
+; Type $3D rubble (6 x 6 tiles)
         .byte   $80,$81,$80,$81,$80,$81,$81,$80,$81,$80,$81,$80,$80,$80,$F2,$F3
         .byte   $F4,$80,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$20,$20,$20,$20,$CF,$D6,$D7
         .byte   $20,$20,$D8,$D9
 
-; ---- bank6.code_BEF9 (code) $BEF9-$BF60, 104 bytes
+; ---- bank6.code_BEF9 (code) $BEF9-$BEFD, 5 bytes
 L6_BEF9:
         lda     $0500,X
         bmi     L6_BF30
+
+; ---- bank6.code_BEFE (code) $BEFE-$BF03, 6 bytes
         jsr     L7_C0AE
         jsr     L7_C0F0
+
+; ---- bank6.code_BF04 (code) $BF04-$BF15, 18 bytes
         ldy     #$01
         lda     #$80
         sta     $05F0,X
@@ -11105,6 +11171,8 @@ L6_BEF9:
 L6_BF12:
         tya
         sta     $0608,X
+
+; ---- bank6.code_BF16 (code) $BF16-$BF2F, 26 bytes
         lda     #$61
         sta     $06C8,X
         lda     #$00
@@ -11115,16 +11183,28 @@ L6_BF12:
         lda     #$04
         sta     $05D8,X
         sta     $07A0,X
+
+; ---- bank6.code_BF30 (code) $BF30-$BF34, 5 bytes
 L6_BF30:
         lda     #$0C
         jsr     L7_C09C
+
+; ---- bank6.code_BF35 (code) $BF35-$BF39, 5 bytes
         dec     $07A0,X
         bne     L6_BF5E
+
+; ---- bank6.code_BF3A (code) $BF3A-$BF3E, 5 bytes
         lda     #$0A
         sta     $07A0,X
+
+; ---- bank6.code_BF3F (code) $BF3F-$BF43, 5 bytes
         jsr     L7_C108
         bcs     L6_BF5E
+
+; ---- bank6.code_BF44 (code) $BF44-$BF46, 3 bytes
         jsr     L6_BF61
+
+; ---- bank6.code_BF47 (code) $BF47-$BF5D, 23 bytes
         lda     #$3A
         sta     $0728,Y
         sta     $07B8,Y
@@ -11134,6 +11214,8 @@ L6_BF30:
         sta     $0548,Y
         lda     #$0C
         sta     $07A0,Y
+
+; ---- bank6.code_BF5E (code) $BF5E-$BF60, 3 bytes
 L6_BF5E:
         jmp     L6_9F4F
 
@@ -11147,49 +11229,81 @@ L6_BF61:
         sta     $0788,Y
         rts
 
-; ---- bank6.code_BF71 (code) $BF71-$BFD0, 96 bytes
+; ---- bank6.code_BF71 (code) $BF71-$BF7B, 11 bytes
 L6_BF71:
         lda     $05C0,X
         sta     $18
         lda     $05D8,X
         sta     $19
         rts
+
+; ---- bank6.code_BF7C (code) $BF7C-$BF80, 5 bytes
 L6_BF7C:
         lda     $0500,X
         bmi     L6_BFA5
+
+; ---- bank6.code_BF81 (code) $BF81-$BF8D, 13 bytes
         jsr     L7_C0A8
         lda     #$01
         sta     $0560,X
         lda     #$50
         sta     $0548,X
+
+; ---- bank6.code_BF8E (code) $BF8E-$BF90, 3 bytes
 L6_BF8E:
         jsr     L7_C0F0
+
+; ---- bank6.code_BF91 (code) $BF91-$BF95, 5 bytes
         lda     #$20
         sta     $0518,X
+
+; ---- bank6.code_BF96 (code) $BF96-$BF9A, 5 bytes
         lda     #$06
         sta     $07A0,X
+
+; ---- bank6.code_BF9B (code) $BF9B-$BF9F, 5 bytes
         lda     #$03
         sta     $05D8,X
+
+; ---- bank6.code_BFA0 (code) $BFA0-$BFA4, 5 bytes
         lda     #$1E
         sta     $0788,X
+
+; ---- bank6.code_BFA5 (code) $BFA5-$BFA7, 3 bytes
 L6_BFA5:
         jsr     L7_C009
+
+; ---- bank6.code_BFA8 (code) $BFA8-$BFAC, 5 bytes
         dec     $07A0,X
         bne     L6_BFC1
+
+; ---- bank6.code_BFAD (code) $BFAD-$BFB1, 5 bytes
         lda     #$08
         sta     $07A0,X
+
+; ---- bank6.code_BFB2 (code) $BFB2-$BFB6, 5 bytes
         jsr     L7_C108
         bcs     L6_BFC1
+
+; ---- bank6.code_BFB7 (code) $BFB7-$BFC0, 10 bytes
         lda     #$0F
         jsr     L7_C105
         lda     #$FF
         sta     $0728,Y
+
+; ---- bank6.code_BFC1 (code) $BFC1-$BFC5, 5 bytes
 L6_BFC1:
         lda     #$07
         jsr     L6_9B09
+
+; ---- bank6.code_BFC6 (code) $BFC6-$BFCA, 5 bytes
         jsr     L7_C08D
         bcs     L6_BF8E
+
+; ---- bank6.code_BFCB (code) $BFCB-$BFCD, 3 bytes
         jsr     L7_C0C6
+
+; ---- bank6.code_BFCE (code) $BFCE-$BFD0, 3 bytes
         jmp     L7_C0D5
 
 ; ---- bank6.pad_BFD1 (padding) $BFD1-$BFFE, 46 bytes

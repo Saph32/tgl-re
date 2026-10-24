@@ -189,50 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_BEAE",
-      "offset": 114366,
-      "size": 3,
-      "kind": "data",
-      "name": "Three direction offsets",
-      "confidence": "confirmed",
-      "cpu_addr": 48814,
-      "sha1": "d89793c704035fe8e53f1d620407e3c8511d41db",
-      "description": "$BE54: LDY $14 / LDA $BEAE,Y with Y counting 2, 1, 0 - added to $15 and stored in $0788 of each of three objects spawned there (type $17). Values 02 FE 00."
-    },
-    {
-      "id": "bank6.tbl_BEB1",
-      "offset": 114369,
-      "size": 30,
-      "kind": "level",
-      "name": "Tile rectangle 6 x 5",
-      "confidence": "confirmed",
-      "cpu_addr": 48817,
-      "sha1": "9073495cd37c7a08137fdd7da7ef9a16c45fcc04",
-      "description": "$BDF8-$BE07: $16/$17 = $BEB1, width $15 = 6, height $14 = 3 or 5, blitted by $C07E through $BEA3. 6 x 5 = 30 bytes, ending exactly where the next rectangle begins."
-    },
-    {
-      "id": "bank6.tbl_BECF",
-      "offset": 114399,
-      "size": 6,
-      "kind": "level",
-      "name": "Tile rectangle 6 x 1",
-      "confidence": "confirmed",
-      "cpu_addr": 48847,
-      "sha1": "9dfa79cb79d8db070d38b22d3508313f2b996649",
-      "description": "$BE15-$BE1F: $16/$17 = $BECF, height $14 = 1 with width still 6, then JSR $C07E. Six bytes."
-    },
-    {
-      "id": "bank6.tbl_BED5",
-      "offset": 114405,
-      "size": 36,
-      "kind": "level",
-      "name": "Tile rectangle 6 x 6",
-      "confidence": "confirmed",
-      "cpu_addr": 48853,
-      "sha1": "4e26c60dc754908a1ad533a2901be86437512e5a",
-      "description": "$BE92-$BEA1: $15 = $14 = 6, $16/$17 = $BED5, then $BEA3 blits it. 36 bytes, ending on the code at $BEF9. With the three tables before it this partitions $BEAE-$BEF8 exactly, 75 of 75 bytes."
-    },
-    {
       "id": "bank7.tbl_D8E1",
       "offset": 121073,
       "size": 76,
