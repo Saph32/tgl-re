@@ -189,28 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_A5A0",
-      "offset": 107952,
-      "size": 12,
-      "kind": "data",
-      "name": "Types $5A-$5C: four per-type values",
-      "confidence": "confirmed",
-      "cpu_addr": 42400,
-      "sha1": "619602227e03cad5d2bf732cf305984643585f52",
-      "description": "$A507 is the handler of types $5A, $5B and $5C only (bank 6 dispatch $80DE/$815D), and it indexes with LDY $0500,X, the type: LDA $A546,Y ($A50C) -> $0560, $A549,Y -> $0698, $A54C,Y -> $07A0 and $A54F,Y. Each base plus $5A-$5C lands here: four 3-byte tables, 12 bytes, ending exactly on the flip table at $A5AC."
-    },
-    {
-      "id": "bank6.tbl_A5AC",
-      "offset": 107964,
-      "size": 4,
-      "kind": "data",
-      "name": "Sprite flip bits by animation frame",
-      "confidence": "confirmed",
-      "cpu_addr": 42412,
-      "sha1": "9e06ca3788d35c1c5c0ddcb22fbbb3a334b2088b",
-      "description": "LDY #$04 / JSR $C0A5 (Y = 0-3), then $0560 AND #$03 ORA $A5AC,Y, at $A56F and $A6FA. Values 00 80 C0 40: none, vertical, both, horizontal. Four entries, ending exactly on the code at $A5B0. The twelve bytes before it are the type tables at $A5A0."
-    },
-    {
       "id": "bank6.tbl_A766",
       "offset": 108406,
       "size": 8,
