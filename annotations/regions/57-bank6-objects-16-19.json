@@ -1,0 +1,291 @@
+{
+  "_comment": "Hand-authored. Bank 6 object handlers: types $16, $17, $18, $19 ($8BEF-$8D6F). The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank6.code_8BEF",
+      "offset": 101375,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): first frame?",
+      "confidence": "confirmed",
+      "cpu_addr": 35823,
+      "sha1": "43ecb647062bd8b136f3cb976830ec7b872f6106",
+      "description": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): type bit 7 set (initialised) goes to `$8C1F`. Stats from the tables: hit points 16, attack 96, collision flags 0, drawing flags `$1B`, art block `$3A`, dies as type 8 (an explosion)."
+    },
+    {
+      "id": "bank6.code_8BF4",
+      "offset": 101380,
+      "size": 3,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): art wait",
+      "confidence": "confirmed",
+      "cpu_addr": 35828,
+      "sha1": "70f7218151d5eed4e48dcd02b046853cdc47d7f5",
+      "description": "`JSR $C0A8` (`$CF5F`): if the type's art block is not among the 16 loaded ones the object waits (768 frames, undrawn) and the rest of the handler is skipped; if it is, the block's base tile goes to `$06C8` and `$07E8`."
+    },
+    {
+      "id": "bank6.code_8BF7",
+      "offset": 101383,
+      "size": 8,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): where it starts",
+      "confidence": "confirmed",
+      "cpu_addr": 35831,
+      "sha1": "3e9afd08ba8a247b22e87cf597d416a87e9b2b8c",
+      "description": "y `$0518` = 0: `JSR $C0F0` (`$F9E9`): a random x of 32-223 and y = 8, the top of the screen. (A spawner can give a position instead.)"
+    },
+    {
+      "id": "bank6.code_8BFF",
+      "offset": 101391,
+      "size": 9,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): tile base",
+      "confidence": "confirmed",
+      "cpu_addr": 35839,
+      "sha1": "1aaa5adb8d2b1c80b1014e2a560ee7be3e71c500",
+      "description": "`$06C8,X` := `$07E8,X` + `$0C`."
+    },
+    {
+      "id": "bank6.code_8C08",
+      "offset": 101400,
+      "size": 23,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): set-up",
+      "confidence": "confirmed",
+      "cpu_addr": 35848,
+      "sha1": "d3c79cced55edfcd95f8f11616dd9f6cef44b883",
+      "description": "`JSR $C0A2`, palette `$0560` := 1, metasprite `$0548` := `$1A`, then a random number AND `$7F` + `$20` into `$0788`: the y at which it will stop being part of the scenery (32-159). RUN: the type spawned alone in a corridor state with its art block marked loaded."
+    },
+    {
+      "id": "bank6.code_8C1F",
+      "offset": 101423,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): every frame: still scenery?",
+      "confidence": "confirmed",
+      "cpu_addr": 35871,
+      "sha1": "35cd6159bf38e34f8daf091c43af5703061ce6eb",
+      "description": "`$0788` zero means the second phase (`$8C50`)."
+    },
+    {
+      "id": "bank6.code_8C24",
+      "offset": 101428,
+      "size": 26,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): phase 1: carried by the scroll",
+      "confidence": "confirmed",
+      "cpu_addr": 35876,
+      "sha1": "411ce0a922c155eddd88d80f9bc41d5a88ee5bdb",
+      "description": "`JSR $C12C` (`$FCD5`) adds the scroll step to y, so the object stays where it is on the background and slides down the screen with it. While y is under `$0788` and the scroll is moving (`$B8 OR $B9`) it is only drawn (`$C090`), tested against fixed targets (`$C0CF`, mask `$20`) and resolved (`$C0D2`). RUN: y 10, 12, 14 ... (2 a frame), the scroll step."
+    },
+    {
+      "id": "bank6.code_8C3E",
+      "offset": 101454,
+      "size": 18,
+      "kind": "code",
+      "name": "TYPE $16 (the enemy that hangs on the scrolling background and then flies off; corridor 16's spawn script uses it): phase 2: it breaks away",
+      "confidence": "confirmed",
+      "cpu_addr": 35902,
+      "sha1": "6adfbb2159083f9246f963e6a4351e893ab2ec4d",
+      "description": "y has reached `$0788` (or the scroll has stopped): `$0788` := 0, `$0698` := 6 (the speed class), `JSR $C0FC` (`$F85D`: aim at the player and set the velocity), palette := 2. RUN: after y 156 the velocity pointed at the player's side and the object flew off the screen and was removed."
+    },
+    {
+      "id": "bank6.code_8C50",
+      "offset": 101472,
+      "size": 26,
+      "kind": "code",
+      "name": "Wing animation, then move (types $16 and $17)",
+      "confidence": "confirmed",
+      "cpu_addr": 35920,
+      "sha1": "19f3e99bff1e455ca8e25304b1de103fe266778d",
+      "description": "`JSR $C0A5` (`$CD7A`) with step `$40` over 7 phases (a new phase every 4 frames); the phase picks the metasprite `$8C6A[phase]` (`$1A`, then `$19`), the flip bits `$14` = `$8C71[phase]` (`$40` = flipped) and a tile offset `$15` = `$8C78[phase]` (`$0C 08 04 00 00 04 08`); `JSR $A1D8` stores them (`$0548`, `$0560` low two bits, `$06C8` = `$07E8` + offset) and `JMP $9F4F`: move and draw (`$CBE8`), the hit test as an ordinary enemy (`$D294`, mask `$30`) and its consequences (`$D2BB`)."
+    },
+    {
+      "id": "bank6.tbl_8C6A",
+      "offset": 101498,
+      "size": 7,
+      "kind": "data",
+      "name": "Wing animation: metasprite by phase",
+      "confidence": "confirmed",
+      "cpu_addr": 35946,
+      "sha1": "18c3cef28e88cbdc74208b36e94ca04c848a1f8b",
+      "description": "`1A 19 19 19 19 19 19`."
+    },
+    {
+      "id": "bank6.tbl_8C71",
+      "offset": 101505,
+      "size": 7,
+      "kind": "data",
+      "name": "Wing animation: flip bits by phase",
+      "confidence": "confirmed",
+      "cpu_addr": 35953,
+      "sha1": "6a672480043f9368ade51ea80747e1dec65f69d2",
+      "description": "`00 40 40 40 00 00 00` (`$40` = flipped)."
+    },
+    {
+      "id": "bank6.tbl_8C78",
+      "offset": 101512,
+      "size": 7,
+      "kind": "data",
+      "name": "Wing animation: tile offset by phase",
+      "confidence": "confirmed",
+      "cpu_addr": 35960,
+      "sha1": "17ec8829980edbf33f6aa2660cb80be38abbe6f2",
+      "description": "`0C 08 04 00 00 04 08`."
+    },
+    {
+      "id": "bank6.code_8C7F",
+      "offset": 101519,
+      "size": 25,
+      "kind": "code",
+      "name": "TYPE $17 (a projectile with the same wings): all of it",
+      "confidence": "confirmed",
+      "cpu_addr": 35967,
+      "sha1": "47d2f6ffeded4d10852a12fd21f6c4c3d0ee222b",
+      "description": "Not yet initialised: art wait, palette 0, A := `$0788,X` (the direction the spawner set), `JSR $C102` (direction to velocity with the speed class) and `JSR $C0A2`; then every frame the wing animation `$8C50`. Stats: hit points 16, attack 96, art block `$3A`, the same as type `$16`. Who creates it is not worked out (type `$18` summons type `$16`, not this one)."
+    },
+    {
+      "id": "bank6.code_8C98",
+      "offset": 101544,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): first frame?",
+      "confidence": "confirmed",
+      "cpu_addr": 35992,
+      "sha1": "bc3ab7a3e6206149664c4889e32165bd02bd6572",
+      "description": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): bit 7 clear (type `$18` / `$19`): set-up; set: `$8CC8`. Stats: hit points 32 and 48, attack 96 and 112, collision flags `$5A`, drawing flags 3, art block `$42`, dies as type 7."
+    },
+    {
+      "id": "bank6.code_8C9D",
+      "offset": 101549,
+      "size": 12,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): palette and child type",
+      "confidence": "confirmed",
+      "cpu_addr": 35997,
+      "sha1": "8aec0924d3997bc8dd45bde9311e8358ecbd6d0b",
+      "description": "`$0560` := `$8D50[type]` (`$8D68`: 1 for `$18`, 3 for `$19`) and `$07B8` := `$8D54[type]` (`$8D6C`: the type it will summon, `$16` for `$18`, `$27` for `$19`)."
+    },
+    {
+      "id": "bank6.code_8CA9",
+      "offset": 101561,
+      "size": 6,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): art wait, hit points",
+      "confidence": "confirmed",
+      "cpu_addr": 36009,
+      "sha1": "a58c8f0c7e22172882bb290b3484eb33fc4f6ca4",
+      "description": "`JSR $C0A8`, then `JSR $C165` (`$D385`): the hit points are widened - the table value is split into a high part `$0740` (value / 16) and a low part `$0590` (the low nibble x 16), i.e. the boss really has 16 times the table's hit points. RUN: `$0740` = 2 and 3 for the two types."
+    },
+    {
+      "id": "bank6.code_8CAF",
+      "offset": 101567,
+      "size": 25,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): the entrance",
+      "confidence": "confirmed",
+      "cpu_addr": 36015,
+      "sha1": "82888fee5144eb3c14fdb9f82cab30d8b6b723bc",
+      "description": "y speed `$05D8` := 1, metasprite `$82`, x := `$80`, `$0788` := `$60` (the y below which the entrance ends), `$0668` := 0 (the spring's target)."
+    },
+    {
+      "id": "bank6.code_8CC8",
+      "offset": 101592,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): every frame: the spring",
+      "confidence": "confirmed",
+      "cpu_addr": 36040,
+      "sha1": "7f1ae9982b2f35e9dd249c7047004848de96dbc7",
+      "description": "A := 2, `JSR $C09C` (`$CD12`): accelerate y toward the target `$0668`, 2/256 a frame."
+    },
+    {
+      "id": "bank6.code_8CCD",
+      "offset": 101597,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): which phase",
+      "confidence": "confirmed",
+      "cpu_addr": 36045,
+      "sha1": "73bb7ee15d42572ee4f418bb628761c19ea24b75",
+      "description": "`$0788` zero is the fight (`$8CF6`)."
+    },
+    {
+      "id": "bank6.code_8CD2",
+      "offset": 101602,
+      "size": 17,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): phase 1: the slow entrance",
+      "confidence": "confirmed",
+      "cpu_addr": 36050,
+      "sha1": "08f1dd815d9fd944bdce5e24b5b337800e163c15",
+      "description": "A speed of 0 or more only moves and draws (`JSR $C08D`, return). The target 0 pulls the speed down by 2/256 a frame, so it slows from 1 px a frame, stops after about 128 frames at y about 64 and starts back; when the speed is negative and y is under `$0788` the phase ends. RUN: y 1, 27, 46, 59, 61 ... 64 at frame 130."
+    },
+    {
+      "id": "bank6.code_8CE3",
+      "offset": 101619,
+      "size": 19,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): phase 2 begins",
+      "confidence": "confirmed",
+      "cpu_addr": 36067,
+      "sha1": "99894932e120309af8efb6d81341d5a459d70c2a",
+      "description": "`$0788` := 0, the spring target `$0668` := `$60` (y 96), palette := `$8CD2[type]` (read at `$8D6A / $8D6B`: 2 for `$18`, 0 for `$19`). RUN: y then swung between about 64 and 128 around 96."
+    },
+    {
+      "id": "bank6.code_8CF6",
+      "offset": 101638,
+      "size": 6,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): the fight: the timing",
+      "confidence": "confirmed",
+      "cpu_addr": 36086,
+      "sha1": "7f9edca4903929e3718adf551f5e04c028872d8c",
+      "description": "`$41` AND `$1F` zero: fire a beam; otherwise AND `$0F` zero: summon."
+    },
+    {
+      "id": "bank6.code_8CFC",
+      "offset": 101644,
+      "size": 48,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): every 32 frames: a beam",
+      "confidence": "confirmed",
+      "cpu_addr": 36092,
+      "sha1": "753bd2896a7cad90d7b4c185b04537572af4c664",
+      "description": "`JSR $C027` finds a slot (none: skip); a beam object (type `$22`, through `$C13E` = `$FE3D`) with tile base the boss's base + `$1C`, y speed 2 and the boss as its parent, styled by the record at `$FE22 + $15` (metasprite 0, `$0638` `$F0`, half-width 8); its y := the boss's + 16 and x := the boss's x + (`$41` AND `$7F`) / 2 - 24: the beam's x sweeps -24 to +40 with the frame counter. RUN: beams at frames where `$41` AND `$1F` = 0, x 120 for `$41` = 160 from a boss at 128."
+    },
+    {
+      "id": "bank6.code_8D2C",
+      "offset": 101692,
+      "size": 51,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): every 16 frames in between: a summon",
+      "confidence": "confirmed",
+      "cpu_addr": 36140,
+      "sha1": "b8ac461563de6c5905510510bde41a3af9e08fab",
+      "description": "`JSR $AD9A` (a random 0 or 1), x offset `$8D6E[bit]` (-32 or +32), `JSR $C108` (`$FA5B`, a free slot, none: skip): the child's type := `$07B8,X` (`$16` or `$27`), y := boss y + 32, x := boss x + offset, `$07A0` := 3, `$0788` := the boss's y. RUN: type `$18` summoned `$16` objects, `$19` summoned `$27` (bullets), every 32 frames, at x 160."
+    },
+    {
+      "id": "bank6.code_8D5F",
+      "offset": 101743,
+      "size": 9,
+      "kind": "code",
+      "name": "TYPES $18 / $19 (EYEGORE, corridor bosses 9 and 10): move and fight",
+      "confidence": "confirmed",
+      "cpu_addr": 36191,
+      "sha1": "123a481870d643986441b5b7414cc58e91b2b08c",
+      "description": "`JSR $C08D` (move and draw), `JSR $C0C6` (`$D294`, hit test, mask `$30`), `JMP $C0D8` (`$D39B`: the boss's resolution with the widened hit points)."
+    },
+    {
+      "id": "bank6.tbl_8D68",
+      "offset": 101752,
+      "size": 8,
+      "kind": "data",
+      "name": "Eyegore: palettes, summoned type, x offset",
+      "confidence": "confirmed",
+      "cpu_addr": 36200,
+      "sha1": "d97424421943628f302e65d41d6c12c4411204bc",
+      "description": "`01 03` initial palette for `$18` / `$19`; `02 00` the fight palette (read at `$8CD2 + type`); `16 27` the type summoned; `E0 20` the summon's x offset (-32, +32)."
+    }
+  ]
+}

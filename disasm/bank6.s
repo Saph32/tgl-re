@@ -1794,19 +1794,27 @@ L6_8BE9:
         bne     L6_8BD0
         rts
 
-; ---- bank6.code_8BEF (code) $8BEF-$8C69, 123 bytes
+; ---- bank6.code_8BEF (code) $8BEF-$8BF3, 5 bytes
 L6_8BEF:
         lda     $0500,X
         bmi     L6_8C1F
+
+; ---- bank6.code_8BF4 (code) $8BF4-$8BF6, 3 bytes
         jsr     L7_C0A8
+
+; ---- bank6.code_8BF7 (code) $8BF7-$8BFE, 8 bytes
         lda     $0518,X
         bne     L6_8BFF
         jsr     L7_C0F0
+
+; ---- bank6.code_8BFF (code) $8BFF-$8C07, 9 bytes
 L6_8BFF:
         lda     $07E8,X
         clc
         adc     #$0C
         sta     $06C8,X
+
+; ---- bank6.code_8C08 (code) $8C08-$8C1E, 23 bytes
         jsr     L7_C0A2
         lda     #$01
         sta     $0560,X
@@ -1816,9 +1824,13 @@ L6_8BFF:
         and     #$7F
         adc     #$20
         sta     $0788,X
+
+; ---- bank6.code_8C1F (code) $8C1F-$8C23, 5 bytes
 L6_8C1F:
         lda     $0788,X
         beq     L6_8C50
+
+; ---- bank6.code_8C24 (code) $8C24-$8C3D, 26 bytes
         jsr     L7_C12C
         lda     $0518,X
         cmp     $0788,X
@@ -1829,6 +1841,8 @@ L6_8C1F:
         jsr     L7_C090
         jsr     L7_C0CF
         jmp     L7_C0D2
+
+; ---- bank6.code_8C3E (code) $8C3E-$8C4F, 18 bytes
 L6_8C3E:
         lda     #$00
         sta     $0788,X
@@ -1837,6 +1851,8 @@ L6_8C3E:
         jsr     L7_C0FC
         lda     #$02
         sta     $0560,X
+
+; ---- bank6.code_8C50 (code) $8C50-$8C69, 26 bytes
 L6_8C50:
         lda     #$40
         ldy     #$07
@@ -1850,18 +1866,18 @@ L6_8C50:
         jmp     L6_9F4F
 
 ; ---- bank6.tbl_8C6A (data) $8C6A-$8C70, 7 bytes
-; Table, 7 bytes
+; Wing animation: metasprite by phase
         .byte   $1A,$19,$19,$19,$19,$19,$19
 
 ; ---- bank6.tbl_8C71 (data) $8C71-$8C77, 7 bytes
-; Table, 7 bytes
+; Wing animation: flip bits by phase
         .byte   $00,$40,$40,$40,$00,$00,$00
 
 ; ---- bank6.tbl_8C78 (data) $8C78-$8C7E, 7 bytes
-; Table, 7 bytes (structural extent)
+; Wing animation: tile offset by phase
         .byte   $0C,$08,$04,$00,$00,$04,$08
 
-; ---- bank6.code_8C7F (code) $8C7F-$8D67, 233 bytes
+; ---- bank6.code_8C7F (code) $8C7F-$8C97, 25 bytes
 L6_8C7F:
         lda     $0500,X
         bmi     L6_8C50
@@ -1872,15 +1888,23 @@ L6_8C7F:
         jsr     L7_C102
         jsr     L7_C0A2
         jmp     L6_8C50
+
+; ---- bank6.code_8C98 (code) $8C98-$8C9C, 5 bytes
 L6_8C98:
         ldy     $0500,X
         bmi     L6_8CC8
+
+; ---- bank6.code_8C9D (code) $8C9D-$8CA8, 12 bytes
         lda     $8D50,Y
         sta     $0560,X
         lda     $8D54,Y
         sta     $07B8,X
+
+; ---- bank6.code_8CA9 (code) $8CA9-$8CAE, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank6.code_8CAF (code) $8CAF-$8CC7, 25 bytes
         lda     #$01
         sta     $05D8,X
         lda     #$82
@@ -1891,11 +1915,17 @@ L6_8C98:
         sta     $0788,X
         lda     #$00
         sta     $0668,X
+
+; ---- bank6.code_8CC8 (code) $8CC8-$8CCC, 5 bytes
 L6_8CC8:
         lda     #$02
         jsr     L7_C09C
+
+; ---- bank6.code_8CCD (code) $8CCD-$8CD1, 5 bytes
         lda     $0788,X
         beq     L6_8CF6
+
+; ---- bank6.code_8CD2 (code) $8CD2-$8CE2, 17 bytes
         lda     $05D8,X
         bpl     L6_8CDF
         lda     $0518,X
@@ -1904,6 +1934,8 @@ L6_8CC8:
 L6_8CDF:
         jsr     L7_C08D
         rts
+
+; ---- bank6.code_8CE3 (code) $8CE3-$8CF5, 19 bytes
 L6_8CE3:
         lda     #$00
         sta     $0788,X
@@ -1912,10 +1944,14 @@ L6_8CE3:
         ldy     $0500,X
         lda     $8CD2,Y
         sta     $0560,X
+
+; ---- bank6.code_8CF6 (code) $8CF6-$8CFB, 6 bytes
 L6_8CF6:
         lda     $41
         and     #$1F
         bne     L6_8D2C
+
+; ---- bank6.code_8CFC (code) $8CFC-$8D2B, 48 bytes
         jsr     L7_C027
         bcs     L6_8D5F
         lda     $07E8,X
@@ -1936,6 +1972,8 @@ L6_8CF6:
         sbc     #$17
         sta     $0530,Y
         jmp     L6_8D5F
+
+; ---- bank6.code_8D2C (code) $8D2C-$8D5E, 51 bytes
 L6_8D2C:
         and     #$0F
         bne     L6_8D5F
@@ -1957,13 +1995,15 @@ L6_8D2C:
         sta     $07A0,Y
         lda     $0518,X
         sta     $0788,Y
+
+; ---- bank6.code_8D5F (code) $8D5F-$8D67, 9 bytes
 L6_8D5F:
         jsr     L7_C08D
         jsr     L7_C0C6
         jmp     L7_C0D8
 
 ; ---- bank6.tbl_8D68 (data) $8D68-$8D6F, 8 bytes
-; Types $18-$19: per-type values, and two by $AD9A
+; Eyegore: palettes, summoned type, x offset
         .byte   $01,$03,$02,$00,$16,$27,$E0,$20
 
 ; ---- bank6.code_8D70 (code) $8D70-$8E5E, 239 bytes
