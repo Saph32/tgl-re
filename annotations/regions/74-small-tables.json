@@ -189,28 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_A9B8",
-      "offset": 109000,
-      "size": 2,
-      "kind": "data",
-      "name": "Types $36-$37: value for $0560",
-      "confidence": "confirmed",
-      "cpu_addr": 43448,
-      "sha1": "432863c8dccc1a2a7519cfe06d35552c3a04a259",
-      "description": "$A8D8 is the handler of types $36 and $37 only (bank 6 dispatch $80DE/$815D), and it indexes with LDY $0500,X, the type: LDA $A982,Y ($A8E0), so the bytes read are $A9B8-$A9B9. The five bytes after, $A9BA-$A9BE (FE 02 FF 01 00), have no reader found."
-    },
-    {
-      "id": "bank6.tbl_A9BF",
-      "offset": 109007,
-      "size": 80,
-      "kind": "level",
-      "name": "Tile rectangles: 5 x 4x4, by $0638",
-      "confidence": "confirmed",
-      "cpu_addr": 43455,
-      "sha1": "b3979d1d74dbd61d8e877e88449c5c3ca42b8e0a",
-      "description": "$A991: $16/$17 = $A9BF + 16 x A, then $15 = $14 = 4 and JMP $C07E, the rectangle blit - so each entry is a 4 x 4 block of background tiles, drawn at the object's position. A is the object's $0638 (or 3, from $A98B). Five entries fill $A9BF-$AA0E exactly, ending on the code at $AA0F; the count is structural."
-    },
-    {
       "id": "bank6.tbl_AC8F",
       "offset": 109727,
       "size": 16,
