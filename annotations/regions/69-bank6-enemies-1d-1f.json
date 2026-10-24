@@ -175,7 +175,7 @@
       "confidence": "confirmed",
       "cpu_addr": 40270,
       "sha1": "5c8b20a86accd956a9bfd3043090149f8460992d",
-      "description": "A type under `$1E` skips the shot."
+      "description": "A type under `$1E` skips the shot. Type `$73` enters at `$9D5F`, after this test, so it never fires."
     },
     {
       "id": "bank6.code_9D55",
@@ -281,11 +281,11 @@
       "offset": 105893,
       "size": 7,
       "kind": "code",
-      "name": "TYPES $1D / $1E / $1F (A GROUND ENEMY THAT STEPS TOWARD THE PLAYER): a type `$73` branch",
+      "name": "TYPES $1D / $1E / $1F (A GROUND ENEMY THAT STEPS TOWARD THE PLAYER): the type `$73` branch",
       "confidence": "confirmed",
       "cpu_addr": 40341,
       "sha1": "b5fbc891faad22849aadc621b2826fa238f6093e",
-      "description": "Type `$F3` (type `$73` with its bit 7) takes a different picture. **No dispatch entry sends type `$73` here** (bank 6's table gives `$9D0A` only to `$1D`-`$1F`), so this branch cannot be taken in this handler."
+      "description": "Type `$F3` (type `$73` with its bit 7) takes a different picture. **CORRECTION: this branch is LIVE. Type `$73` has its own handler at `$B96E` that jumps into the middle of this one (`JMP $9D26`, `JMP $9D5F`, `JMP $9D95`), so type `$73` runs it every frame. The earlier text said 'no dispatch entry sends type `$73` here, so it cannot be taken' - true of the dispatch table, wrong about the code.**"
     },
     {
       "id": "bank6.code_9D9C",
@@ -296,7 +296,7 @@
       "confidence": "confirmed",
       "cpu_addr": 40348,
       "sha1": "063dfb9f795beccdf588fb9c624a849a02738556",
-      "description": "A := 3."
+      "description": "A := 3 (the flip mask of type `$73`)."
     },
     {
       "id": "bank6.code_9D9E",
@@ -307,7 +307,7 @@
       "confidence": "confirmed",
       "cpu_addr": 40350,
       "sha1": "ac549ed2e102f5ccecf8f12a3bce9aec9348a55b",
-      "description": "`JSR $9B09`: flips bit 6 of the palette when (`$41` AND A) = 0, i.e. every 4th frame. This is the only caller of `$9B09`, which the type `$0E` / `$0F` entry listed as an unreferenced fragment."
+      "description": "`JSR $9B09`: flips bit 6 of the palette when (`$41` AND A) = 0, i.e. every 4th frame. **Called by type `$73` every frame** (see `$9D95`), contradicting the earlier 'never made'."
     },
     {
       "id": "bank6.code_9DA1",
