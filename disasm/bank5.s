@@ -5,45 +5,83 @@
 .org $8000
 
 
-; ---- bank5.code_8000 (code) $8000-$803B, 60 bytes
+; ---- bank5.code_8000 (code) $8000-$8002, 3 bytes
 L5_8000:
         jmp     L5_ACA9
+
+; ---- bank5.code_8003 (code) $8003-$8005, 3 bytes
 L5_8003:
         jmp     L5_8155
+
+; ---- bank5.code_8006 (code) $8006-$8008, 3 bytes
 L5_8006:
         jmp     L5_8354
+
+; ---- bank5.code_8009 (code) $8009-$800B, 3 bytes
 L5_8009:
         jmp     L5_83B3
+
+; ---- bank5.code_800C (code) $800C-$800E, 3 bytes
 L5_800C:
         jmp     L5_8471
+
+; ---- bank5.code_800F (code) $800F-$8011, 3 bytes
 L5_800F:
         jmp     L5_8483
+
+; ---- bank5.code_8012 (code) $8012-$8014, 3 bytes
 L5_8012:
         jmp     L5_9F22
+
+; ---- bank5.code_8015 (code) $8015-$8017, 3 bytes
 L5_8015:
         jmp     L5_8121
+
+; ---- bank5.code_8018 (code) $8018-$801A, 3 bytes
 L5_8018:
         jmp     L5_B2E4
+
+; ---- bank5.code_801B (code) $801B-$801D, 3 bytes
 L5_801B:
         jmp     L5_84CB
+
+; ---- bank5.code_801E (code) $801E-$8020, 3 bytes
 L5_801E:
         jmp     L5_8711
+
+; ---- bank5.code_8021 (code) $8021-$8023, 3 bytes
 L5_8021:
         jmp     L5_8937
+
+; ---- bank5.code_8024 (code) $8024-$8026, 3 bytes
 L5_8024:
         jmp     L5_A33F
+
+; ---- bank5.code_8027 (code) $8027-$8029, 3 bytes
 L5_8027:
         jmp     L5_AD1A
+
+; ---- bank5.code_802A (code) $802A-$802C, 3 bytes
 L5_802A:
         jmp     L5_89FB
+
+; ---- bank5.code_802D (code) $802D-$802F, 3 bytes
 L5_802D:
         jmp     L5_8071
+
+; ---- bank5.code_8030 (code) $8030-$8032, 3 bytes
 L5_8030:
         jmp     L5_A3BB
+
+; ---- bank5.code_8033 (code) $8033-$8035, 3 bytes
 L5_8033:
         jmp     L5_86ED
+
+; ---- bank5.code_8036 (code) $8036-$8038, 3 bytes
 L5_8036:
         jmp     L5_A430
+
+; ---- bank5.code_8039 (code) $8039-$803B, 3 bytes
 L5_8039:
         jmp     L5_A462
 
@@ -773,7 +811,7 @@ L5_8468:
 ; Attribute quadrant masks by quadrant
         .byte   $03,$0C,$30,$C0
 
-; ---- bank5.code_8471 (code) $8471-$84A8, 56 bytes
+; ---- bank5.code_8471 (code) $8471-$8482, 18 bytes
 L5_8471:
         lda     $0620,X
         asl     A
@@ -783,6 +821,8 @@ L5_8471:
         lda     $9610,Y
         sta     $05D8,X
         rts
+
+; ---- bank5.code_8483 (code) $8483-$84A8, 38 bytes
 L5_8483:
         lda     $05C0,X
         clc
@@ -3583,7 +3623,7 @@ L5_A792:
 ; Room item: 12 x 1 at +$B2
         .byte   $10,$B2,$0C,$01,$CC,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$C5,$CC
 
-; ---- bank5.code_ACA9 (code) $ACA9-$AD90, 232 bytes
+; ---- bank5.code_ACA9 (code) $ACA9-$ACBA, 18 bytes
 L5_ACA9:
         sta     $10
         asl     A
@@ -3595,21 +3635,31 @@ L5_ACA9:
         adc     #$00
         adc     #$00
         sta     $1B
+
+; ---- bank5.code_ACBB (code) $ACBB-$ACBC, 2 bytes
         txa
         pha
+
+; ---- bank5.code_ACBD (code) $ACBD-$ACC4, 8 bytes
         ldy     #$00
         lda     ($1A),Y
         cmp     #$FF
         beq     L5_AD0C
+
+; ---- bank5.code_ACC5 (code) $ACC5-$ACD0, 12 bytes
         asl     A
         tay
         lda     $AE06,Y
         sta     $16
         lda     $AE07,Y
         sta     $17
+
+; ---- bank5.code_ACD1 (code) $ACD1-$ACD5, 5 bytes
         ldy     #$00
         lda     ($16),Y
         tax
+
+; ---- bank5.code_ACD6 (code) $ACD6-$ACEA, 21 bytes
 L5_ACD6:
         iny
         lda     #$01
@@ -3624,12 +3674,16 @@ L5_ACD6:
         asl     A
         rol     $19
         sta     $18
+
+; ---- bank5.code_ACEB (code) $ACEB-$ACF2, 8 bytes
         iny
         lda     ($16),Y
         iny
         sta     $10
         tya
         pha
+
+; ---- bank5.code_ACF3 (code) $ACF3-$AD01, 15 bytes
         lda     ($16),Y
         bpl     L5_AD02
         and     #$0F
@@ -3638,6 +3692,8 @@ L5_ACD6:
         and     #$0F
         clc
         adc     $11
+
+; ---- bank5.code_AD02 (code) $AD02-$AD0B, 10 bytes
 L5_AD02:
         ldy     $10
         jsr     L7_C042
@@ -3645,6 +3701,8 @@ L5_AD02:
         tay
         dex
         bne     L5_ACD6
+
+; ---- bank5.code_AD0C (code) $AD0C-$AD19, 14 bytes
 L5_AD0C:
         ldy     #$01
         lda     ($1A),Y
@@ -3652,6 +3710,8 @@ L5_AD0C:
         beq     L5_AD54
         jsr     L5_AD1A
         jmp     L5_AD54
+
+; ---- bank5.code_AD1A (code) $AD1A-$AD53, 58 bytes
 L5_AD1A:
         asl     A
         tay
@@ -3686,6 +3746,8 @@ L5_AD2C:
         dec     $15
         bne     L5_AD2C
         rts
+
+; ---- bank5.code_AD54 (code) $AD54-$AD8D, 58 bytes
 L5_AD54:
         ldy     #$02
         lda     ($1A),Y
@@ -3719,6 +3781,8 @@ L5_AD83:
         inx
         cpx     #$08
         bne     L5_AD83
+
+; ---- bank5.code_AD8E (code) $AD8E-$AD90, 3 bytes
 L5_AD8E:
         pla
         tax
