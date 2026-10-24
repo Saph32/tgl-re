@@ -2138,48 +2138,60 @@ L3_8ED7:
         .byte   $00,$00,$00,$00,$00,$00,$40,$40,$40,$40,$40
 
 ; ---- bank3.tbl_8F13 (data) $8F13-$8F32, 32 bytes
-; Table, 32 bytes
+; Ship walking tile base: 8 facings x 4 poses
         .byte   $20,$28,$30,$28,$38,$40,$48,$40,$00,$08,$00,$08,$38,$40,$48,$40
         .byte   $20,$28,$30,$28,$50,$58,$60,$58,$10,$18,$10,$18,$50,$58,$60,$58
 
 ; ---- bank3.tbl_8F33 (data) $8F33-$8F52, 32 bytes
-; Table, 32 bytes (structural extent)
+; Ship walking palette (flip): 8 facings x 4 poses
         .byte   $40,$40,$40,$40,$40,$40,$40,$40,$00,$00,$40,$40,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$40,$40,$40,$40,$40,$40
 
-; ---- bank3.code_8F53 (code) $8F53-$8F74, 34 bytes
+; ---- bank3.code_8F53 (code) $8F53-$8F5B, 9 bytes
 L3_8F53:
         ldy     $32
         bit     $0578
         bpl     L3_8F85
         bvc     L3_8F85
+
+; ---- bank3.code_8F5C (code) $8F5C-$8F62, 7 bytes
         lda     #$80
         ldy     #$08
         jsr     L7_C0A5
+
+; ---- bank3.code_8F63 (code) $8F63-$8F68, 6 bytes
         lda     $8F75,Y
         sta     $06C8
+
+; ---- bank3.code_8F69 (code) $8F69-$8F6E, 6 bytes
         lda     $8F7D,Y
         sta     $0560
+
+; ---- bank3.code_8F6F (code) $8F6F-$8F74, 6 bytes
         lda     #$50
         sta     $0548
         rts
 
 ; ---- bank3.tbl_8F75 (data) $8F75-$8F7C, 8 bytes
-; Table, 8 bytes
+; Ship hit-spin tile base (labyrinth)
         .byte   $00,$40,$28,$58,$10,$58,$28,$40
 
 ; ---- bank3.tbl_8F7D (data) $8F7D-$8F84, 8 bytes
-; Table, 8 bytes (structural extent)
+; Ship hit-spin palette (labyrinth)
         .byte   $00,$01,$02,$03,$00,$41,$42,$43
 
-; ---- bank3.code_8F85 (code) $8F85-$8FBB, 55 bytes
+; ---- bank3.code_8F85 (code) $8F85-$8F88, 4 bytes
 L3_8F85:
         cpy     #$04
         beq     L3_8F90
+
+; ---- bank3.code_8F89 (code) $8F89-$8F8F, 7 bytes
 L3_8F89:
         lda     #$20
         ldy     #$04
         jsr     L7_C0A5
+
+; ---- bank3.code_8F90 (code) $8F90-$8F9D, 14 bytes
 L3_8F90:
         lda     $0668
         asl     A
@@ -2187,11 +2199,19 @@ L3_8F90:
         tay
         lda     $8F13,Y
         sta     $06C8
+
+; ---- bank3.code_8F9E (code) $8F9E-$8FA2, 5 bytes
         lda     #$50
         sta     $0548
+
+; ---- bank3.code_8FA3 (code) $8FA3-$8FA8, 6 bytes
         lda     $8F33,Y
         sta     $0560
+
+; ---- bank3.code_8FA9 (code) $8FA9-$8FA9, 1 bytes
         rts
+
+; ---- bank3.code_8FAA (code) $8FAA-$8FB8, 15 bytes
 L3_8FAA:
         lda     #$00
         sta     $05C0,X
@@ -2199,6 +2219,8 @@ L3_8FAA:
         sta     $05F0,X
         sta     $0608,X
         rts
+
+; ---- bank3.code_8FB9 (code) $8FB9-$8FBB, 3 bytes
 L3_8FB9:
         jsr     L7_C006
 
@@ -2206,13 +2228,17 @@ L3_8FB9:
 ; Far-call argument at $8FBC
         .byte   $06,$08,$80
 
-; ---- bank3.code_8FBF (code) $8FBF-$9120, 354 bytes
+; ---- bank3.code_8FBF (code) $8FBF-$8FC8, 10 bytes
         lda     $6C
         cmp     $07A0
         sta     $07A0
         beq     L3_9015
+
+; ---- bank3.code_8FC9 (code) $8FC9-$8FCC, 4 bytes
         cmp     #$02
         bne     L3_9015
+
+; ---- bank3.code_8FCD (code) $8FCD-$8FEC, 32 bytes
         lda     $0518
         cmp     #$38
         bcs     L3_8FD8
@@ -2231,8 +2257,12 @@ L3_8FE0:
         bne     L3_8FED
 L3_8FEB:
         lda     #$06
+
+; ---- bank3.code_8FED (code) $8FED-$8FEE, 2 bytes
 L3_8FED:
         sta     $A4
+
+; ---- bank3.code_8FEF (code) $8FEF-$8FFD, 15 bytes
         cmp     #$04
         bcc     L3_8FF5
         sbc     #$02
@@ -2242,29 +2272,41 @@ L3_8FF5:
         lda     a:$0058,y
         and     #$07
         beq     L3_9009
+
+; ---- bank3.code_8FFE (code) $8FFE-$9008, 11 bytes
         sec
         sbc     #$01
         jsr     L7_C078
         and     $04B0
         beq     L3_9014
+
+; ---- bank3.code_9009 (code) $9009-$9013, 11 bytes
 L3_9009:
         lda     $A0
         ora     #$03
         sta     $A0
         lda     #$3B
         jmp     L7_C030
+
+; ---- bank3.code_9014 (code) $9014-$9014, 1 bytes
 L3_9014:
         rts
+
+; ---- bank3.code_9015 (code) $9015-$901A, 6 bytes
 L3_9015:
         lda     $6C
         cmp     #$01
         bne     L3_9045
+
+; ---- bank3.code_901B (code) $901B-$9029, 15 bytes
         lda     #$33
         jsr     L7_C030
         lda     #$14
         jsr     L7_C12F
         lda     #$02
         jsr     L7_C00C
+
+; ---- bank3.code_902A (code) $902A-$9044, 27 bytes
         lda     #$00
         sta     $15
         sta     $17
@@ -2277,10 +2319,14 @@ L3_9015:
         lda     $0530,X
         sta     $19
         jmp     L7_C11A
+
+; ---- bank3.code_9045 (code) $9045-$904B, 7 bytes
 L3_9045:
         lda     $0518
         cmp     #$10
         bcs     L3_9064
+
+; ---- bank3.code_904C (code) $904C-$9063, 24 bytes
         bit     $54
         bpl     L3_9058
         lda     $58
@@ -2294,6 +2340,8 @@ L3_9058:
 L3_9060:
         lda     #$00
         beq     L3_90BD
+
+; ---- bank3.code_9064 (code) $9064-$9081, 30 bytes
 L3_9064:
         cmp     #$B0
         bcc     L3_9082
@@ -2311,6 +2359,8 @@ L3_9076:
 L3_907E:
         lda     #$08
         bne     L3_90BD
+
+; ---- bank3.code_9082 (code) $9082-$90A0, 31 bytes
 L3_9082:
         lda     $0530
         cmp     #$0E
@@ -2328,6 +2378,8 @@ L3_9095:
 L3_909D:
         lda     #$02
         bne     L3_90BD
+
+; ---- bank3.code_90A1 (code) $90A1-$90BC, 28 bytes
 L3_90A1:
         cmp     #$F2
         bcc     L3_90C5
@@ -2344,73 +2396,106 @@ L3_90B3:
         jmp     L3_90C5
 L3_90BB:
         lda     #$06
+
+; ---- bank3.code_90BD (code) $90BD-$90C4, 8 bytes
 L3_90BD:
         sta     $A4
         lda     $A0
         ora     #$01
         sta     $A0
+
+; ---- bank3.code_90C5 (code) $90C5-$90C5, 1 bytes
 L3_90C5:
         rts
+
+; ---- bank3.code_90C6 (code) $90C6-$90CA, 5 bytes
 L3_90C6:
         lda     $0500,X
         bmi     L3_90CC
+
+; ---- bank3.code_90CB (code) $90CB-$90CB, 1 bytes
         rts
+
+; ---- bank3.code_90CC (code) $90CC-$90D2, 7 bytes
 L3_90CC:
         lda     #$10
         ldy     #$0A
         jsr     L7_C0A5
+
+; ---- bank3.code_90D3 (code) $90D3-$90D8, 6 bytes
         bcc     L3_90D9
         sty     $0500
         rts
+
+; ---- bank3.code_90D9 (code) $90D9-$90E2, 10 bytes
 L3_90D9:
         lda     $41
         and     #$01
         clc
         adc     $0638
         sta     $15
+
+; ---- bank3.code_90E3 (code) $90E3-$90F0, 14 bytes
         ldy     #$06
         lda     $0638
         cmp     #$04
         bcs     L3_90F1
         jsr     L7_C090
         ldy     #$05
+
+; ---- bank3.code_90F1 (code) $90F1-$90F6, 6 bytes
 L3_90F1:
         sty     $14
         lda     #$00
         sta     $87
+
+; ---- bank3.code_90F7 (code) $90F7-$90FF, 9 bytes
 L3_90F7:
         lda     $0530
         clc
         adc     $9121,Y
         sta     $85
+
+; ---- bank3.code_9100 (code) $9100-$9108, 9 bytes
         lda     $0518
         clc
         adc     $9128,Y
         sta     $84
+
+; ---- bank3.code_9109 (code) $9109-$9111, 9 bytes
         lda     $41
         clc
         adc     $14
         and     #$01
         sta     $86
+
+; ---- bank3.code_9112 (code) $9112-$9119, 8 bytes
         ldy     $15
         lda     $912F,Y
         jsr     L7_C093
+
+; ---- bank3.code_911A (code) $911A-$911F, 6 bytes
         dec     $14
         ldy     $14
         bpl     L3_90F7
+
+; ---- bank3.code_9120 (code) $9120-$9120, 1 bytes
         rts
 
 ; ---- bank3.tbl_9121 (data) $9121-$9127, 7 bytes
-; Table, 7 bytes
+; Dying ship: piece x offsets
         .byte   $FA,$06,$F4,$0C,$FA,$06,$00
 
 ; ---- bank3.tbl_9128 (data) $9128-$912E, 7 bytes
-; Table, 7 bytes
+; Dying ship: piece y offsets
         .byte   $F4,$F4,$00,$00,$0C,$0C,$00
 
-; ---- bank3.tbl_912F (data) $912F-$9139, 11 bytes
-; Table, 11 bytes (structural extent)
-        .byte   $00,$30,$00,$31,$30,$31,$32,$33,$32,$33,$00
+; ---- bank3.tbl_912F (data) $912F-$9138, 10 bytes
+; Dying ship: piece metasprite by index
+        .byte   $00,$30,$00,$31,$30,$31,$32,$33,$32,$33
+
+; ---- UNCLAIMED (gap) $9139-$9139, 1 bytes
+        .byte   $00
 
 ; ---- bank3.tbl_913A (data) $913A-$9150, 23 bytes
 ; Table, 23 bytes
