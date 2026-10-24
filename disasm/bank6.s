@@ -10669,7 +10669,7 @@ L6_BBEC:
 L6_BBF8:
         rts
 
-; ---- bank6.code_BBF9 (code) $BBF9-$BD08, 272 bytes
+; ---- bank6.code_BBF9 (code) $BBF9-$BC07, 15 bytes
 L6_BBF9:
         lda     $0500,X
         bpl     L6_BC08
@@ -10677,15 +10677,23 @@ L6_BBF9:
         cmp     #$04
         bcc     L6_BC08
         jmp     L6_BCD8
+
+; ---- bank6.code_BC08 (code) $BC08-$BC0A, 3 bytes
 L6_BC08:
         jsr     L6_BA51
+
+; ---- bank6.code_BC0B (code) $BC0B-$BC0F, 5 bytes
         lda     $0500,X
         bmi     L6_BC1D
+
+; ---- bank6.code_BC10 (code) $BC10-$BC1C, 13 bytes
         jsr     L7_C0AE
         lda     #$21
         sta     $0548,X
         lda     #$00
         sta     $07B8,X
+
+; ---- bank6.code_BC1D (code) $BC1D-$BC33, 23 bytes
 L6_BC1D:
         lda     $07B8,X
         bne     L6_BC72
@@ -10699,6 +10707,8 @@ L6_BC2C:
         jsr     L6_BBEC
         bcc     L6_BC34
         rts
+
+; ---- bank6.code_BC34 (code) $BC34-$BC5A, 39 bytes
 L6_BC34:
         lda     $07A0,X
         sta     $07D0,X
@@ -10718,6 +10728,8 @@ L6_BC47:
         sta     $17
         ldy     $0518,X
         jsr     L7_C07E
+
+; ---- bank6.code_BC5B (code) $BC5B-$BC71, 23 bytes
         lda     $07B8,X
         cmp     #$01
         bne     L6_BC97
@@ -10728,6 +10740,8 @@ L6_BC47:
         sta     $17
         jsr     L7_C07E
         jmp     L6_BC97
+
+; ---- bank6.code_BC72 (code) $BC72-$BC96, 37 bytes
 L6_BC72:
         dec     $07A0,X
         bne     L6_BC97
@@ -10744,44 +10758,70 @@ L6_BC72:
         jsr     L6_BBA3
         lda     $07B8,X
         bne     L6_BC47
+
+; ---- bank6.code_BC97 (code) $BC97-$BC9D, 7 bytes
 L6_BC97:
         lda     $07B8,X
         cmp     #$03
         bcc     L6_BCB1
+
+; ---- bank6.code_BC9E (code) $BC9E-$BCA3, 6 bytes
         jsr     L7_C0CF
         jsr     L7_C0D2
+
+; ---- bank6.code_BCA4 (code) $BCA4-$BCB0, 13 bytes
         lda     $0500,X
         bmi     L6_BCB1
         lda     #$30
         sta     $0500,X
         jmp     L6_BCEA
+
+; ---- bank6.code_BCB1 (code) $BCB1-$BCB1, 1 bytes
 L6_BCB1:
         rts
+
+; ---- bank6.code_BCB2 (code) $BCB2-$BCB3, 2 bytes
 L6_BCB2:
         bne     L6_BCD8
+
+; ---- bank6.code_BCB4 (code) $BCB4-$BCB9, 6 bytes
         jsr     L6_BCEA
         inc     $07B8,X
+
+; ---- bank6.code_BCBA (code) $BCBA-$BCC8, 15 bytes
         lda     #$71
         sta     $06C8,X
         lda     #$02
         sta     $0560,X
         lda     #$02
         sta     $0698,X
+
+; ---- bank6.code_BCC9 (code) $BCC9-$BCD2, 10 bytes
         jsr     L7_C0FF
         tay
         lda     $BD09,Y
         jsr     L7_C102
+
+; ---- bank6.code_BCD3 (code) $BCD3-$BCD7, 5 bytes
         lda     #$FF
         sta     $0668,X
+
+; ---- bank6.code_BCD8 (code) $BCD8-$BCDC, 5 bytes
 L6_BCD8:
         lda     #$08
         jsr     L7_C09C
+
+; ---- bank6.code_BCDD (code) $BCDD-$BCE6, 10 bytes
         lda     $05D8,X
         bmi     L6_BCE7
         lda     #$75
         sta     $06C8,X
+
+; ---- bank6.code_BCE7 (code) $BCE7-$BCE9, 3 bytes
 L6_BCE7:
         jmp     L6_9F4F
+
+; ---- bank6.code_BCEA (code) $BCEA-$BD08, 31 bytes
 L6_BCEA:
         jsr     L6_BF71
         lda     #$04
@@ -10800,22 +10840,34 @@ L6_BD05:
         tay
         jmp     L7_C07E
 
-; ---- bank6.tbl_BD09 (data) $BD09-$BD38, 48 bytes
-; Table, 48 bytes (structural extent)
+; ---- bank6.tbl_BD09 (data) $BD09-$BD18, 16 bytes
+; Type $39 launch direction by aim
         .byte   $0F,$0E,$0D,$0D,$0C,$0B,$0B,$0A,$09,$0A,$0B,$0B,$0C,$0D,$0E,$0E
+
+; ---- bank6.tbl_BD19 (data) $BD19-$BD28, 16 bytes
+; Type $39 tile rows
         .byte   $B0,$B1,$B2,$B3,$B4,$B5,$B6,$B7,$B8,$B9,$BA,$BB,$BC,$BD,$BE,$BF
+
+; ---- bank6.tbl_BD29 (data) $BD29-$BD38, 16 bytes
+; Floor checker 4 x 4
         .byte   $80,$81,$80,$81,$81,$80,$81,$80,$80,$81,$80,$81,$81,$80,$81,$80
 
-; ---- bank6.code_BD39 (code) $BD39-$BEAD, 373 bytes
+; ---- bank6.code_BD39 (code) $BD39-$BD42, 10 bytes
 L6_BD39:
         lda     $0500,X
         bpl     L6_BD43
         lda     $07B8,X
         bne     L6_BD8C
+
+; ---- bank6.code_BD43 (code) $BD43-$BD45, 3 bytes
 L6_BD43:
         jsr     L6_BA51
+
+; ---- bank6.code_BD46 (code) $BD46-$BD4A, 5 bytes
         lda     $0500,X
         bmi     L6_BD6E
+
+; ---- bank6.code_BD4B (code) $BD4B-$BD6D, 35 bytes
         jsr     L7_C0AE
         lda     $0530,X
         clc
@@ -10830,43 +10882,75 @@ L6_BD43:
         sta     $0548,X
         lda     #$00
         sta     $07B8,X
+
+; ---- bank6.code_BD6E (code) $BD6E-$BD76, 9 bytes
 L6_BD6E:
         lda     $0518
         sbc     #$60
         bcs     L6_BD77
         lda     #$00
+
+; ---- bank6.code_BD77 (code) $BD77-$BD7D, 7 bytes
 L6_BD77:
         ldy     #$08
         jsr     L6_BBEC
         bcs     L6_BDAD
+
+; ---- bank6.code_BD7E (code) $BD7E-$BD80, 3 bytes
         jsr     L6_BCEA
+
+; ---- bank6.code_BD81 (code) $BD81-$BD88, 8 bytes
         lda     #$02
         sta     $0560,X
         sta     $0698,X
+
+; ---- bank6.code_BD89 (code) $BD89-$BD8B, 3 bytes
         jsr     L7_C0FC
+
+; ---- bank6.code_BD8C (code) $BD8C-$BD90, 5 bytes
 L6_BD8C:
         dec     $07A0,X
         bne     L6_BDAA
+
+; ---- bank6.code_BD91 (code) $BD91-$BD95, 5 bytes
         lda     #$0F
         sta     $07A0,X
+
+; ---- bank6.code_BD96 (code) $BD96-$BD9A, 5 bytes
         jsr     L7_C0FF
         sta     $15
+
+; ---- bank6.code_BD9B (code) $BD9B-$BD9F, 5 bytes
         jsr     L7_C108
         bcs     L6_BDAA
+
+; ---- bank6.code_BDA0 (code) $BDA0-$BDA9, 10 bytes
         lda     #$2B
         jsr     L7_C105
         lda     $15
         sta     $0788,Y
+
+; ---- bank6.code_BDAA (code) $BDAA-$BDAC, 3 bytes
 L6_BDAA:
         jmp     L6_9F4F
+
+; ---- bank6.code_BDAD (code) $BDAD-$BDB2, 6 bytes
 L6_BDAD:
         jsr     L7_C0CF
         jsr     L7_C0D2
+
+; ---- bank6.code_BDB3 (code) $BDB3-$BDB7, 5 bytes
         lda     $0500,X
         bmi     L6_BDBB
+
+; ---- bank6.code_BDB8 (code) $BDB8-$BDBA, 3 bytes
         jmp     L6_BCEA
+
+; ---- bank6.code_BDBB (code) $BDBB-$BDBB, 1 bytes
 L6_BDBB:
         rts
+
+; ---- bank6.code_BDBC (code) $BDBC-$BEAD, 242 bytes
 L6_BDBC:
         jsr     L6_BA51
         lda     $0500,X
