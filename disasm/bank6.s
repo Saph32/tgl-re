@@ -5853,33 +5853,63 @@ L6_A432:
 L6_A445:
         rts
 
-; ---- bank6.code_A446 (code) $A446-$A4F7, 178 bytes
+; ---- bank6.code_A446 (code) $A446-$A44A, 5 bytes
 L6_A446:
         lda     $0500,X
         bmi     L6_A46E
+
+; ---- bank6.code_A44B (code) $A44B-$A44D, 3 bytes
         jsr     L7_C0A8
+
+; ---- bank6.code_A44E (code) $A44E-$A450, 3 bytes
         jsr     L6_9B0F
+
+; ---- bank6.code_A451 (code) $A451-$A456, 6 bytes
         lda     $9ADB,Y
         sta     $0560,X
+
+; ---- bank6.code_A457 (code) $A457-$A45C, 6 bytes
         lda     $A4FB,Y
         sta     $07D0,X
+
+; ---- bank6.code_A45D (code) $A45D-$A462, 6 bytes
         lda     $A501,Y
         sta     $0590,X
+
+; ---- bank6.code_A463 (code) $A463-$A465, 3 bytes
         jsr     L7_C165
+
+; ---- bank6.code_A466 (code) $A466-$A46A, 5 bytes
         lda     #$00
         sta     $07A0,X
+
+; ---- bank6.code_A46B (code) $A46B-$A46D, 3 bytes
         jsr     L7_C0A2
+
+; ---- bank6.code_A46E (code) $A46E-$A470, 3 bytes
 L6_A46E:
         jsr     L6_A3EA
+
+; ---- bank6.code_A471 (code) $A471-$A472, 2 bytes
         ldy     #$23
+
+; ---- bank6.code_A473 (code) $A473-$A479, 7 bytes
         lda     $07A0,X
         cmp     #$02
         bne     L6_A485
+
+; ---- bank6.code_A47A (code) $A47A-$A47E, 5 bytes
         lda     #$40
         jsr     L7_C0A5
+
+; ---- bank6.code_A47F (code) $A47F-$A480, 2 bytes
         bcs     L6_A4B6
+
+; ---- bank6.code_A481 (code) $A481-$A484, 4 bytes
         cpy     #$0A
         bcs     L6_A497
+
+; ---- bank6.code_A485 (code) $A485-$A48F, 11 bytes
 L6_A485:
         tya
         and     #$01
@@ -5887,66 +5917,108 @@ L6_A485:
         asl     A
         adc     $07E8,X
         sta     $06C8,X
+
+; ---- bank6.code_A490 (code) $A490-$A494, 5 bytes
         lda     #$34
         sta     $0548,X
+
+; ---- bank6.code_A495 (code) $A495-$A496, 2 bytes
         bcc     L6_A4BE
+
+; ---- bank6.code_A497 (code) $A497-$A49A, 4 bytes
 L6_A497:
         cpy     #$1E
         bcs     L6_A485
+
+; ---- bank6.code_A49B (code) $A49B-$A4A0, 6 bytes
         lda     $07E8,X
         sta     $06C8,X
+
+; ---- bank6.code_A4A1 (code) $A4A1-$A4A9, 9 bytes
         cpy     #$0C
         bcs     L6_A4AA
         lda     $A4EE,Y
         bne     L6_A4B1
+
+; ---- bank6.code_A4AA (code) $A4AA-$A4AD, 4 bytes
 L6_A4AA:
         cpy     #$1C
         bcc     L6_A4BE
+
+; ---- bank6.code_A4AE (code) $A4AE-$A4B0, 3 bytes
         lda     $A4DD,Y
+
+; ---- bank6.code_A4B1 (code) $A4B1-$A4B5, 5 bytes
 L6_A4B1:
         sta     $0548,X
         bne     L6_A4BE
+
+; ---- bank6.code_A4B6 (code) $A4B6-$A4BD, 8 bytes
 L6_A4B6:
         lda     #$3C
         sta     $0788,X
         inc     $07A0,X
+
+; ---- bank6.code_A4BE (code) $A4BE-$A4C0, 3 bytes
 L6_A4BE:
         jsr     L7_C090
+
+; ---- bank6.code_A4C1 (code) $A4C1-$A4C7, 7 bytes
         lda     $07A0,X
         cmp     #$03
         bne     L6_A4EA
+
+; ---- bank6.code_A4C8 (code) $A4C8-$A4D2, 11 bytes
         lda     $0788,X
         ldy     $0500,X
         cmp     $07D0,X
         bcs     L6_A4EA
+
+; ---- bank6.code_A4D3 (code) $A4D3-$A4D7, 5 bytes
         jsr     L6_9A53
         bne     L6_A4EA
+
+; ---- bank6.code_A4D8 (code) $A4D8-$A4DC, 5 bytes
         jsr     L7_C108
         bcs     L6_A4EA
+
+; ---- bank6.code_A4DD (code) $A4DD-$A4E1, 5 bytes
         lda     #$0E
         sta     $0728,Y
+
+; ---- bank6.code_A4E2 (code) $A4E2-$A4E4, 3 bytes
         jsr     L7_C105
+
+; ---- bank6.code_A4E5 (code) $A4E5-$A4E9, 5 bytes
         lda     #$08
         jsr     L6_AECF
+
+; ---- bank6.code_A4EA (code) $A4EA-$A4F0, 7 bytes
 L6_A4EA:
         lda     $07A0,X
         cmp     #$02
         beq     L6_A4F2
+
+; ---- bank6.code_A4F1 (code) $A4F1-$A4F1, 1 bytes
         rts
+
+; ---- bank6.code_A4F2 (code) $A4F2-$A4F4, 3 bytes
 L6_A4F2:
         jsr     L7_C0C6
+
+; ---- bank6.code_A4F5 (code) $A4F5-$A4F7, 3 bytes
         jmp     L7_C0D8
 
 ; ---- bank6.tbl_A4F8 (data) $A4F8-$A4FA, 3 bytes
-; Ends of two tables read by $A497
+; Nest picture by phase
         .byte   $35,$36,$35
 
 ; ---- bank6.tbl_A4FB (data) $A4FB-$A500, 6 bytes
-; Table, 6 bytes
+; Nest hatching threshold by area tier
         .byte   $04,$06,$08,$0A,$10,$10
 
 ; ---- bank6.tbl_A501 (data) $A501-$A506, 6 bytes
-; Table, 6 bytes (structural extent)
+; Nest hit points by area tier
         .byte   $04,$04,$07,$0A,$10,$14
 
 ; ---- bank6.code_A507 (code) $A507-$A59F, 153 bytes
