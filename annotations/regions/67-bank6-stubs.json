@@ -1,0 +1,148 @@
+{
+  "_comment": "Hand-authored. Bank 6 object handlers: far-call stubs, the formation spawner and a cell test ($99F1-$9A5B). The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank6.code_99F1",
+      "offset": 104961,
+      "size": 3,
+      "kind": "code",
+      "name": "TYPES $31 / $32 / $33 (pick-up box, its twin, shop item): handler",
+      "confidence": "confirmed",
+      "cpu_addr": 39409,
+      "sha1": "24a6efcac2a93089907bc78f83c3aa87ee38bb16",
+      "description": "A far call (inline `02 0E 80`) to bank 2 slot `$800F` (-> `$84CB`): the whole behaviour is in bank 2 (see the item objects)."
+    },
+    {
+      "id": "bank6.code_99F7",
+      "offset": 104967,
+      "size": 1,
+      "kind": "code",
+      "name": "Types $31-$33: return",
+      "confidence": "confirmed",
+      "cpu_addr": 39415,
+      "sha1": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "description": "RTS."
+    },
+    {
+      "id": "bank6.code_99F8",
+      "offset": 104968,
+      "size": 19,
+      "kind": "code",
+      "name": "TYPE $34 (A MESSAGE): first frame and set-up",
+      "confidence": "confirmed",
+      "cpu_addr": 39416,
+      "sha1": "6638e07da028e21150f82595db52465b5e6a482d",
+      "description": "Not yet initialised: `JSR $C0AE` (flags `$CA`, no hit points), `$0620,X` := `$0788,X` (the message number the creator left in `$0788`: the dialogue routine `$8471` indexes the pointer table by `$0620`) and `$0788,X` := 0."
+    },
+    {
+      "id": "bank6.code_9A0B",
+      "offset": 104987,
+      "size": 3,
+      "kind": "code",
+      "name": "Type $34: every frame",
+      "confidence": "confirmed",
+      "cpu_addr": 39435,
+      "sha1": "24a6efcac2a93089907bc78f83c3aa87ee38bb16",
+      "description": "A far call (inline `02 08 80`) to bank 2 slot `$8009` (-> `$82C0`): the dialogue display state machine of bank 2 (also the gate banner). Created by the special screens with the message number in `$0788`."
+    },
+    {
+      "id": "bank6.code_9A11",
+      "offset": 104993,
+      "size": 1,
+      "kind": "code",
+      "name": "Type $34: return",
+      "confidence": "confirmed",
+      "cpu_addr": 39441,
+      "sha1": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "description": "RTS."
+    },
+    {
+      "id": "bank6.code_9A12",
+      "offset": 104994,
+      "size": 3,
+      "kind": "code",
+      "name": "TYPE $35 (THE SPECIAL-SCREEN OBJECT): handler",
+      "confidence": "confirmed",
+      "cpu_addr": 39442,
+      "sha1": "24a6efcac2a93089907bc78f83c3aa87ee38bb16",
+      "description": "A far call (inline `05 11 80`) to bank 5 slot `$8012` (-> `$9F22`), described with the special-screen object."
+    },
+    {
+      "id": "bank6.code_9A18",
+      "offset": 105000,
+      "size": 1,
+      "kind": "code",
+      "name": "Type $35: return",
+      "confidence": "confirmed",
+      "cpu_addr": 39448,
+      "sha1": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "description": "RTS."
+    },
+    {
+      "id": "bank6.code_9A19",
+      "offset": 105001,
+      "size": 21,
+      "kind": "code",
+      "name": "TYPE $29 (A FORMATION SPAWNER): first frame",
+      "confidence": "confirmed",
+      "cpu_addr": 39449,
+      "sha1": "cd876f4cc4d88cfcc9feab9f0a28883e7e624cd3",
+      "description": "Not initialised: `JSR $C0AE` (flags `$DA`, no hit points), the countdown `$0698,X` := 1, `JSR $C0F0` (`$F9E9`: a random x, y = 8), y := 0. The spawn script's formation entry `[type|$80][count][interval]` (see the spawn-script entry) puts the type in `$0548`, the count in `$0560` and the interval in `$07A0`."
+    },
+    {
+      "id": "bank6.code_9A2E",
+      "offset": 105022,
+      "size": 6,
+      "kind": "code",
+      "name": "Type $29: spawning allowed?",
+      "confidence": "confirmed",
+      "cpu_addr": 39470,
+      "sha1": "6bf82d34b06a34a49b4d0154bb8cb1d3b9656724",
+      "description": "`$60` bit 3 set (spawning stopped, e.g. by the boss) skips this frame."
+    },
+    {
+      "id": "bank6.code_9A34",
+      "offset": 105028,
+      "size": 5,
+      "kind": "code",
+      "name": "Type $29: the countdown",
+      "confidence": "confirmed",
+      "cpu_addr": 39476,
+      "sha1": "f0cf728c1154068920137f16fe39cb903b6c9f7b",
+      "description": "`$0698,X` is decremented; non-zero returns."
+    },
+    {
+      "id": "bank6.code_9A39",
+      "offset": 105033,
+      "size": 25,
+      "kind": "code",
+      "name": "Type $29: spawn one",
+      "confidence": "confirmed",
+      "cpu_addr": 39481,
+      "sha1": "f2b282ba1a488a48ac0002df4b916bc21aa4d5a0",
+      "description": "The countdown is reloaded from `$07A0`; `JSR $C108` (`$FA5B`) finds the lowest free slot (none: skip this time); `$0548,X` is the child's type, `JSR $C105` (`$FA4B`) makes it at the spawner's position; `$0560,X` (the count) is decremented and at 0 the spawner removes itself."
+    },
+    {
+      "id": "bank6.code_9A52",
+      "offset": 105058,
+      "size": 1,
+      "kind": "code",
+      "name": "Type $29: return",
+      "confidence": "confirmed",
+      "cpu_addr": 39506,
+      "sha1": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "description": "RTS."
+    },
+    {
+      "id": "bank6.code_9A53",
+      "offset": 105059,
+      "size": 9,
+      "kind": "code",
+      "name": "Is the cell under this object blocking? (`$9A53`)",
+      "confidence": "confirmed",
+      "cpu_addr": 39507,
+      "sha1": "0ad03d5fd7f2195ab46f3433e2c62643f4ca5955",
+      "description": "`JSR $8435` (the class under the object), `LDY $6C`, `LDA $8425,Y`, RTS: A non-zero when the class blocks the ship (classes 4-10 and 14). Used by the ground-bound enemies."
+    }
+  ]
+}

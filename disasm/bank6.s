@@ -3784,8 +3784,10 @@ L6_99F1:
 ; Far-call argument at $99F4
         .byte   $02,$0E,$80
 
-; ---- bank6.code_99F7 (code) $99F7-$9A0D, 23 bytes
+; ---- bank6.code_99F7 (code) $99F7-$99F7, 1 bytes
         rts
+
+; ---- bank6.code_99F8 (code) $99F8-$9A0A, 19 bytes
 L6_99F8:
         lda     $0500,X
         bmi     L6_9A0B
@@ -3794,6 +3796,8 @@ L6_99F8:
         sta     $0620,X
         lda     #$00
         sta     $0788,X
+
+; ---- bank6.code_9A0B (code) $9A0B-$9A0D, 3 bytes
 L6_9A0B:
         jsr     L7_C006
 
@@ -3801,8 +3805,10 @@ L6_9A0B:
 ; Far-call argument at $9A0E
         .byte   $02,$08,$80
 
-; ---- bank6.code_9A11 (code) $9A11-$9A14, 4 bytes
+; ---- bank6.code_9A11 (code) $9A11-$9A11, 1 bytes
         rts
+
+; ---- bank6.code_9A12 (code) $9A12-$9A14, 3 bytes
 L6_9A12:
         jsr     L7_C006
 
@@ -3810,8 +3816,10 @@ L6_9A12:
 ; Far-call argument at $9A15
         .byte   $05,$11,$80
 
-; ---- bank6.code_9A18 (code) $9A18-$9ADA, 195 bytes
+; ---- bank6.code_9A18 (code) $9A18-$9A18, 1 bytes
         rts
+
+; ---- bank6.code_9A19 (code) $9A19-$9A2D, 21 bytes
 L6_9A19:
         lda     $0500,X
         bmi     L6_9A2E
@@ -3821,12 +3829,18 @@ L6_9A19:
         jsr     L7_C0F0
         lda     #$00
         sta     $0518,X
+
+; ---- bank6.code_9A2E (code) $9A2E-$9A33, 6 bytes
 L6_9A2E:
         lda     $60
         and     #$08
         bne     L6_9A52
+
+; ---- bank6.code_9A34 (code) $9A34-$9A38, 5 bytes
         dec     $0698,X
         bne     L6_9A52
+
+; ---- bank6.code_9A39 (code) $9A39-$9A51, 25 bytes
         lda     $07A0,X
         sta     $0698,X
         jsr     L7_C108
@@ -3836,13 +3850,19 @@ L6_9A2E:
         dec     $0560,X
         bne     L6_9A52
         jmp     L7_C048
+
+; ---- bank6.code_9A52 (code) $9A52-$9A52, 1 bytes
 L6_9A52:
         rts
+
+; ---- bank6.code_9A53 (code) $9A53-$9A5B, 9 bytes
 L6_9A53:
         jsr     L6_8435
         ldy     $6C
         lda     $8425,Y
         rts
+
+; ---- bank6.code_9A5C (code) $9A5C-$9ADA, 127 bytes
 L6_9A5C:
         lda     $0500,X
         bmi     L6_9AA7

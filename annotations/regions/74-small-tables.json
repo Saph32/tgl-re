@@ -112,28 +112,6 @@
       "description": "$82D0: LDY $51 / LDA $8291,Y -> $0680 and $82D6: LDA $8299,Y -> $0668, in the handler at $82C0. $8291 is the RTS ending the code before, so the reads start at Y = 1. The four tables after ($82A1, $82A9, $82B1, $82B8, also indexed by $51) share one pattern with these: entries 4 and 5 are equal in every one of them when counted from each read base, which says the bases really are the table starts and Y runs 1-7. Which object this is, and so what $51 means when it runs, is NOT established."
     },
     {
-      "id": "bank2.tbl_8588",
-      "offset": 34200,
-      "size": 6,
-      "kind": "data",
-      "name": "Table read by $8573",
-      "confidence": "lead",
-      "cpu_addr": 34184,
-      "sha1": "434c4fb761ad277df74b8bee5504e6f9c8e6647c",
-      "description": "LDA $8577,Y ($8573) -> $8812, with Y from JSR $880C when it returns carry set. $8577 plus the Y reaching data starts here; the extent to the code at $858E is structural and Y's range is NOT established."
-    },
-    {
-      "id": "bank2.tbl_87EC",
-      "offset": 34812,
-      "size": 32,
-      "kind": "data",
-      "name": "Door cells: 8 x [cell][tile][?][exit mask]",
-      "confidence": "confirmed",
-      "cpu_addr": 34796,
-      "sha1": "49bf0ae9003903c27c62c422b0f85162cd994667",
-      "description": "$866E-$86AC walks these with X stepping by 4 to CPX #$20 - eight records, which is exactly this stretch. For each: the terrain nibble of cell byte 0 (packed map at $0400) must be $0E, and byte 3 ANDed with $54 - the room's exit bits from map byte 1 ($80 north, $40 west, $20 east, $10 south) - must be non-zero; then bytes 1 and 2 go to $15 and $17 and the cell is redrawn through $8812. The masks run $80 $80 $40 $40 $20 $20 $10 $10: two door cells per side."
-    },
-    {
       "id": "bank3.tbl_8020",
       "offset": 49200,
       "size": 2,

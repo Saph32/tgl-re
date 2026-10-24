@@ -530,7 +530,7 @@ L2_840D:
 ; Table, 6 bytes (structural extent)
         .byte   $08,$09,$0C,$0D,$0E,$0F
 
-; ---- bank2.code_8429 (code) $8429-$8587, 351 bytes
+; ---- bank2.code_8429 (code) $8429-$84CA, 162 bytes
 L2_8429:
         ldy     #$05
 L2_842B:
@@ -617,28 +617,42 @@ L2_84B1:
         lda     $10
         sta     $19
         rts
+
+; ---- bank2.code_84CB (code) $84CB-$84CF, 5 bytes
 L2_84CB:
         lda     $0500,X
         bmi     L2_8543
+
+; ---- bank2.code_84D0 (code) $84D0-$84DC, 13 bytes
         lda     #$00
         sta     $0668,X
         sta     $07B8,X
         lda     #$31
         sta     $0548,X
+
+; ---- bank2.code_84DD (code) $84DD-$84E1, 5 bytes
         cmp     $0500,X
         bne     L2_84F3
+
+; ---- bank2.code_84E2 (code) $84E2-$84ED, 12 bytes
         inc     $07B8,X
         lda     $30
         and     #$60
         beq     L2_84EE
         inc     $07B8,X
+
+; ---- bank2.code_84EE (code) $84EE-$84F2, 5 bytes
 L2_84EE:
         lda     $55
         sta     $0680,X
+
+; ---- bank2.code_84F3 (code) $84F3-$84F9, 7 bytes
 L2_84F3:
         lda     $0500,X
         cmp     #$33
         bne     L2_8521
+
+; ---- bank2.code_84FA (code) $84FA-$8520, 39 bytes
         lda     #$00
         sta     $07A0,X
         jsr     L7_C0AE
@@ -655,6 +669,8 @@ L2_84F3:
         sta     $19
         jsr     L7_C04E
         jmp     L2_855E
+
+; ---- bank2.code_8521 (code) $8521-$8531, 17 bytes
 L2_8521:
         lda     $56
         cmp     #$FF
@@ -664,6 +680,8 @@ L2_8521:
         jsr     L2_880C
         bcs     L2_8532
         rts
+
+; ---- bank2.code_8532 (code) $8532-$853F, 14 bytes
 L2_8532:
         lda     $07B8,X
         cmp     #$02
@@ -671,21 +689,31 @@ L2_8532:
         lda     #$B1
         sta     $0500,X
         bne     L2_855E
+
+; ---- bank2.code_8540 (code) $8540-$8542, 3 bytes
 L2_8540:
         jsr     L7_C0AE
+
+; ---- bank2.code_8543 (code) $8543-$854A, 8 bytes
 L2_8543:
         jsr     L7_C12C
         bcc     L2_854B
         jmp     L7_C048
+
+; ---- bank2.code_854B (code) $854B-$8552, 8 bytes
 L2_854B:
         lda     $0668,X
         beq     L2_8553
         jmp     L2_85DE
+
+; ---- bank2.code_8553 (code) $8553-$855D, 11 bytes
 L2_8553:
         lda     $0590,X
         beq     L2_855E
         jsr     L7_C0CF
         jmp     L7_C0D2
+
+; ---- bank2.code_855E (code) $855E-$856B, 14 bytes
 L2_855E:
         inc     $0668,X
         lda     #$25
@@ -693,11 +721,15 @@ L2_855E:
         jsr     L2_880C
         tay
         bcc     L2_858E
+
+; ---- bank2.code_856C (code) $856C-$8578, 13 bytes
         jsr     L2_8579
         lda     #$00
         sta     $15
         lda     $8577,Y
         jmp     L2_8812
+
+; ---- bank2.code_8579 (code) $8579-$8587, 15 bytes
 L2_8579:
         lda     $0530,X
         sta     $19
@@ -708,14 +740,16 @@ L2_8579:
         rts
 
 ; ---- bank2.tbl_8588 (data) $8588-$858D, 6 bytes
-; Table read by $8573
+; Drop pictures: indexed by the item id - 20
         .byte   $0C,$0B,$01,$2C,$24,$28
 
-; ---- bank2.code_858E (code) $858E-$8662, 213 bytes
+; ---- bank2.code_858E (code) $858E-$8594, 7 bytes
 L2_858E:
         lda     $0500,X
         cmp     #$B3
         bne     L2_85AF
+
+; ---- bank2.code_8595 (code) $8595-$85AE, 26 bytes
         lda     #$01
         sta     $19
         lda     $0698,X
@@ -730,6 +764,8 @@ L2_858E:
         sta     $18
         lda     $0680,X
         bcc     L2_85BC
+
+; ---- bank2.code_85AF (code) $85AF-$85BB, 13 bytes
 L2_85AF:
         lda     #$15
         sta     $19
@@ -737,11 +773,17 @@ L2_85AF:
         sta     $18
         lda     $0680,X
         sta     $56
+
+; ---- bank2.code_85BC (code) $85BC-$85BE, 3 bytes
 L2_85BC:
         jsr     L2_81B2
+
+; ---- bank2.code_85BF (code) $85BF-$85C5, 7 bytes
         ldy     $07B8,X
         cpy     #$02
         beq     L2_85DE
+
+; ---- bank2.code_85C6 (code) $85C6-$85DD, 24 bytes
         jsr     L2_8579
         lda     $0500,X
         cmp     #$B3
@@ -754,10 +796,14 @@ L2_85D7:
         ldy     #$00
         sty     $15
         jmp     L2_8812
+
+; ---- bank2.code_85DE (code) $85DE-$85E4, 7 bytes
 L2_85DE:
         lda     $0500,X
         cmp     #$B3
         bne     L2_861C
+
+; ---- bank2.code_85E5 (code) $85E5-$85F8, 20 bytes
         lda     $07A0,X
         beq     L2_85F9
         jsr     L2_8579
@@ -766,9 +812,13 @@ L2_85DE:
         lda     #$1C
         jsr     L2_8812
         jmp     L7_C048
+
+; ---- bank2.code_85F9 (code) $85F9-$85FD, 5 bytes
 L2_85F9:
         jsr     L7_C0C3
         bcc     L2_860D
+
+; ---- bank2.code_85FE (code) $85FE-$860C, 15 bytes
         lda     $4C
         sec
         sbc     $0758,X
@@ -776,8 +826,12 @@ L2_85F9:
         lda     $4D
         sbc     $0770,X
         bcs     L2_860E
+
+; ---- bank2.code_860D (code) $860D-$860D, 1 bytes
 L2_860D:
         rts
+
+; ---- bank2.code_860E (code) $860E-$861B, 14 bytes
 L2_860E:
         sta     $4D
         lda     $10
@@ -785,14 +839,20 @@ L2_860E:
         lda     #$00
         jsr     L7_C12F
         jmp     L2_8621
+
+; ---- bank2.code_861C (code) $861C-$8620, 5 bytes
 L2_861C:
         jsr     L7_C0C3
         bcc     L2_860D
+
+; ---- bank2.code_8621 (code) $8621-$8629, 9 bytes
 L2_8621:
         jsr     L2_880C
         bcs     L2_862A
         lda     #$FF
         sta     $56
+
+; ---- bank2.code_862A (code) $862A-$863E, 21 bytes
 L2_862A:
         lda     $07B8,X
         cmp     #$02
@@ -803,6 +863,8 @@ L2_862A:
         lda     #$1C
         sta     $16
         jsr     L7_C11A
+
+; ---- bank2.code_863F (code) $863F-$8649, 11 bytes
 L2_863F:
         txa
         pha
@@ -810,6 +872,8 @@ L2_863F:
         beq     L2_86AE
         cmp     #$01
         beq     L2_8669
+
+; ---- bank2.code_864A (code) $864A-$8662, 25 bytes
         lda     #$60
         sta     $18
         lda     #$50
@@ -826,11 +890,15 @@ L2_863F:
 ; Far-call argument at $8663
         .byte   $01,$05,$80
 
-; ---- bank2.code_8666 (code) $8666-$86BB, 86 bytes
+; ---- bank2.code_8666 (code) $8666-$8668, 3 bytes
         jmp     L2_866E
+
+; ---- bank2.code_8669 (code) $8669-$866D, 5 bytes
 L2_8669:
         lda     $5E
         jsr     L7_C066
+
+; ---- bank2.code_866E (code) $866E-$8683, 22 bytes
 L2_866E:
         ldx     #$00
 L2_8670:
@@ -847,6 +915,8 @@ L2_867E:
         and     #$0F
         cmp     #$0E
         bne     L2_86A5
+
+; ---- bank2.code_8684 (code) $8684-$86A4, 33 bytes
         lda     $87EF,X
         and     $54
         beq     L2_86A5
@@ -863,6 +933,8 @@ L2_867E:
         sta     $19
         lda     #$14
         jsr     L2_8812
+
+; ---- bank2.code_86A5 (code) $86A5-$86AD, 9 bytes
 L2_86A5:
         txa
         clc
@@ -870,12 +942,16 @@ L2_86A5:
         tax
         cpx     #$20
         bne     L2_8670
+
+; ---- bank2.code_86AE (code) $86AE-$86B6, 9 bytes
 L2_86AE:
         pla
         pha
         tax
         lda     $0680,X
         jsr     L2_86BC
+
+; ---- bank2.code_86B7 (code) $86B7-$86BB, 5 bytes
         pla
         tax
         jmp     L7_C048
@@ -1084,7 +1160,7 @@ L2_87B1:
         .byte   $60,$09,$A0,$0F,$70,$17,$30,$75
 
 ; ---- bank2.tbl_87EC (data) $87EC-$880B, 32 bytes
-; Door cells: 8 x [cell][tile][?][exit mask]
+; Gate door cells: 8 x [cell][class][attribute][opening mask]
         .byte   $27,$08,$55,$80,$37,$0A,$00,$80,$71,$08,$55,$40,$72,$0A,$00,$40
         .byte   $7E,$08,$55,$20,$7D,$0A,$00,$20,$B7,$08,$55,$10,$A7,$0A,$00,$10
 
