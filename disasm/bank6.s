@@ -9862,39 +9862,55 @@ L6_B787:
         .byte   $20,$F8,$F9,$20,$20,$FA,$FB,$20,$90,$B0,$D0,$F0,$A0,$C0,$E0,$F1
         .byte   $B4,$B5,$B6,$B7,$C4,$C5,$C6,$C7,$20,$20,$20,$20,$20,$20,$20,$20
 
-; ---- bank6.code_B7BD (code) $B7BD-$B838, 124 bytes
+; ---- bank6.code_B7BD (code) $B7BD-$B7C1, 5 bytes
 L6_B7BD:
         lda     $0500,X
         bmi     L6_B7C8
+
+; ---- bank6.code_B7C2 (code) $B7C2-$B7C7, 6 bytes
         jsr     L7_C0AE
         jsr     L7_C0A2
+
+; ---- bank6.code_B7C8 (code) $B7C8-$B7CE, 7 bytes
 L6_B7C8:
         lda     #$20
         ldy     #$04
         jsr     L7_C0A5
+
+; ---- bank6.code_B7CF (code) $B7CF-$B7D6, 8 bytes
         lda     $0650,X
         cmp     #$20
         bcc     L6_B7D7
 L6_B7D6:
         rts
+
+; ---- bank6.code_B7D7 (code) $B7D7-$B7E1, 11 bytes
 L6_B7D7:
         lda     #$11
         jsr     L7_C039
         bcs     L6_B7D6
         jsr     L7_C03C
         tay
+
+; ---- bank6.code_B7E2 (code) $B7E2-$B7F0, 15 bytes
         lda     #$0E
         sta     $0100,Y
         lda     #$1F
         sta     $0101,Y
         lda     #$D1
         sta     $0102,Y
+
+; ---- bank6.code_B7F1 (code) $B7F1-$B7F7, 7 bytes
         stx     $15
         lda     $0638,X
         sta     $14
+
+; ---- bank6.code_B7F8 (code) $B7F8-$B7FF, 8 bytes
         lda     #$00
         sta     $0109,Y
         sta     $010A,Y
+
+; ---- bank6.code_B800 (code) $B800-$B815, 22 bytes
         tax
         lda     $14
         and     #$02
@@ -9909,14 +9925,22 @@ L6_B809:
         clc
         adc     #$0C
         tax
+
+; ---- bank6.code_B816 (code) $B816-$B819, 4 bytes
 L6_B816:
         lda     #$06
         sta     $17
+
+; ---- bank6.code_B81A (code) $B81A-$B81F, 6 bytes
 L6_B81A:
         lda     $B839,X
         sta     $0103,Y
+
+; ---- bank6.code_B820 (code) $B820-$B825, 6 bytes
         lda     $B83F,X
         sta     $010B,Y
+
+; ---- bank6.code_B826 (code) $B826-$B82F, 10 bytes
         iny
         inx
         lda     $14
@@ -9924,106 +9948,172 @@ L6_B81A:
         beq     L6_B830
         dex
         dex
+
+; ---- bank6.code_B830 (code) $B830-$B833, 4 bytes
 L6_B830:
         dec     $17
         bne     L6_B81A
+
+; ---- bank6.code_B834 (code) $B834-$B838, 5 bytes
         ldx     $15
         jmp     L7_C03F
 
-; ---- bank6.tbl_B839 (data) $B839-$B83E, 6 bytes
-; Table, 6 bytes
-        .byte   $0C,$36,$32,$4A,$66,$3C
+; ---- bank6.tbl_B839 (data) $B839-$B850, 24 bytes
+; Type $7B tile rows: 2 shapes x [6 low-plane bytes][6 high-plane bytes]
+        .byte   $0C,$36,$32,$4A,$66,$3C,$3C,$4E,$4A,$7A,$66,$3C,$30,$6C,$4C,$52
+        .byte   $66,$3C,$3C,$72,$52,$5E,$66,$3C
 
-; ---- bank6.tbl_B83F (data) $B83F-$B850, 18 bytes
-; Table, 18 bytes (structural extent)
-        .byte   $3C,$4E,$4A,$7A,$66,$3C,$30,$6C,$4C,$52,$66,$3C,$3C,$72,$52,$5E
-        .byte   $66,$3C
-
-; ---- bank6.code_B851 (code) $B851-$B901, 177 bytes
+; ---- bank6.code_B851 (code) $B851-$B853, 3 bytes
 L6_B851:
         jsr     L6_BA51
+
+; ---- bank6.code_B854 (code) $B854-$B858, 5 bytes
         lda     $0500,X
         bmi     L6_B890
+
+; ---- bank6.code_B859 (code) $B859-$B85B, 3 bytes
         jsr     L7_C0AE
+
+; ---- bank6.code_B85C (code) $B85C-$B85E, 3 bytes
         ldy     $0500,X
+
+; ---- bank6.code_B85F (code) $B85F-$B864, 6 bytes
         lda     $A8BA,Y
         sta     $0548,X
+
+; ---- bank6.code_B865 (code) $B865-$B86A, 6 bytes
         lda     $B804,Y
         sta     $07B8,X
+
+; ---- bank6.code_B86B (code) $B86B-$B86F, 5 bytes
         lda     #$01
         sta     $07A0,X
+
+; ---- bank6.code_B870 (code) $B870-$B873, 4 bytes
         cpy     #$FF
         beq     L6_B883
+
+; ---- bank6.code_B874 (code) $B874-$B877, 4 bytes
         lda     $70
         beq     L6_B890
+
+; ---- bank6.code_B878 (code) $B878-$B882, 11 bytes
         asl     $0590,X
         asl     $0590,X
         lsr     $07B8,X
         bpl     L6_B890
+
+; ---- bank6.code_B883 (code) $B883-$B885, 3 bytes
 L6_B883:
         jsr     L6_A8C6
+
+; ---- bank6.code_B886 (code) $B886-$B889, 4 bytes
         lda     $70
         beq     L6_B890
+
+; ---- bank6.code_B88A (code) $B88A-$B88F, 6 bytes
         jsr     L7_C165
         lsr     $07B8,X
+
+; ---- bank6.code_B890 (code) $B890-$B892, 3 bytes
 L6_B890:
         ldy     $0500,X
+
+; ---- bank6.code_B893 (code) $B893-$B897, 5 bytes
         dec     $07A0,X
         beq     L6_B89E
+
+; ---- bank6.code_B898 (code) $B898-$B89D, 6 bytes
         cpy     #$FF
         beq     L6_B8E8
         bne     L6_B8BF
+
+; ---- bank6.code_B89E (code) $B89E-$B8A8, 11 bytes
 L6_B89E:
         jsr     L7_C0EA
         and     #$1F
         adc     $07B8,X
         sta     $07A0,X
+
+; ---- bank6.code_B8A9 (code) $B8A9-$B8AC, 4 bytes
         cpy     #$FF
         beq     L6_B8DB
+
+; ---- bank6.code_B8AD (code) $B8AD-$B8B1, 5 bytes
         jsr     L7_C108
         bcs     L6_B8BF
+
+; ---- bank6.code_B8B2 (code) $B8B2-$B8B6, 5 bytes
         lda     #$27
         jsr     L7_C105
+
+; ---- bank6.code_B8B7 (code) $B8B7-$B8B9, 3 bytes
         jsr     L6_AA12
+
+; ---- bank6.code_B8BA (code) $B8BA-$B8BE, 5 bytes
         lda     #$04
         sta     $07A0,Y
+
+; ---- bank6.code_B8BF (code) $B8BF-$B8C1, 3 bytes
 L6_B8BF:
         jsr     L7_C0CF
+
+; ---- bank6.code_B8C2 (code) $B8C2-$B8C4, 3 bytes
         jsr     L7_C0D2
+
+; ---- bank6.code_B8C5 (code) $B8C5-$B8C9, 5 bytes
         lda     $0500,X
         bmi     L6_B8DA
+
+; ---- bank6.code_B8CA (code) $B8CA-$B8D4, 11 bytes
         lda     $0698,X
         cmp     #$31
         lda     #$35
         bcc     L6_B8D5
         lda     #$20
+
+; ---- bank6.code_B8D5 (code) $B8D5-$B8D9, 5 bytes
 L6_B8D5:
         ldy     #$FF
         jmp     L6_AA21
+
+; ---- bank6.code_B8DA (code) $B8DA-$B8DA, 1 bytes
 L6_B8DA:
         rts
+
+; ---- bank6.code_B8DB (code) $B8DB-$B8DF, 5 bytes
 L6_B8DB:
         jsr     L7_C108
         bcs     L6_B8E8
+
+; ---- bank6.code_B8E0 (code) $B8E0-$B8E7, 8 bytes
         lda     #$4E
         jsr     L7_C105
         jsr     L6_AA12
+
+; ---- bank6.code_B8E8 (code) $B8E8-$B8EA, 3 bytes
 L6_B8E8:
         jsr     L7_C0CF
+
+; ---- bank6.code_B8EB (code) $B8EB-$B8F7, 13 bytes
         lda     $70
         bne     L6_B8F5
         jsr     L7_C0D2
         jmp     L6_B8F8
 L6_B8F5:
         jsr     L7_C0D8
+
+; ---- bank6.code_B8F8 (code) $B8F8-$B8FC, 5 bytes
 L6_B8F8:
         lda     $0500,X
         bmi     L6_B8DA
+
+; ---- bank6.code_B8FD (code) $B8FD-$B901, 5 bytes
         lda     #$04
         jmp     L6_A991
 
 ; ---- bank6.tbl_B902 (data) $B902-$B903, 2 bytes
-; Two bytes between two handlers, no reader found
+; Eye shot intervals (types $7E, $7F)
         .byte   $78,$64
 
 ; ---- bank6.code_B904 (code) $B904-$B961, 94 bytes

@@ -61,11 +61,11 @@
       "offset": 112914,
       "size": 2,
       "kind": "data",
-      "name": "Two bytes between two handlers, no reader found",
+      "name": "Eye shot intervals (types $7E, $7F)",
       "confidence": "lead",
       "cpu_addr": 47362,
       "sha1": "7782391677c36f0f0e77363c7ef182e4e75e7669",
-      "description": "78 64 (120, 100). They follow the JMP $A991 that ends the handler at $B8F8-$B901 and precede the handler at $B904. No operand names $B900-$B904 as a table base. LEAD: padding or an unused pair."
+      "description": "`78 64` (120, 100): the interval table `$7E` / `$7F` read as `$B804 + type` after the type has gained bit 7 (`$FE`, `$FF`; `LDA $B804,Y` at `$B865`). **CORRECTION: the earlier text called this 'padding or an unused pair, no reader found'. The reader's base is `$B804`, 254 bytes before the data, so no operand named `$B902`.** Found while reading the eyes (bank 6 `$B851`); see the `69-bank6-objects-7b-7e-7f.json` regions."
     }
   ]
 }

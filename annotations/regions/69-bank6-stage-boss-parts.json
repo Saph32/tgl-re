@@ -615,7 +615,7 @@
       "confidence": "confirmed",
       "cpu_addr": 43519,
       "sha1": "79bf5f9f9bfe885b8f21bb59da0d983302294432",
-      "description": "`C0 C1 C2 C3 / C4 C5 C6 C7 / C4 C5 C6 C7 / C8 C9 CA CB`. **No traced code reads it (the blocks used are 0-3): a lead.**"
+      "description": "`C0 C1 C2 C3 / C4 C5 C6 C7 / C4 C5 C6 C7 / C8 C9 CA CB`. **CORRECTION: it is read - by the eye `$7F` (bank 6 `$B8FD`: `LDA #$04 / JMP $A991`) as its rubble block. The earlier 'a lead, no reader' was wrong because the reader passes the block number 4.**"
     },
     {
       "id": "bank6.code_AA0F",
