@@ -281,11 +281,11 @@
       "offset": 105241,
       "size": 6,
       "kind": "code",
-      "name": "Unreferenced fragment after the animation",
+      "name": "Flip bit 6 of the palette when (`$41` AND A) = 0 (`$9B09`)",
       "confidence": "confirmed",
       "cpu_addr": 39689,
       "sha1": "5cfe92f708a0f7064d5465396eb058411db0778c",
-      "description": "`AND $41 / BEQ $9B00 / BNE $9B08` - nothing jumps here (a lead: probably a left-over flicker test)."
+      "description": "`AND $41 / BEQ $9B00 / BNE $9B08`: enters the flip at `$9B00` (palette bit 6 toggled, the horizontal flip) when the frame counter ANDed with A is 0. **CORRECTION: this was listed as an unreferenced fragment. It has one caller, `JSR $9B09` at `$9D9E` (A = 3), in the `$1D`-`$1F` handler's branch for type `$73`; no dispatch entry sends type `$73` there, so the call is never made.**"
     },
     {
       "id": "bank6.code_9B0F",
