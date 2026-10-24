@@ -189,50 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_BBBB",
-      "offset": 113611,
-      "size": 4,
-      "kind": "data",
-      "name": "Tile rectangle 2 x 2",
-      "confidence": "confirmed",
-      "cpu_addr": 48059,
-      "sha1": "0a0de3a8b5f1714e78a223d5677fbb4a460394df",
-      "description": "$BAB8-$BAC7: width $15 = height $14 = 2, $16/$17 = $BBBB, JSR $C07E."
-    },
-    {
-      "id": "bank6.tbl_BBBF",
-      "offset": 113615,
-      "size": 24,
-      "kind": "data",
-      "name": "Tile rectangle 6 x 4 (or its first 3 rows)",
-      "confidence": "confirmed",
-      "cpu_addr": 48063,
-      "sha1": "884da303f24eaa3fa08e99e861498e4f851f1091",
-      "description": "$BB80-$BB8F: height $14 = 3 or 4, width $15 = 6, $16/$17 = $BBBF, JSR $C07E. 6 x 4 = 24 bytes, ending exactly where the next rectangle begins."
-    },
-    {
-      "id": "bank6.tbl_BBD7",
-      "offset": 113639,
-      "size": 12,
-      "kind": "data",
-      "name": "Tile rectangle 6 x 2",
-      "confidence": "confirmed",
-      "cpu_addr": 48087,
-      "sha1": "dc86821b94d03865f4926f2861d3b9f5655da05e",
-      "description": "$BAEA: JSR $BB80 (which leaves $15 = 6; $D99C counts in $11 and does not touch $15), then height $14 = 2, $16/$17 = $BBD7, JMP $C07E. 12 bytes, ending exactly where $BBE3's reads begin."
-    },
-    {
-      "id": "bank6.tbl_BBE3",
-      "offset": 113651,
-      "size": 9,
-      "kind": "data",
-      "name": "Table indexed by $B9, the scroll speed high byte",
-      "confidence": "lead",
-      "cpu_addr": 48099,
-      "sha1": "dd69c1fbfbf2b0234fafe625bd58ba8e8238ce17",
-      "description": "LDY $B9 / LDA $BBE3,Y -> $07D0 at $BA95 (an object using metasprite $1A). $B8/$B9 is the corridor scroll speed (bank 7 $E68F-$E69B step it by 2). Values 64 96 C8 FA FA FA FA FA FA = 100, 150, 200, then 250. The extent runs to the code at $BBEC; the range of $B9 is NOT established."
-    },
-    {
       "id": "bank6.tbl_BEAE",
       "offset": 114366,
       "size": 3,
