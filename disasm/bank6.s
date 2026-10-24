@@ -269,7 +269,7 @@ L6_824E:
 ; Far-call argument at $826A
         .byte   $00,$0E,$80
 
-; ---- bank6.code_826D (code) $826D-$8424, 440 bytes
+; ---- bank6.code_826D (code) $826D-$8292, 38 bytes
 L6_826D:
         lda     $0758,X
         clc
@@ -287,6 +287,8 @@ L6_826D:
         lda     $0530,X
         adc     $0608,X
         sta     $19
+
+; ---- bank6.code_8293 (code) $8293-$82AD, 27 bytes
         lda     #$00
         sta     $6F
         lda     $17
@@ -300,6 +302,8 @@ L6_826D:
         bne     L6_82AE
         lda     #$80
         sta     $6F
+
+; ---- bank6.code_82AE (code) $82AE-$82CD, 32 bytes
 L6_82AE:
         lda     $19
         and     #$F0
@@ -316,6 +320,8 @@ L6_82AE:
         lda     #$00
         sta     $6C
         jmp     L6_840C
+
+; ---- bank6.code_82CE (code) $82CE-$82F1, 36 bytes
 L6_82CE:
         lda     $10
         lsr     A
@@ -342,10 +348,14 @@ L6_82E8:
         lda     #$09
 L6_82F0:
         sta     $6C
+
+; ---- bank6.code_82F2 (code) $82F2-$82FA, 9 bytes
         bit     $6F
         bvc     L6_82FB
         lda     $6C
         jmp     L6_8317
+
+; ---- bank6.code_82FB (code) $82FB-$8316, 28 bytes
 L6_82FB:
         lda     $0530,X
         lsr     A
@@ -366,12 +376,16 @@ L6_830F:
         cpy     #$60
         bcc     L6_8317
         lda     #$09
+
+; ---- bank6.code_8317 (code) $8317-$8321, 11 bytes
 L6_8317:
         sta     $6D
         bit     $6F
         bpl     L6_8322
         lda     $6C
         jmp     L6_8345
+
+; ---- bank6.code_8322 (code) $8322-$8344, 35 bytes
 L6_8322:
         lda     $0518,X
         clc
@@ -394,6 +408,8 @@ L6_833D:
         cpy     #$60
         bcc     L6_8345
         lda     #$09
+
+; ---- bank6.code_8345 (code) $8345-$8354, 16 bytes
 L6_8345:
         sta     $6E
         ldy     $6C
@@ -402,13 +418,19 @@ L6_8345:
         ldy     $6D
         lda     $8425,Y
         sta     $11
+
+; ---- bank6.code_8355 (code) $8355-$835B, 7 bytes
         lda     $6E
         lda     $8425,Y
         sta     $12
+
+; ---- bank6.code_835C (code) $835C-$8364, 9 bytes
         ora     $11
         ora     $10
         bne     L6_8365
         jmp     L6_840C
+
+; ---- bank6.code_8365 (code) $8365-$8384, 32 bytes
 L6_8365:
         lda     $05D8,X
         bmi     L6_8375
@@ -426,6 +448,8 @@ L6_837E:
         sec
         sbc     $06B0,X
         sta     $0518,X
+
+; ---- bank6.code_8385 (code) $8385-$8398, 20 bytes
         lda     $0608,X
         bmi     L6_8391
         lda     $0530,X
@@ -436,6 +460,8 @@ L6_8391:
         and     #$F0
 L6_8396:
         sta     $0530,X
+
+; ---- bank6.code_8399 (code) $8399-$83A6, 14 bytes
         bit     $6F
         bvc     L6_83A7
         lda     $10
@@ -444,6 +470,8 @@ L6_83A1:
         jmp     L6_840C
 L6_83A4:
         jmp     L6_8415
+
+; ---- bank6.code_83A7 (code) $83A7-$83B8, 18 bytes
 L6_83A7:
         bpl     L6_83B9
         lda     $10
@@ -454,6 +482,8 @@ L6_83AD:
         sbc     $06B0,X
         sta     $0518,X
         jmp     L6_841A
+
+; ---- bank6.code_83B9 (code) $83B9-$83DF, 39 bytes
 L6_83B9:
         lda     $0518,X
         clc
@@ -477,11 +507,15 @@ L6_83CE:
 L6_83DC:
         cmp     $13
         bne     L6_83EA
+
+; ---- bank6.code_83E0 (code) $83E0-$83E9, 10 bytes
         lda     $11
         bne     L6_83F6
         lda     $12
         bne     L6_8406
         beq     L6_841A
+
+; ---- bank6.code_83EA (code) $83EA-$83FB, 18 bytes
 L6_83EA:
         bcs     L6_83FC
         lda     $11
@@ -493,6 +527,8 @@ L6_83F6:
         lda     $12
         beq     L6_8415
         bne     L6_841A
+
+; ---- bank6.code_83FC (code) $83FC-$840B, 16 bytes
 L6_83FC:
         lda     $12
         bne     L6_8406
@@ -503,14 +539,20 @@ L6_8406:
         lda     $11
         beq     L6_83AD
         bne     L6_841A
+
+; ---- bank6.code_840C (code) $840C-$8414, 9 bytes
 L6_840C:
         lda     $17
         sec
         sbc     $06B0,X
         sta     $0518,X
+
+; ---- bank6.code_8415 (code) $8415-$8419, 5 bytes
 L6_8415:
         lda     $19
         sta     $0530,X
+
+; ---- bank6.code_841A (code) $841A-$8424, 11 bytes
 L6_841A:
         lda     $16
         sta     $0758,X
@@ -519,7 +561,7 @@ L6_841A:
         rts
 
 ; ---- bank6.tbl_8425 (data) $8425-$8434, 16 bytes
-; Table, 16 bytes (structural extent)
+; Blocking by cell class: 16 x 0/1
         .byte   $00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$00,$00,$00,$01,$00
 
 ; ---- bank6.code_8435 (code) $8435-$8470, 60 bytes

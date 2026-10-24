@@ -1,0 +1,258 @@
+{
+  "_comment": "Hand-authored. Bank 6 $826D-$8434: the move with wall sliding and the blocking table. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank6.code_826D",
+      "offset": 98941,
+      "size": 38,
+      "kind": "code",
+      "name": "Move: the new position",
+      "confidence": "confirmed",
+      "cpu_addr": 33389,
+      "sha1": "dc662d8cef789f02bbd03cc75654c1c3842f3aaf",
+      "description": "MOVE WITH WALLS (slot `$8009`; X = the object, normally the player in the labyrinth): `$16` := y fraction `$0758` + y speed fraction `$05C0`; `$17` := y `$0518` + y speed `$05D8` + carry + the foot offset `$06B0` (8): the probe y, i.e. where the ship's feet would be; `$18` := x fraction `$0770` + `$05F0`; `$19` := x `$0530` + x speed `$0608` + carry. Nothing is stored yet. RUN: 1,500 random states (random class maps, positions and velocities) on the model equalled an independent model of this reading in every output."
+    },
+    {
+      "id": "bank6.code_8293",
+      "offset": 98979,
+      "size": 27,
+      "kind": "code",
+      "name": "Move: same cell row?",
+      "confidence": "confirmed",
+      "cpu_addr": 33427,
+      "sha1": "64e04d7d73cd9dc85a2a80dd5395d33234752cb8",
+      "description": "`$6F` := 0. The row of the new probe y (`$17 AND $F0`) against the row of the old one (`$0518 + $06B0`, same mask): equal sets `$6F` bit 7 (the move stays inside one cell row)."
+    },
+    {
+      "id": "bank6.code_82AE",
+      "offset": 99006,
+      "size": 32,
+      "kind": "code",
+      "name": "Move: same cell column? Then nothing to check",
+      "confidence": "confirmed",
+      "cpu_addr": 33454,
+      "sha1": "b3461bbd88c8b213669193a1403f55ecbaefc7eb",
+      "description": "The column of the new x against the old one: equal sets `$6F` bit 6. Both set (`$6F` = `$C0`): the ship stays in its cell, `$6C` := 0 and the move is accepted at `$840C`."
+    },
+    {
+      "id": "bank6.code_82CE",
+      "offset": 99038,
+      "size": 36,
+      "kind": "code",
+      "name": "Move: the class of the target cell (`$6C`)",
+      "confidence": "confirmed",
+      "cpu_addr": 33486,
+      "sha1": "dff377d585a46d98f843a53b5a4712ad5ecec9df",
+      "description": "The class map `$0400-$045F` is 8 bytes a cell row, two cells a byte: index = (probe y AND `$F0`) / 2 + new column / 2, the high nibble for an even column and the low for an odd one. An index of `$60` or more (below the 12 rows of the room) reads as class 9. `$6C` := the class of (new row, new column): the diagonal cell. (The same lookup is repeated three times in this routine.)"
+    },
+    {
+      "id": "bank6.code_82F2",
+      "offset": 99074,
+      "size": 9,
+      "kind": "code",
+      "name": "Move: column unchanged",
+      "confidence": "confirmed",
+      "cpu_addr": 33522,
+      "sha1": "deec664c8bab751ada97bfae64351c0d83fbd09b",
+      "description": "`$6F` bit 6 set (the ship stayed in its column) copies `$6C` to `$6D` (`JMP $8317`); the cell straight above or below is the diagonal cell."
+    },
+    {
+      "id": "bank6.code_82FB",
+      "offset": 99083,
+      "size": 28,
+      "kind": "code",
+      "name": "Move: the class of the y-step cell (`$6D`)",
+      "confidence": "confirmed",
+      "cpu_addr": 33531,
+      "sha1": "c7a62f68915772353a3d844bbcba8e71142a82ec",
+      "description": "(new row, OLD column): the cell reached by moving in y only. The old x is shifted down five bits to the byte index (the last bit shifted out is the column's low bit)."
+    },
+    {
+      "id": "bank6.code_8317",
+      "offset": 99111,
+      "size": 11,
+      "kind": "code",
+      "name": "Move: row unchanged",
+      "confidence": "confirmed",
+      "cpu_addr": 33559,
+      "sha1": "627768d8e53f0585c1455611b384b102605f0ab7",
+      "description": "`$6D` stored. `$6F` bit 7 set (same row) copies `$6C` to `$6E` (`JMP $8345`)."
+    },
+    {
+      "id": "bank6.code_8322",
+      "offset": 99122,
+      "size": 35,
+      "kind": "code",
+      "name": "Move: the class of the x-step cell (`$6E`)",
+      "confidence": "confirmed",
+      "cpu_addr": 33570,
+      "sha1": "08177d4622ac1de13980556c8c72492ad50d3e0c",
+      "description": "(OLD row, new column): the cell reached by moving in x only."
+    },
+    {
+      "id": "bank6.code_8345",
+      "offset": 99157,
+      "size": 16,
+      "kind": "code",
+      "name": "Move: which of them block",
+      "confidence": "confirmed",
+      "cpu_addr": 33605,
+      "sha1": "66128e6474aaa3c8c0fb9ffeade20f78fc5fa37c",
+      "description": "`$6E` stored. `$10` := `$8425[$6C]`, `$11` := `$8425[$6D]`: 1 where the class blocks the ship (classes 4-10 and 14; the table is below)."
+    },
+    {
+      "id": "bank6.code_8355",
+      "offset": 99173,
+      "size": 7,
+      "kind": "code",
+      "name": "Move: `$12` - the x-step cell is NOT consulted",
+      "confidence": "confirmed",
+      "cpu_addr": 33621,
+      "sha1": "99adc41515eae00d57aa154c8bdad58be832876a",
+      "description": "The code does `LDA $6E` and then `LDA $8425,Y` with Y still holding `$6D`: there is no `TAY`, so the loaded `$6E` is thrown away and `$12` := `$8425[$6D]`, a copy of `$11`. It looks like a missed instruction. **Effect, measured:** a model that reads `$8425[$6E]` here disagreed with the real routine in 9 of 1,500 random states; the model that copies `$11` agreed in all of them. So a move where only the x-step cell blocks is judged as if it were free in x."
+    },
+    {
+      "id": "bank6.code_835C",
+      "offset": 99180,
+      "size": 9,
+      "kind": "code",
+      "name": "Move: free? accept",
+      "confidence": "confirmed",
+      "cpu_addr": 33628,
+      "sha1": "378f492d7372697438f0a019a135ae050ebe4d7d",
+      "description": "`$10 OR $11 OR $12` all zero: no cell in the way, accept the whole move at `$840C`."
+    },
+    {
+      "id": "bank6.code_8365",
+      "offset": 99189,
+      "size": 32,
+      "kind": "code",
+      "name": "Move: blocked - snap y to the cell edge",
+      "confidence": "confirmed",
+      "cpu_addr": 33637,
+      "sha1": "de84ba3e4da7e6da1b8104490dafe500be477888",
+      "description": "Y speed non-negative (bit 7 clear, which includes 0): y := ((y + foot) OR `$0F`) - foot, the bottom edge of the cell; negative: ((y + foot) AND `$F0`) - foot, the top edge. Stored in `$0518` at once."
+    },
+    {
+      "id": "bank6.code_8385",
+      "offset": 99221,
+      "size": 20,
+      "kind": "code",
+      "name": "Move: blocked - snap x to the cell edge",
+      "confidence": "confirmed",
+      "cpu_addr": 33669,
+      "sha1": "824ef4be963e56fa861f1f9f3ca6395dff1f4dba",
+      "description": "X speed non-negative: x OR `$0F`, else x AND `$F0`, stored in `$0530`."
+    },
+    {
+      "id": "bank6.code_8399",
+      "offset": 99241,
+      "size": 14,
+      "kind": "code",
+      "name": "Move: blocked, same column (vertical move)",
+      "confidence": "confirmed",
+      "cpu_addr": 33689,
+      "sha1": "e89ab22f62d89b3bde2d8996454788b579bc8dcb",
+      "description": "`$6F` bit 6: the diagonal cell `$10` blocked leaves y snapped and takes only the new x (`$8415`); free accepts all (`$840C`)."
+    },
+    {
+      "id": "bank6.code_83A7",
+      "offset": 99255,
+      "size": 18,
+      "kind": "code",
+      "name": "Move: blocked, same row (horizontal move)",
+      "confidence": "confirmed",
+      "cpu_addr": 33703,
+      "sha1": "e7975e8529355c42331a3b22a52b09e83bf63d86",
+      "description": "`$6F` bit 7: `$10` clear accepts all; blocked takes the new y (it stays in the row) and keeps x snapped."
+    },
+    {
+      "id": "bank6.code_83B9",
+      "offset": 99273,
+      "size": 39,
+      "kind": "code",
+      "name": "Move: blocked, a diagonal crossing: which axis moved further",
+      "confidence": "confirmed",
+      "cpu_addr": 33721,
+      "sha1": "5656ad58a1f69b29423558bc97a6d5872d6d8117",
+      "description": "Both row and column changed. `$13` := |probe y - snapped y - foot| and A := |new x - snapped x| (measured from the already snapped position), compared."
+    },
+    {
+      "id": "bank6.code_83E0",
+      "offset": 99312,
+      "size": 10,
+      "kind": "code",
+      "name": "Move: a diagonal crossing, equal distances",
+      "confidence": "confirmed",
+      "cpu_addr": 33760,
+      "sha1": "957c91b4f6c78a07393dae70e018a4cbc468edc9",
+      "description": "`$11` set: x only if `$12` is clear, else neither. `$11` clear: y only if `$12` is set, else neither."
+    },
+    {
+      "id": "bank6.code_83EA",
+      "offset": 99322,
+      "size": 18,
+      "kind": "code",
+      "name": "Move: a diagonal crossing, y moved further",
+      "confidence": "confirmed",
+      "cpu_addr": 33770,
+      "sha1": "8ba12facf7cbb4ff211f213d3d54b93fa4595e2e",
+      "description": "`$11` set: x only if `$12` clear, else neither. `$11` clear: y only if the diagonal `$10` blocks, else everything."
+    },
+    {
+      "id": "bank6.code_83FC",
+      "offset": 99340,
+      "size": 16,
+      "kind": "code",
+      "name": "Move: a diagonal crossing, x moved further",
+      "confidence": "confirmed",
+      "cpu_addr": 33788,
+      "sha1": "c74f706be565202eb03d4a78916e5f0ec19c23fa",
+      "description": "`$12` set: y only if `$11` clear, else neither. `$12` clear: x only if `$10` blocks, else everything."
+    },
+    {
+      "id": "bank6.code_840C",
+      "offset": 99356,
+      "size": 9,
+      "kind": "code",
+      "name": "Move: commit y",
+      "confidence": "confirmed",
+      "cpu_addr": 33804,
+      "sha1": "747a0bacad39d677bb100bc2c516995f119c195c",
+      "description": "`$0518` := `$17` - foot (the new y). 'Everything' and 'y only' arrive here or at `$83AD`."
+    },
+    {
+      "id": "bank6.code_8415",
+      "offset": 99365,
+      "size": 5,
+      "kind": "code",
+      "name": "Move: commit x",
+      "confidence": "confirmed",
+      "cpu_addr": 33813,
+      "sha1": "4fc2691c7fd089a1e82906a9b9514312a8e32614",
+      "description": "`$0530` := `$19` (the new x)."
+    },
+    {
+      "id": "bank6.code_841A",
+      "offset": 99370,
+      "size": 11,
+      "kind": "code",
+      "name": "Move: commit the fractions",
+      "confidence": "confirmed",
+      "cpu_addr": 33818,
+      "sha1": "07a53594f2655d0d701e5f88991302ca62ac88aa",
+      "description": "`$0758` := `$16` and `$0770` := `$18` in every case, including a blocked move: only the whole-pixel position is held back, the sub-pixel parts always advance. RTS. Outputs for the callers: `$6C` diagonal class, `$6D` y-step class, `$6E` x-step class, `$6F` bit 7 same row, bit 6 same column."
+    },
+    {
+      "id": "bank6.tbl_8425",
+      "offset": 99381,
+      "size": 16,
+      "kind": "data",
+      "name": "Blocking by cell class: 16 x 0/1",
+      "confidence": "confirmed",
+      "cpu_addr": 33829,
+      "sha1": "c258e3c0b4eff2c1c1defd8b45c40b0676f9bfb2",
+      "description": "`00 00 00 00 01 01 01 01 01 01 01 00 00 00 01 00`: classes 4-10 and 14 stop the ship (the breakable and solid blocks and the key-door cover, per the cell-class notes); 0-3, 11-13 and 15 do not."
+    }
+  ]
+}
