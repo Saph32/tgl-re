@@ -826,7 +826,7 @@ L2_863F:
 ; Far-call argument at $8663
         .byte   $01,$05,$80
 
-; ---- bank2.code_8666 (code) $8666-$87BA, 341 bytes
+; ---- bank2.code_8666 (code) $8666-$86BB, 86 bytes
         jmp     L2_866E
 L2_8669:
         lda     $5E
@@ -879,10 +879,14 @@ L2_86AE:
         pla
         tax
         jmp     L7_C048
+
+; ---- bank2.code_86BC (code) $86BC-$86C1, 6 bytes
 L2_86BC:
         sta     $10
         cmp     #$0B
         bcs     L2_8711
+
+; ---- bank2.code_86C2 (code) $86C2-$86CC, 11 bytes
         ldy     #$FF
         sec
 L2_86C5:
@@ -891,10 +895,14 @@ L2_86C5:
         bcs     L2_86C5
         adc     #$04
         tax
+
+; ---- bank2.code_86CD (code) $86CD-$86D7, 11 bytes
         lda     $04AC,Y
         and     $87C6,X
         cmp     $87C6,X
         bne     L2_86EA
+
+; ---- bank2.code_86D8 (code) $86D8-$86E9, 18 bytes
         lda     $4D
         adc     #$07
         bcc     L2_86E0
@@ -904,10 +912,14 @@ L2_86E0:
         lda     #$D4
         jsr     L7_C12F
         jmp     L2_8706
+
+; ---- bank2.code_86EA (code) $86EA-$86F2, 9 bytes
 L2_86EA:
         lda     $04AC,Y
         adc     $87CA,X
         sta     $04AC,Y
+
+; ---- bank2.code_86F3 (code) $86F3-$8705, 19 bytes
 L2_86F3:
         lda     $10
         pha
@@ -919,15 +931,23 @@ L2_86F3:
         cmp     $3C
         bne     L2_8706
         jsr     L7_C069
+
+; ---- bank2.code_8706 (code) $8706-$870A, 5 bytes
 L2_8706:
         lda     #$35
         jsr     L7_C030
+
+; ---- bank2.code_870B (code) $870B-$870F, 5 bytes
 L2_870B:
         lda     #$10
 L2_870D:
         jmp     L7_C00C
+
+; ---- bank2.code_8710 (code) $8710-$8710, 1 bytes
 L2_8710:
         rts
+
+; ---- bank2.code_8711 (code) $8711-$8729, 25 bytes
 L2_8711:
         bne     L2_872A
         lda     $04AE
@@ -941,6 +961,8 @@ L2_8711:
 L2_8725:
         sta     $04AF
         bne     L2_86F3
+
+; ---- bank2.code_872A (code) $872A-$8736, 13 bytes
 L2_872A:
         tay
         lda     $87AF,Y
@@ -949,26 +971,38 @@ L2_872A:
 L2_8733:
         cpy     #$0D
         bcs     L2_873E
+
+; ---- bank2.code_8737 (code) $8737-$873D, 7 bytes
         lda     $47
         sta     $48
         jmp     L2_8710
+
+; ---- bank2.code_873E (code) $873E-$8745, 8 bytes
 L2_873E:
         bne     L2_8746
         jsr     L7_C033
         jmp     L2_870B
+
+; ---- bank2.code_8746 (code) $8746-$874D, 8 bytes
 L2_8746:
         cpy     #$0F
         bcs     L2_874E
         inc     $4A
         bne     L2_8756
+
+; ---- bank2.code_874E (code) $874E-$8755, 8 bytes
 L2_874E:
         bne     L2_875C
         lda     $4B
         beq     L2_8756
         inc     $4B
+
+; ---- bank2.code_8756 (code) $8756-$875B, 6 bytes
 L2_8756:
         jsr     L7_C132
         jmp     L2_870B
+
+; ---- bank2.code_875C (code) $875C-$8771, 22 bytes
 L2_875C:
         cpy     #$11
         bcs     L2_8772
@@ -981,6 +1015,8 @@ L2_876A:
         sty     $6B
         jsr     L2_882E
         jmp     L2_870B
+
+; ---- bank2.code_8772 (code) $8772-$8794, 35 bytes
 L2_8772:
         bne     L2_8795
         lda     $46
@@ -999,12 +1035,16 @@ L2_877C:
         lda     #$00
         jsr     L7_C12F
         jmp     L2_870B
+
+; ---- bank2.code_8795 (code) $8795-$87A0, 12 bytes
 L2_8795:
         cpy     #$15
         bcs     L2_87A1
         lda     #$28
         jsr     L7_C00C
         jmp     L2_8710
+
+; ---- bank2.code_87A1 (code) $87A1-$87B0, 16 bytes
 L2_87A1:
         bne     L2_87B1
         inc     $4D
@@ -1014,6 +1054,8 @@ L2_87A9:
         lda     #$F4
         jsr     L7_C12F
         jmp     L2_870B
+
+; ---- bank2.code_87B1 (code) $87B1-$87BA, 10 bytes
 L2_87B1:
         lda     #$0A
         jsr     L7_C12F
@@ -1021,19 +1063,23 @@ L2_87B1:
         jmp     L2_870D
 
 ; ---- bank2.tbl_87BB (data) $87BB-$87C5, 11 bytes
-; Sound played on picking up items 12-22
+; Pick-up sounds for items 12-22
         .byte   $32,$00,$35,$35,$35,$31,$00,$00,$30,$34,$33
 
-; ---- bank2.tbl_87C6 (data) $87C6-$87CD, 8 bytes
-; Weapon level masks and increments
-        .byte   $03,$0C,$30,$C0,$01,$04,$10,$40
+; ---- bank2.tbl_87C6 (data) $87C6-$87C9, 4 bytes
+; Weapon level masks
+        .byte   $03,$0C,$30,$C0
+
+; ---- bank2.tbl_87CA (data) $87CA-$87CD, 4 bytes
+; Weapon level steps
+        .byte   $01,$04,$10,$40
 
 ; ---- bank2.tbl_87CE (data) $87CE-$87D3, 6 bytes
-; Table, 6 bytes
+; Shot delay by fire rate
         .byte   $0C,$05,$04,$03,$02,$01
 
 ; ---- bank2.tbl_87D4 (data) $87D4-$87EB, 24 bytes
-; Chip maximum by level: 12 words
+; CHIP MAX by chip level (12 x 16 bits)
         .byte   $32,$00,$64,$00,$96,$00,$C8,$00,$90,$01,$20,$03,$B0,$04,$40,$06
         .byte   $60,$09,$A0,$0F,$70,$17,$30,$75
 
@@ -1042,14 +1088,18 @@ L2_87B1:
         .byte   $27,$08,$55,$80,$37,$0A,$00,$80,$71,$08,$55,$40,$72,$0A,$00,$40
         .byte   $7E,$08,$55,$20,$7D,$0A,$00,$20,$B7,$08,$55,$10,$A7,$0A,$00,$10
 
-; ---- bank2.code_880C (code) $880C-$881B, 16 bytes
+; ---- bank2.code_880C (code) $880C-$8811, 6 bytes
 L2_880C:
         lda     $0680,X
         cmp     #$14
         rts
+
+; ---- bank2.code_8812 (code) $8812-$8816, 5 bytes
 L2_8812:
         sta     $16
         jmp     L7_C117
+
+; ---- bank2.code_8817 (code) $8817-$881B, 5 bytes
 L2_8817:
         sta     $19
         jsr     L7_C006
@@ -1058,8 +1108,10 @@ L2_8817:
 ; Far-call argument at $881C
         .byte   $01,$02,$80
 
-; ---- bank2.code_881F (code) $881F-$88A5, 135 bytes
+; ---- bank2.code_881F (code) $881F-$881F, 1 bytes
         rts
+
+; ---- bank2.code_8820 (code) $8820-$882D, 14 bytes
 L2_8820:
         lda     $46
         asl     A
@@ -1068,11 +1120,15 @@ L2_8820:
         sta     $4E
         lda     $87D5,Y
         sta     $4F
+
+; ---- bank2.code_882E (code) $882E-$8835, 8 bytes
 L2_882E:
         ldy     $6B
         lda     $87CE,Y
         sta     $39
         rts
+
+; ---- bank2.code_8836 (code) $8836-$88A5, 112 bytes
 L2_8836:
         jsr     L7_C063
         lda     #$00

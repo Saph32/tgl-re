@@ -123,39 +123,6 @@
       "description": "LDA $8577,Y ($8573) -> $8812, with Y from JSR $880C when it returns carry set. $8577 plus the Y reaching data starts here; the extent to the code at $858E is structural and Y's range is NOT established."
     },
     {
-      "id": "bank2.tbl_87BB",
-      "offset": 34763,
-      "size": 11,
-      "kind": "data",
-      "name": "Sound played on picking up items 12-22",
-      "confidence": "confirmed",
-      "cpu_addr": 34747,
-      "sha1": "18118a1faaccf7c8b7e92975e4b9c0f7d025b800",
-      "description": "$872A: TAY / LDA $87AF,Y / BEQ / JSR $C030 (play a sound), with Y the item number, reached only for items 12 and up ($86BE CMP #$0B sends 0-10 to the weapon code and 11, the Enemy Eraser, to $8711). So the bytes read start at $87AF + 12 = $87BB. The branches after it match the manual's item icons: 12 copies max life $47 into $48 (Energy Tank), 13 calls $C033, 14 increments $4A (Gun), 15 increments $4B (Shield). The 11 is structural - it ends where $87C6's reads begin."
-    },
-    {
-      "id": "bank2.tbl_87C6",
-      "offset": 34774,
-      "size": 8,
-      "kind": "data",
-      "name": "Weapon level masks and increments",
-      "confidence": "confirmed",
-      "cpu_addr": 34758,
-      "sha1": "202acbbae04f2f007158a81f911b3be783c9f82d",
-      "description": "$86BC splits weapon w (0-10) into byte Y = w / 4 of $04AC-$04AE and X = w mod 4, then AND/CMP $87C6,X (03 0C 30 C0: that weapon's two level bits - all set means level 3, so the pickup becomes chips instead) and ADC $87CA,X (01 04 10 40: one level). Two 4-byte tables, ending exactly where the next table, $87CE, begins."
-    },
-    {
-      "id": "bank2.tbl_87D4",
-      "offset": 34788,
-      "size": 24,
-      "kind": "data",
-      "name": "Chip maximum by level: 12 words",
-      "confidence": "confirmed",
-      "cpu_addr": 34772,
-      "sha1": "d561ccbb180637a72ce27a38dcb6e5aaba93ed6b",
-      "description": "$8820: LDA $46 / ASL A / TAY / LDA $87D4,Y / STA $4E / LDA $87D5,Y / STA $4F - the chip maximum the status screen prints after CHIP MAX, chosen by the level in $46 (which a password restores from $04A8). Values 50, 100, 150, 200, 400, 800, 1200, 1600, 2400, 4000, 6000, 30000. The manual's Red Lander 'raises Power Chip maximum' - a step up this table. 12 entries, ending where the door records at $87EC begin - a structural bound."
-    },
-    {
       "id": "bank2.tbl_87EC",
       "offset": 34812,
       "size": 32,
