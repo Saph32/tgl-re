@@ -167,17 +167,6 @@
       "description": "Bank 3 $91B8: LDY $51 / LDA $913A,Y -> $71, then (skipped for corridor 21 by CPY #$15 / BEQ) LDA $9151,Y ($91C3) -> $72, the type bank 3 $92E5 spawns for the boss phase and $92EE waits on. Values by corridor 0-22: 06 40 45 2E 46 23 47 06 49 18 19 2D 41 4C 25 24 2F 06 48 4D 26 4D 4F. Corridor 1's $40 is CONFIRMED against hardware: the owner's savestate of the corridor 1 boss fight (Fleepa) has $51 = 1, $72 = $40 and slot 23 of type $C0, drawn exactly as type $40's handler draws it (41/41 sprites). Types $40 and $41 share that handler, so corridor 12's $41 is presumably Fleepa again - a lead. The other entries are not tied to names. The 23 is a structural extent (to the next table), and the last entries may never be read; a LEAD on the extent."
     },
     {
-      "id": "bank3.tbl_950F",
-      "offset": 54559,
-      "size": 3,
-      "kind": "data",
-      "name": "Types $2D-$2F: spawn attributes",
-      "confidence": "confirmed",
-      "cpu_addr": 38159,
-      "sha1": "84cb43105b5dfed22cc3f753c13e81185685eaaa",
-      "description": "$93FA (bank 3 JMP entry $8012) is the handler of types $2D, $2E and $2F - bank 6 $907A is only a far call to it: LDY $0500,X / LDA $94E2,Y ($93FF) -> $0560, the object's attribute byte. $94E2-$950E is the handler's own code, and $94E2 + $2D-$2F lands exactly here: three bytes, ending on the table at $9512. CORRECTION to 'which objects run the handler is NOT established' - found while building the pieced-object composites, where it gives these types their palette."
-    },
-    {
       "id": "bank3.tbl_9673",
       "offset": 54915,
       "size": 19,
