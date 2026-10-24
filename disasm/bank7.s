@@ -7437,7 +7437,7 @@ L7_FDF8:
         .byte   $03,$1A,$60,$08,$17,$F0,$18,$00,$20,$02,$00,$40,$02,$00,$60,$02
         .byte   $1A,$F0,$08,$00,$F0,$08,$00,$10,$08
 
-; ---- bank7.code_FE3D (code) $FE3D-$FF39, 253 bytes
+; ---- bank7.code_FE3D (code) $FE3D-$FE87, 75 bytes
 L7_FE3D:
         lda     #$22
         jsr     L7_FA4B
@@ -7475,6 +7475,8 @@ L7_FE79:
         sta     $05F0,X
         sta     $0608,X
         rts
+
+; ---- bank7.code_FE88 (code) $FE88-$FE95, 14 bytes
 L7_FE88:
         lda     $50
         beq     L7_FE96
@@ -7484,6 +7486,8 @@ L7_FE88:
         cmp     #$03
         beq     L7_FEB0
         bcs     L7_FEB1
+
+; ---- bank7.code_FE96 (code) $FE96-$FEB0, 27 bytes
 L7_FE96:
         tay
 L7_FE97:
@@ -7502,6 +7506,8 @@ L7_FEAB:
         bne     L7_FE97
 L7_FEB0:
         rts
+
+; ---- bank7.code_FEB1 (code) $FEB1-$FECB, 27 bytes
 L7_FEB1:
         tay
 L7_FEB2:
@@ -7519,6 +7525,8 @@ L7_FEC6:
         cpy     #$03
         bne     L7_FEB2
         rts
+
+; ---- bank7.code_FECC (code) $FECC-$FF39, 110 bytes
 L7_FECC:
         lda     #$21
         jsr     L7_D852

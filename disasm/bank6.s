@@ -3184,15 +3184,23 @@ L6_9605:
 ; Far-call argument at $9608
         .byte   $01,$0B,$80
 
-; ---- bank6.code_960B (code) $960B-$96C3, 185 bytes
+; ---- bank6.code_960B (code) $960B-$960B, 1 bytes
         rts
+
+; ---- bank6.code_960C (code) $960C-$9610, 5 bytes
 L6_960C:
         lda     $0500,X
         bmi     L6_9631
+
+; ---- bank6.code_9611 (code) $9611-$9618, 8 bytes
         lda     #$03
         sta     $0698,X
         jsr     L6_963A
+
+; ---- bank6.code_9619 (code) $9619-$961B, 3 bytes
         jsr     L7_C0FC
+
+; ---- bank6.code_961C (code) $961C-$9630, 21 bytes
 L6_961C:
         lda     #$25
         sta     $0548,X
@@ -3202,10 +3210,14 @@ L6_961C:
         sta     $06C8,X
         jsr     L7_C0AE
         jsr     L7_C162
+
+; ---- bank6.code_9631 (code) $9631-$9639, 9 bytes
 L6_9631:
         jsr     L6_9646
         jsr     L7_C0BD
         jmp     L7_C0D5
+
+; ---- bank6.code_963A (code) $963A-$9645, 12 bytes
 L6_963A:
         lda     $4B
         cmp     #$04
@@ -3214,6 +3226,8 @@ L6_963A:
         sta     $0698,X
 L6_9645:
         rts
+
+; ---- bank6.code_9646 (code) $9646-$9666, 33 bytes
 L6_9646:
         jsr     L6_9B53
         lda     $0500,X
@@ -3233,6 +3247,8 @@ L6_9651:
         sta     $0500,X
 L6_9666:
         rts
+
+; ---- bank6.code_9667 (code) $9667-$967C, 22 bytes
 L6_9667:
         lda     $0500,X
         bmi     L6_9631
@@ -3242,6 +3258,8 @@ L6_9667:
         lda     $0788,X
         jsr     L7_C102
         jmp     L6_961C
+
+; ---- bank6.code_967D (code) $967D-$969D, 33 bytes
 L6_967D:
         lda     $0500,X
         bmi     L6_969E
@@ -3255,12 +3273,16 @@ L6_967D:
         lda     #$40
         jsr     L7_C030
         jsr     L7_C0A2
+
+; ---- bank6.code_969E (code) $969E-$96AB, 14 bytes
 L6_969E:
         lda     #$40
         jsr     L6_96AC
         jsr     L6_9646
         jsr     L7_C0C6
         jmp     L7_C0D5
+
+; ---- bank6.code_96AC (code) $96AC-$96C3, 24 bytes
 L6_96AC:
         ldy     #$04
         jsr     L7_C0A5
@@ -3273,27 +3295,33 @@ L6_96AC:
         rts
 
 ; ---- bank6.tbl_96C4 (data) $96C4-$96C7, 4 bytes
-; Table, 4 bytes
+; Shot animation: metasprites
         .byte   $1A,$79,$37,$79
 
 ; ---- bank6.tbl_96C8 (data) $96C8-$96CB, 4 bytes
-; Table, 4 bytes
+; Shot animation: palettes
         .byte   $00,$01,$02,$43
 
 ; ---- bank6.tbl_96CC (data) $96CC-$96CF, 4 bytes
-; Table, 4 bytes (structural extent)
+; Shot animation: tile numbers
         .byte   $F8,$FA,$FC,$FA
 
-; ---- bank6.code_96D0 (code) $96D0-$97AD, 222 bytes
+; ---- bank6.code_96D0 (code) $96D0-$96D4, 5 bytes
 L6_96D0:
         lda     $0500,X
         bmi     L6_972A
+
+; ---- bank6.code_96D5 (code) $96D5-$96D9, 5 bytes
         lda     $0728,X
         beq     L6_96FE
+
+; ---- bank6.code_96DA (code) $96DA-$96E5, 12 bytes
         lda     $07B8,X
         jsr     L7_C0AB
         lda     $07A0,X
         jsr     L6_A1E7
+
+; ---- bank6.code_96E6 (code) $96E6-$96FD, 24 bytes
         asl     $05A8,X
         asl     $0590,X
         lda     $51
@@ -3305,6 +3333,8 @@ L6_96F7:
         lda     #$00
         sta     $0578,X
         beq     L6_9713
+
+; ---- bank6.code_96FE (code) $96FE-$9712, 21 bytes
 L6_96FE:
         jsr     L7_C0AE
         lda     #$25
@@ -3314,6 +3344,8 @@ L6_96FE:
         sta     $07B8,X
         lda     #$8A
         sta     $06C8,X
+
+; ---- bank6.code_9713 (code) $9713-$9729, 23 bytes
 L6_9713:
         jsr     L7_C162
         lda     #$FE
@@ -3323,9 +3355,13 @@ L6_9713:
         sta     $0608,X
         jsr     L7_C0EA
         sta     $05F0,X
+
+; ---- bank6.code_972A (code) $972A-$972E, 5 bytes
 L6_972A:
         lda     #$14
         jsr     L7_C09C
+
+; ---- bank6.code_972F (code) $972F-$9741, 19 bytes
 L6_972F:
         lda     $0578,X
         and     #$04
@@ -3335,6 +3371,8 @@ L6_9739:
         jsr     L7_C08D
         jsr     L7_C0C6
         jmp     L7_C0D5
+
+; ---- bank6.code_9742 (code) $9742-$975E, 29 bytes
 L6_9742:
         lda     $0500,X
         bmi     L6_972F
@@ -3346,6 +3384,8 @@ L6_9742:
         lda     $0788,X
         jsr     L7_C102
         jmp     L6_972F
+
+; ---- bank6.code_975F (code) $975F-$97AD, 79 bytes
 L6_975F:
         lda     $0500,X
         bmi     L6_97B1

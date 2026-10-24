@@ -1,0 +1,258 @@
+{
+  "_comment": "Hand-authored. Bank 6 object handlers: shot types $0B $0C $2A $2B $2C ($960C-$975E). The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank6.code_960C",
+      "offset": 103964,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPES $0B / $0C (ENEMY SHOTS): first frame? (type $0B)",
+      "confidence": "confirmed",
+      "cpu_addr": 38412,
+      "sha1": "b67142bf9388020e0ae9ff98b02b3091f133dd64",
+      "description": "TYPES $0B / $0C (ENEMY SHOTS): `$0B` is aimed at the player when it is made, `$0C` flies in a direction the spawner gave. Stats of both: hit points 1, attack 32, collision flags 4, drawing flags `$13`, dies as type 8; the allocator may take a slot back from them (types `$0B-$0D`). Art blocks `$20` and `$06`, but the shot ignores them: it uses the fixed tile `$8A`."
+    },
+    {
+      "id": "bank6.code_9611",
+      "offset": 103969,
+      "size": 8,
+      "kind": "code",
+      "name": "TYPES $0B / $0C (ENEMY SHOTS): speed class",
+      "confidence": "confirmed",
+      "cpu_addr": 38417,
+      "sha1": "2fe2c1baddd02513e334c3c434947e289c435f4e",
+      "description": "`$0698` := 3, then `JSR $963A` raises it to 5 when the player's shield level `$4B` is 4 or more: stronger shield, faster enemy shots."
+    },
+    {
+      "id": "bank6.code_9619",
+      "offset": 103977,
+      "size": 3,
+      "kind": "code",
+      "name": "TYPES $0B / $0C (ENEMY SHOTS): aim",
+      "confidence": "confirmed",
+      "cpu_addr": 38425,
+      "sha1": "2b3c09a3aa870e364a869f7827134fe7c34354ef",
+      "description": "`JSR $C0FC` (`$F85D`): the direction to the player and the velocity. RUN: from (100, 60) toward (200, 150) the shot moved 1 px right and 1 px down every frame."
+    },
+    {
+      "id": "bank6.code_961C",
+      "offset": 103980,
+      "size": 21,
+      "kind": "code",
+      "name": "TYPES $0B / $0C (ENEMY SHOTS): picture and stats",
+      "confidence": "confirmed",
+      "cpu_addr": 38428,
+      "sha1": "c77a9920155de54ba37854e99d0e0ed1d76f63a4",
+      "description": "Metasprite `$25`, palette 0, tile `$06C8` := `$8A`, `JSR $C0AE` (the type's stats), `JSR $C162` (`$FE88`, the area scaling of hit points and attack, below). Shared with type `$0C`."
+    },
+    {
+      "id": "bank6.code_9631",
+      "offset": 104001,
+      "size": 9,
+      "kind": "code",
+      "name": "TYPES $0B / $0C (ENEMY SHOTS): every frame",
+      "confidence": "confirmed",
+      "cpu_addr": 38449,
+      "sha1": "e56ad1ca71491ee8635f0af7fc218a01d6034e13",
+      "description": "`JSR $9646` (move and burst on blocks), `JSR $C0BD` (`$D276`: the hit test, mask 4) and `JMP $C0D5` (`$D2C5`: the consequences)."
+    },
+    {
+      "id": "bank6.code_963A",
+      "offset": 104010,
+      "size": 12,
+      "kind": "code",
+      "name": "Enemy shots: the shield bonus",
+      "confidence": "confirmed",
+      "cpu_addr": 38458,
+      "sha1": "9dc9bb958e041804396ab7a43d61b5181c73a5fb",
+      "description": "`$4B` of 4 or more: `$0698,X` := 5."
+    },
+    {
+      "id": "bank6.code_9646",
+      "offset": 104022,
+      "size": 33,
+      "kind": "code",
+      "name": "Enemy shots: move, and burst on a block",
+      "confidence": "confirmed",
+      "cpu_addr": 38470,
+      "sha1": "7108ba050291aca84d58b9c40ee4109e8b618642",
+      "description": "`JSR $9B53` (`JSR $C08D`: move and draw). If the shot is not initialised it returns from the caller too. Then `JSR $8435` (the class under the shot): a class in the table `$8513` (5-10, 14; the weapon-breakable and solid cells) turns the shot into an explosion (type 8, `$0740` := 0). So enemy shots burst on blocks in the labyrinth; in a corridor the class is always 0."
+    },
+    {
+      "id": "bank6.code_9667",
+      "offset": 104055,
+      "size": 22,
+      "kind": "code",
+      "name": "TYPE $0C: first frame",
+      "confidence": "confirmed",
+      "cpu_addr": 38503,
+      "sha1": "69b77745b93fcb4d2a376d3178fe6f58251e213b",
+      "description": "Speed class 3 (5 with a strong shield), the direction `$0788` set by the spawner into the velocity (`$F8CE`), then the shared `$961C`. RUN: direction 6 moved left and down."
+    },
+    {
+      "id": "bank6.code_967D",
+      "offset": 104077,
+      "size": 33,
+      "kind": "code",
+      "name": "TYPE $2B (AN ANIMATED SHOT): set-up",
+      "confidence": "confirmed",
+      "cpu_addr": 38525,
+      "sha1": "0a1730067eccddaddbacdff2b0e3b45c47c87f66",
+      "description": "Stats and area scaling, class 4 (5 with a strong shield), the direction `$0788` into the velocity, sound `$40`, `JSR $C0A2`. Stats: hit points 1, attack 32, collision flags 0, drawing flags `$13`, art block 0 (it uses fixed tiles)."
+    },
+    {
+      "id": "bank6.code_969E",
+      "offset": 104110,
+      "size": 14,
+      "kind": "code",
+      "name": "TYPE $2B (AN ANIMATED SHOT): every frame",
+      "confidence": "confirmed",
+      "cpu_addr": 38558,
+      "sha1": "3eec470ae53d31858e9124c7f79aad6805cbce25",
+      "description": "The four-phase animation (`$96AC`, step `$40`), `JSR $9646` (move; bursts on blocks), `JSR $C0C6` (`$D294`, hit test, mask `$30`), `JMP $C0D5`."
+    },
+    {
+      "id": "bank6.code_96AC",
+      "offset": 104124,
+      "size": 24,
+      "kind": "code",
+      "name": "TYPE $2B (AN ANIMATED SHOT): the animation",
+      "confidence": "confirmed",
+      "cpu_addr": 38572,
+      "sha1": "245a920e13473f5aa27698605f29808b441ee758",
+      "description": "`JSR $C0A5` over 4 phases: metasprite `$96C4[phase]` (`1A 79 37 79`), palette `$96C8[phase]` (`00 01 02 43`), tile `$06C8` := `$96CC[phase]` (`F8 FA FC FA`, absolute tile numbers). RUN: metasprites 26, 55, 121 and palettes 0, 2, 67 over the first frames."
+    },
+    {
+      "id": "bank6.tbl_96C4",
+      "offset": 104148,
+      "size": 4,
+      "kind": "data",
+      "name": "Shot animation: metasprites",
+      "confidence": "confirmed",
+      "cpu_addr": 38596,
+      "sha1": "7054c90682f14f29924c6000aa4b24ee290b4771",
+      "description": "`1A 79 37 79`."
+    },
+    {
+      "id": "bank6.tbl_96C8",
+      "offset": 104152,
+      "size": 4,
+      "kind": "data",
+      "name": "Shot animation: palettes",
+      "confidence": "confirmed",
+      "cpu_addr": 38600,
+      "sha1": "fa46e85ae69a1cea5351e7fad70ebf48521f75fc",
+      "description": "`00 01 02 43`."
+    },
+    {
+      "id": "bank6.tbl_96CC",
+      "offset": 104156,
+      "size": 4,
+      "kind": "data",
+      "name": "Shot animation: tile numbers",
+      "confidence": "confirmed",
+      "cpu_addr": 38604,
+      "sha1": "230c83475c66f22675205b5ef5bc3c8d571ef229",
+      "description": "`F8 FA FC FA`."
+    },
+    {
+      "id": "bank6.code_96D0",
+      "offset": 104160,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): first frame?",
+      "confidence": "confirmed",
+      "cpu_addr": 38608,
+      "sha1": "17ab80f5fce11820a5d13da5b140bfb3a844f242",
+      "description": "TYPE $2A (A LOBBED FRAGMENT): bit 7 set goes to the spring (`$972A`). Stats: hit points 4, attack 16, collision flags 4, drawing flags `$13`, dies as type 8."
+    },
+    {
+      "id": "bank6.code_96D5",
+      "offset": 104165,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): which variant",
+      "confidence": "confirmed",
+      "cpu_addr": 38613,
+      "sha1": "858162fb9770981c1e70c8b50ff3966f78dbd423",
+      "description": "`$0728` (the hit box's bottom edge) zero at creation takes the plain form (`$96FE`); non-zero takes the form with art of its own. Only the first was seen made in a game; the second I made by setting `$0728` by hand."
+    },
+    {
+      "id": "bank6.code_96DA",
+      "offset": 104170,
+      "size": 12,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): variant with its own art",
+      "confidence": "confirmed",
+      "cpu_addr": 38618,
+      "sha1": "90d6ebbc231ccf7b0de37ff170422a9f74efefd8",
+      "description": "`$07B8` is the tile block (`$C0AB`) and `$07A0` the tile offset (`$A1E7`)."
+    },
+    {
+      "id": "bank6.code_96E6",
+      "offset": 104182,
+      "size": 24,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): variant: tougher",
+      "confidence": "confirmed",
+      "cpu_addr": 38630,
+      "sha1": "371205e988cea89910ced986f13e38266ebbe680",
+      "description": "Attack and hit points doubled; in corridor `$16` the hit points are `$FF`; collision flags := 0 (it can be hit by anything). RUN: attack 16 -> 32 and hit points 4 -> 8."
+    },
+    {
+      "id": "bank6.code_96FE",
+      "offset": 104206,
+      "size": 21,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): plain variant",
+      "confidence": "confirmed",
+      "cpu_addr": 38654,
+      "sha1": "3a5caa00a34c1630ad0fc9d6552f1413b3564ce6",
+      "description": "Stats, metasprite `$25`, palette 0, `$07B8` := 0, tile `$8A`."
+    },
+    {
+      "id": "bank6.code_9713",
+      "offset": 104227,
+      "size": 23,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): the throw",
+      "confidence": "confirmed",
+      "cpu_addr": 38675,
+      "sha1": "571211eecaef1a78aacee55b0a2777db1e77a1e4",
+      "description": "Area scaling (`$C162`), y speed `$05D8` := `$FE` (-2, up) and the y target `$0668` := `$FE`, the x speed `$0608` := `$0788` (the spawner's value), a random x fraction `$05F0`."
+    },
+    {
+      "id": "bank6.code_972A",
+      "offset": 104250,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $2A (A LOBBED FRAGMENT): gravity",
+      "confidence": "confirmed",
+      "cpu_addr": 38698,
+      "sha1": "e552218d9cc2a17edda41f8b1671d59bf4fdb95e",
+      "description": "`JSR $C09C` with A = `$14`: the y speed is pulled toward the target by 20/256 a frame. RUN: it rose from y 58 to 36 and fell, moving 3 px a frame sideways, and left the screen by frame 60."
+    },
+    {
+      "id": "bank6.code_972F",
+      "offset": 104255,
+      "size": 19,
+      "kind": "code",
+      "name": "Shared shot tail (types $2A and $2C)",
+      "confidence": "confirmed",
+      "cpu_addr": 38703,
+      "sha1": "ff823aa279880cd07543d2c378ceea07a0a3692e",
+      "description": "Collision flags bit 2 set: only the drawing and the bursting (`$9631`). Otherwise `JSR $C08D` (move and draw), `JSR $C0C6` (hit test, mask `$30`), `JMP $C0D5`."
+    },
+    {
+      "id": "bank6.code_9742",
+      "offset": 104274,
+      "size": 29,
+      "kind": "code",
+      "name": "TYPE $2C (A SLOW DROPPING OBJECT; the Clawbot's arms): all of it",
+      "confidence": "confirmed",
+      "cpu_addr": 38722,
+      "sha1": "a2465cfbb8f4ddd48e60d2fbfadc83f6acf7a850",
+      "description": "First frame: `$07B8` is the tile block (`$C0AB`), area scaling, `$07A0` the tile offset, `$0788` the direction into the velocity (`$F8CE`; with the speed class 0 the velocity is left as the creator set it); then every frame the shared tail `$972F`. Stats: hit points 16, attack 16, drawing flags `$1F`, dies as type 8. The Clawbot makes two with flags `$52`, `$07B8` = `$2A`, hit points `$FF` and a y speed of `$30`/256: RUN: they sank 0.19 px a frame (96 -> 126 in 160 frames), their hit points ticking down only when something hit them."
+    }
+  ]
+}

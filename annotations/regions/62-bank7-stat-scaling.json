@@ -1,0 +1,38 @@
+{
+  "_comment": "Hand-authored. Bank 7 $FE88-$FECB: the enemy stat scaling by area. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank7.code_FE88",
+      "offset": 130712,
+      "size": 14,
+      "kind": "code",
+      "name": "Difficulty scaling (slot $C162): start",
+      "confidence": "confirmed",
+      "cpu_addr": 65160,
+      "sha1": "97a6bafa4f1f51e32f5e54aee33297ded6e2c75d",
+      "description": "ENEMY STAT SCALING BY AREA (slot `$C162`, called by most enemy handlers when they are made): `$50` is the labyrinth area, or in a corridor the corridor folded onto 1-10. `$50` = 0 goes to the three halvings; otherwise A := (`$50` + 1) / 2 (1 for areas 1-2, 2 for 3-4, 3 for 5-6, 4 for 7-8, 5 for 9-10)."
+    },
+    {
+      "id": "bank7.code_FE96",
+      "offset": 130726,
+      "size": 27,
+      "kind": "code",
+      "name": "Difficulty scaling: halve",
+      "confidence": "confirmed",
+      "cpu_addr": 65174,
+      "sha1": "8c1365e634bd8507dc5420676963654ad1d9db13",
+      "description": "Y := A (0 for area 0), then three minus A times: attack `$05A8,X` and hit points `$0590,X` are halved (never below 1). A = 3 returns unchanged (`$FEB0`); A of 4 or more goes to the doubling. RUN: from (64, 64): area 0 -> 8, areas 1-2 -> 16, areas 3-4 -> 32."
+    },
+    {
+      "id": "bank7.code_FEB1",
+      "offset": 130753,
+      "size": 27,
+      "kind": "code",
+      "name": "Difficulty scaling: double",
+      "confidence": "confirmed",
+      "cpu_addr": 65201,
+      "sha1": "8b4272340987a29542d470133259d93eb1c09e7d",
+      "description": "A - 3 times: attack and hit points are doubled, capped at `$FF`. RUN: areas 5-6 -> 64 (unchanged), 7-8 -> 128, 9-10 -> 255 (4 times, capped). So an enemy's strength runs 1/8, 1/4, 1/2, 1, 2, 4 times its table value across the areas."
+    }
+  ]
+}
