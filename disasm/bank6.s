@@ -3862,42 +3862,70 @@ L6_9A53:
         lda     $8425,Y
         rts
 
-; ---- bank6.code_9A5C (code) $9A5C-$9ADA, 127 bytes
+; ---- bank6.code_9A5C (code) $9A5C-$9A60, 5 bytes
 L6_9A5C:
         lda     $0500,X
         bmi     L6_9AA7
+
+; ---- bank6.code_9A61 (code) $9A61-$9A65, 5 bytes
         lda     $0728,X
         bne     L6_9A71
+
+; ---- bank6.code_9A66 (code) $9A66-$9A70, 11 bytes
         jsr     L7_C0F3
         jsr     L6_9A53
         beq     L6_9A71
         jmp     L6_9B17
+
+; ---- bank6.code_9A71 (code) $9A71-$9A73, 3 bytes
 L6_9A71:
         jsr     L7_C0A8
+
+; ---- bank6.code_9A74 (code) $9A74-$9A78, 5 bytes
         lda     #$01
         sta     $0680,X
+
+; ---- bank6.code_9A79 (code) $9A79-$9A7B, 3 bytes
         jsr     L7_C0A2
+
+; ---- bank6.code_9A7C (code) $9A7C-$9A80, 5 bytes
         lda     #$3C
         sta     $0548,X
+
+; ---- bank6.code_9A81 (code) $9A81-$9A83, 3 bytes
         jsr     L6_9B0F
+
+; ---- bank6.code_9A84 (code) $9A84-$9A8F, 12 bytes
         lda     $9ADB,Y
         sta     $0560,X
         lda     $9AE1,Y
         sta     $0698,X
+
+; ---- bank6.code_9A90 (code) $9A90-$9A9B, 12 bytes
         lda     $9AE7,Y
         sta     $0668,X
         lda     $9AED,Y
         sta     $05A8,X
+
+; ---- bank6.code_9A9C (code) $9A9C-$9AA1, 6 bytes
         lda     $9AF3,Y
         sta     $0590,X
+
+; ---- bank6.code_9AA2 (code) $9AA2-$9AA6, 5 bytes
         lda     #$28
         sta     $0788,X
+
+; ---- bank6.code_9AA7 (code) $9AA7-$9AAE, 8 bytes
 L6_9AA7:
         jsr     L7_C009
         lda     #$40
         jsr     L6_9AF9
+
+; ---- bank6.code_9AAF (code) $9AAF-$9AB3, 5 bytes
         dec     $0680,X
         bne     L6_9AC6
+
+; ---- bank6.code_9AB4 (code) $9AB4-$9AC5, 18 bytes
         jsr     L7_C0EA
         tay
         and     #$3F
@@ -3906,38 +3934,46 @@ L6_9AA7:
         tya
         and     #$0F
         jsr     L7_C102
+
+; ---- bank6.code_9AC6 (code) $9AC6-$9AC8, 3 bytes
 L6_9AC6:
         jsr     L6_9B2A
+
+; ---- bank6.code_9AC9 (code) $9AC9-$9AD4, 12 bytes
         ldy     $6C
         lda     $8425,Y
         beq     L6_9AD5
         lda     #$01
         sta     $0680,X
+
+; ---- bank6.code_9AD5 (code) $9AD5-$9AD7, 3 bytes
 L6_9AD5:
         jsr     L7_C0C6
+
+; ---- bank6.code_9AD8 (code) $9AD8-$9ADA, 3 bytes
         jmp     L7_C0D2
 
 ; ---- bank6.tbl_9ADB (data) $9ADB-$9AE0, 6 bytes
-; Table, 6 bytes
+; Type $0E palette by area tier
         .byte   $00,$00,$00,$01,$02,$03
 
 ; ---- bank6.tbl_9AE1 (data) $9AE1-$9AE6, 6 bytes
-; Table, 6 bytes
+; Type $0E speed class by area tier
         .byte   $01,$02,$02,$02,$03,$41
 
 ; ---- bank6.tbl_9AE7 (data) $9AE7-$9AEC, 6 bytes
-; Table, 6 bytes
+; Type $0E turn interval by area tier
         .byte   $40,$30,$20,$20,$10,$08
 
 ; ---- bank6.tbl_9AED (data) $9AED-$9AF2, 6 bytes
-; Table, 6 bytes
+; Types $0E and $0F attack by area tier
         .byte   $04,$08,$10,$20,$30,$50
 
 ; ---- bank6.tbl_9AF3 (data) $9AF3-$9AF8, 6 bytes
-; Table, 6 bytes (structural extent)
+; Types $0E and $0F hit points by area tier
         .byte   $01,$02,$06,$0C,$18,$30
 
-; ---- bank6.code_9AF9 (code) $9AF9-$9C0C, 276 bytes
+; ---- bank6.code_9AF9 (code) $9AF9-$9B08, 16 bytes
 L6_9AF9:
         ldy     #$01
         jsr     L7_C0A5
@@ -3948,10 +3984,14 @@ L6_9B00:
         sta     $0560,X
 L6_9B08:
         rts
+
+; ---- bank6.code_9B09 (code) $9B09-$9B0E, 6 bytes
 L6_9B09:
         and     $41
         beq     L6_9B00
         bne     L6_9B08
+
+; ---- bank6.code_9B0F (code) $9B0F-$9B16, 8 bytes
 L6_9B0F:
         lda     $50
         clc
@@ -3959,6 +3999,8 @@ L6_9B0F:
         lsr     A
         tay
         rts
+
+; ---- bank6.code_9B17 (code) $9B17-$9B29, 19 bytes
 L6_9B17:
         lda     $0620,X
         pha
@@ -3970,11 +4012,15 @@ L6_9B17:
         sta     $0500,X
 L6_9B29:
         rts
+
+; ---- bank6.code_9B2A (code) $9B2A-$9B33, 10 bytes
 L6_9B2A:
         bit     $30
         bvs     L6_9B34
         jsr     L6_826D
         jmp     L7_C090
+
+; ---- bank6.code_9B34 (code) $9B34-$9B47, 20 bytes
 L6_9B34:
         lda     #$00
         sta     $6C
@@ -3986,6 +4032,8 @@ L6_9B34:
         pla
         pla
         bcs     L6_9B17
+
+; ---- bank6.code_9B48 (code) $9B48-$9B52, 11 bytes
 L6_9B48:
         jsr     L6_9B53
         lda     $0500,X
@@ -3994,35 +4042,57 @@ L6_9B48:
         pla
 L6_9B52:
         rts
+
+; ---- bank6.code_9B53 (code) $9B53-$9B56, 4 bytes
 L6_9B53:
         jsr     L7_C08D
         rts
+
+; ---- bank6.code_9B57 (code) $9B57-$9B5B, 5 bytes
 L6_9B57:
         lda     $0500,X
         bmi     L6_9BA9
+
+; ---- bank6.code_9B5C (code) $9B5C-$9B60, 5 bytes
         lda     $0728,X
         bne     L6_9B6C
+
+; ---- bank6.code_9B61 (code) $9B61-$9B6B, 11 bytes
         jsr     L7_C0F3
         jsr     L6_9A53
         beq     L6_9B6C
         jmp     L6_9B17
+
+; ---- bank6.code_9B6C (code) $9B6C-$9B6E, 3 bytes
 L6_9B6C:
         jsr     L7_C0A8
+
+; ---- bank6.code_9B6F (code) $9B6F-$9B78, 10 bytes
         lda     #$03
         sta     $0698,X
         lda     #$37
         sta     $0548,X
+
+; ---- bank6.code_9B79 (code) $9B79-$9B7B, 3 bytes
         jsr     L6_9B0F
+
+; ---- bank6.code_9B7C (code) $9B7C-$9B87, 12 bytes
         lda     $9C0D,Y
         sta     $0560,X
         lda     $9C13,Y
         sta     $07A0,X
+
+; ---- bank6.code_9B88 (code) $9B88-$9B90, 9 bytes
         lda     $9AED,Y
         lsr     A
         ora     #$01
         sta     $05A8,X
+
+; ---- bank6.code_9B91 (code) $9B91-$9B96, 6 bytes
         lda     $9AF3,Y
         sta     $0590,X
+
+; ---- bank6.code_9B97 (code) $9B97-$9BA8, 18 bytes
 L6_9B97:
         lda     #$28
         sta     $0788,X
@@ -4031,15 +4101,23 @@ L6_9B97:
         jsr     L7_C0A2
         lda     #$00
         sta     $0680,X
+
+; ---- bank6.code_9BA9 (code) $9BA9-$9BAB, 3 bytes
 L6_9BA9:
         jsr     L7_C009
+
+; ---- bank6.code_9BAC (code) $9BAC-$9BB0, 5 bytes
         dec     $0668,X
         bne     L6_9BDF
+
+; ---- bank6.code_9BB1 (code) $9BB1-$9BBC, 12 bytes
         inc     $0680,X
         lda     $0680,X
         and     #$03
         sta     $0680,X
         tay
+
+; ---- bank6.code_9BBD (code) $9BBD-$9BC9, 13 bytes
         bne     L6_9BC4
         lda     $07A0,X
         bne     L6_9BC7
@@ -4047,8 +4125,12 @@ L6_9BC4:
         lda     $9C19,Y
 L6_9BC7:
         sta     $0668,X
+
+; ---- bank6.code_9BCA (code) $9BCA-$9BCD, 4 bytes
         cpy     #$02
         bne     L6_9BDF
+
+; ---- bank6.code_9BCE (code) $9BCE-$9BDE, 17 bytes
         jsr     L7_C0FF
         sta     $15
         jsr     L7_C0EA
@@ -4056,6 +4138,8 @@ L6_9BC7:
         adc     $15
         and     #$0C
         jsr     L7_C102
+
+; ---- bank6.code_9BDF (code) $9BDF-$9BF6, 24 bytes
 L6_9BDF:
         lda     $0680,X
         beq     L6_9BF7
@@ -4068,28 +4152,34 @@ L6_9BDF:
         tya
         asl     A
         jsr     L6_A1E7
+
+; ---- bank6.code_9BF7 (code) $9BF7-$9C03, 13 bytes
 L6_9BF7:
         lda     $0680,X
         cmp     #$02
         beq     L6_9C04
         jsr     L7_C090
         jmp     L6_9C07
+
+; ---- bank6.code_9C04 (code) $9C04-$9C06, 3 bytes
 L6_9C04:
         jsr     L6_9B2A
+
+; ---- bank6.code_9C07 (code) $9C07-$9C0C, 6 bytes
 L6_9C07:
         jsr     L7_C0C6
         jmp     L7_C0D2
 
 ; ---- bank6.tbl_9C0D (data) $9C0D-$9C12, 6 bytes
-; Table, 6 bytes
+; Type $0F palette by area tier
         .byte   $02,$01,$01,$02,$03,$00
 
 ; ---- bank6.tbl_9C13 (data) $9C13-$9C18, 6 bytes
-; Table, 6 bytes (structural extent)
+; Type $0F rest time by area tier
         .byte   $50,$3C,$28,$14,$0A,$01
 
 ; ---- bank6.tbl_9C19 (data) $9C19-$9C1C, 4 bytes
-; Table, 4 bytes (structural extent)
+; Type $0F phase lengths
         .byte   $50,$28,$14,$14
 
 ; ---- bank6.code_9C1D (code) $9C1D-$9CED, 209 bytes
