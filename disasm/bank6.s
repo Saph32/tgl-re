@@ -1555,12 +1555,14 @@ L6_8A94:
 ; Homing missile turning period by level
         .byte   $08,$04,$01
 
-; ---- bank6.code_8A9A (code) $8A9A-$8ADD, 68 bytes
+; ---- bank6.code_8A9A (code) $8A9A-$8AA3, 10 bytes
 L6_8A9A:
         lda     #$00
         sta     $0668,X
         lda     #$81
         sta     $0680,X
+
+; ---- bank6.code_8AA4 (code) $8AA4-$8AB5, 18 bytes
         ldy     $3D
         lda     $8ADD,Y
         sta     $05D8,X
@@ -1568,16 +1570,26 @@ L6_8A9A:
         sta     $06C8,X
         lda     $8AE3,Y
         pha
+
+; ---- bank6.code_8AB6 (code) $8AB6-$8ABB, 6 bytes
         txa
         tay
         pla
         jsr     L7_C13B
+
+; ---- bank6.code_8ABC (code) $8ABC-$8AC0, 5 bytes
         lda     #$03
         sta     $0620,X
+
+; ---- bank6.code_8AC1 (code) $8AC1-$8AC3, 3 bytes
         jsr     L7_C141
+
+; ---- bank6.code_8AC4 (code) $8AC4-$8AC8, 5 bytes
 L6_8AC4:
         jsr     L7_C129
         bcs     L6_8AF5
+
+; ---- bank6.code_8AC9 (code) $8AC9-$8ADD, 21 bytes
         lda     #$08
         sta     $0578,X
         ldy     $3D
@@ -1589,26 +1601,50 @@ L6_8AC4:
 L6_8ADD:
         rts
 
-; ---- bank6.tbl_8ADE (data) $8ADE-$8AEC, 15 bytes
-; Five 3-byte tables by weapon level ($3D = 1-3)
-        .byte   $FA,$F6,$F8,$76,$76,$02,$00,$03,$06,$01,$00,$00,$18,$38,$3C
+; ---- bank6.tbl_8ADE (data) $8ADE-$8AE0, 3 bytes
+; Hyper Laser y speed by level
+        .byte   $FA,$F6,$F8
 
-; ---- bank6.code_8AED (code) $8AED-$8B6E, 130 bytes
+; ---- bank6.tbl_8AE1 (data) $8AE1-$8AE3, 3 bytes
+; Hyper Laser tile base by level
+        .byte   $76,$76,$02
+
+; ---- bank6.tbl_8AE4 (data) $8AE4-$8AE6, 3 bytes
+; Hyper Laser style record by level
+        .byte   $00,$03,$06
+
+; ---- bank6.tbl_8AE7 (data) $8AE7-$8AE9, 3 bytes
+; Hyper Laser frame mask by level
+        .byte   $01,$00,$00
+
+; ---- bank6.tbl_8AEA (data) $8AEA-$8AEC, 3 bytes
+; Hyper Laser collision flags by level
+        .byte   $18,$38,$3C
+
+; ---- bank6.code_8AED (code) $8AED-$8AF4, 8 bytes
 L6_8AED:
         lda     $F7
         ora     $F8
         and     #$80
         bne     L6_8AF8
+
+; ---- bank6.code_8AF5 (code) $8AF5-$8AF7, 3 bytes
 L6_8AF5:
         jmp     L7_C048
+
+; ---- bank6.code_8AF8 (code) $8AF8-$8B03, 12 bytes
 L6_8AF8:
         lda     $0530
         sta     $0530,X
         lda     $0518
         sta     $0518,X
+
+; ---- bank6.code_8B04 (code) $8B04-$8B0A, 7 bytes
         lda     $0668
         jsr     L6_87E4
         tay
+
+; ---- bank6.code_8B0B (code) $8B0B-$8B1C, 18 bytes
         lda     $3C
         cmp     #$0A
         beq     L6_8B1D
@@ -1620,16 +1656,22 @@ L6_8AF8:
 L6_8B1A:
         and     #$0F
         tay
+
+; ---- bank6.code_8B1D (code) $8B1D-$8B26, 10 bytes
 L6_8B1D:
         lda     $8B6F,Y
         sta     $18
         lda     $8B73,Y
         sta     $19
+
+; ---- bank6.code_8B27 (code) $8B27-$8B30, 10 bytes
         lda     $41
         and     #$01
         beq     L6_8B31
         asl     $19
         asl     $18
+
+; ---- bank6.code_8B31 (code) $8B31-$8B3E, 14 bytes
 L6_8B31:
         bit     $30
         bvc     L6_8B3F
@@ -1638,6 +1680,8 @@ L6_8B31:
         lda     $18
         sbc     #$08
         sta     $18
+
+; ---- bank6.code_8B3F (code) $8B3F-$8B5A, 28 bytes
 L6_8B3F:
         tya
         lsr     A
@@ -1651,6 +1695,8 @@ L6_8B3F:
         and     #$03
         ora     $8B8B,Y
         sta     $0560,X
+
+; ---- bank6.code_8B5B (code) $8B5B-$8B6E, 20 bytes
         lda     $05A8
         asl     A
         ldy     $3D
@@ -1664,27 +1710,24 @@ L6_8B69:
         sta     $05A8,X
         jmp     L6_88C7
 
-; ---- bank6.tbl_8B6F (data) $8B6F-$8B72, 4 bytes
-; Table, 4 bytes
+; ---- bank6.tbl_8B6F (data) $8B6F-$8B82, 20 bytes
+; Blade offsets: a sine of 16 entries, read at two phases
+        .byte   $00,$06,$0B,$0F,$10,$0F,$0B,$06,$00,$FA,$F5,$F1,$F0,$F1,$F5,$FA
         .byte   $00,$06,$0B,$0F
 
-; ---- bank6.tbl_8B73 (data) $8B73-$8B82, 16 bytes
-; Table, 16 bytes (structural extent)
-        .byte   $10,$0F,$0B,$06,$00,$FA,$F5,$F1,$F0,$F1,$F5,$FA,$00,$06,$0B,$0F
-
 ; ---- bank6.tbl_8B83 (data) $8B83-$8B86, 4 bytes
-; Table, 4 bytes
+; Blade metasprites by phase
         .byte   $1A,$79,$37,$79
 
 ; ---- bank6.tbl_8B87 (data) $8B87-$8B8A, 4 bytes
-; Table, 4 bytes
+; Blade tile bases by phase
         .byte   $7C,$7A,$7E,$7A
 
 ; ---- bank6.tbl_8B8B (data) $8B8B-$8B8E, 4 bytes
-; Table, 4 bytes (structural extent)
+; Blade palette / flip by phase
         .byte   $00,$80,$00,$00
 
-; ---- bank6.code_8B8F (code) $8B8F-$8C69, 219 bytes
+; ---- bank6.code_8B8F (code) $8B8F-$8B9E, 16 bytes
 L6_8B8F:
         sta     $10
         lda     $4C
@@ -1695,27 +1738,43 @@ L6_8B8F:
         dec     $4D
 L6_8B9C:
         jmp     L7_C05A
+
+; ---- bank6.code_8B9F (code) $8B9F-$8BA6, 8 bytes
 L6_8B9F:
         lda     $F5
         ora     $F6
         and     #$80
         beq     L6_8BCB
+
+; ---- bank6.code_8BA7 (code) $8BA7-$8BB5, 15 bytes
         lda     #$2F
         jsr     L7_C030
         lda     #$30
         jsr     L7_C0CC
         lda     #$2F
         jsr     L7_C030
+
+; ---- bank6.code_8BB6 (code) $8BB6-$8BBA, 5 bytes
         ldy     #$06
         jsr     L7_C021
+
+; ---- bank6.code_8BBB (code) $8BBB-$8BBD, 3 bytes
         jsr     L6_8BCE
+
+; ---- bank6.code_8BBE (code) $8BBE-$8BC2, 5 bytes
         lda     #$0F
         jsr     L7_C0CC
+
+; ---- bank6.code_8BC3 (code) $8BC3-$8BCA, 8 bytes
         dec     $04AF
         dec     $3E
         jsr     L7_C072
+
+; ---- bank6.code_8BCB (code) $8BCB-$8BCD, 3 bytes
 L6_8BCB:
         jmp     L7_C048
+
+; ---- bank6.code_8BCE (code) $8BCE-$8BEE, 33 bytes
 L6_8BCE:
         ldy     #$05
 L6_8BD0:
@@ -1734,6 +1793,8 @@ L6_8BE9:
         cpy     #$18
         bne     L6_8BD0
         rts
+
+; ---- bank6.code_8BEF (code) $8BEF-$8C69, 123 bytes
 L6_8BEF:
         lda     $0500,X
         bmi     L6_8C1F

@@ -255,17 +255,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_8ADE",
-      "offset": 101102,
-      "size": 15,
-      "kind": "data",
-      "name": "Five 3-byte tables by weapon level ($3D = 1-3)",
-      "confidence": "confirmed",
-      "cpu_addr": 35550,
-      "sha1": "c75bf3dccbf9fe41e3450cbaed3ac35e7c156bd7",
-      "description": "$8AA4: LDY $3D (the selected weapon's level) then LDA $8ADD,Y -> $05D8, $8AE0,Y -> $06C8 (the base tile), $8AE3,Y -> $C13B, and at $8AD0 $8AE6,Y ANDed with $41 and $8AE9,Y -> $0578 (collision flags). Five bases three apart, and Y is 1-3, so each read starts one byte early - $8ADD is the handler's own RTS and is never read as data (level 0 is an unowned weapon, skipped by $FD77). 5 x 3 = 15 bytes, ending exactly on the code at $8AED. The same overlap trick as the weapon stat tables at $8701."
-    },
-    {
       "id": "bank6.tbl_8D68",
       "offset": 101752,
       "size": 8,
