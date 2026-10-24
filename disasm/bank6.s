@@ -5449,89 +5449,157 @@ L6_A1E7:
 ; Bullet flips by quadrant (mode 3 and others)
         .byte   $C0,$80,$00,$40
 
-; ---- bank6.code_A26B (code) $A26B-$A2C3, 89 bytes
+; ---- bank6.code_A26B (code) $A26B-$A26D, 3 bytes
 L6_A26B:
         jmp     L7_C090
+
+; ---- bank6.code_A26E (code) $A26E-$A272, 5 bytes
 L6_A26E:
         ldy     $0500,X
         bmi     L6_A294
+
+; ---- bank6.code_A273 (code) $A273-$A275, 3 bytes
         lda     $A2B0,Y
+
+; ---- bank6.code_A276 (code) $A276-$A277, 2 bytes
         ldy     #$1A
+
+; ---- bank6.code_A278 (code) $A278-$A27A, 3 bytes
         jsr     L6_A302
+
+; ---- bank6.code_A27B (code) $A27B-$A27D, 3 bytes
         jsr     L7_C0A8
+
+; ---- bank6.code_A27E (code) $A27E-$A280, 3 bytes
         jsr     L7_C0F3
+
+; ---- bank6.code_A281 (code) $A281-$A283, 3 bytes
         jsr     L7_C0A2
+
+; ---- bank6.code_A284 (code) $A284-$A288, 5 bytes
         ldy     $0500,X
         cpy     #$94
+
+; ---- bank6.code_A289 (code) $A289-$A28A, 2 bytes
         bne     L6_A291
+
+; ---- bank6.code_A28B (code) $A28B-$A28D, 3 bytes
         jsr     L6_A2D0
+
+; ---- bank6.code_A28E (code) $A28E-$A290, 3 bytes
         jmp     L6_A294
+
+; ---- bank6.code_A291 (code) $A291-$A293, 3 bytes
 L6_A291:
         jsr     L6_A2E8
+
+; ---- bank6.code_A294 (code) $A294-$A296, 3 bytes
 L6_A294:
         jsr     L7_C009
+
+; ---- bank6.code_A297 (code) $A297-$A298, 2 bytes
         lda     #$10
+
+; ---- bank6.code_A299 (code) $A299-$A29D, 5 bytes
         ldy     $0500,X
         cpy     #$94
+
+; ---- bank6.code_A29E (code) $A29E-$A29F, 2 bytes
         bne     L6_A2A6
+
+; ---- bank6.code_A2A0 (code) $A2A0-$A2A2, 3 bytes
         jsr     L7_C09F
+
+; ---- bank6.code_A2A3 (code) $A2A3-$A2A5, 3 bytes
         jmp     L6_A2A9
+
+; ---- bank6.code_A2A6 (code) $A2A6-$A2A8, 3 bytes
 L6_A2A6:
         jsr     L7_C09C
+
+; ---- bank6.code_A2A9 (code) $A2A9-$A2AC, 4 bytes
 L6_A2A9:
         lda     #$40
         ldy     #$05
+
+; ---- bank6.code_A2AD (code) $A2AD-$A2AF, 3 bytes
         jsr     L7_C0A5
+
+; ---- bank6.code_A2B0 (code) $A2B0-$A2B5, 6 bytes
         lda     $A2C6,Y
         sta     $0548,X
+
+; ---- bank6.code_A2B6 (code) $A2B6-$A2C0, 11 bytes
         lda     $0560,X
         and     #$3F
         ora     $A2CB,Y
         sta     $0560,X
+
+; ---- bank6.code_A2C1 (code) $A2C1-$A2C3, 3 bytes
         jmp     L6_A317
 
 ; ---- bank6.tbl_A2C4 (data) $A2C4-$A2C5, 2 bytes
-; Types $14-$15: value for $0548
+; Types $14 / $15 palette
         .byte   $00,$02
 
 ; ---- bank6.tbl_A2C6 (data) $A2C6-$A2CA, 5 bytes
-; Table, 5 bytes
+; Types $14 / $15 metasprite by phase
         .byte   $1A,$1B,$1C,$1C,$1B
 
 ; ---- bank6.tbl_A2CB (data) $A2CB-$A2CF, 5 bytes
-; Table, 5 bytes (structural extent)
+; Types $14 / $15 flip bit by phase
         .byte   $00,$00,$00,$00,$40
 
-; ---- bank6.code_A2D0 (code) $A2D0-$A30E, 63 bytes
+; ---- bank6.code_A2D0 (code) $A2D0-$A2D8, 9 bytes
 L6_A2D0:
         jsr     L7_C0EA
         and     #$1F
         adc     #$30
         sta     $10
+
+; ---- bank6.code_A2D9 (code) $A2D9-$A2DD, 5 bytes
         lda     $0530,X
         bpl     L6_A2E2
+
+; ---- bank6.code_A2DE (code) $A2DE-$A2E1, 4 bytes
         sbc     $10
         bcs     L6_A2E4
+
+; ---- bank6.code_A2E2 (code) $A2E2-$A2E3, 2 bytes
 L6_A2E2:
         adc     $10
+
+; ---- bank6.code_A2E4 (code) $A2E4-$A2E7, 4 bytes
 L6_A2E4:
         sta     $0680,X
         rts
+
+; ---- bank6.code_A2E8 (code) $A2E8-$A2F0, 9 bytes
 L6_A2E8:
         jsr     L7_C0EA
         and     #$1F
         adc     #$20
         sta     $10
+
+; ---- bank6.code_A2F1 (code) $A2F1-$A2F7, 7 bytes
         lda     $0518,X
         cmp     #$60
         bcc     L6_A2FC
+
+; ---- bank6.code_A2F8 (code) $A2F8-$A2FB, 4 bytes
         sbc     $10
         bcs     L6_A2FE
+
+; ---- bank6.code_A2FC (code) $A2FC-$A2FD, 2 bytes
 L6_A2FC:
         adc     $10
+
+; ---- bank6.code_A2FE (code) $A2FE-$A301, 4 bytes
 L6_A2FE:
         sta     $0668,X
         rts
+
+; ---- bank6.code_A302 (code) $A302-$A30E, 13 bytes
 L6_A302:
         sta     $0560,X
         tya
@@ -5546,14 +5614,24 @@ L6_A302:
         sta     $0548,X
         rts
 
-; ---- bank6.code_A317 (code) $A317-$A3D9, 195 bytes
+; ---- bank6.code_A317 (code) $A317-$A319, 3 bytes
 L6_A317:
         jsr     L7_C08D
+
+; ---- bank6.code_A31A (code) $A31A-$A31B, 2 bytes
         bcc     L6_A31F
+
+; ---- bank6.code_A31C (code) $A31C-$A31E, 3 bytes
         jmp     L6_9B17
+
+; ---- bank6.code_A31F (code) $A31F-$A321, 3 bytes
 L6_A31F:
         jsr     L7_C0C6
+
+; ---- bank6.code_A322 (code) $A322-$A324, 3 bytes
         jmp     L7_C0D2
+
+; ---- bank6.code_A325 (code) $A325-$A336, 18 bytes
 L6_A325:
         lda     $0530,X
         cmp     $0530
@@ -5565,6 +5643,8 @@ L6_A333:
         dec     $0530,X
 L6_A336:
         rts
+
+; ---- bank6.code_A337 (code) $A337-$A348, 18 bytes
 L6_A337:
         lda     $0518,X
         cmp     $0518
@@ -5575,6 +5655,8 @@ L6_A337:
 L6_A345:
         dec     $0518,X
         rts
+
+; ---- bank6.code_A349 (code) $A349-$A3D9, 145 bytes
 L6_A349:
         ldy     $0500,X
         bmi     L6_A373
