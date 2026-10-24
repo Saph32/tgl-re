@@ -21,6 +21,13 @@
       "publisher": "Stated in conversation, 2026-09",
       "form": "Knowledge of how the game plays, given while supplying savestates.",
       "notes": "Recorded like any other outside source: a lead until the ROM backs it."
+    },
+    {
+      "id": "gamefaqs-cheats",
+      "title": "GameFAQs cheats page for The Guardian Legend (NES)",
+      "publisher": "gamefaqs.gamespot.com, pasted into the conversation by the project owner on 2026-10-24 (the page itself returned 403 to the fetch tool)",
+      "form": "A player-contributed cheat entry.",
+      "notes": "A lead until the ROM backs it."
     }
   ],
   "facts": [
@@ -310,6 +317,16 @@
       "claim": "The game gives a health bonus when the score reaches certain values, for example 500,000 (the owner first wrote 50,000 and then corrected it to 500,000).",
       "status": "confirmed",
       "rom": "The bonus is real: bank 7 $DF3D, called after every score add ($DFB1), compares the top three score digits ($0170-$0172, tens-scale: $0172 is 10,000) with a threshold held in $017C-$017E and, when the score is at or above it, plays song $31 and adds 8 to maximum life $47 (capped $FF), refilling $48 ($DF8C-$DFAA, then the HUD, $E424). ADDED LATER: the same routine ($DF8C) first refills the chips to CHIP MAX ($4C/$4D := $4E/$4F, then adds 0 through $FCE7) - run: chips 10 with max 500 gave 500 - and the Energy Tank item (13) calls it too, so both give the chip refill as well; the first reading above had missed it. It is NOT a table: bank 0 $80A5-$80B3 sets the threshold to (0,0,3), and $DF3D then steps it - (0,0,3) -> (0,1,0) -> (0,5,0) -> (1,0,0) -> +1 in $017C each time. So the scores are 30,000, 100,000, 500,000, 1,000,000 and every further 1,000,000; 500,000 is the third of them - the owner's example, once corrected, matches. Checked by calling the real routine at chosen scores on the NES model (tgl/cpu.py): +8 life at exactly 30,000, 100,000, 500,000, 1,000,000, 2,000,000, 3,000,000 and at none of 10,000, 29,990, 99,990, 499,990, 999,990, 1,999,990. Not awarded in a demo ($30 bit 7, $DFBC); no jingle when $30 bit 2 is set ($DF80); a score overflow sets all digits to 9 and $017C to $FF, which ends the awards."
+    },
+    {
+      "id": "wall-walk-glitch",
+      "source": "gamefaqs-cheats",
+      "pages": "-",
+      "topic": "Movement",
+      "claim": "Almost every vertical barrier inside a level can be walked through: face north-east or north-west, hug the wall while walking up, and when the character stops walk straight into the wall. Horizontal walls are said not to work.",
+      "status": "inconclusive",
+      "rom": "The shape of the report matches a real fault in the movement routine, bank 6 $826D: at $8355 the x-step cell's class is never consulted ($12 is a copy of $11, a missing TAY), and the x-step cell is exactly the one that lies across a VERTICAL wall when the ship moves diagonally; a horizontal wall is judged by the y-step cell, which is read correctly. The routine then lets the ship into the x-step cell when its x movement exceeds its y movement at a diagonal crossing (model: with speeds above about 1.4 px per axis, about half of diagonal walks entered a one-cell wall; with the x-step cell read properly, none). BUT the ship's real diagonal speed is 0.984 px per axis, where x and y movement are equal at a crossing and the model never enters (140,160 one-frame moves from free cells beside a wall: 0), and driving the real player handler on the labyrinth savestate gave no wall entry in about 1,300 runs (hugging the room's solid walls and its one-cell rock columns, diagonal then straight, many sub-pixel phases). So the missing TAY is a candidate ingredient, not shown to produce the glitch; the 'stops' step (what the ship is doing when it stops) and the room it was seen in are unknown, and the cell-event and edge code around $8FB9-$9064 in bank 3 was not searched for a second cause. Not tried on hardware.",
+      "added": "2026-10-24"
     }
   ]
 }
