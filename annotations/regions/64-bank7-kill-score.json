@@ -1,0 +1,27 @@
+{
+  "_comment": "Hand-authored. Bank 7 $DFB1-$E0F8: the kill score routine and its two tables. The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank7.code_DFB1",
+      "offset": 122817,
+      "size": 30,
+      "kind": "code",
+      "name": "KILL SCORE (slot $C02A)",
+      "confidence": "confirmed",
+      "cpu_addr": 57265,
+      "sha1": "64de631dc149d923fdbda18854b33e87919f29a0",
+      "description": "Called by the explosion handler when an enemy dies (X = the explosion, `$0740,X` = the enemy's type). The score class is `$E00D[type]`; when its bit 7 is set (types `$27` and `$2C`) the object's own `$07D0,X` is the class (the bullet kinds' `$A207` values, the Clawbot arms' `$0B`). Nothing in a demo (`$30` bit 7). Otherwise `JSR $DFCF` adds the points, the kill counter `$40` is incremented and the bonus check `$DF3D` runs. RUN: all 127 types: the points added equal the tables (claimed by `parse-enemies.py`: `$E00D` the class per type, `$E08D` the digits). In points, by class: 0, 10, 60, 100, 170, 200, 300, 500, 800, 1000, 2000, 4000, 8000, 10000, 15000, 20000, 30000, 40000. Per type: the player-side and scenery types 1-10, `$28 $29 $30-$35 $77-$79` score nothing; `$0B $0C` 10; `$0D-$11 $1C $2B $62 $6F` 60; `$1B $44 $52 $5F $63` 100; ordinary enemies 170-1000; bosses: Zibzub, Optomon `$2D-$2F`, `$47` and `$4A / $4B` 10,000; `$18 $24 $25 $26 $48` 20,000; `$19 $49` 30,000; `$41 $46` 15,000; `$40 $45 $4D` 8,000; `$4C` 4,000; It (`$4F`) 40,000. The bullet kinds' `$07D0` (`$A207`: 3 5 8 7 8 6 6 6) and the Clawbot arms' `$0B` are therefore SCORE CLASSES - 100 to 800 points a bullet, 4,000 an arm."
+    },
+    {
+      "id": "bank7.code_DFCF",
+      "offset": 122847,
+      "size": 62,
+      "kind": "code",
+      "name": "Add points to the score",
+      "confidence": "confirmed",
+      "cpu_addr": 57295,
+      "sha1": "9c202fe15c0614f18e71dcbf401bfd1bce9b5760",
+      "description": "Class A: Y := 6 x A + 6 into the digit table `$E08D` (six decimal digits a class, most significant first; the score is kept in tens, so the real value is the number x 10). `$017C` bit 7 set (the score has overflowed) returns. The digits are added from the last with a carry (a digit of 10 or more has 10 subtracted). A carry out of the top digit sets the score to 999999 (all 9s), runs the bonus award `$DF8C` once and sets `$017C` := `$FF`."
+    }
+  ]
+}

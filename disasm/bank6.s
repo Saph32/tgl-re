@@ -3385,10 +3385,12 @@ L6_9742:
         jsr     L7_C102
         jmp     L6_972F
 
-; ---- bank6.code_975F (code) $975F-$97AD, 79 bytes
+; ---- bank6.code_975F (code) $975F-$9763, 5 bytes
 L6_975F:
         lda     $0500,X
         bmi     L6_97B1
+
+; ---- bank6.code_9764 (code) $9764-$9779, 22 bytes
         ldy     #$24
         cmp     #$07
         beq     L6_977A
@@ -3400,13 +3402,19 @@ L6_975F:
         bne     L6_977A
         sta     $0578,X
         beq     L6_977E
+
+; ---- bank6.code_977A (code) $977A-$977D, 4 bytes
 L6_977A:
         tya
         jsr     L7_C030
+
+; ---- bank6.code_977E (code) $977E-$9783, 6 bytes
 L6_977E:
         jsr     L7_C0A2
 L6_9781:
         jsr     L7_C02A
+
+; ---- bank6.code_9784 (code) $9784-$9793, 16 bytes
         lda     $0578,X
         and     #$10
         pha
@@ -3414,10 +3422,14 @@ L6_9781:
         pla
         ora     $0578,X
         sta     $0578,X
+
+; ---- bank6.code_9794 (code) $9794-$979E, 11 bytes
         lda     #$00
         sta     $0560,X
         sta     $06C8,X
         sta     $0788,X
+
+; ---- bank6.code_979F (code) $979F-$97AD, 15 bytes
         lda     $0500,X
         cmp     #$88
         bne     L6_97B1
@@ -3429,7 +3441,7 @@ L6_9781:
 ; Far-call argument at $97AE
         .byte   $01,$08,$80
 
-; ---- bank6.code_97B1 (code) $97B1-$98CA, 282 bytes
+; ---- bank6.code_97B1 (code) $97B1-$97BF, 15 bytes
 L6_97B1:
         lda     $0500,X
         cmp     #$87
@@ -3437,6 +3449,8 @@ L6_97B1:
         lda     $0788,X
         beq     L6_97C0
         jmp     L6_9842
+
+; ---- bank6.code_97C0 (code) $97C0-$97D3, 20 bytes
 L6_97C0:
         lda     $0578,X
         and     #$10
@@ -3448,15 +3462,21 @@ L6_97C7:
         bcs     L6_9836
         lda     #$15
         bne     L6_97DF
+
+; ---- bank6.code_97D4 (code) $97D4-$97DE, 11 bytes
 L6_97D4:
         lda     #$60
         ldy     #$10
         jsr     L7_C0A5
         bcs     L6_9836
         lda     #$0F
+
+; ---- bank6.code_97DF (code) $97DF-$97E2, 4 bytes
 L6_97DF:
         sty     $14
         sta     $15
+
+; ---- bank6.code_97E3 (code) $97E3-$9805, 35 bytes
 L6_97E3:
         ldy     $15
         lda     $14
@@ -3474,6 +3494,8 @@ L6_97E3:
         lda     $98E1,Y
         jsr     L6_991F
         bcs     L6_9822
+
+; ---- bank6.code_9806 (code) $9806-$9821, 28 bytes
         sta     $85
         lda     $0518,X
         sta     $17
@@ -3486,6 +3508,8 @@ L6_97E3:
         sta     $87
         lda     $16
         jsr     L7_C093
+
+; ---- bank6.code_9822 (code) $9822-$982C, 11 bytes
 L6_9822:
         dec     $15
         lda     $15
@@ -3493,18 +3517,26 @@ L6_9822:
         cmp     #$0F
         bne     L6_97E3
         rts
+
+; ---- bank6.code_982D (code) $982D-$9835, 9 bytes
 L6_982D:
         lda     #$40
         ldy     #$06
 L6_9831:
         jsr     L7_C0A5
         bcc     L6_9839
+
+; ---- bank6.code_9836 (code) $9836-$9838, 3 bytes
 L6_9836:
         jmp     L7_C048
+
+; ---- bank6.code_9839 (code) $9839-$9841, 9 bytes
 L6_9839:
         lda     $9919,Y
         sta     $0548,X
         jmp     L7_C090
+
+; ---- bank6.code_9842 (code) $9842-$9855, 20 bytes
 L6_9842:
         lda     #$40
         ldy     #$20
@@ -3516,6 +3548,8 @@ L6_984D:
         tya
         jsr     L6_9856
         jmp     L7_C090
+
+; ---- bank6.code_9856 (code) $9856-$9862, 13 bytes
 L6_9856:
         and     #$03
         sta     $0560,X
@@ -3523,6 +3557,8 @@ L6_9856:
         lda     $9915,Y
         sta     $0548,X
         rts
+
+; ---- bank6.code_9863 (code) $9863-$9891, 47 bytes
 L6_9863:
         lda     $B8
         ora     $B9
@@ -3543,6 +3579,8 @@ L6_9863:
         lda     $05D8,X
         bpl     L6_9892
         rts
+
+; ---- bank6.code_9892 (code) $9892-$98CA, 57 bytes
 L6_9892:
         lda     #$32
         sta     $0500,X
@@ -3573,54 +3611,64 @@ L6_98AB:
         jmp     L7_C11A
 
 ; ---- bank6.tbl_98CB (data) $98CB-$98E0, 22 bytes
-; Table, 22 bytes
+; Big explosion: start phase of each piece
         .byte   $00,$00,$01,$01,$01,$01,$02,$02,$02,$03,$03,$03,$03,$03,$04,$04
         .byte   $00,$01,$01,$02,$03,$04
 
 ; ---- bank6.tbl_98E1 (data) $98E1-$98F6, 22 bytes
-; Table, 22 bytes
+; Big explosion: x offset of each piece
         .byte   $FC,$08,$F8,$F6,$06,$04,$0C,$FB,$0A,$F4,$F5,$EA,$18,$07,$F3,$14
         .byte   $00,$08,$F7,$05,$FC,$F6
 
 ; ---- bank6.tbl_98F7 (data) $98F7-$990C, 22 bytes
-; Table, 22 bytes (structural extent)
+; Big explosion: y offset of each piece
         .byte   $FA,$E8,$10,$F0,$02,$19,$F8,$EC,$0C,$06,$E4,$F6,$E6,$F2,$16,$0B
         .byte   $00,$F7,$08,$0C,$F4,$06
 
 ; ---- bank6.tbl_990D (data) $990D-$9914, 8 bytes
-; Table, 8 bytes (structural extent)
+; Big explosion: metasprite by age
         .byte   $30,$30,$31,$31,$32,$32,$33,$33
 
 ; ---- bank6.tbl_9915 (data) $9915-$9918, 4 bytes
-; Table, 4 bytes (structural extent)
+; Explosion: four-picture cycle
         .byte   $30,$31,$32,$31
 
 ; ---- bank6.tbl_9919 (data) $9919-$991E, 6 bytes
-; Table, 6 bytes (structural extent)
+; Small explosion: metasprite by phase
         .byte   $30,$30,$31,$31,$32,$33
 
-; ---- bank6.code_991F (code) $991F-$99C8, 170 bytes
+; ---- bank6.code_991F (code) $991F-$9924, 6 bytes
 L6_991F:
         clc
         bmi     L6_9925
         adc     $17
         rts
+
+; ---- bank6.code_9925 (code) $9925-$992B, 7 bytes
 L6_9925:
         adc     $17
         rol     A
         eor     #$01
         ror     A
         rts
+
+; ---- bank6.code_992C (code) $992C-$9930, 5 bytes
 L6_992C:
         lda     $0500,X
         bmi     L6_994F
+
+; ---- bank6.code_9931 (code) $9931-$993A, 10 bytes
         lda     $0740,X
         bne     L6_993B
         sta     $0578,X
         beq     L6_9940
+
+; ---- bank6.code_993B (code) $993B-$993F, 5 bytes
 L6_993B:
         lda     #$23
         jsr     L7_C030
+
+; ---- bank6.code_9940 (code) $9940-$994E, 15 bytes
 L6_9940:
         jsr     L7_C0A2
         lda     $0518,X
@@ -3628,25 +3676,35 @@ L6_9940:
         adc     $B7
         sta     $0518,X
         jmp     L6_9781
+
+; ---- bank6.code_994F (code) $994F-$9957, 9 bytes
 L6_994F:
         lda     $0518,X
         clc
         adc     $B7
         sta     $0518,X
+
+; ---- bank6.code_9958 (code) $9958-$9961, 10 bytes
         lda     $0578,X
         and     #$10
         beq     L6_9962
         jmp     L6_97C7
+
+; ---- bank6.code_9962 (code) $9962-$9968, 7 bytes
 L6_9962:
         lda     #$80
         ldy     #$06
         jmp     L6_9831
+
+; ---- bank6.code_9969 (code) $9969-$9971, 9 bytes
 L6_9969:
         dec     $0578,X
         beq     L6_996F
         rts
 L6_996F:
         jmp     L7_C048
+
+; ---- bank6.code_9972 (code) $9972-$9987, 22 bytes
 L6_9972:
         lda     $0500,X
         bmi     L6_9988
@@ -3656,19 +3714,29 @@ L6_9972:
         jsr     L7_C0A2
         lda     #$02
         sta     $0560,X
+
+; ---- bank6.code_9988 (code) $9988-$9990, 9 bytes
 L6_9988:
         lda     #$60
         ldy     #$10
         jsr     L7_C0A5
         bcs     L6_996F
+
+; ---- bank6.code_9991 (code) $9991-$999C, 12 bytes
         lda     $99C9,Y
         sta     $0548,X
         lda     $99D9,Y
         sta     $06C8,X
+
+; ---- bank6.code_999D (code) $999D-$999F, 3 bytes
         jsr     L7_C090
+
+; ---- bank6.code_99A0 (code) $99A0-$99A6, 7 bytes
         lda     $0788,X
         and     #$10
         beq     L6_99C8
+
+; ---- bank6.code_99A7 (code) $99A7-$99C7, 33 bytes
         ldy     #$03
 L6_99A9:
         tya
@@ -3687,23 +3755,25 @@ L6_99A9:
         tay
         dey
         bpl     L6_99A9
+
+; ---- bank6.code_99C8 (code) $99C8-$99C8, 1 bytes
 L6_99C8:
         rts
 
 ; ---- bank6.tbl_99C9 (data) $99C9-$99D8, 16 bytes
-; Table, 16 bytes
+; Dissolve: metasprite by phase
         .byte   $79,$79,$79,$79,$79,$79,$79,$79,$79,$79,$79,$79,$37,$37,$37,$37
 
 ; ---- bank6.tbl_99D9 (data) $99D9-$99E8, 16 bytes
-; Table, 16 bytes
+; Dissolve: tile base by phase
         .byte   $01,$03,$01,$03,$01,$03,$01,$03,$01,$03,$05,$07,$09,$0B,$0D,$0F
 
 ; ---- bank6.tbl_99E9 (data) $99E9-$99EC, 4 bytes
-; Table, 4 bytes
+; Dissolve: corner x offsets
         .byte   $F6,$0A,$F6,$0A
 
 ; ---- bank6.tbl_99ED (data) $99ED-$99F0, 4 bytes
-; Table, 4 bytes (structural extent)
+; Dissolve: corner y offsets
         .byte   $F6,$F6,$0A,$0A
 
 ; ---- bank6.code_99F1 (code) $99F1-$99F3, 3 bytes

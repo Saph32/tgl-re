@@ -2889,7 +2889,7 @@ L7_DF8C:
 ; Far-call argument at $DF9E
         .byte   $06,$E6,$FC
 
-; ---- bank7.code_DFA1 (code) $DFA1-$E00C, 108 bytes
+; ---- bank7.code_DFA1 (code) $DFA1-$DFB0, 16 bytes
         lda     $47
         clc
         adc     #$08
@@ -2899,6 +2899,8 @@ L7_DFAA:
         sta     $47
         sta     $48
         jmp     L7_E424
+
+; ---- bank7.code_DFB1 (code) $DFB1-$DFCE, 30 bytes
 L7_DFB1:
         ldy     $0740,X
         lda     $E00D,Y
@@ -2915,6 +2917,8 @@ L7_DFBC:
         jsr     L7_DF3D
 L7_DFCE:
         rts
+
+; ---- bank7.code_DFCF (code) $DFCF-$E00C, 62 bytes
 L7_DFCF:
         sta     $10
         asl     A
