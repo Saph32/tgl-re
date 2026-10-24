@@ -189,50 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_9CEE",
-      "offset": 105726,
-      "size": 4,
-      "kind": "data",
-      "name": "Types $10-$13: value for $0560",
-      "confidence": "confirmed",
-      "cpu_addr": 40174,
-      "sha1": "34cba1812b1f796ddabe107a7180d5f3db7297ad",
-      "description": "$9C1D is the handler of types $10-$13 only (bank 6 dispatch $80DE/$815D). LDY $0500,X / LDA $9CDE,Y: the type indexes from $9CDE, so the bytes read are $9CEE-$9CF1."
-    },
-    {
-      "id": "bank6.tbl_9CF2",
-      "offset": 105730,
-      "size": 16,
-      "kind": "data",
-      "name": "Offset wave, 16 entries",
-      "confidence": "lead",
-      "cpu_addr": 40178,
-      "sha1": "171850cd67f1e2a0ab0a401b02b0e5ccf042c9d3",
-      "description": "ADC $9CF2,Y at $9CBE, added to $0518 (the object's position) into $07A0. Values 00 04 08 0C 10 0C 08 04 00 FC F8 F4 F0 F4 F8 FC - one period of a triangle wave. Y there comes from $FE88 or is forced to 0; its range is NOT established, so the 16 is structural (it ends where the type-indexed reads of $9CF2 begin, at $9CF2 + $10)."
-    },
-    {
-      "id": "bank6.tbl_9D02",
-      "offset": 105746,
-      "size": 4,
-      "kind": "data",
-      "name": "Types $10-$13: value for $07D0",
-      "confidence": "confirmed",
-      "cpu_addr": 40194,
-      "sha1": "1e61c3e4875c970b576f19084ad1a0b72e5b6312",
-      "description": "LDA $9CF2,Y with Y = the type ($10-$13) at $9C28, so the bytes read are $9D02-$9D05, stored in $07D0 and later ANDed with $07B8 as a mask."
-    },
-    {
-      "id": "bank6.tbl_9D06",
-      "offset": 105750,
-      "size": 4,
-      "kind": "data",
-      "name": "Types $10-$13: value by animation frame",
-      "confidence": "confirmed",
-      "cpu_addr": 40198,
-      "sha1": "55d94802ce994e2a60209956ded8dd18208abc97",
-      "description": "LDA #$40 / LDY #$04 / JSR $C0A5 ($CD7A, an animation counter returning Y below the limit passed in Y, so 0-3), then LDA $9D06,Y (at $9CDA) / JSR $A1E7. Four bytes, ending exactly on the code at $9D0A."
-    },
-    {
       "id": "bank6.tbl_9EDF",
       "offset": 106223,
       "size": 14,
