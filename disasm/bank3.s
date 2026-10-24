@@ -1567,7 +1567,7 @@ L3_8B59:
         sta     $16
         jsr     $C084
 
-; ---- bank3.code_8B7E (code) $8B7E-$8CEE, 369 bytes
+; ---- bank3.code_8B7E (code) $8B7E-$8C97, 282 bytes
 L3_8B7E:
         lda     #$F8
         sta     $0204
@@ -1718,102 +1718,164 @@ L3_8C7F:
         lda     #$01
         sta     $0100,Y
         rts
+
+; ---- bank3.code_8C98 (code) $8C98-$8C9C, 5 bytes
 L3_8C98:
         lda     $0500
         bmi     L3_8CE7
+
+; ---- bank3.code_8C9D (code) $8C9D-$8CA1, 5 bytes
         ora     #$80
         sta     $0500
+
+; ---- bank3.code_8CA2 (code) $8CA2-$8CA6, 5 bytes
         lda     #$03
         sta     $0620
+
+; ---- bank3.code_8CA7 (code) $8CA7-$8CAE, 8 bytes
         lda     #$00
         sta     $0728
         sta     $07E8
+
+; ---- bank3.code_8CAF (code) $8CAF-$8CB1, 3 bytes
         jsr     L3_8FAA
+
+; ---- bank3.code_8CB2 (code) $8CB2-$8CB4, 3 bytes
         jsr     L7_C0A2
+
+; ---- bank3.code_8CB5 (code) $8CB5-$8CB7, 3 bytes
         jsr     L7_C132
+
+; ---- bank3.code_8CB8 (code) $8CB8-$8CC1, 10 bytes
         lda     $0578
         and     #$80
         ora     #$14
         sta     $0578
+
+; ---- bank3.code_8CC2 (code) $8CC2-$8CC5, 4 bytes
         bit     $30
         bvc     L3_8CDA
+
+; ---- bank3.code_8CC6 (code) $8CC6-$8CCA, 5 bytes
         lda     #$05
         sta     $0680
+
+; ---- bank3.code_8CCB (code) $8CCB-$8CCF, 5 bytes
         lda     #$01
         sta     $0548
+
+; ---- bank3.code_8CD0 (code) $8CD0-$8CD9, 10 bytes
         lda     #$00
         sta     $06B0
         sta     $06C8
         beq     L3_8CE7
+
+; ---- bank3.code_8CDA (code) $8CDA-$8CDE, 5 bytes
 L3_8CDA:
         lda     #$08
         sta     $06B0
+
+; ---- bank3.code_8CDF (code) $8CDF-$8CE6, 8 bytes
         jsr     L7_C0A2
         ldy     $32
         jsr     L3_8F85
+
+; ---- bank3.code_8CE7 (code) $8CE7-$8CEB, 5 bytes
 L3_8CE7:
         lda     $07E8
         beq     L3_8CF3
+
+; ---- bank3.code_8CEC (code) $8CEC-$8CEE, 3 bytes
         jsr     L7_C006
 
 ; ---- bank3.inline_8CEF (data) $8CEF-$8CF1, 3 bytes
 ; Far-call argument at $8CEF
         .byte   $01,$FF,$7F
 
-; ---- bank3.code_8CF2 (code) $8CF2-$8D43, 82 bytes
+; ---- bank3.code_8CF2 (code) $8CF2-$8CF2, 1 bytes
         rts
+
+; ---- bank3.code_8CF3 (code) $8CF3-$8CF5, 3 bytes
 L3_8CF3:
         jsr     L7_C02D
+
+; ---- bank3.code_8CF6 (code) $8CF6-$8CF9, 4 bytes
         bit     $30
         bvs     L3_8D27
+
+; ---- bank3.code_8CFA (code) $8CFA-$8D02, 9 bytes
         lda     $A0
         and     #$01
         beq     L3_8D03
         jmp     L3_8E6B
+
+; ---- bank3.code_8D03 (code) $8D03-$8D05, 3 bytes
 L3_8D03:
         jsr     L3_8F53
+
+; ---- bank3.code_8D06 (code) $8D06-$8D0B, 6 bytes
         ldy     $32
         cpy     #$04
         bne     L3_8D18
+
+; ---- bank3.code_8D0C (code) $8D0C-$8D17, 12 bytes
         lda     #$FF
         sta     $0650,X
         lda     $0728
         bne     L3_8D24
         beq     L3_8D21
+
+; ---- bank3.code_8D18 (code) $8D18-$8D20, 9 bytes
 L3_8D18:
         lda     $8EF4,Y
         sta     $0668
         jsr     L7_C102
+
+; ---- bank3.code_8D21 (code) $8D21-$8D23, 3 bytes
 L3_8D21:
         jsr     L3_8FB9
+
+; ---- bank3.code_8D24 (code) $8D24-$8D26, 3 bytes
 L3_8D24:
         jmp     L3_8DF5
+
+; ---- bank3.code_8D27 (code) $8D27-$8D2D, 7 bytes
 L3_8D27:
         bit     $0578
         bpl     L3_8D5C
         bvc     L3_8D5C
+
+; ---- bank3.code_8D2E (code) $8D2E-$8D34, 7 bytes
         lda     #$80
         ldy     #$0C
         jsr     L7_C0A5
+
+; ---- bank3.code_8D35 (code) $8D35-$8D3A, 6 bytes
         lda     $8D44,Y
         sta     $0548,X
+
+; ---- bank3.code_8D3B (code) $8D3B-$8D40, 6 bytes
         lda     $8D50,Y
         sta     $0560,X
+
+; ---- bank3.code_8D41 (code) $8D41-$8D43, 3 bytes
         jmp     L3_8D9A
 
 ; ---- bank3.tbl_8D44 (data) $8D44-$8D4F, 12 bytes
-; Table, 12 bytes
+; Ship hit-spin metasprite by phase
         .byte   $01,$02,$03,$04,$05,$06,$07,$06,$05,$04,$03,$02
 
 ; ---- bank3.tbl_8D50 (data) $8D50-$8D5B, 12 bytes
-; Table, 12 bytes (structural extent)
+; Ship hit-spin palette by phase
         .byte   $00,$01,$02,$03,$00,$01,$02,$43,$40,$41,$42,$43
 
-; ---- bank3.code_8D5C (code) $8D5C-$8ED7, 380 bytes
+; ---- bank3.code_8D5C (code) $8D5C-$8D62, 7 bytes
 L3_8D5C:
         ldy     $32
         lda     $8EEB,Y
         bne     L3_8D76
+
+; ---- bank3.code_8D63 (code) $8D63-$8D75, 19 bytes
         lda     $0680
         cmp     #$05
         beq     L3_8D8B
@@ -1823,6 +1885,8 @@ L3_8D5C:
 L3_8D71:
         dec     $0680
         bpl     L3_8D8B
+
+; ---- bank3.code_8D76 (code) $8D76-$8D8A, 21 bytes
 L3_8D76:
         clc
         adc     $0680
@@ -1834,19 +1898,29 @@ L3_8D84:
         cmp     #$0B
         bne     L3_8D8B
         dec     $0680
+
+; ---- bank3.code_8D8B (code) $8D8B-$8D99, 15 bytes
 L3_8D8B:
         ldy     $0680
         lda     $8EFD,Y
         sta     $0548
         lda     $8F08,Y
         sta     $0560
+
+; ---- bank3.code_8D9A (code) $8D9A-$8DA1, 8 bytes
 L3_8D9A:
         ldy     $32
         lda     $8EF4,Y
         sta     $0668
+
+; ---- bank3.code_8DA2 (code) $8DA2-$8DA5, 4 bytes
         cpy     #$04
         beq     L3_8DF5
+
+; ---- bank3.code_8DA6 (code) $8DA6-$8DA8, 3 bytes
         jsr     L7_C102
+
+; ---- bank3.code_8DA9 (code) $8DA9-$8DCE, 38 bytes
         lda     $05C0
         clc
         adc     $0758
@@ -1866,6 +1940,8 @@ L3_8DC1:
 L3_8DC9:
         sta     $0518
         sty     $0758
+
+; ---- bank3.code_8DCF (code) $8DCF-$8DF4, 38 bytes
         lda     $05F0
         clc
         adc     $0770
@@ -1885,6 +1961,8 @@ L3_8DE7:
 L3_8DEF:
         sta     $0530
         sty     $0770
+
+; ---- bank3.code_8DF5 (code) $8DF5-$8E00, 12 bytes
 L3_8DF5:
         lda     $0548
         ldy     $49
@@ -1892,6 +1970,8 @@ L3_8DF5:
         lda     #$0A
 L3_8DFE:
         jsr     L7_C0B4
+
+; ---- bank3.code_8E01 (code) $8E01-$8E0E, 14 bytes
         lda     $F7
         ora     $F8
         and     #$40
@@ -1899,11 +1979,15 @@ L3_8DFE:
         lda     #$01
         sta     $33
         bne     L3_8E3C
+
+; ---- bank3.code_8E0F (code) $8E0F-$8E16, 8 bytes
 L3_8E0F:
         dec     $33
         bne     L3_8E3C
         lda     $39
         sta     $33
+
+; ---- bank3.code_8E17 (code) $8E17-$8E24, 14 bytes
         ldy     #$00
 L3_8E19:
         lda     $0501,Y
@@ -1912,6 +1996,8 @@ L3_8E19:
         cpy     $3B
         bne     L3_8E19
         beq     L3_8E3C
+
+; ---- bank3.code_8E25 (code) $8E25-$8E3B, 23 bytes
 L3_8E25:
         lda     #$02
         sta     $0501,Y
@@ -1921,6 +2007,8 @@ L3_8E25:
         sta     $0531,Y
         lda     $0668
         sta     $0789,Y
+
+; ---- bank3.code_8E3C (code) $8E3C-$8E47, 12 bytes
 L3_8E3C:
         lda     $3C
         beq     L3_8E6B
@@ -1928,6 +2016,8 @@ L3_8E3C:
         ora     $F8
         and     #$80
         beq     L3_8E6B
+
+; ---- bank3.code_8E48 (code) $8E48-$8E6A, 35 bytes
         ldy     $3B
 L3_8E4A:
         lda     $0501,Y
@@ -1944,11 +2034,17 @@ L3_8E66:
         iny
         cpy     #$04
         bne     L3_8E4A
+
+; ---- bank3.code_8E6B (code) $8E6B-$8E6F, 5 bytes
 L3_8E6B:
         lda     $0578
         bpl     L3_8E92
+
+; ---- bank3.code_8E70 (code) $8E70-$8E74, 5 bytes
         dec     $0788
         bne     L3_8E86
+
+; ---- bank3.code_8E75 (code) $8E75-$8E85, 17 bytes
         bit     $30
         bvs     L3_8E7C
         jsr     L3_8F89
@@ -1957,14 +2053,20 @@ L3_8E7C:
         and     #$3F
         sta     $0578
         bpl     L3_8E92
+
+; ---- bank3.code_8E86 (code) $8E86-$8E91, 12 bytes
 L3_8E86:
         bit     $0578
         bvs     L3_8E92
         lda     $0788
         and     #$01
         bne     L3_8E95
+
+; ---- bank3.code_8E92 (code) $8E92-$8E94, 3 bytes
 L3_8E92:
         jsr     L7_C090
+
+; ---- bank3.code_8E95 (code) $8E95-$8EAD, 25 bytes
 L3_8E95:
         bit     $30
         bvc     L3_8EBA
@@ -1981,12 +2083,16 @@ L3_8E95:
         cmp     #$04
         bcc     L3_8EAE
         iny
+
+; ---- bank3.code_8EAE (code) $8EAE-$8EB9, 12 bytes
 L3_8EAE:
         lda     $8ED8,Y
         sta     $87
         bmi     L3_8EBA
         lda     #$1D
         jsr     L7_C093
+
+; ---- bank3.code_8EBA (code) $8EBA-$8EC8, 15 bytes
 L3_8EBA:
         lda     $0578
         and     #$40
@@ -1994,37 +2100,41 @@ L3_8EBA:
         ldy     $0788
         lda     $8EDC,Y
         beq     L3_8ED7
+
+; ---- bank3.code_8EC9 (code) $8EC9-$8ED6, 14 bytes
         lda     $0560
         sta     $86
         lda     #$70
         sta     $87
         lda     #$21
         jmp     L7_C093
+
+; ---- bank3.code_8ED7 (code) $8ED7-$8ED7, 1 bytes
 L3_8ED7:
         rts
 
 ; ---- bank3.tbl_8ED8 (data) $8ED8-$8EDB, 4 bytes
-; Table, 4 bytes
+; Exhaust flame tile base
         .byte   $FF,$00,$30,$32
 
 ; ---- bank3.tbl_8EDC (data) $8EDC-$8EEA, 15 bytes
-; Table, 15 bytes (structural extent)
+; Hit overlay flash by remaining count (15 entries)
         .byte   $34,$01,$00,$00,$00,$01,$00,$00,$01,$00,$01,$00,$01,$00,$01
 
 ; ---- bank3.tbl_8EEB (data) $8EEB-$8EF3, 9 bytes
-; Table, 9 bytes (structural extent)
+; Sideways part of the pad cell
         .byte   $FF,$FF,$FF,$00,$00,$00,$01,$01,$01
 
 ; ---- bank3.tbl_8EF4 (data) $8EF4-$8EFC, 9 bytes
-; Table, 9 bytes
+; Facing by pad cell
         .byte   $06,$08,$0A,$04,$0C,$0C,$02,$00,$0E
 
 ; ---- bank3.tbl_8EFD (data) $8EFD-$8F07, 11 bytes
-; Table, 11 bytes
+; Corridor ship metasprite by banking phase
         .byte   $03,$02,$02,$02,$02,$01,$02,$02,$02,$02,$03
 
 ; ---- bank3.tbl_8F08 (data) $8F08-$8F12, 11 bytes
-; Table, 11 bytes (structural extent)
+; Corridor ship palette by banking phase
         .byte   $00,$00,$00,$00,$00,$00,$40,$40,$40,$40,$40
 
 ; ---- bank3.tbl_8F13 (data) $8F13-$8F32, 32 bytes
