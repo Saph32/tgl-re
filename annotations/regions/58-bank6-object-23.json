@@ -1,0 +1,258 @@
+{
+  "_comment": "Hand-authored. Bank 6 object handlers: type $23 ($8D70-$8E67). The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank6.code_8D70",
+      "offset": 101760,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): first frame?",
+      "confidence": "confirmed",
+      "cpu_addr": 36208,
+      "sha1": "61668263ef0659f34461b1a76878ead972ec9454",
+      "description": "TYPE $23 (ZIBZUB, corridor 5's boss): bit 7 set goes to `$8D9B`. Stats: hit points 14 (x 16 = 224 once widened), attack 48, collision flags `$5A`, drawing flags 3, art block `$41`, dies as type 7."
+    },
+    {
+      "id": "bank6.code_8D75",
+      "offset": 101765,
+      "size": 6,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): art wait, hit points",
+      "confidence": "confirmed",
+      "cpu_addr": 36213,
+      "sha1": "a58c8f0c7e22172882bb290b3484eb33fc4f6ca4",
+      "description": "`JSR $C0A8`, `JSR $C165` (`$D385`: the table's 14 becomes `$0590` = 224, `$0740` = 0)."
+    },
+    {
+      "id": "bank6.code_8D7B",
+      "offset": 101771,
+      "size": 8,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): palette, random x",
+      "confidence": "confirmed",
+      "cpu_addr": 36219,
+      "sha1": "a44404949ca3fd81b8dcc84dd2cfa8442b002b03",
+      "description": "Palette 0; `JSR $C0F0` (`$F9E9`): a random x of 32-223 (and y 8, replaced next)."
+    },
+    {
+      "id": "bank6.code_8D83",
+      "offset": 101779,
+      "size": 10,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): the entrance delay",
+      "confidence": "confirmed",
+      "cpu_addr": 36227,
+      "sha1": "09d18b6a94b409dcb64943d6265349e3f51345e2",
+      "description": "`$0788` := `$78` (120 frames) and y := `$C0` (192, the bottom of the playfield, hidden by the status bar)."
+    },
+    {
+      "id": "bank6.code_8D8D",
+      "offset": 101789,
+      "size": 14,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): start a jump (also every landing)",
+      "confidence": "confirmed",
+      "cpu_addr": 36237,
+      "sha1": "0b1e379f554989e39b6f846763cb37deb80f7c89",
+      "description": "`JSR $C147` (`$FE79`: all four velocity bytes to 0); the y spring's target `$0668` := `$FB` (251, far below) and the y speed `$05D8` := `$FB` (-5, a kick upward); `JSR $C0A2`. RUN: spawned alone in a corridor state, art block marked loaded, `$41` stepped by hand."
+    },
+    {
+      "id": "bank6.code_8D9B",
+      "offset": 101803,
+      "size": 13,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): every frame: the 120-frame wait",
+      "confidence": "confirmed",
+      "cpu_addr": 36251,
+      "sha1": "8d9075083120ff12b7998cefc78ef2dcd6066054",
+      "description": "While `$0788` counts down the boss is only drawn, and only on frames where the value is even: it flickers (read from the code; the log shows `$0788` counting 119 -> 0 with y fixed at 192); no collision."
+    },
+    {
+      "id": "bank6.code_8DA8",
+      "offset": 101816,
+      "size": 16,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): gravity and homing",
+      "confidence": "confirmed",
+      "cpu_addr": 36264,
+      "sha1": "29979d82e4bd4b0c012546cbf92a3ab51181f9dc",
+      "description": "`JSR $C09C` with A = `$18`: the y speed is pulled toward the target 251 by 24/256 a frame (gravity, a quarter of a pixel in about 10 frames). `$0680` := the player's x and `JSR $C09F` (`$CD46`) with A = 8: the x speed is pulled toward the player's x by 8/256 a frame. RUN: x moved 154 -> 213 over the first jump, toward the player."
+    },
+    {
+      "id": "bank6.code_8DB8",
+      "offset": 101832,
+      "size": 12,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): landing",
+      "confidence": "confirmed",
+      "cpu_addr": 36280,
+      "sha1": "c2c1d7b15a39233cdb9e1ef8b3c7fa4057ed0c88",
+      "description": "A rising boss (y speed negative) skips to the drawing (`$8E01`); y of `$C0` or more starts the next jump (`$8D8D`). RUN: a jump lasts about 107 frames (up 5 px a frame, apex near y 61 after ~55 frames)."
+    },
+    {
+      "id": "bank6.code_8DC4",
+      "offset": 101844,
+      "size": 7,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): volley already fired?",
+      "confidence": "confirmed",
+      "cpu_addr": 36292,
+      "sha1": "159bb98586cc50775c75b25b7588b37f692b97db",
+      "description": "`$0638` (the picture phase) of 2 or more skips the volley."
+    },
+    {
+      "id": "bank6.code_8DCB",
+      "offset": 101851,
+      "size": 11,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): the mouth animation",
+      "confidence": "confirmed",
+      "cpu_addr": 36299,
+      "sha1": "9f84d54b32ca797f3075d732e851fd18590fadab",
+      "description": "`JSR $C0A5` with step `$40` over 3 phases (0, 1, 2; a new phase every 4 frames); below phase 2 nothing more happens. RUN: the phase became 1 at frame 176 and 2 at frame 180."
+    },
+    {
+      "id": "bank6.code_8DD6",
+      "offset": 101862,
+      "size": 9,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): aim",
+      "confidence": "confirmed",
+      "cpu_addr": 36310,
+      "sha1": "eb9f316511de478b408f9e52cab7c76310054b53",
+      "description": "`JSR $C0FF` (`$F863`): the direction to the player (slot 0) into `$14`; `$15` := 2."
+    },
+    {
+      "id": "bank6.code_8DDF",
+      "offset": 101871,
+      "size": 34,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): the volley",
+      "confidence": "confirmed",
+      "cpu_addr": 36319,
+      "sha1": "751d240a10d5d60234971a917ef4ecdc8187612d",
+      "description": "Three times: a free slot (`$C108`; none: stop), a type-`$27` bullet (`$C105`, a child at the boss's position) with `$07A0` := 1 and direction `$0788` := the aim + `$8E65[$15]` (0, 4, 12). RUN: three bullets at frame 180 with directions 15, 7, 3 for an aim of 3."
+    },
+    {
+      "id": "bank6.code_8E01",
+      "offset": 101905,
+      "size": 15,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): picture",
+      "confidence": "confirmed",
+      "cpu_addr": 36353,
+      "sha1": "45d757f97a37392f5944fd997cffe5eecdf90367",
+      "description": "Metasprite `$0548` := `$8E5F[phase]` (`$80`, `$80`, `$81`), tile offset `$8E62[phase]` (`$1E`, `$16`, `$00`) through `$A1E7` (`$06C8` := `$07E8` + A)."
+    },
+    {
+      "id": "bank6.code_8E10",
+      "offset": 101920,
+      "size": 11,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): during the wait: draw only",
+      "confidence": "confirmed",
+      "cpu_addr": 36368,
+      "sha1": "b537c9a7b4a44a00f5d3bc59950e16872a54bf2b",
+      "description": "`$0788` non-zero: `JSR $C090` (draw without moving) and on to the second piece."
+    },
+    {
+      "id": "bank6.code_8E1B",
+      "offset": 101931,
+      "size": 5,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): move",
+      "confidence": "confirmed",
+      "cpu_addr": 36379,
+      "sha1": "62aa046d1428744d8fc232c06c4e795580fb08df",
+      "description": "`JSR $C08D` (move by the velocity and draw); carry clear carries on."
+    },
+    {
+      "id": "bank6.code_8E20",
+      "offset": 101936,
+      "size": 16,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): off the side of the screen",
+      "confidence": "confirmed",
+      "cpu_addr": 36384,
+      "sha1": "f9b4117a5351844a4c2c7e016a82ab87c71b7558",
+      "description": "Carry set (the move left the screen): x := 0, or `$FF` when moving left, and `JMP $C123` (`$FB64`: reverse the x speed). The boss bounces off the screen edges. (Read from the code; the 520-frame run did not reach an edge.)"
+    },
+    {
+      "id": "bank6.code_8E30",
+      "offset": 101952,
+      "size": 19,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): the second piece",
+      "confidence": "confirmed",
+      "cpu_addr": 36400,
+      "sha1": "d593f2a10afd7f05fe2311476d23a1f06ee818e9",
+      "description": "A piece 40 px above the body (`$84` - `$28`, if that does not wrap), tile base `$07E8,X`, metasprite `$7F`, through `$C093` (`$CC34`): the head or antenna above the body."
+    },
+    {
+      "id": "bank6.code_8E43",
+      "offset": 101971,
+      "size": 6,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): no hits during the wait",
+      "confidence": "confirmed",
+      "cpu_addr": 36419,
+      "sha1": "30ab431c22c1e0f3a8211fcb93b91fd850b893f0",
+      "description": "`$0788` non-zero returns."
+    },
+    {
+      "id": "bank6.code_8E49",
+      "offset": 101977,
+      "size": 16,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): the hit box reaches up",
+      "confidence": "confirmed",
+      "cpu_addr": 36425,
+      "sha1": "846fe84f75515ed5dc279081191767ea30819dc8",
+      "description": "`JSR $C0B1` (`$D229`: the box from the metasprite), then the top edge `$0710` is lowered by `$30` (48), so the box covers the piece above as well."
+    },
+    {
+      "id": "bank6.code_8E59",
+      "offset": 101993,
+      "size": 6,
+      "kind": "code",
+      "name": "TYPE $23 (ZIBZUB, corridor 5's boss): hit test",
+      "confidence": "confirmed",
+      "cpu_addr": 36441,
+      "sha1": "abc27e80ba01b9c16961687f86d10a873d620078",
+      "description": "`JSR $C0C9` (`$D297`, mask `$30`), `JMP $C0D8` (`$D39B`, the boss's resolution)."
+    },
+    {
+      "id": "bank6.tbl_8E5F",
+      "offset": 101999,
+      "size": 3,
+      "kind": "data",
+      "name": "Zibzub metasprite by phase",
+      "confidence": "confirmed",
+      "cpu_addr": 36447,
+      "sha1": "eb67357742f7e5070b65fa4e119b432ea7c04d89",
+      "description": "`80 80 81`."
+    },
+    {
+      "id": "bank6.tbl_8E62",
+      "offset": 102002,
+      "size": 3,
+      "kind": "data",
+      "name": "Zibzub tile offset by phase",
+      "confidence": "confirmed",
+      "cpu_addr": 36450,
+      "sha1": "dfa37e399abc6d8ba450d75947f99f9fefad5aec",
+      "description": "`1E 16 00`."
+    },
+    {
+      "id": "bank6.tbl_8E65",
+      "offset": 102005,
+      "size": 3,
+      "kind": "data",
+      "name": "Zibzub volley direction offsets",
+      "confidence": "confirmed",
+      "cpu_addr": 36453,
+      "sha1": "ffe02e1505af20efa2e74606559bb081e429e58c",
+      "description": "`00 04 0C` (read from the end): the aim, +4, +12."
+    }
+  ]
+}

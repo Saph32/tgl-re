@@ -2006,25 +2006,35 @@ L6_8D5F:
 ; Eyegore: palettes, summoned type, x offset
         .byte   $01,$03,$02,$00,$16,$27,$E0,$20
 
-; ---- bank6.code_8D70 (code) $8D70-$8E5E, 239 bytes
+; ---- bank6.code_8D70 (code) $8D70-$8D74, 5 bytes
 L6_8D70:
         lda     $0500,X
         bmi     L6_8D9B
+
+; ---- bank6.code_8D75 (code) $8D75-$8D7A, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank6.code_8D7B (code) $8D7B-$8D82, 8 bytes
         lda     #$00
         sta     $0560,X
         jsr     L7_C0F0
+
+; ---- bank6.code_8D83 (code) $8D83-$8D8C, 10 bytes
         lda     #$78
         sta     $0788,X
         lda     #$C0
         sta     $0518,X
+
+; ---- bank6.code_8D8D (code) $8D8D-$8D9A, 14 bytes
 L6_8D8D:
         jsr     L7_C147
         lda     #$FB
         sta     $0668,X
         sta     $05D8,X
         jsr     L7_C0A2
+
+; ---- bank6.code_8D9B (code) $8D9B-$8DA7, 13 bytes
 L6_8D9B:
         lda     $0788,X
         beq     L6_8DA8
@@ -2032,6 +2042,8 @@ L6_8D9B:
         and     #$01
         beq     L6_8E01
         rts
+
+; ---- bank6.code_8DA8 (code) $8DA8-$8DB7, 16 bytes
 L6_8DA8:
         lda     #$18
         jsr     L7_C09C
@@ -2039,23 +2051,33 @@ L6_8DA8:
         sta     $0680,X
         lda     #$08
         jsr     L7_C09F
+
+; ---- bank6.code_8DB8 (code) $8DB8-$8DC3, 12 bytes
         lda     $05D8,X
         bmi     L6_8E01
         lda     $0518,X
         cmp     #$C0
         bcs     L6_8D8D
+
+; ---- bank6.code_8DC4 (code) $8DC4-$8DCA, 7 bytes
         lda     $0638,X
         cmp     #$02
         bcs     L6_8E01
+
+; ---- bank6.code_8DCB (code) $8DCB-$8DD5, 11 bytes
         lda     #$40
         ldy     #$03
         jsr     L7_C0A5
         cpy     #$02
         bcc     L6_8E01
+
+; ---- bank6.code_8DD6 (code) $8DD6-$8DDE, 9 bytes
         jsr     L7_C0FF
         sta     $14
         lda     #$02
         sta     $15
+
+; ---- bank6.code_8DDF (code) $8DDF-$8E00, 34 bytes
 L6_8DDF:
         jsr     L7_C108
         bcs     L6_8E01
@@ -2072,19 +2094,27 @@ L6_8DDF:
         ldx     $10
         dec     $15
         bpl     L6_8DDF
+
+; ---- bank6.code_8E01 (code) $8E01-$8E0F, 15 bytes
 L6_8E01:
         ldy     $0638,X
         lda     $8E5F,Y
         sta     $0548,X
         lda     $8E62,Y
         jsr     L6_A1E7
+
+; ---- bank6.code_8E10 (code) $8E10-$8E1A, 11 bytes
         lda     $0788,X
         beq     L6_8E1B
         jsr     L7_C090
         jmp     L6_8E30
+
+; ---- bank6.code_8E1B (code) $8E1B-$8E1F, 5 bytes
 L6_8E1B:
         jsr     L7_C08D
         bcc     L6_8E30
+
+; ---- bank6.code_8E20 (code) $8E20-$8E2F, 16 bytes
 L6_8E20:
         lda     #$00
         sta     $0530,X
@@ -2093,6 +2123,8 @@ L6_8E20:
         dec     $0530,X
 L6_8E2D:
         jmp     L7_C123
+
+; ---- bank6.code_8E30 (code) $8E30-$8E42, 19 bytes
 L6_8E30:
         lda     $84
         sec
@@ -2103,10 +2135,14 @@ L6_8E30:
         sta     $87
         lda     #$7F
         jsr     L7_C093
+
+; ---- bank6.code_8E43 (code) $8E43-$8E48, 6 bytes
 L6_8E43:
         lda     $0788,X
         beq     L6_8E49
         rts
+
+; ---- bank6.code_8E49 (code) $8E49-$8E58, 16 bytes
 L6_8E49:
         jsr     L7_C0B1
         lda     $0710,X
@@ -2116,19 +2152,21 @@ L6_8E49:
         lda     #$00
 L6_8E56:
         sta     $0710,X
+
+; ---- bank6.code_8E59 (code) $8E59-$8E5E, 6 bytes
         jsr     L7_C0C9
         jmp     L7_C0D8
 
 ; ---- bank6.tbl_8E5F (data) $8E5F-$8E61, 3 bytes
-; Table, 3 bytes (structural extent)
+; Zibzub metasprite by phase
         .byte   $80,$80,$81
 
 ; ---- bank6.tbl_8E62 (data) $8E62-$8E64, 3 bytes
-; Table, 3 bytes (structural extent)
+; Zibzub tile offset by phase
         .byte   $1E,$16,$00
 
 ; ---- bank6.tbl_8E65 (data) $8E65-$8E67, 3 bytes
-; Table, 3 bytes (structural extent)
+; Zibzub volley direction offsets
         .byte   $00,$04,$0C
 
 ; ---- bank6.code_8E68 (code) $8E68-$9030, 457 bytes
