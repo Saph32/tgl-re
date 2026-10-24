@@ -244,6 +244,17 @@
       "description": "Adds `$0638,X` (the bytes consumed last time) to the object's message pointer, stores it back, and reads two bytes: `$15` := the current character, `$14` := the one after it (a look-ahead), then `$0638,X` := 1. So each call advances one character. The script's controls are `$00` end of message, `$01` end of screenful, `$0D` end of line. RUN: for every message the first six calls returned (byte k, byte k+1) of the script."
     },
     {
+      "id": "bank5.code_9F10",
+      "offset": 89888,
+      "size": 18,
+      "kind": "code",
+      "name": "Inline jump-table dispatcher (bank 5 copy)",
+      "confidence": "confirmed",
+      "cpu_addr": 40720,
+      "sha1": "ee7b946b9d01abb40358ebc96b574186a10b193e",
+      "description": "The bank 5 copy of the inline jump-table dispatcher (`$D6B0` in the fixed bank, `$85F6` in bank 6). `$9F10`: A = the index, `ASL / TAY` (the same routine is entered at `$9F12` with Y = 2 x index already). It pops its return address into `$00/$01`, so the table is the bytes after the caller's `JSR`; `INY INY` skips the stored address's own off-by-one, then the entry's high byte and low byte are pushed (target - 1) and `RTS` jumps there. Users: `$9F2F` (the nine-entry table of screen types at `$9F32`) and `$A1C1` (the ten-entry table of seal conditions at `$A1C4`)."
+    },
+    {
       "id": "bank5.code_ACA9",
       "offset": 93369,
       "size": 18,
