@@ -189,28 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_9EDF",
-      "offset": 106223,
-      "size": 14,
-      "kind": "data",
-      "name": "Two 7-byte tables indexed by $4B",
-      "confidence": "confirmed",
-      "cpu_addr": 40671,
-      "sha1": "105a0886acc7c96bc68c8489b7d7dc0944cc4435",
-      "description": "$9EC3: LDY $4B, LDA $9EDE,Y -> $07B8 and $07A0, LDA $9EE5,Y -> $07D0. Bases seven apart, and $4B starts at 1 (bank 0 $8101, or 2 at $8126), so Y is 1-7 and each read starts one byte early - $9EDE is the last byte of the code before. $4B is the shield bar length on the status screen."
-    },
-    {
-      "id": "bank6.tbl_9EED",
-      "offset": 106237,
-      "size": 4,
-      "kind": "data",
-      "name": "Table indexed by $4A",
-      "confidence": "confirmed",
-      "cpu_addr": 40685,
-      "sha1": "536bbccc72f94bd9c937f3238dbbddb02ca1a6de",
-      "description": "$9EF6: LDY $4A / LDA $9EEC,Y -> $0698. $4A is the attack level, 1-4 ($FD0E caps it at 4; it starts at 1), so the bytes read are $9EED-$9EF0 - four entries, ending exactly on the code at $9EF1. It was a lead until $FD0E fixed the range."
-    },
-    {
       "id": "bank6.tbl_A2C4",
       "offset": 107220,
       "size": 2,
