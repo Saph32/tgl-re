@@ -189,17 +189,6 @@
       "description": "$814E: LDY $5E / LDA $A377,Y / STA $55, with $5E the sub-id a map record of kind $20 or $40 carries (tools/tgl/worldmap.py). The map uses sub-ids 0-67 and this stretch is exactly 68 bytes, bounded by code on both sides. Values 0-$11. $55 is an ITEM: in an item room (kind $20, byte 0 bit 7 clear) the type-$31 object spawned on the layout's metatile 6 takes its icon from $55 (bank 2 $84EE), so this is the item, 0-17 = the 18 icons. In the shop screens it is instead an index: screen 6 reads $A067 + 3 x $55, screen 2 $A04E + 5 x $55 - which is why sub-ids 58-67 hold 0-4. CORRECTION to 'what $55 selects is NOT established'. docs/labyrinth.html#items lists every room."
     },
     {
-      "id": "bank6.tbl_B79D",
-      "offset": 112557,
-      "size": 32,
-      "kind": "data",
-      "name": "Tile rectangles 4 x 2, four entries",
-      "confidence": "confirmed",
-      "cpu_addr": 47005,
-      "sha1": "d9e4e8e548ec98e6092859b644a85821199f28b1",
-      "description": "$B787: $16/$17 = $B79D + 8 x A, width $15 = 4, height $14 = 2, JMP $B449 (the blit). A is 3 at $B785, or at $B73D the frame counter from $C0A5 with limit 4 and 3 folded to 1 - so entries 0-3. 4 x 8 = 32 bytes, ending exactly on the code at $B7BD."
-    },
-    {
       "id": "bank6.tbl_BBBB",
       "offset": 113611,
       "size": 4,
