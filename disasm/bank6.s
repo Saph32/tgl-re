@@ -4516,15 +4516,19 @@ L6_A08F:
 ; Table, 4 bytes (structural extent)
         .byte   $00,$00,$40,$00
 
-; ---- bank6.code_A0A6 (code) $A0A6-$A1EE, 329 bytes
+; ---- bank6.code_A0A6 (code) $A0A6-$A0AA, 5 bytes
 L6_A0A6:
         lda     $0500,X
         bmi     L6_A0B8
+
+; ---- bank6.code_A0AB (code) $A0AB-$A0B7, 13 bytes
         ora     #$80
         sta     $0500,X
         lda     #$4E
         sta     $0578,X
         jsr     L7_C141
+
+; ---- bank6.code_A0B8 (code) $A0B8-$A0C5, 14 bytes
 L6_A0B8:
         jsr     L7_C129
         bcc     L6_A0C0
@@ -4532,36 +4536,58 @@ L6_A0B8:
 L6_A0C0:
         jsr     L7_C0C0
         jmp     L7_C0D5
+
+; ---- bank6.code_A0C6 (code) $A0C6-$A0CA, 5 bytes
 L6_A0C6:
         lda     $0500,X
         bmi     L6_A113
+
+; ---- bank6.code_A0CB (code) $A0CB-$A0D3, 9 bytes
         ldy     $07A0,X
         lda     $A21F,Y
         sta     $07B8,X
+
+; ---- bank6.code_A0D4 (code) $A0D4-$A0D6, 3 bytes
         jsr     L7_C0AB
+
+; ---- bank6.code_A0D7 (code) $A0D7-$A0DF, 9 bytes
         ldy     $07A0,X
         lda     $A1EF,Y
         sta     $0560,X
+
+; ---- bank6.code_A0E0 (code) $A0E0-$A0EB, 12 bytes
         lda     $A1F7,Y
         sta     $0698,X
         lda     $A1FF,Y
         sta     $06B0,X
+
+; ---- bank6.code_A0EC (code) $A0EC-$A0F7, 12 bytes
         lda     $A207,Y
         sta     $07D0,X
         lda     $A227,Y
         sta     $0668,X
+
+; ---- bank6.code_A0F8 (code) $A0F8-$A103, 12 bytes
         lda     $A22F,Y
         sta     $0680,X
         lda     $A20F,Y
         sta     $0590,X
+
+; ---- bank6.code_A104 (code) $A104-$A109, 6 bytes
         lda     $A217,Y
         sta     $05A8,X
+
+; ---- bank6.code_A10A (code) $A10A-$A112, 9 bytes
         jsr     L7_C0A2
         lda     $0788,X
         jmp     L6_A133
+
+; ---- bank6.code_A113 (code) $A113-$A117, 5 bytes
 L6_A113:
         dec     $07A0,X
         bne     L6_A174
+
+; ---- bank6.code_A118 (code) $A118-$A132, 27 bytes
         jsr     L7_C0FF
         sec
         sbc     $0788,X
@@ -4574,16 +4600,24 @@ L6_A113:
         jmp     L6_A133
 L6_A130:
         adc     $0668,X
+
+; ---- bank6.code_A133 (code) $A133-$A13A, 8 bytes
 L6_A133:
         and     #$0F
         sta     $0788,X
         jsr     L7_C102
+
+; ---- bank6.code_A13B (code) $A13B-$A140, 6 bytes
 L6_A13B:
         lda     $06B0,X
         sta     $07A0,X
+
+; ---- bank6.code_A141 (code) $A141-$A147, 7 bytes
         lda     $0680,X
         and     #$7F
         bne     L6_A185
+
+; ---- bank6.code_A148 (code) $A148-$A15D, 22 bytes
         lda     $0788,X
         and     #$07
         tay
@@ -4595,6 +4629,8 @@ L6_A13B:
         tay
         lda     $A23F,Y
         sta     $14
+
+; ---- bank6.code_A15E (code) $A15E-$A170, 19 bytes
 L6_A15E:
         lda     $0788,X
         and     #$07
@@ -4606,8 +4642,12 @@ L6_A15E:
         ldy     #$37
 L6_A170:
         tya
+
+; ---- bank6.code_A171 (code) $A171-$A173, 3 bytes
 L6_A171:
         jsr     L6_A1D8
+
+; ---- bank6.code_A174 (code) $A174-$A181, 14 bytes
 L6_A174:
         lda     $0680,X
         cmp     #$03
@@ -4615,8 +4655,12 @@ L6_A174:
         lda     $41
         and     #$04
         jsr     L6_A1E7
+
+; ---- bank6.code_A182 (code) $A182-$A184, 3 bytes
 L6_A182:
         jmp     L6_9F4F
+
+; ---- bank6.code_A185 (code) $A185-$A1A6, 34 bytes
 L6_A185:
         cmp     #$01
         bne     L6_A1A7
@@ -4634,6 +4678,8 @@ L6_A185:
         lda     $A247,Y
         sta     $14
         jmp     L6_A15E
+
+; ---- bank6.code_A1A7 (code) $A1A7-$A1B5, 15 bytes
 L6_A1A7:
         cmp     #$02
         bne     L6_A1B6
@@ -4642,6 +4688,8 @@ L6_A1A7:
         tay
         jsr     L6_A1CB
         jmp     L6_A174
+
+; ---- bank6.code_A1B6 (code) $A1B6-$A1CA, 21 bytes
 L6_A1B6:
         lda     $0788,X
         lsr     A
@@ -4653,12 +4701,16 @@ L6_A1B6:
         sta     $15
         lda     #$19
         jmp     L6_A171
+
+; ---- bank6.code_A1CB (code) $A1CB-$A1D7, 13 bytes
 L6_A1CB:
         lda     $A24F,Y
         sta     $15
         lda     $A257,Y
         sta     $14
         lda     $A25F,Y
+
+; ---- bank6.code_A1D8 (code) $A1D8-$A1E4, 13 bytes
 L6_A1D8:
         sta     $0548,X
 L6_A1DB:
@@ -4666,6 +4718,8 @@ L6_A1DB:
         and     #$03
         ora     $14
         sta     $0560,X
+
+; ---- bank6.code_A1E5 (code) $A1E5-$A1EE, 10 bytes
         lda     $15
 L6_A1E7:
         clc
@@ -4674,67 +4728,71 @@ L6_A1E7:
         rts
 
 ; ---- bank6.tbl_A1EF (data) $A1EF-$A1F6, 8 bytes
-; Table, 8 bytes
+; Bullet palette by kind
         .byte   $01,$01,$03,$02,$02,$02,$03,$01
 
 ; ---- bank6.tbl_A1F7 (data) $A1F7-$A1FE, 8 bytes
-; Table, 8 bytes
+; Bullet speed class by kind
         .byte   $03,$41,$06,$05,$03,$81,$06,$41
 
 ; ---- bank6.tbl_A1FF (data) $A1FF-$A206, 8 bytes
-; Table, 8 bytes
+; Bullet re-aim interval by kind
         .byte   $10,$0A,$08,$08,$10,$05,$09,$10
 
 ; ---- bank6.tbl_A207 (data) $A207-$A20E, 8 bytes
-; Table, 8 bytes
+; Bullet value for `$07D0` by kind
         .byte   $03,$05,$08,$07,$08,$06,$06,$06
 
 ; ---- bank6.tbl_A20F (data) $A20F-$A216, 8 bytes
-; Table, 8 bytes
+; Bullet hit points by kind
         .byte   $01,$02,$18,$0C,$10,$01,$01,$01
 
-; ---- bank6.tbl_A217 (data) $A217-$A226, 16 bytes
-; Table, 16 bytes
-        .byte   $04,$08,$30,$40,$18,$04,$04,$06,$39,$35,$36,$02,$04,$35,$39,$2F
+; ---- bank6.tbl_A217 (data) $A217-$A21E, 8 bytes
+; Bullet attack by kind
+        .byte   $04,$08,$30,$40,$18,$04,$04,$06
+
+; ---- bank6.tbl_A21F (data) $A21F-$A226, 8 bytes
+; Bullet art block by kind
+        .byte   $39,$35,$36,$02,$04,$35,$39,$2F
 
 ; ---- bank6.tbl_A227 (data) $A227-$A22E, 8 bytes
-; Table, 8 bytes
+; Bullet turn step by kind
         .byte   $01,$01,$01,$02,$02,$01,$01,$04
 
 ; ---- bank6.tbl_A22F (data) $A22F-$A236, 8 bytes
-; Table, 8 bytes (structural extent)
+; Bullet picture mode by kind
         .byte   $80,$80,$00,$81,$02,$80,$80,$03
 
 ; ---- bank6.tbl_A237 (data) $A237-$A23E, 8 bytes
-; Table, 8 bytes
+; Bullet tile offset by direction (mode 0)
         .byte   $00,$04,$08,$0C,$10,$0C,$08,$04
 
 ; ---- bank6.tbl_A23F (data) $A23F-$A242, 4 bytes
-; Table, 4 bytes (structural extent)
+; Bullet flips by quadrant (mode 0)
         .byte   $80,$C0,$40,$00
 
 ; ---- bank6.tbl_A243 (data) $A243-$A246, 4 bytes
-; Table, 4 bytes
+; Bullet tile offset by direction (mode 1)
         .byte   $00,$06,$04,$06
 
 ; ---- bank6.tbl_A247 (data) $A247-$A24E, 8 bytes
-; Table, 8 bytes (structural extent)
+; Bullet flips by direction (mode 1)
         .byte   $40,$40,$00,$00,$80,$80,$C0,$C0
 
 ; ---- bank6.tbl_A24F (data) $A24F-$A256, 8 bytes
-; Table, 8 bytes
+; Bullet tile offset by octant (mode 2)
         .byte   $00,$02,$00,$02,$00,$04,$04,$04
 
 ; ---- bank6.tbl_A257 (data) $A257-$A25E, 8 bytes
-; Table, 8 bytes
+; Bullet flips by octant (mode 2)
         .byte   $40,$40,$00,$00,$00,$00,$00,$00
 
 ; ---- bank6.tbl_A25F (data) $A25F-$A266, 8 bytes
-; Table, 8 bytes (structural extent)
+; Bullet metasprite by octant (mode 2)
         .byte   $4B,$19,$1A,$19,$4B,$7B,$7B,$7B
 
 ; ---- bank6.tbl_A267 (data) $A267-$A26A, 4 bytes
-; Table, 4 bytes (structural extent)
+; Bullet flips by quadrant (mode 3 and others)
         .byte   $C0,$80,$00,$40
 
 ; ---- bank6.code_A26B (code) $A26B-$A2C3, 89 bytes
