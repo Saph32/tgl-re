@@ -752,9 +752,11 @@ L3_8502:
 ; The TGL password constant
         .byte   $13,$06,$0B
 
-; ---- bank3.code_8516 (code) $8516-$870C, 503 bytes
+; ---- bank3.code_8516 (code) $8516-$8518, 3 bytes
 L3_8516:
         jsr     L7_C045
+
+; ---- bank3.code_8519 (code) $8519-$852D, 21 bytes
         lda     $042F
         lsr     A
         lsr     A
@@ -768,12 +770,16 @@ L3_8516:
         clc
         adc     #$1D
         sta     $19
+
+; ---- bank3.code_852E (code) $852E-$8539, 12 bytes
         lda     #$00
         sta     $17
         sta     $14
         sta     $18
         lda     #$08
         sta     $16
+
+; ---- bank3.code_853A (code) $853A-$8546, 13 bytes
 L3_853A:
         ldx     $14
         jsr     L3_85BB
@@ -781,17 +787,23 @@ L3_853A:
         ldy     #$00
         lda     #$03
         sta     $15
+
+; ---- bank3.code_8547 (code) $8547-$8551, 11 bytes
 L3_8547:
         lda     $0403,Y
         cpx     #$17
         beq     L3_8552
         eor     $19
         dec     $19
+
+; ---- bank3.code_8552 (code) $8552-$855B, 10 bytes
 L3_8552:
         sta     $011E,X
         cmp     $0439,X
         beq     L3_855C
         inc     $18
+
+; ---- bank3.code_855C (code) $855C-$856E, 19 bytes
 L3_855C:
         inx
         iny
@@ -804,13 +816,21 @@ L3_855C:
         sta     $14
         dec     $16
         bne     L3_853A
+
+; ---- bank3.code_856F (code) $856F-$8573, 5 bytes
         lda     $0400
         bne     L3_857A
+
+; ---- bank3.code_8574 (code) $8574-$8577, 4 bytes
         lda     $18
         beq     L3_85B9
+
+; ---- bank3.code_8578 (code) $8578-$8579, 2 bytes
 L3_8578:
         sec
         rts
+
+; ---- bank3.code_857A (code) $857A-$859A, 33 bytes
 L3_857A:
         ldy     #$00
 L3_857C:
@@ -831,6 +851,8 @@ L3_8589:
         sta     $30
         clc
         rts
+
+; ---- bank3.code_859B (code) $859B-$85AD, 19 bytes
 L3_859B:
         ldx     #$16
         lda     #$00
@@ -842,6 +864,8 @@ L3_85A0:
         adc     $0135
         cmp     $0134
         bne     L3_8578
+
+; ---- bank3.code_85AE (code) $85AE-$85BA, 13 bytes
         ldx     #$18
 L3_85B0:
         lda     $011D,X
@@ -851,6 +875,8 @@ L3_85B0:
 L3_85B9:
         clc
         rts
+
+; ---- bank3.code_85BB (code) $85BB-$85D9, 31 bytes
 L3_85BB:
         lda     #$04
         sta     $15
@@ -869,6 +895,8 @@ L3_85CF:
         sta     $0402,X
         dex
         bne     L3_85CF
+
+; ---- bank3.code_85DA (code) $85DA-$85E9, 16 bytes
         lda     #$00
         lsr     $0404
         ror     A
@@ -876,6 +904,8 @@ L3_85CF:
         ror     A
         ora     $0403
         sta     $0403
+
+; ---- bank3.code_85EA (code) $85EA-$8601, 24 bytes
         lda     #$00
         lsr     $0405
         ror     A
@@ -887,16 +917,22 @@ L3_85CF:
         ror     A
         ora     $0404
         sta     $0404
+
+; ---- bank3.code_8602 (code) $8602-$860D, 12 bytes
         lda     $0406
         asl     A
         asl     A
         ora     $0405
         sta     $0405
         rts
+
+; ---- bank3.code_860E (code) $860E-$8616, 9 bytes
 L3_860E:
         jsr     L7_C0EA
         sta     $0450
         jsr     L7_C045
+
+; ---- bank3.code_8617 (code) $8617-$8627, 17 bytes
         ldx     #$16
         lda     #$00
         clc
@@ -906,6 +942,8 @@ L3_861C:
         bne     L3_861C
         adc     $0450
         sta     $044F
+
+; ---- bank3.code_8628 (code) $8628-$863B, 20 bytes
         lda     $0450
         sta     $19
         ldx     #$1E
@@ -916,8 +954,12 @@ L3_862F:
         sta     a:$00FF,x
         dex
         bne     L3_862F
+
+; ---- bank3.code_863C (code) $863C-$8641, 6 bytes
         lda     $0450
         sta     $0117
+
+; ---- bank3.code_8642 (code) $8642-$8652, 17 bytes
         lda     #$20
         sta     $14
         ldy     #$00
@@ -927,7 +969,11 @@ L3_8648:
         iny
         dec     $14
         bne     L3_8648
+
+; ---- bank3.code_8653 (code) $8653-$8653, 1 bytes
         rts
+
+; ---- bank3.code_8654 (code) $8654-$866A, 23 bytes
 L3_8654:
         lda     #$06
         sta     $15
@@ -945,6 +991,8 @@ L3_865D:
         lsr     A
         lsr     A
         rts
+
+; ---- bank3.code_866B (code) $866B-$867F, 21 bytes
 L3_866B:
         lda     #$22
         sta     $19
@@ -957,7 +1005,11 @@ L3_8675:
         inx
         cpx     #$20
         bne     L3_8675
+
+; ---- bank3.code_8680 (code) $8680-$8680, 1 bytes
         rts
+
+; ---- bank3.code_8681 (code) $8681-$86A7, 39 bytes
 L3_8681:
         sta     $10
         txa
@@ -988,6 +1040,8 @@ L3_86A0:
         pla
         tax
         rts
+
+; ---- bank3.code_86A8 (code) $86A8-$86D9, 50 bytes
 L3_86A8:
         pha
         lda     #$05
@@ -1015,6 +1069,8 @@ L3_86C9:
 L3_86D7:
         dey
         bne     L3_86C9
+
+; ---- bank3.code_86DA (code) $86DA-$8700, 39 bytes
 L3_86DA:
         pla
         ldy     #$20
@@ -1040,6 +1096,8 @@ L3_86F7:
         bne     L3_8701
 L3_86FF:
         adc     #$5C
+
+; ---- bank3.code_8701 (code) $8701-$870C, 12 bytes
 L3_8701:
         sta     $0104,X
         tya
