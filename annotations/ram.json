@@ -1620,9 +1620,9 @@
       },
       {
         "bit": 4,
-        "what": "Tested in the NMI; set at corridor start with bit 6.",
-        "status": "lead",
-        "evidence": "bank 7 $EF97"
+        "what": "The scroll moves the sprite-0 split: the NMI (bank 7 $DCA2) rewrites the solid tile $FE at column 0 of the nametable row that sprite 0's line falls in (sprite 0 y + 1 + scroll $FC, modulo 240). Set at corridor start with bit 6; also set during the labyrinth's north/south room scrolls ($F169).",
+        "status": "confirmed",
+        "evidence": "bank 7 $DCA2-$DCD2 (read; the marker row is as the Rendering page measured it)"
       },
       {
         "bit": 3,

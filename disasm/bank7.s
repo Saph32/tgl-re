@@ -1652,7 +1652,7 @@ L7_D440:
         .fill   38,$08
         .byte   $30,$08,$08,$08,$08,$08,$07,$30,$30,$30
 
-; ---- bank7.code_D4C1 (code) $D4C1-$D69A, 474 bytes
+; ---- bank7.code_D4C1 (code) $D4C1-$D4D4, 20 bytes
 L7_D4C1:
         jsr     L7_D4E3
         lda     $2002
@@ -1665,6 +1665,8 @@ L7_D4CF:
         sta     $FE
         sta     $2001
         rts
+
+; ---- bank7.code_D4D5 (code) $D4D5-$D4E2, 14 bytes
 L7_D4D5:
         lda     #$18
         sta     $A3
@@ -1673,6 +1675,8 @@ L7_D4D5:
         sta     $FE
         sta     $2001
         rts
+
+; ---- bank7.code_D4E3 (code) $D4E3-$D4EC, 10 bytes
 L7_D4E3:
         lda     $FF
         and     #$7F
@@ -1680,6 +1684,8 @@ L7_D4E7:
         sta     $FF
         sta     $2000
         rts
+
+; ---- bank7.code_D4ED (code) $D4ED-$D4FC, 16 bytes
 L7_D4ED:
         jsr     L7_D68B
         jsr     L7_D4D5
@@ -1689,6 +1695,8 @@ L7_D4F3:
         sta     $FF
         sta     $2000
         rts
+
+; ---- bank7.code_D4FD (code) $D4FD-$D51D, 33 bytes
 L7_D4FD:
         lda     #$00
         sta     $A6
@@ -1709,6 +1717,8 @@ L7_D507:
         and     #$03
         sta     $A2
         rts
+
+; ---- bank7.code_D51E (code) $D51E-$D533, 22 bytes
 L7_D51E:
         sta     $0200
         lda     #$FF
@@ -1719,6 +1729,8 @@ L7_D51E:
         sta     $0203
         ldx     #$04
         bne     L7_D536
+
+; ---- bank7.code_D534 (code) $D534-$D53E, 11 bytes
 L7_D534:
         ldx     #$00
 L7_D536:
@@ -1728,6 +1740,8 @@ L7_D538:
         inx
         bne     L7_D538
         rts
+
+; ---- bank7.code_D53F (code) $D53F-$D575, 55 bytes
 L7_D53F:
         pla
         sta     $16
@@ -1759,6 +1773,8 @@ L7_D550:
         inx
         jsr     L7_D5AF
         jmp     L7_D58A
+
+; ---- bank7.code_D576 (code) $D576-$D590, 27 bytes
 L7_D576:
         pla
         sta     $16
@@ -1777,6 +1793,8 @@ L7_D58A:
         lda     $16
         pha
         rts
+
+; ---- bank7.code_D591 (code) $D591-$D5A4, 20 bytes
 L7_D591:
         ldy     #$01
         lda     ($16),Y
@@ -1792,6 +1810,8 @@ L7_D59F:
         adc     #$03
 L7_D5A2:
         jmp     L7_D6C0
+
+; ---- bank7.code_D5A5 (code) $D5A5-$D5CB, 39 bytes
 L7_D5A5:
         pha
         jsr     L7_D6E0
@@ -1816,6 +1836,8 @@ L7_D5AF:
         adc     #$00
         sta     $17
         rts
+
+; ---- bank7.code_D5CC (code) $D5CC-$D5F7, 44 bytes
 L7_D5CC:
         pla
         sta     $16
@@ -1842,6 +1864,8 @@ L7_D5CC:
         inc     $17
 L7_D5F5:
         jmp     L7_D58A
+
+; ---- bank7.code_D5F8 (code) $D5F8-$D625, 46 bytes
 L7_D5F8:
         lda     $15
         clc
@@ -1865,6 +1889,8 @@ L7_D61B:
         dec     $10
         bne     L7_D61B
         jmp     L7_D6F7
+
+; ---- bank7.code_D626 (code) $D626-$D647, 34 bytes
 L7_D626:
         lda     #$01
         sta     $4016
@@ -1885,6 +1911,8 @@ L7_D632:
         dex
         bne     L7_D632
         rts
+
+; ---- bank7.code_D648 (code) $D648-$D68A, 67 bytes
 L7_D648:
         pla
         jmp     L7_D64F
@@ -1925,6 +1953,8 @@ L7_D678:
         dex
         bpl     L7_D678
         rts
+
+; ---- bank7.code_D68B (code) $D68B-$D69A, 16 bytes
 L7_D68B:
         lda     $FF
         sta     $2000
@@ -1946,7 +1976,7 @@ L7_D68B:
         bcs     $D6A1
         rts
 
-; ---- bank7.code_D6AE (code) $D6AE-$D841, 404 bytes
+; ---- bank7.code_D6AE (code) $D6AE-$D6BF, 18 bytes
 L7_D6AE:
         asl     A
         tay
@@ -1963,6 +1993,8 @@ L7_D6B0:
         lda     ($00),Y
         pha
         rts
+
+; ---- bank7.code_D6C0 (code) $D6C0-$D6D2, 19 bytes
 L7_D6C0:
         pha
         clc
@@ -1978,6 +2010,8 @@ L7_D6D1:
         pla
 L7_D6D2:
         rts
+
+; ---- bank7.code_D6D3 (code) $D6D3-$D6DF, 13 bytes
 L7_D6D3:
         jsr     L7_D6C0
         bcc     L7_D6D2
@@ -1985,6 +2019,8 @@ L7_D6D3:
         jsr     L7_D7C3
         pla
         jmp     L7_D6D3
+
+; ---- bank7.code_D6E0 (code) $D6E0-$D6F6, 23 bytes
 L7_D6E0:
         sta     $25
         lda     $21
@@ -2000,6 +2036,8 @@ L7_D6E0:
         sta     $24
 L7_D6F6:
         rts
+
+; ---- bank7.code_D6F7 (code) $D6F7-$D704, 14 bytes
 L7_D6F7:
         lda     $25
         clc
@@ -2009,6 +2047,8 @@ L7_D6F7:
         adc     #$01
         sta     $20
         rts
+
+; ---- bank7.code_D705 (code) $D705-$D713, 15 bytes
 L7_D705:
         sta     $04
         tya
@@ -2019,6 +2059,8 @@ L7_D705:
         pla
         tay
         rts
+
+; ---- bank7.code_D714 (code) $D714-$D720, 13 bytes
 L7_D714:
         pha
         lda     #$00
@@ -2027,6 +2069,8 @@ L7_D714:
         sta     $FFF2
         pla
         rts
+
+; ---- bank7.code_D721 (code) $D721-$D72D, 13 bytes
 L7_D721:
         pha
         lda     #$01
@@ -2035,6 +2079,8 @@ L7_D721:
         sta     $FFF3
         pla
         rts
+
+; ---- bank7.code_D72E (code) $D72E-$D73A, 13 bytes
 L7_D72E:
         pha
         lda     #$02
@@ -2043,6 +2089,8 @@ L7_D72E:
         sta     $FFF4
         pla
         rts
+
+; ---- bank7.code_D73B (code) $D73B-$D747, 13 bytes
 L7_D73B:
         pha
         lda     #$03
@@ -2051,6 +2099,8 @@ L7_D73B:
         sta     $FFF5
         pla
         rts
+
+; ---- bank7.code_D748 (code) $D748-$D754, 13 bytes
 L7_D748:
         pha
         lda     #$04
@@ -2059,6 +2109,8 @@ L7_D748:
         sta     $FFF6
         pla
         rts
+
+; ---- bank7.code_D755 (code) $D755-$D761, 13 bytes
 L7_D755:
         pha
         lda     #$05
@@ -2067,6 +2119,8 @@ L7_D755:
         sta     $FFF7
         pla
         rts
+
+; ---- bank7.code_D762 (code) $D762-$D76E, 13 bytes
 L7_D762:
         pha
         lda     #$06
@@ -2075,6 +2129,8 @@ L7_D762:
         sta     $FFF8
         pla
         rts
+
+; ---- bank7.code_D76F (code) $D76F-$D787, 25 bytes
 L7_D76F:
         sta     $10
         sty     $11
@@ -2092,10 +2148,14 @@ L7_D76F:
         lda     $04
         pha
         jsr     L7_D790
+
+; ---- bank7.code_D788 (code) $D788-$D78F, 8 bytes
         sta     $10
         sty     $11
         pla
         jmp     L7_D79C
+
+; ---- bank7.code_D790 (code) $D790-$D79B, 12 bytes
 L7_D790:
         ldy     #$03
         lda     ($12),Y
@@ -2105,6 +2165,8 @@ L7_D790:
         pha
         dey
         lda     ($12),Y
+
+; ---- bank7.code_D79C (code) $D79C-$D7A9, 14 bytes
 L7_D79C:
         sta     $04
         tay
@@ -2113,6 +2175,8 @@ L7_D79C:
         lda     $10
         ldy     $11
         rts
+
+; ---- bank7.code_D7AA (code) $D7AA-$D7C2, 25 bytes
 L7_D7AA:
         lda     $FF
         bpl     L7_D7C2
@@ -2129,6 +2193,8 @@ L7_D7B3:
         pla
 L7_D7C2:
         rts
+
+; ---- bank7.code_D7C3 (code) $D7C3-$D7F8, 54 bytes
 L7_D7C3:
         txa
         pha
@@ -2164,6 +2230,8 @@ L7_D7EC:
         pla
         tax
         rts
+
+; ---- bank7.code_D7F9 (code) $D7F9-$D841, 73 bytes
 L7_D7F9:
         sta     $15
         sty     $14
@@ -2215,7 +2283,7 @@ L7_D81B:
 ; Table, 8 bytes (structural extent)
         .byte   $80,$80,$80,$80,$80,$80,$80,$C0
 
-; ---- bank7.code_D852 (code) $D852-$D8E0, 143 bytes
+; ---- bank7.code_D852 (code) $D852-$D864, 19 bytes
 L7_D852:
         sta     $10
         lda     $04
@@ -2227,6 +2295,8 @@ L7_D852:
         jsr     L0_8006
         pla
         jmp     L7_D705
+
+; ---- bank7.code_D865 (code) $D865-$D8E0, 124 bytes
 L7_D865:
         pha
         lda     #$09
@@ -2615,7 +2685,7 @@ L7_DB15:
         .byte   $C2,$C6,$C0,$CA,$C6,$C1,$C2,$C1,$C4,$C5,$C8,$C6,$C0,$C9,$C5,$C2
         .byte   $C4,$C0,$C5,$C2,$CA,$C4,$C0,$C1,$C0,$C5,$C1,$CA,$C9,$C0,$C5,$C9
 
-; ---- bank7.code_DB52 (code) $DB52-$DF9D, 1100 bytes
+; ---- bank7.code_DB52 (code) $DB52-$DC74, 291 bytes
 L7_DB52:
         lda     $04
         pha
@@ -2794,28 +2864,46 @@ L7_DC5A:
         inc     $0D
 L7_DC74:
         rts
+
+; ---- bank7.code_DC75 (code) $DC75-$DC79, 5 bytes
 L7_DC75:
         pha
         txa
         pha
         tya
         pha
+
+; ---- bank7.code_DC7A (code) $DC7A-$DC82, 9 bytes
         lda     $FE
         and     #$E7
         sta     $FE
         sta     $2001
+
+; ---- bank7.code_DC83 (code) $DC83-$DC84, 2 bytes
         inc     $2B
+
+; ---- bank7.code_DC85 (code) $DC85-$DC89, 5 bytes
         lda     $2002
         sta     $26
+
+; ---- bank7.code_DC8A (code) $DC8A-$DC93, 10 bytes
         lda     #$00
         sta     $2003
         lda     #$02
         sta     $4014
+
+; ---- bank7.code_DC94 (code) $DC94-$DC9B, 8 bytes
         lda     $2002
         lda     #$1F
         sta     $4015
+
+; ---- bank7.code_DC9C (code) $DC9C-$DC9E, 3 bytes
         jsr     L7_DD54
+
+; ---- bank7.code_DC9F (code) $DC9F-$DCA1, 3 bytes
         jsr     L7_DEC9
+
+; ---- bank7.code_DCA2 (code) $DCA2-$DCD2, 49 bytes
         lda     $30
         and     #$10
         beq     L7_DCD3
@@ -2842,26 +2930,38 @@ L7_DCBA:
         sta     $2006
         lda     #$FE
         sta     $2007
+
+; ---- bank7.code_DCD3 (code) $DCD3-$DCD5, 3 bytes
 L7_DCD3:
         jsr     L7_D68B
+
+; ---- bank7.code_DCD6 (code) $DCD6-$DCD8, 3 bytes
         jsr     L7_DD48
+
+; ---- bank7.code_DCD9 (code) $DCD9-$DCE5, 13 bytes
         lda     $04
         pha
         jsr     L7_D714
         jsr     L0_8009
         pla
         jsr     L7_D705
+
+; ---- bank7.code_DCE6 (code) $DCE6-$DCEC, 7 bytes
         tsx
         txa
         adc     $2A
         rol     A
         sta     $2A
+
+; ---- bank7.code_DCED (code) $DCED-$DCF2, 6 bytes
         pla
         tay
         pla
         tax
         pla
         rti
+
+; ---- bank7.code_DCF3 (code) $DCF3-$DD20, 46 bytes
 L7_DCF3:
         pha
         lda     #$0F
@@ -2890,6 +2990,8 @@ L7_DD15:
         bne     L7_DD0E
         dec     $05
         bne     L7_DD0E
+
+; ---- bank7.code_DD21 (code) $DD21-$DD47, 39 bytes
 L7_DD21:
         lda     #$27
         sta     $2006
@@ -2908,6 +3010,8 @@ L7_DD21:
         sta     $2005
         sta     $2005
         rts
+
+; ---- bank7.code_DD48 (code) $DD48-$DD53, 12 bytes
 L7_DD48:
         lda     $FE
         and     #$E7
@@ -2915,6 +3019,8 @@ L7_DD48:
         sta     $FE
         sta     $2001
         rts
+
+; ---- bank7.code_DD54 (code) $DD54-$DD62, 15 bytes
 L7_DD54:
         lda     $A0
         bpl     L7_DD5B
@@ -2924,9 +3030,13 @@ L7_DD5B:
         and     #$FC
         ora     $A2
         sta     $FF
+
+; ---- bank7.code_DD63 (code) $DD63-$DD69, 7 bytes
         lda     $A5
         bne     L7_DD6A
         jmp     L7_DE0C
+
+; ---- bank7.code_DD6A (code) $DD6A-$DD74, 11 bytes
 L7_DD6A:
         tay
         and     #$01
@@ -2935,12 +3045,18 @@ L7_DD6A:
         tya
         and     #$03
         sta     $A5
+
+; ---- bank7.code_DD75 (code) $DD75-$DD80, 12 bytes
         lda     $AD
         ora     #$03
         sta     $2006
         lda     $AA
         sta     $2006
+
+; ---- bank7.code_DD81 (code) $DD81-$DD82, 2 bytes
         ldy     #$00
+
+; ---- bank7.code_DD83 (code) $DD83-$DDB2, 48 bytes
         lda     $04E8
         sta     $2007
         lda     $04E9
@@ -2957,12 +3073,16 @@ L7_DD6A:
         sta     $2007
         lda     $04EF
         sta     $2007
+
+; ---- bank7.code_DDB3 (code) $DDB3-$DDC0, 14 bytes
         lda     $AD
         sta     $2006
         lda     $AC
         sta     $2006
         ldy     #$00
         beq     L7_DDD3
+
+; ---- bank7.code_DDC1 (code) $DDC1-$DDD2, 18 bytes
 L7_DDC1:
         lda     #$00
         sta     $A5
@@ -2972,6 +3092,8 @@ L7_DDC1:
         ora     #$20
         sta     $2006
         ldy     #$20
+
+; ---- bank7.code_DDD3 (code) $DDD3-$DE0B, 57 bytes
 L7_DDD3:
         clc
 L7_DDD4:
@@ -2996,6 +3118,8 @@ L7_DDD4:
         tay
         and     #$1F
         bne     L7_DDD4
+
+; ---- bank7.code_DE0C (code) $DE0C-$DE14, 9 bytes
 L7_DE0C:
         lda     $20
         bne     L7_DE11
@@ -3003,12 +3127,16 @@ L7_DE0C:
 L7_DE11:
         ldx     #$00
         stx     $21
+
+; ---- bank7.code_DE15 (code) $DE15-$DE1E, 10 bytes
 L7_DE15:
         lda     $0100,X
         inx
         tay
         bmi     L7_DE1F
         jmp     L7_DEA9
+
+; ---- bank7.code_DE1F (code) $DE1F-$DE2C, 14 bytes
 L7_DE1F:
         and     #$7F
         tay
@@ -3019,9 +3147,13 @@ L7_DE1F:
         ora     #$20
         pha
         ora     #$03
+
+; ---- bank7.code_DE2D (code) $DE2D-$DE32, 6 bytes
         stx     $23
         ldy     $0105,X
         tax
+
+; ---- bank7.code_DE33 (code) $DE33-$DE58, 38 bytes
         stx     $2006
         sty     $2006
         lda     $2007
@@ -3037,10 +3169,14 @@ L7_DE47:
         cmp     $22
         sta     $22
         bne     L7_DE47
+
+; ---- bank7.code_DE59 (code) $DE59-$DE63, 11 bytes
         ldx     $23
         and     $0107,X
         ora     $0106,X
         sta     $2007
+
+; ---- bank7.code_DE64 (code) $DE64-$DE95, 50 bytes
         pla
         tay
         sta     $2006
@@ -3060,6 +3196,8 @@ L7_DE47:
         sta     $2007
         lda     $0104,X
         sta     $2007
+
+; ---- bank7.code_DE96 (code) $DE96-$DEA0, 11 bytes
 L7_DE96:
         txa
         adc     #$08
@@ -3068,12 +3206,18 @@ L7_DE9A:
         dec     $20
         beq     L7_DEA1
         jmp     L7_DE15
+
+; ---- bank7.code_DEA1 (code) $DEA1-$DEA1, 1 bytes
 L7_DEA1:
         rts
+
+; ---- bank7.code_DEA2 (code) $DEA2-$DEA8, 7 bytes
 L7_DEA2:
         lda     $FF
         ora     #$04
         sta     $2000
+
+; ---- bank7.code_DEA9 (code) $DEA9-$DEC8, 32 bytes
 L7_DEA9:
         lda     $0100,X
         sta     $2006
@@ -3090,11 +3234,15 @@ L7_DEB7:
         lda     $FF
         sta     $2000
         jmp     L7_DE9A
+
+; ---- bank7.code_DEC9 (code) $DEC9-$DED1, 9 bytes
 L7_DEC9:
         lda     $017F
         beq     L7_DF3B
         cmp     #$02
         beq     L7_DEE4
+
+; ---- bank7.code_DED2 (code) $DED2-$DEE3, 18 bytes
 L7_DED2:
         ldy     #$00
         ldx     #$3F
@@ -3104,14 +3252,20 @@ L7_DED2:
         cmp     #$03
         beq     L7_DEF2
         bne     L7_DEF0
+
+; ---- bank7.code_DEE4 (code) $DEE4-$DEEF, 12 bytes
 L7_DEE4:
         lda     #$3F
         sta     $2006
         lda     #$10
         sta     $2006
         ldy     #$0C
+
+; ---- bank7.code_DEF0 (code) $DEF0-$DEF1, 2 bytes
 L7_DEF0:
         ldx     #$02
+
+; ---- bank7.code_DEF2 (code) $DEF2-$DF29, 56 bytes
 L7_DEF2:
         clc
 L7_DEF3:
@@ -3136,6 +3290,8 @@ L7_DEF3:
         tay
         dex
         bne     L7_DEF3
+
+; ---- bank7.code_DF2A (code) $DF2A-$DF3B, 18 bytes
         lda     #$3F
         sta     $2006
         stx     $2006
@@ -3144,8 +3300,12 @@ L7_DEF3:
         stx     $017F
 L7_DF3B:
         rts
+
+; ---- bank7.code_DF3C (code) $DF3C-$DF3C, 1 bytes
 L7_DF3C:
         rts
+
+; ---- bank7.code_DF3D (code) $DF3D-$DF4F, 19 bytes
 L7_DF3D:
         lda     $017C
         bmi     L7_DF3C
@@ -3157,6 +3317,8 @@ L7_DF45:
         dey
         bne     L7_DF45
         bcc     L7_DF3C
+
+; ---- bank7.code_DF50 (code) $DF50-$DF7F, 48 bytes
         lda     $017C
         bne     L7_DF7D
         lda     $017D
@@ -3180,6 +3342,8 @@ L7_DF6F:
         bne     L7_DF80
 L7_DF7D:
         inc     $017C
+
+; ---- bank7.code_DF80 (code) $DF80-$DF8B, 12 bytes
 L7_DF80:
         lda     $30
         and     #$04
@@ -3187,6 +3351,8 @@ L7_DF80:
         jsr     L7_DF8C
 L7_DF89:
         jmp     L7_DF3D
+
+; ---- bank7.code_DF8C (code) $DF8C-$DF9D, 18 bytes
 L7_DF8C:
         lda     #$31
         jsr     L7_D852
