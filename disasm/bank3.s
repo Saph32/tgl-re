@@ -1855,7 +1855,7 @@ L3_8B59:
         sta     $16
         jsr     $C084
 
-; ---- bank3.code_8B7E (code) $8B7E-$8C97, 282 bytes
+; ---- bank3.code_8B7E (code) $8B7E-$8B91, 20 bytes
 L3_8B7E:
         lda     #$F8
         sta     $0204
@@ -1866,12 +1866,18 @@ L3_8B7E:
         sta     $18
         ldx     #$06
         ldy     #$00
+
+; ---- bank3.code_8B92 (code) $8B92-$8B98, 7 bytes
 L3_8B92:
         jsr     L3_8BB3
         cpy     #$0F
         bcs     L3_8BB2
+
+; ---- bank3.code_8B99 (code) $8B99-$8B9D, 5 bytes
         lda     #$00
         jsr     L3_8BB3
+
+; ---- bank3.code_8B9E (code) $8B9E-$8BB1, 20 bytes
         tya
         beq     L3_8BA2
         iny
@@ -1887,8 +1893,12 @@ L3_8BA2:
         dec     $19
 L3_8BB0:
         bne     L3_8B92
+
+; ---- bank3.code_8BB2 (code) $8BB2-$8BB2, 1 bytes
 L3_8BB2:
         rts
+
+; ---- bank3.code_8BB3 (code) $8BB3-$8BC4, 18 bytes
 L3_8BB3:
         sta     $1B
         sty     $1A
@@ -1897,6 +1907,8 @@ L3_8BB3:
         jsr     L3_8C76
         sta     $0103,Y
         jsr     L7_C03F
+
+; ---- bank3.code_8BC5 (code) $8BC5-$8BD7, 19 bytes
         stx     $15
         txa
         beq     L3_8BD8
@@ -1906,6 +1918,8 @@ L3_8BB3:
         sta     $14
         jsr     L7_C036
         dec     $18
+
+; ---- bank3.code_8BD8 (code) $8BD8-$8BF2, 27 bytes
 L3_8BD8:
         lda     $18
         pha
@@ -1920,6 +1934,8 @@ L3_8BD8:
         lda     $19
         pha
         lda     $1A
+
+; ---- bank3.code_8BF3 (code) $8BF3-$8C1C, 42 bytes
         beq     L3_8C1D
         ora     #$80
         sta     $15
@@ -1940,6 +1956,8 @@ L3_8BD8:
         jsr     L3_8C76
         sta     $14
         jsr     L7_C036
+
+; ---- bank3.code_8C1D (code) $8C1D-$8C44, 40 bytes
 L3_8C1D:
         pla
         sta     $19
@@ -1961,6 +1979,8 @@ L3_8C30:
         jsr     L3_8C76
         sta     $0103,Y
         jsr     L7_C03F
+
+; ---- bank3.code_8C45 (code) $8C45-$8C75, 49 bytes
 L3_8C45:
         stx     $15
         txa
@@ -1987,6 +2007,8 @@ L3_8C58:
         sta     $18
         ldy     $1A
         rts
+
+; ---- bank3.code_8C76 (code) $8C76-$8C7E, 9 bytes
 L3_8C76:
         ror     $1B
         rol     $1B
@@ -1994,6 +2016,8 @@ L3_8C76:
         lda     #$20
 L3_8C7E:
         rts
+
+; ---- bank3.code_8C7F (code) $8C7F-$8C97, 25 bytes
 L3_8C7F:
         lda     #$04
         jsr     L7_C04B
