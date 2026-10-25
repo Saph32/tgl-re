@@ -2685,18 +2685,22 @@ L7_DB15:
         .byte   $C2,$C6,$C0,$CA,$C6,$C1,$C2,$C1,$C4,$C5,$C8,$C6,$C0,$C9,$C5,$C2
         .byte   $C4,$C0,$C5,$C2,$CA,$C4,$C0,$C1,$C0,$C5,$C1,$CA,$C9,$C0,$C5,$C9
 
-; ---- bank7.code_DB52 (code) $DB52-$DC74, 291 bytes
+; ---- bank7.code_DB52 (code) $DB52-$DB59, 8 bytes
 L7_DB52:
         lda     $04
         pha
         lda     $06
         jsr     L7_D705
+
+; ---- bank7.code_DB5A (code) $DB5A-$DB64, 11 bytes
         lda     $0B
         lsr     A
         bcs     L7_DB65
         lsr     A
         bcc     L7_DB76
         jsr     L7_DC5A
+
+; ---- bank7.code_DB65 (code) $DB65-$DB78, 20 bytes
 L7_DB65:
         lda     $A5
         beq     L7_DB6D
@@ -2711,6 +2715,8 @@ L7_DB6F:
         bcs     L7_DB79
 L7_DB76:
         jmp     L7_DC55
+
+; ---- bank7.code_DB79 (code) $DB79-$DB87, 15 bytes
 L7_DB79:
         pha
         clc
@@ -2721,14 +2727,20 @@ L7_DB79:
         sta     $12
         sta     $13
         ldy     #$00
+
+; ---- bank7.code_DB88 (code) $DB88-$DB8D, 6 bytes
         lda     $0B
         and     #$20
         bne     L7_DC08
+
+; ---- bank7.code_DB8E (code) $DB8E-$DB94, 7 bytes
 L7_DB8E:
         lda     ($0C),Y
         iny
         cmp     $09
         bne     L7_DBAD
+
+; ---- bank7.code_DB95 (code) $DB95-$DBAC, 24 bytes
         lda     $0B
         eor     #$80
         sta     $0B
@@ -2741,6 +2753,8 @@ L7_DB8E:
         sec
         sbc     $12
         jmp     L7_DC27
+
+; ---- bank7.code_DBAD (code) $DBAD-$DBCD, 33 bytes
 L7_DBAD:
         cmp     $0A
         bne     L7_DBCE
@@ -2762,6 +2776,8 @@ L7_DBCA:
         iny
         iny
         bne     L7_DB8E
+
+; ---- bank7.code_DBCE (code) $DBCE-$DBEB, 30 bytes
 L7_DBCE:
         bit     $0B
         bvc     L7_DBEC
@@ -2782,6 +2798,8 @@ L7_DBCE:
         asl     A
         ror     $10
         lda     $10
+
+; ---- bank7.code_DBEC (code) $DBEC-$DBFA, 15 bytes
 L7_DBEC:
         bit     $0B
         bmi     L7_DBFB
@@ -2790,6 +2808,8 @@ L7_DBEC:
         dec     $12
         beq     L7_DC25
         jmp     L7_DB8E
+
+; ---- bank7.code_DBFB (code) $DBFB-$DC07, 13 bytes
 L7_DBFB:
         sta     $07
         lda     $0B
@@ -2798,6 +2818,8 @@ L7_DBFB:
         lda     ($0C),Y
         iny
         sta     $08
+
+; ---- bank7.code_DC08 (code) $DC08-$DC24, 29 bytes
 L7_DC08:
         lda     $07
 L7_DC0A:
@@ -2815,8 +2837,12 @@ L7_DC18:
         dec     $12
         beq     L7_DC25
         jmp     L7_DB8E
+
+; ---- bank7.code_DC25 (code) $DC25-$DC26, 2 bytes
 L7_DC25:
         lda     $13
+
+; ---- bank7.code_DC27 (code) $DC27-$DC54, 46 bytes
 L7_DC27:
         ldx     $21
         sta     $0100,X
@@ -2843,10 +2869,14 @@ L7_DC4B:
         sta     $0C
         bcc     L7_DC55
         inc     $0D
+
+; ---- bank7.code_DC55 (code) $DC55-$DC59, 5 bytes
 L7_DC55:
         pla
         jsr     L7_D705
         rts
+
+; ---- bank7.code_DC5A (code) $DC5A-$DC74, 27 bytes
 L7_DC5A:
         ldy     #$00
         lda     ($0C),Y
