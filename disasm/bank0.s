@@ -5,23 +5,39 @@
 .org $8000
 
 
-; ---- bank0.code_8000 (code) $8000-$801A, 27 bytes
+; ---- bank0.code_8000 (code) $8000-$8002, 3 bytes
 L0_8000:
         jmp     L0_97A0
+
+; ---- bank0.code_8003 (code) $8003-$8005, 3 bytes
 L0_8003:
         jmp     L0_805B
+
+; ---- bank0.code_8006 (code) $8006-$8008, 3 bytes
 L0_8006:
         jmp     L0_97CC
+
+; ---- bank0.code_8009 (code) $8009-$800B, 3 bytes
 L0_8009:
         jmp     L0_917C
+
+; ---- bank0.code_800C (code) $800C-$800E, 3 bytes
 L0_800C:
         jmp     L0_8332
+
+; ---- bank0.code_800F (code) $800F-$8011, 3 bytes
 L0_800F:
         jmp     L0_81DD
+
+; ---- bank0.code_8012 (code) $8012-$8014, 3 bytes
 L0_8012:
         jmp     L0_88F5
+
+; ---- bank0.code_8015 (code) $8015-$8017, 3 bytes
 L0_8015:
         jmp     L0_8915
+
+; ---- bank0.code_8018 (code) $8018-$801A, 3 bytes
 L0_8018:
         jmp     L0_8034
 
@@ -43,8 +59,10 @@ L0_8034:
         .byte   $68,$30,$00,$BE,$BA,$00,$36,$0E,$0E,$0E,$00,$00,$BE,$00,$12,$0A
         .byte   $0A,$0E,$00
 
-; ---- bank0.code_805A (code) $805A-$8151, 248 bytes
+; ---- bank0.code_805A (code) $805A-$805A, 1 bytes
         rts
+
+; ---- bank0.code_805B (code) $805B-$8087, 45 bytes
 L0_805B:
         jsr     L7_C159
         ldx     #$00
@@ -68,12 +86,18 @@ L0_805B:
         lda     #$04
         sta     $3B
         sta     $33
+
+; ---- bank0.code_8088 (code) $8088-$808D, 6 bytes
         ldy     $2F
         cpy     #$02
         bne     L0_80A3
+
+; ---- bank0.code_808E (code) $808E-$8093, 6 bytes
         lda     $30
         and     #$02
         beq     L0_80C8
+
+; ---- bank0.code_8094 (code) $8094-$80A2, 15 bytes
         lda     $78
         sta     $47
         ldy     #$06
@@ -83,6 +107,8 @@ L0_809C:
         dey
         bne     L0_809C
         iny
+
+; ---- bank0.code_80A3 (code) $80A3-$80B5, 19 bytes
 L0_80A3:
         lda     #$00
         sta     $04B1
@@ -91,8 +117,12 @@ L0_80A3:
         sta     $017D
         lda     #$03
         sta     $017E
+
+; ---- bank0.code_80B6 (code) $80B6-$80B8, 3 bytes
         tya
         beq     L0_80D4
+
+; ---- bank0.code_80B9 (code) $80B9-$80C7, 15 bytes
         lda     $30
         pha
         ora     #$04
@@ -101,6 +131,8 @@ L0_80A3:
         jsr     L7_C057
         pla
         sta     $30
+
+; ---- bank0.code_80C8 (code) $80C8-$80D3, 12 bytes
 L0_80C8:
         lda     $7C
         sta     $52
@@ -108,6 +140,8 @@ L0_80C8:
         sta     $53
         lda     #$20
         bne     L0_8143
+
+; ---- bank0.code_80D4 (code) $80D4-$80F4, 33 bytes
 L0_80D4:
         ldy     #$13
 L0_80D6:
@@ -127,6 +161,8 @@ L0_80EC:
         sta     $04B2,Y
         dey
         bne     L0_80EC
+
+; ---- bank0.code_80F5 (code) $80F5-$8106, 18 bytes
         lda     #$0B
         sta     $52
         sta     $7C
@@ -136,6 +172,8 @@ L0_80EC:
         lda     #$01
         sta     $4A
         sta     $4B
+
+; ---- bank0.code_8107 (code) $8107-$8116, 16 bytes
         lda     $F7
         and     #$10
         eor     #$10
@@ -144,6 +182,8 @@ L0_80EC:
         and     #$02
         eor     #$02
         beq     L0_8143
+
+; ---- bank0.code_8117 (code) $8117-$8140, 42 bytes
         lda     #$80
         sta     $47
         lda     #$AA
@@ -164,7 +204,11 @@ L0_80EC:
         lda     #$01
 L0_813F:
         sta     $3C
+
+; ---- bank0.code_8141 (code) $8141-$8142, 2 bytes
         lda     #$80
+
+; ---- bank0.code_8143 (code) $8143-$8151, 15 bytes
 L0_8143:
         ora     $30
         sta     $30
@@ -178,7 +222,7 @@ L0_8143:
 ; Far-call argument at $8152
         .byte   $02,$17,$80
 
-; ---- bank0.code_8155 (code) $8155-$8182, 46 bytes
+; ---- bank0.code_8155 (code) $8155-$8166, 18 bytes
         bit     $30
         bmi     L0_815F
         lda     $2F
@@ -189,6 +233,8 @@ L0_815F:
         sta     $4C
         lda     $4F
         sta     $4D
+
+; ---- bank0.code_8167 (code) $8167-$8175, 15 bytes
 L0_8167:
         lda     #$1C
         sta     $F0
@@ -197,10 +243,14 @@ L0_8167:
         sta     $F4
         lda     #$01
         sta     $F2
+
+; ---- bank0.code_8176 (code) $8176-$817F, 10 bytes
         lda     #$20
         jsr     L7_C018
         lda     #$24
         jsr     L7_C018
+
+; ---- bank0.code_8180 (code) $8180-$8182, 3 bytes
         jsr     L7_C06C
 
 ; ---- bank0.inline_8183 (data) $8183-$8186, 4 bytes
@@ -235,16 +285,18 @@ L0_8167:
 ; "0  CHIP" at $81A3
         .byte   $07,$27,$28,$30,$20,$20,$43,$48,$49,$50
 
-; ---- bank0.code_81AD (code) $81AD-$81B4, 8 bytes
+; ---- bank0.code_81AD (code) $81AD-$81B1, 5 bytes
         lda     #$00
         jsr     L7_C12F
+
+; ---- bank0.code_81B2 (code) $81B2-$81B4, 3 bytes
         jsr     L7_C006
 
 ; ---- bank0.inline_81B5 (data) $81B5-$81B7, 3 bytes
 ; Far-call argument at $81B5
         .byte   $05,$32,$80
 
-; ---- bank0.code_81B8 (code) $81B8-$8207, 80 bytes
+; ---- bank0.code_81B8 (code) $81B8-$81DC, 37 bytes
         lda     #$00
         sta     $A2
         lda     #$1F
@@ -262,6 +314,8 @@ L0_8167:
         ldy     #$02
         jsr     L7_C042
         jmp     L7_C045
+
+; ---- bank0.code_81DD (code) $81DD-$81F0, 20 bytes
 L0_81DD:
         jsr     L7_C14A
         ldy     #$01
@@ -271,6 +325,8 @@ L0_81DD:
         bit     $30
         bpl     L0_81F1
         jmp     L7_C14D
+
+; ---- bank0.code_81F1 (code) $81F1-$8207, 23 bytes
 L0_81F1:
         lda     #$0A
         jsr     L7_C030
@@ -287,11 +343,13 @@ L0_81FB:
 ; Far-call argument at $8208
         .byte   $06,$FF,$7F
 
-; ---- bank0.code_820B (code) $820B-$822F, 37 bytes
+; ---- bank0.code_820B (code) $820B-$8215, 11 bytes
         jsr     L7_C153
         jsr     L7_C156
         lda     $0300
         beq     L0_81FB
+
+; ---- bank0.code_8216 (code) $8216-$822F, 26 bytes
 L0_8216:
         jsr     L7_C0ED
         lda     $30
@@ -315,7 +373,7 @@ L0_8216:
 ; "GAME OVER" at $8237
         .byte   $09,$21,$4B,$47,$41,$4D,$45,$20,$4F,$56,$45,$52
 
-; ---- bank0.code_8243 (code) $8243-$8284, 66 bytes
+; ---- bank0.code_8243 (code) $8243-$8265, 35 bytes
         bit     $30
         bvc     L0_8266
         lda     $51
@@ -334,6 +392,8 @@ L0_8256:
 L0_8260:
         jsr     L7_C0ED
         jmp     L7_C14D
+
+; ---- bank0.code_8266 (code) $8266-$8281, 28 bytes
 L0_8266:
         lda     $30
         and     #$02
@@ -349,6 +409,8 @@ L0_8266:
         bcc     L0_8282
         lda     #$FA
         sta     $4C
+
+; ---- bank0.code_8282 (code) $8282-$8284, 3 bytes
 L0_8282:
         jsr     L7_C06F
 
@@ -357,7 +419,7 @@ L0_8282:
         .byte   $14,$21,$A7,$43,$4F,$4E,$54,$49,$4E,$55,$45,$20,$20,$50,$55,$53
         .byte   $48,$20,$53,$54,$41,$52,$54
 
-; ---- bank0.code_829C (code) $829C-$82BC, 33 bytes
+; ---- bank0.code_829C (code) $829C-$82AF, 20 bytes
         jsr     L0_82B0
 L0_829F:
         jsr     L7_C0E4
@@ -367,6 +429,8 @@ L0_829F:
         sta     $2F
         jsr     L7_C0ED
         jmp     L7_C150
+
+; ---- bank0.code_82B0 (code) $82B0-$82BC, 13 bytes
 L0_82B0:
         lda     #$30
         sta     $0181
@@ -429,7 +493,7 @@ L0_8315:
 ; Inline argument at $831D
         .byte   $40,$23,$C0,$55
 
-; ---- bank0.code_8321 (code) $8321-$8349, 41 bytes
+; ---- bank0.code_8321 (code) $8321-$8331, 17 bytes
         jsr     L0_8485
         lda     #$BD
         sta     $18
@@ -437,6 +501,8 @@ L0_8315:
         sta     $19
         jsr     L7_C05D
         jmp     L7_C01B
+
+; ---- bank0.code_8332 (code) $8332-$8349, 24 bytes
 L0_8332:
         jsr     L0_82C5
         jsr     L7_C063
@@ -453,7 +519,7 @@ L0_8332:
 ; Far-call argument at $834A
         .byte   $03,$1A,$80
 
-; ---- bank0.code_834D (code) $834D-$837C, 48 bytes
+; ---- bank0.code_834D (code) $834D-$8359, 13 bytes
 L0_834D:
         lda     #$01
         jsr     L0_97CC
@@ -461,6 +527,8 @@ L0_834D:
         sta     $F0
         lda     #$01
         sta     $F1
+
+; ---- bank0.code_835A (code) $835A-$8371, 24 bytes
 L0_835A:
         jsr     L7_C0E4
         and     #$10
@@ -475,6 +543,8 @@ L0_836A:
         bne     L0_835A
         dec     $F0
         bne     L0_835A
+
+; ---- bank0.code_8372 (code) $8372-$837C, 11 bytes
         jsr     L7_C0ED
         lda     #$20
         jsr     L7_C018
@@ -484,7 +554,7 @@ L0_836A:
 ; Inline argument at $837D
         .byte   $40,$23,$C0,$00
 
-; ---- bank0.code_8381 (code) $8381-$8435, 181 bytes
+; ---- bank0.code_8381 (code) $8381-$83A5, 37 bytes
         lda     #$20
         sta     $19
         lda     #$80
@@ -503,6 +573,8 @@ L0_8396:
         lda     #$28
         sta     $FC
         jsr     L7_C0DE
+
+; ---- bank0.code_83A6 (code) $83A6-$8420, 123 bytes
         lda     #$00
         sta     $F2
         lda     #$02
@@ -568,14 +640,20 @@ L0_840F:
         lda     #$03
         sta     $F3
         bne     L0_83B4
+
+; ---- bank0.code_8421 (code) $8421-$842F, 15 bytes
 L0_8421:
         jsr     L7_C0ED
         jsr     L0_8315
         jsr     L0_8822
         jsr     L7_C063
         jmp     L0_8433
+
+; ---- bank0.code_8430 (code) $8430-$8432, 3 bytes
 L0_8430:
         jsr     L0_8822
+
+; ---- bank0.code_8433 (code) $8433-$8435, 3 bytes
 L0_8433:
         jsr     L7_C06F
 
@@ -583,7 +661,7 @@ L0_8433:
 ; "3" at $8436
         .byte   $01,$23,$E9,$33
 
-; ---- bank0.code_843A (code) $843A-$8461, 40 bytes
+; ---- bank0.code_843A (code) $843A-$845A, 33 bytes
         jsr     L0_845B
 L0_843D:
         jsr     L7_C0E4
@@ -600,6 +678,8 @@ L0_843D:
         lda     #$33
         jsr     L0_97CC
         jmp     L0_843D
+
+; ---- bank0.code_845B (code) $845B-$8461, 7 bytes
 L0_845B:
         lda     $2F
         bne     L0_8469
@@ -609,8 +689,10 @@ L0_845B:
 ; ":  " at $8462
         .byte   $83,$22,$86,$3A,$20,$20
 
-; ---- bank0.code_8468 (code) $8468-$846B, 4 bytes
+; ---- bank0.code_8468 (code) $8468-$8468, 1 bytes
         rts
+
+; ---- bank0.code_8469 (code) $8469-$846B, 3 bytes
 L0_8469:
         jsr     L7_C06F
 
@@ -627,7 +709,7 @@ L0_8472:
         .byte   $0F,$0F,$0F,$00,$0F,$0F,$10,$0F,$0F,$30,$0F,$0F,$05,$0A,$0F,$5F
         .byte   $AF,$FF
 
-; ---- bank0.code_8485 (code) $8485-$84F6, 114 bytes
+; ---- bank0.code_8485 (code) $8485-$8494, 16 bytes
 L0_8485:
         lda     #$20
         sta     $19
@@ -637,6 +719,8 @@ L0_8485:
         sta     $16
         lda     #$84
         sta     $17
+
+; ---- bank0.code_8495 (code) $8495-$84D9, 69 bytes
 L0_8495:
         ldy     #$00
 L0_8497:
@@ -676,6 +760,8 @@ L0_84C2:
 L0_84D4:
         jsr     L7_C03F
         jmp     L0_8497
+
+; ---- bank0.code_84DA (code) $84DA-$84F5, 28 bytes
 L0_84DA:
         php
         tya
@@ -695,6 +781,8 @@ L0_84F0:
         plp
         beq     L0_84F6
         jmp     L0_8495
+
+; ---- bank0.code_84F6 (code) $84F6-$84F6, 1 bytes
 L0_84F6:
         rts
 
@@ -788,7 +876,7 @@ L0_8822:
         .byte   $0C,$01,$25,$12,$01,$21,$FF,$FF,$08,$8B,$20,$0F,$01,$21,$FF,$FF
         .byte   $08,$91,$20,$09,$01,$21,$10,$01,$21,$12,$01,$25,$FF,$FE
 
-; ---- bank0.code_88F5 (code) $88F5-$8917, 35 bytes
+; ---- bank0.code_88F5 (code) $88F5-$8914, 32 bytes
 L0_88F5:
         jsr     L0_82C5
         lda     #$80
@@ -804,6 +892,8 @@ L0_88F5:
         lda     #$B7
         sta     $16
         jmp     L0_8495
+
+; ---- bank0.code_8915 (code) $8915-$8917, 3 bytes
 L0_8915:
         jsr     L7_C006
 
@@ -811,13 +901,15 @@ L0_8915:
 ; Far-call argument at $8918
         .byte   $02,$FF,$7F
 
-; ---- bank0.code_891B (code) $891B-$89F8, 222 bytes
+; ---- bank0.code_891B (code) $891B-$8926, 12 bytes
         lda     #$00
         sta     $F0
         lda     #$89
         sta     $17
         lda     #$F9
         sta     $16
+
+; ---- bank0.code_8927 (code) $8927-$8942, 28 bytes
 L0_8927:
         lda     #$22
         sta     $19
@@ -832,6 +924,8 @@ L0_8937:
         jsr     L7_C16E
         lda     $15
         bne     L0_8937
+
+; ---- bank0.code_8943 (code) $8943-$899E, 92 bytes
         ldy     $F0
         cpy     #$08
         bcs     L0_899F
@@ -882,6 +976,8 @@ L0_8999:
         dex
         bne     L0_898B
         jmp     L0_8927
+
+; ---- bank0.code_899F (code) $899F-$89B5, 23 bytes
 L0_899F:
         lda     $F0
         cmp     #$08
@@ -894,6 +990,8 @@ L0_89AE:
         ldy     #$01
         jsr     L0_89B6
         jmp     L0_899F
+
+; ---- bank0.code_89B6 (code) $89B6-$89F8, 67 bytes
 L0_89B6:
         tya
         pha
