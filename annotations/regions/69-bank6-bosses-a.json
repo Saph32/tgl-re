@@ -186,7 +186,7 @@
       "confidence": "confirmed",
       "cpu_addr": 37243,
       "sha1": "532f14ccc3c13f8d10626ac2b90a0afff771d004",
-      "description": "`14 0C FC F4 EC`: LEAD (the plausible reading is a set of x offsets, but nothing indexes them)."
+      "description": "`14 0C FC F4 EC` (+20, +12, -4, -12, -20 as signed bytes): LEAD, checked harder and still unread. A whole-ROM scan finds no operand `7A 91`, `7B 91`, `7C 91` (the one hit is bank 0's own jump table) or `7D 91`, and no pair of immediates building $917B-$917F as a pointer in any bank. The tables beside it cannot reach it: `$9171` and `$9176` are indexed by `$15`, which only takes the values 0-4 from `$9180`, so they end at `$9175` / `$917A`. The claw code passes -10 and +10 as its offsets (`$912C`, `$913F`), not these. Probably left over from an earlier claw layout; that is a guess, not a finding."
     },
     {
       "id": "bank6.tbl_9180",

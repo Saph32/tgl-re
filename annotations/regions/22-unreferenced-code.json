@@ -43,7 +43,7 @@
       "confidence": "lead",
       "cpu_addr": 53035,
       "sha1": "68a3bf1e89bb4d10ef7f91a1d6f0598641b63259",
-      "description": "Same shape as $CF05, reached through the fixed-bank entry $C0DC: LDA $83 / AND #$02 / BNE $CF04 (the RTS just before $CF05), save X in $38, then write one hardware sprite at $0200 + $80 from $84 (Y), $87 (tile), $86 (attributes), $85 (X) and JMP $CE5B. $CF05 first parks the sprite off screen (Y = $F8) and writes Y last; this one writes Y first. The byte pairs $2B CF and $2A CF occur nowhere in the ROM and no instruction names $CF2B. A LEAD."
+      "description": "CORRECTION: this said it was reached through the fixed-bank entry $C0DC; that slot is `JMP $CF05` (bytes `05 CF`), so $CF2B is not what it reaches. Same shape as $CF05: LDA $83 / AND #$02 / BNE $CF04 (the RTS just before $CF05), save X in $38, then write one hardware sprite at $0200 + $80 from $84 (Y), $87 (tile), $86 (attributes), $85 (X) and JMP $CE5B. $CF05 first parks the sprite off screen (Y = $F8) and writes Y last; this one writes Y first. The byte pairs $2B CF and $2A CF occur nowhere in the ROM and no instruction names $CF2B. A LEAD."
     },
     {
       "id": "bank7.code_D69B",
