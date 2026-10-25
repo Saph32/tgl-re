@@ -2494,7 +2494,8 @@ L3_90F7:
 ; Dying ship: piece metasprite by index
         .byte   $00,$30,$00,$31,$30,$31,$32,$33,$32,$33
 
-; ---- UNCLAIMED (gap) $9139-$9139, 1 bytes
+; ---- bank3.tbl_9139 (data) $9139-$9139, 1 bytes
+; A byte before the stage table `$913A`
         .byte   $00
 
 ; ---- bank3.tbl_913A (data) $913A-$9150, 23 bytes
@@ -2512,12 +2513,16 @@ L3_90F7:
         .byte   $03,$03,$03,$06,$06,$03,$03,$06,$03,$06,$03,$16,$03,$06,$06,$16
         .byte   $03,$16,$03,$16,$03,$06,$06
 
-; ---- bank3.code_917F (code) $917F-$92BA, 316 bytes
+; ---- bank3.code_917F (code) $917F-$9182, 4 bytes
 L3_917F:
         lda     $70
         bne     L3_9184
+
+; ---- bank3.code_9183 (code) $9183-$9183, 1 bytes
 L3_9183:
         rts
+
+; ---- bank3.code_9184 (code) $9184-$919F, 28 bytes
 L3_9184:
         lda     $70
         beq     L3_9183
@@ -2534,9 +2539,13 @@ L3_9194:
         jmp     L3_9218
 L3_919D:
         jmp     L3_92DF
+
+; ---- bank3.code_91A0 (code) $91A0-$91A3, 4 bytes
 L3_91A0:
         bit     $30
         bvc     L3_91C8
+
+; ---- bank3.code_91A4 (code) $91A4-$91B7, 20 bytes
         ldy     #$05
         sec
 L3_91A7:
@@ -2549,6 +2558,8 @@ L3_91B2:
         sta     $04B9,Y
         dey
         bpl     L3_91A7
+
+; ---- bank3.code_91B8 (code) $91B8-$91C7, 16 bytes
         ldy     $51
         lda     $913A,Y
         sta     $71
@@ -2556,15 +2567,21 @@ L3_91B2:
         beq     L3_91D2
         lda     $9151,Y
         sta     $72
+
+; ---- bank3.code_91C8 (code) $91C8-$91D1, 10 bytes
 L3_91C8:
         lda     #$40
         sta     $0300
         lda     #$45
         jsr     L7_C030
+
+; ---- bank3.code_91D2 (code) $91D2-$91D7, 6 bytes
 L3_91D2:
         lda     #$00
         sta     $73
         sta     $74
+
+; ---- bank3.code_91D8 (code) $91D8-$9209, 50 bytes
         lda     $71
         bpl     L3_920A
         ldx     #$00
@@ -2592,6 +2609,8 @@ L3_91FD:
         beq     L3_920A
         lda     #$22
         jsr     L7_C030
+
+; ---- bank3.code_920A (code) $920A-$9217, 14 bytes
 L3_920A:
         lda     $71
         and     #$08
@@ -2600,20 +2619,30 @@ L3_920A:
         ora     $10
         sta     $60
         inc     $70
+
+; ---- bank3.code_9218 (code) $9218-$921B, 4 bytes
 L3_9218:
         bit     $30
         bvc     L3_924B
+
+; ---- bank3.code_921C (code) $921C-$9221, 6 bytes
         lda     $51
         cmp     #$15
         beq     L3_9246
+
+; ---- bank3.code_9222 (code) $9222-$9227, 6 bytes
         inc     $73
         bne     L3_9228
         inc     $74
+
+; ---- bank3.code_9228 (code) $9228-$922E, 7 bytes
 L3_9228:
         lda     $73
         and     #$3F
         beq     L3_922F
         rts
+
+; ---- bank3.code_922F (code) $922F-$9245, 23 bytes
 L3_922F:
         lda     $74
         beq     L3_9239
@@ -2628,9 +2657,13 @@ L3_923E:
         lda     $9168,Y
 L3_9243:
         jsr     L7_C030
+
+; ---- bank3.code_9246 (code) $9246-$924A, 5 bytes
 L3_9246:
         inc     $70
         jmp     L3_92DF
+
+; ---- bank3.code_924B (code) $924B-$92B5, 107 bytes
 L3_924B:
         inc     $74
         lda     $74
@@ -2698,30 +2731,38 @@ L3_9296:
         jsr     L7_C117
 L3_92B5:
         rts
+
+; ---- bank3.code_92B6 (code) $92B6-$92BA, 5 bytes
 L3_92B6:
         lda     #$06
         jmp     L3_9243
 
 ; ---- bank3.tbl_92BB (data) $92BB-$92CE, 20 bytes
-; Table, 20 bytes (structural extent)
+; Miniboss entrance: cell order (20 entries)
         .byte   $22,$23,$24,$25,$26,$27,$28,$29,$2A,$2B,$2C,$2D,$3E,$4E,$5E,$6E
         .byte   $7E,$8E,$9E,$AE
 
 ; ---- bank3.tbl_92CF (data) $92CF-$92DE, 16 bytes
-; Table, 16 bytes (structural extent)
+; Miniboss entrance: which cell classes are broken
         .byte   $00,$01,$00,$01,$01,$01,$00,$00,$00,$01,$00,$01,$01,$01,$00,$00
 
-; ---- bank3.code_92DF (code) $92DF-$934E, 112 bytes
+; ---- bank3.code_92DF (code) $92DF-$92E3, 5 bytes
 L3_92DF:
         jsr     L7_C027
         bcc     L3_92E5
+
+; ---- bank3.code_92E4 (code) $92E4-$92E4, 1 bytes
 L3_92E4:
         rts
+
+; ---- bank3.code_92E5 (code) $92E5-$92ED, 9 bytes
 L3_92E5:
         lda     $72
         sta     $0500,Y
         sty     $75
         inc     $70
+
+; ---- bank3.code_92EE (code) $92EE-$931D, 48 bytes
 L3_92EE:
         ldy     $75
         lda     $0500,Y
@@ -2748,9 +2789,13 @@ L3_9316:
         dey
         bpl     L3_9316
         bmi     L3_92E4
+
+; ---- bank3.code_931E (code) $931E-$9321, 4 bytes
 L3_931E:
         bit     $30
         bvs     L3_9355
+
+; ---- bank3.code_9322 (code) $9322-$9338, 23 bytes
         lda     #$60
         sta     $18
         lda     #$70
@@ -2762,6 +2807,8 @@ L3_931E:
         lda     #$18
         sta     $16
         jsr     L7_C117
+
+; ---- bank3.code_9339 (code) $9339-$934E, 22 bytes
         jsr     L7_C027
         bcc     L3_9345
         ldx     $75
@@ -2777,8 +2824,10 @@ L3_9345:
 ; Far-call argument at $934F
         .byte   $05,$23,$80
 
-; ---- bank3.code_9352 (code) $9352-$935C, 11 bytes
+; ---- bank3.code_9352 (code) $9352-$9354, 3 bytes
         jmp     L3_9387
+
+; ---- bank3.code_9355 (code) $9355-$935C, 8 bytes
 L3_9355:
         lda     #$2F
         jsr     L7_C030
@@ -2788,7 +2837,7 @@ L3_9355:
 ; Far-call argument at $935D
         .byte   $06,$02,$80
 
-; ---- bank3.code_9360 (code) $9360-$93F1, 146 bytes
+; ---- bank3.code_9360 (code) $9360-$9386, 39 bytes
         ldy     #$00
 L3_9362:
         lda     $93F2,Y
@@ -2812,6 +2861,8 @@ L3_9371:
         iny
         cpy     #$08
         bne     L3_9362
+
+; ---- bank3.code_9387 (code) $9387-$93A2, 28 bytes
 L3_9387:
         inc     $70
         inc     $70
@@ -2828,6 +2879,8 @@ L3_9387:
 L3_939F:
         sta     $BA
         sta     $BB
+
+; ---- bank3.code_93A3 (code) $93A3-$93BD, 27 bytes
 L3_93A3:
         inc     $73
         lda     $73
@@ -2843,9 +2896,13 @@ L3_93A3:
         lda     $72
         cmp     #$4D
         beq     L3_93C3
+
+; ---- bank3.code_93BE (code) $93BE-$93C2, 5 bytes
         lda     #$00
         sta     $70
         rts
+
+; ---- bank3.code_93C3 (code) $93C3-$93D2, 16 bytes
 L3_93C3:
         lda     #$1F
         jsr     L7_C030
@@ -2854,6 +2911,8 @@ L3_93C3:
         lda     #$00
         sta     $70
         sta     $0300
+
+; ---- bank3.code_93D3 (code) $93D3-$93E3, 17 bytes
 L3_93D3:
         bit     $30
         bvc     L3_93DA
@@ -2863,18 +2922,24 @@ L3_93DA:
         jsr     L7_C024
         lda     $0300
         beq     L3_93D3
+
+; ---- bank3.code_93E4 (code) $93E4-$93ED, 10 bytes
         bit     $30
         bvc     L3_93EF
         lda     $A0
         ora     #$01
         sta     $A0
+
+; ---- bank3.code_93EE (code) $93EE-$93EE, 1 bytes
 L3_93EE:
         rts
+
+; ---- bank3.code_93EF (code) $93EF-$93F1, 3 bytes
 L3_93EF:
         jmp     L7_C15F
 
 ; ---- bank3.tbl_93F2 (data) $93F2-$93F9, 8 bytes
-; Table, 8 bytes (structural extent)
+; Boss death: backdrop flash colours
         .byte   $0C,$00,$10,$30,$10,$00,$0C,$0F
 
 ; ---- bank3.code_93FA (code) $93FA-$93FE, 5 bytes
