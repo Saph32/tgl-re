@@ -101,17 +101,6 @@
       "description": "Bank 2's tile-block pointers are read by $D7F9 as $8024 + 2 x id; ids 13 and 14 land here and hold $0000, between the 13-entry group ($8024) and the 21-entry group ($8042)."
     },
     {
-      "id": "bank2.tbl_8292",
-      "offset": 33442,
-      "size": 15,
-      "kind": "data",
-      "name": "Two tables by $51, eight apart",
-      "confidence": "lead",
-      "cpu_addr": 33426,
-      "sha1": "6d490f31eb2ddb944c1bd8b23a2e48e542d6b96d",
-      "description": "$82D0: LDY $51 / LDA $8291,Y -> $0680 and $82D6: LDA $8299,Y -> $0668, in the handler at $82C0. $8291 is the RTS ending the code before, so the reads start at Y = 1. The four tables after ($82A1, $82A9, $82B1, $82B8, also indexed by $51) share one pattern with these: entries 4 and 5 are equal in every one of them when counted from each read base, which says the bases really are the table starts and Y runs 1-7. Which object this is, and so what $51 means when it runs, is NOT established."
-    },
-    {
       "id": "bank3.tbl_8020",
       "offset": 49200,
       "size": 2,
