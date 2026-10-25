@@ -634,6 +634,15 @@ def _enemy_names() -> dict:
     return {int(k): v for k, v in m.items()}
 
 
+def _pseudo_names() -> dict:
+    """Object type -> this project's own label (annotations/pseudo-names.json); never the game's name."""
+    import json as _json
+    f = Path(__file__).resolve().parents[2] / "annotations" / "pseudo-names.json"
+    if not f.exists():
+        return {}
+    return {int(k): v for k, v in _json.loads(f.read_text(encoding="utf-8"))["names"].items()}
+
+
 RAM_JSON = Path(__file__).resolve().parents[2] / "annotations" / "ram.json"
 RAM_STATUSES = ("confirmed", "checked", "lead")
 
@@ -2706,6 +2715,7 @@ def _enemies_page(rm, out=None):
              "the tiles, not assembled into a sprite. &ldquo;In scripts&rdquo; counts the "
              "spawn scripts that create the type.</p>")
     ename = _enemy_names()
+    pseudo = _pseudo_names()
     rows = []
     for t in range(1, 128):
         v = enemy.per_type(b7, t)
@@ -2757,7 +2767,9 @@ def _enemies_page(rm, out=None):
         pts = enemy.score(b7, v["score_class"])
         rows.append(f'<tr><td><code>${t:02X}</code>'
                     + (f'<br><strong>{_h(ename[t])}</strong> <a href="#boss-behaviour">behaviour</a>'
-                       if t in ename else '')
+                       if t in ename else
+                       f'<br><em>{_h(pseudo[t])}</em> <span class="meta">(pseudo name)</span>'
+                       if t in pseudo else '')
                     + f'</td><td class="mono">{v["hp"]}</td>'
                     f'<td class="mono">{"per object" if pts is None else pts}</td>'
                     f'<td class="mono">{v["attack"]}</td>'
@@ -2783,6 +2795,10 @@ def _enemies_page(rm, out=None):
              "<code>parse-metasprites.py --verify</code> predicts every live object's sprites "
              "from RAM and finds each multi-sprite shape drawn that frame whole in the "
              "in-game savestate's OAM &mdash; tiles, placement and attributes.</div>")
+    p.append('<div class="note"><strong>Pseudo names.</strong> Types the game gives no name we know '
+             "carry an <em>italic</em> label marked <em>(pseudo name)</em>: this project's own, "
+             "picked from what the bank 6 handler does (<code>annotations/pseudo-names.json</code>). "
+             "They are not the game's names and not the owner's; bold names are the owner's.</div>")
     p.append('<div class="note warn"><strong>Not established.</strong> Which type is which '
              "enemy by name; what each <code>$0620</code> drawing flag (from <code>$D1A9</code>) "
              "does; the "
