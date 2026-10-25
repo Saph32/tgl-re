@@ -683,7 +683,7 @@ L7_C171:
         .byte   $FF,$02,$FF,$FF,$FF,$08,$08,$CA,$C3,$00,$02,$04,$06,$08,$0A,$0C
         .byte   $0E,$08
 
-; ---- bank7.code_CBE8 (code) $CBE8-$CF2A, 835 bytes
+; ---- bank7.code_CBE8 (code) $CBE8-$CBFB, 20 bytes
 L7_CBE8:
         lda     $0620,X
         and     #$01
@@ -694,6 +694,8 @@ L7_CBF2:
         and     #$02
         beq     L7_CBFC
         jsr     L7_CCEB
+
+; ---- bank7.code_CBFC (code) $CBFC-$CC0A, 15 bytes
 L7_CBFC:
         lda     $0518,X
         sta     $84
@@ -701,6 +703,8 @@ L7_CBFC:
         sta     $85
         lda     $06C8,X
         sta     $87
+
+; ---- bank7.code_CC0B (code) $CC0B-$CC2E, 36 bytes
         lda     $0560,X
         tay
         lda     $0620,X
@@ -720,6 +724,8 @@ L7_CC1F:
         tya
         eor     #$40
         tay
+
+; ---- bank7.code_CC2F (code) $CC2F-$CC45, 23 bytes
 L7_CC2F:
         sty     $86
         lda     $0548,X
@@ -734,6 +740,8 @@ L7_CC34:
 L7_CC44:
         clc
         rts
+
+; ---- bank7.code_CC46 (code) $CC46-$CC66, 33 bytes
 L7_CC46:
         ldy     #$00
         lda     ($88),Y
@@ -752,6 +760,8 @@ L7_CC46:
         ldy     #$00
         lda     ($88),Y
         and     #$7F
+
+; ---- bank7.code_CC67 (code) $CC67-$CC87, 33 bytes
 L7_CC67:
         sta     $8F
         iny
@@ -774,6 +784,8 @@ L7_CC80:
         bne     L7_CC80
 L7_CC87:
         rts
+
+; ---- bank7.code_CC88 (code) $CC88-$CCAF, 40 bytes
 L7_CC88:
         lda     $05C0,X
         clc
@@ -794,6 +806,8 @@ L7_CCA7:
         sta     $0518,X
         bcc     L7_CCB0
         rts
+
+; ---- bank7.code_CCB0 (code) $CCB0-$CCBE, 15 bytes
 L7_CCB0:
         lda     $0620,X
         and     #$10
@@ -807,6 +821,8 @@ L7_CCBB:
         pla
         pla
         pla
+
+; ---- bank7.code_CCBF (code) $CCBF-$CCEA, 44 bytes
 L7_CCBF:
         lda     $0500,X
         and     #$7F
@@ -824,6 +840,8 @@ L7_CCBF:
         sta     $06B0,X
         sta     $0728,X
         rts
+
+; ---- bank7.code_CCEB (code) $CCEB-$CD11, 39 bytes
 L7_CCEB:
         lda     $05F0,X
         clc
@@ -845,6 +863,8 @@ L7_CD0E:
         rts
 L7_CD0F:
         jmp     L7_CCB0
+
+; ---- bank7.code_CD12 (code) $CD12-$CD45, 52 bytes
 L7_CD12:
         ldy     #$00
         sty     $11
@@ -870,6 +890,8 @@ L7_CD34:
         sbc     $11
         sta     $05D8,X
         rts
+
+; ---- bank7.code_CD46 (code) $CD46-$CD79, 52 bytes
 L7_CD46:
         ldy     #$00
         sty     $11
@@ -895,6 +917,8 @@ L7_CD68:
         sbc     $11
         sta     $0608,X
         rts
+
+; ---- bank7.code_CD7A (code) $CD7A-$CD98, 31 bytes
 L7_CD7A:
         clc
         adc     $0650,X
@@ -911,11 +935,15 @@ L7_CD94:
         lda     $0638,X
         tay
         rts
+
+; ---- bank7.code_CD99 (code) $CD99-$CDA1, 9 bytes
 L7_CD99:
         lda     #$00
         sta     $0638,X
         sta     $0650,X
         rts
+
+; ---- bank7.code_CDA2 (code) $CDA2-$CDB3, 18 bytes
 L7_CDA2:
         jsr     L7_D534
         lda     $83
@@ -926,6 +954,8 @@ L7_CDA2:
         lda     #$FC
         sta     $81
         rts
+
+; ---- bank7.code_CDB4 (code) $CDB4-$CDD6, 35 bytes
 L7_CDB4:
         lda     $83
         and     #$7D
@@ -948,6 +978,8 @@ L7_CDD1:
         sbc     #$04
         sta     $80
         rts
+
+; ---- bank7.code_CDD7 (code) $CDD7-$CE1A, 68 bytes
 L7_CDD7:
         lda     $83
         and     #$02
@@ -984,6 +1016,8 @@ L7_CE0F:
         bcc     L7_CE31
 L7_CE19:
         ldx     $38
+
+; ---- bank7.code_CE1B (code) $CE1B-$CE29, 15 bytes
 L7_CE1B:
         inc     $8C
         inc     $8C
@@ -994,10 +1028,14 @@ L7_CE1B:
         inc     $8E
 L7_CE29:
         rts
+
+; ---- bank7.code_CE2A (code) $CE2A-$CE30, 7 bytes
 L7_CE2A:
         adc     $85
         sta     $0203,X
         bcc     L7_CE19
+
+; ---- bank7.code_CE31 (code) $CE31-$CE49, 25 bytes
 L7_CE31:
         iny
         lda     $86
@@ -1015,6 +1053,8 @@ L7_CE3E:
 L7_CE46:
         adc     $84
         bcc     L7_CE19
+
+; ---- bank7.code_CE4A (code) $CE4A-$CE5A, 17 bytes
 L7_CE4A:
         sta     $0200,X
         inc     $8C
@@ -1024,6 +1064,8 @@ L7_CE4A:
         and     #$08
         bne     L7_CE5B
         inc     $8E
+
+; ---- bank7.code_CE5B (code) $CE5B-$CE84, 42 bytes
 L7_CE5B:
         lda     $83
         and     #$01
@@ -1049,18 +1091,26 @@ L7_CE71:
         sta     $83
         lda     #$FC
         sta     $80
+
+; ---- bank7.code_CE85 (code) $CE85-$CE87, 3 bytes
 L7_CE85:
         ldx     $38
         rts
+
+; ---- bank7.code_CE88 (code) $CE88-$CE8D, 6 bytes
 L7_CE88:
         lda     $83
         and     #$01
         bne     L7_CEDC
+
+; ---- bank7.code_CE8E (code) $CE8E-$CE98, 11 bytes
         ldx     $80
         lda     $83
         bpl     L7_CE99
         lda     #$00
         jmp     L7_CEC5
+
+; ---- bank7.code_CE99 (code) $CE99-$CEB7, 31 bytes
 L7_CE99:
         lda     $82
         beq     L7_CEB8
@@ -1082,6 +1132,8 @@ L7_CEB2:
         lda     $81
         cmp     #$FC
         beq     L7_CEC3
+
+; ---- bank7.code_CEB8 (code) $CEB8-$CEC2, 11 bytes
 L7_CEB8:
         lda     #$F8
 L7_CEBA:
@@ -1091,6 +1143,8 @@ L7_CEBA:
         inx
         inx
         bne     L7_CEBA
+
+; ---- bank7.code_CEC3 (code) $CEC3-$CEDB, 25 bytes
 L7_CEC3:
         lda     $80
 L7_CEC5:
@@ -1106,6 +1160,8 @@ L7_CEC5:
         lda     #$FC
         sta     $81
         rts
+
+; ---- bank7.code_CEDC (code) $CEDC-$CEFD, 34 bytes
 L7_CEDC:
         lda     $83
         and     #$80
@@ -1128,12 +1184,16 @@ L7_CEED:
 L7_CEFA:
         lda     #$FC
         sta     $81
+
+; ---- bank7.code_CEFE (code) $CEFE-$CF04, 7 bytes
 L7_CEFE:
         lda     $83
         eor     #$01
         sta     $83
 L7_CF04:
         rts
+
+; ---- bank7.code_CF05 (code) $CF05-$CF2A, 38 bytes
 L7_CF05:
         lda     $83
         and     #$02
@@ -1168,7 +1228,7 @@ L7_CF05:
         sta     $0202,X
         jmp     $CE5B
 
-; ---- bank7.code_CF4C (code) $CF4C-$CFC3, 120 bytes
+; ---- bank7.code_CF4C (code) $CF4C-$CF5E, 19 bytes
 L7_CF4C:
         and     #$7F
         tay
@@ -1182,6 +1242,8 @@ L7_CF5B:
 L7_CF5C:
         lda     #$00
         rts
+
+; ---- bank7.code_CF5F (code) $CF5F-$CF8C, 46 bytes
 L7_CF5F:
         lda     $0500,X
         and     #$7F
@@ -1208,6 +1270,8 @@ L7_CF8A:
         pla
         pla
         rts
+
+; ---- bank7.code_CF8D (code) $CF8D-$CF9F, 19 bytes
 L7_CF8D:
         lda     #$00
         sta     $0770,X
@@ -1216,6 +1280,8 @@ L7_CF8D:
         ldx     $10
         sta     $06C8,X
         sta     $07E8,X
+
+; ---- bank7.code_CFA0 (code) $CFA0-$CFC3, 36 bytes
 L7_CFA0:
         lda     $0500,X
         ora     #$80
