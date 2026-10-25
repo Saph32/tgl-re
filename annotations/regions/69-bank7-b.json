@@ -1,0 +1,258 @@
+{
+  "_comment": "Hand-authored. Bank 7: beam and shot helpers, reset and main loop ($FE22-$FFE3). The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank7.tbl_FE22",
+      "offset": 130610,
+      "size": 27,
+      "kind": "data",
+      "name": "Beam style records: 9 x [metasprite][`$0638`][half-width]",
+      "confidence": "confirmed",
+      "cpu_addr": 65058,
+      "sha1": "89e400732b449515242b68cc67dd28a9b9748edf",
+      "description": "`00 40 03 | 1A 60 08 | 17 F0 18 | 00 20 02 | 00 40 02 | 00 60 02 | 1A F0 08 | 00 F0 08 | 00 10 08`, read at `$FE22 + 3n` (n = 0 Hyper Laser level 1, 1 level 2, 2 level 3; 3, 4, 5 Optomon's three beams; 6 Clawbot; 7 Eyegore; 8 the bank 6 `$6A`/`$69` beams): the beam's picture, its `$0638` (a length parameter) and its half-width in pixels. The earlier generated cards `$FE22`, `$FE23` and `$FE24` were this table's columns."
+    },
+    {
+      "id": "bank7.code_FE3D",
+      "offset": 130637,
+      "size": 26,
+      "kind": "code",
+      "name": "BEAM AND SHOT HELPERS (bank 7 `$FE3D-$FEDD`): make a beam piece (`$FE3D`, slot `$C13E`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65085,
+      "sha1": "329d3fcaad8b28baf4ca7042a2d5bff84d5d4587",
+      "description": "`LDA #$22 / JSR $FA4B`: a type-`$22` child of object X in slot Y. It gets `$06C8,Y` := `$17`, `$05D8,Y` := `$16` (the two halves of the style-record pointer the caller built from `$FE22`), **`$0668,Y` := X (its parent slot) and `$0680,Y` := the parent's type** - the two fields the beam machine `$FB76` reads."
+    },
+    {
+      "id": "bank7.code_FE57",
+      "offset": 130663,
+      "size": 12,
+      "kind": "code",
+      "name": "BEAM AND SHOT HELPERS (bank 7 `$FE3D-$FEDD`): store the beam end (`$FE57`, slot `$C141`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65111,
+      "sha1": "d3f99182c2da9fdb582a1792c361a8ba4ba40414",
+      "description": "`$0758,X` := the y position, `$0788,X` := 0."
+    },
+    {
+      "id": "bank7.code_FE63",
+      "offset": 130675,
+      "size": 22,
+      "kind": "code",
+      "name": "BEAM AND SHOT HELPERS (bank 7 `$FE3D-$FEDD`): re-aim countdown (`$FE63`, slot `$C144`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65123,
+      "sha1": "dfc55d7f050a1addbedc4256c4df4ac288c4b86b",
+      "description": "`$0680,X` = the number of re-aims left (0 returns with carry clear), `$0668,X` the countdown: at 0 it is reloaded from A, the object aims at the player (`$F85D`) and `$0680` is decremented; carry set means it just re-aimed."
+    },
+    {
+      "id": "bank7.code_FE79",
+      "offset": 130697,
+      "size": 15,
+      "kind": "code",
+      "name": "BEAM AND SHOT HELPERS (bank 7 `$FE3D-$FEDD`): zero the velocity (`$FE79`, slot `$C147`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65145,
+      "sha1": "8cc7e3e17dfed007e469ff9b39173da42cf2fb26",
+      "description": "`$05C0`, `$05D8`, `$05F0`, `$0608` := 0 (the y and x speeds and their fractions)."
+    },
+    {
+      "id": "bank7.code_FECC",
+      "offset": 130780,
+      "size": 18,
+      "kind": "code",
+      "name": "BEAM AND SHOT HELPERS (bank 7 `$FE3D-$FEDD`): spend the shot (`$FECC`, slot `$C168`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65228,
+      "sha1": "63c9cad70f1336313ed9c26fd095a6b042896935",
+      "description": "Sound `$21`; the shot in slot Y loses `$14` + 1 (the carry is clear after the sound call) = **21 hit points** (floor 0) and the call returns. Used where a part cannot be hurt: the spore `$72`, It's arms."
+    },
+    {
+      "id": "bank7.code_FEDE",
+      "offset": 130798,
+      "size": 5,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): reset (`$FEDE`, slot `$C000`, the RESET vector)",
+      "confidence": "confirmed",
+      "cpu_addr": 65246,
+      "sha1": "6a9b4012d9b7def5e0ad68fd378987a66243c7a5",
+      "description": "`SEI / CLD`, the stack `$FF`."
+    },
+    {
+      "id": "bank7.code_FEE3",
+      "offset": 130803,
+      "size": 5,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): PPU off",
+      "confidence": "confirmed",
+      "cpu_addr": 65251,
+      "sha1": "adc4116200757ebed9283125b8acc76bb690fac8",
+      "description": "PPUCTRL := `$30`."
+    },
+    {
+      "id": "bank7.code_FEE8",
+      "offset": 130808,
+      "size": 10,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): wait for three vblanks",
+      "confidence": "confirmed",
+      "cpu_addr": 65256,
+      "sha1": "1e6e58a2902e5cb1b562a6eff2062aa194d2617d",
+      "description": "`LDX #3`; three times: poll PPUSTATUS bit 7 (the PPU needs its warm-up)."
+    },
+    {
+      "id": "bank7.code_FEF2",
+      "offset": 130818,
+      "size": 10,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): APU",
+      "confidence": "confirmed",
+      "cpu_addr": 65266,
+      "sha1": "4ff8d15237cec099184e36b92202048d3cdb50bb",
+      "description": "`$4015` := `$0F` (four channels on, DMC off), `$4017` := `$C0` (no frame IRQ)."
+    },
+    {
+      "id": "bank7.code_FEFC",
+      "offset": 130828,
+      "size": 29,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): clear the RAM",
+      "confidence": "confirmed",
+      "cpu_addr": 65276,
+      "sha1": "1bafa4288d81776974e6014498b6d2e0587991ef",
+      "description": "`$0000-$07FF` := 0 (X from 0 to 255 and all eight pages)."
+    },
+    {
+      "id": "bank7.code_FF19",
+      "offset": 130857,
+      "size": 10,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): PPU set-up",
+      "confidence": "confirmed",
+      "cpu_addr": 65305,
+      "sha1": "441c73db7ac353690ecb6f0f55e4953554578da0",
+      "description": "`$FF` := `$30` through `$D4E7` (PPUCTRL: 8 x 16 sprites, background from table 1, NMI off) and `$FE` := 6 through `$D4CF` (PPUMASK: left column shown, rendering off)."
+    },
+    {
+      "id": "bank7.code_FF23",
+      "offset": 130867,
+      "size": 23,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): check the mapper",
+      "confidence": "confirmed",
+      "cpu_addr": 65315,
+      "sha1": "76b882d08c86401b892b3a19fcdd5391909ee6a9",
+      "description": "Y from 6 down to 0: switch to bank Y and compare `$BFFF` with Y; a match goes on. **A mismatch loads a colour from `$FF3A,Y` into the backdrop `$0180`, forces the palette out (`$DED2`) and spins at `JMP $FF37` for ever** - the colour says which bank failed."
+    },
+    {
+      "id": "bank7.code_FF41",
+      "offset": 130897,
+      "size": 3,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): next bank",
+      "confidence": "confirmed",
+      "cpu_addr": 65345,
+      "sha1": "b352b92aea5b8651d526c0a12cf032b5787d9b3f",
+      "description": "`DEY / BPL $FF25`."
+    },
+    {
+      "id": "bank7.code_FF44",
+      "offset": 130900,
+      "size": 6,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): bank 6 reset",
+      "confidence": "confirmed",
+      "cpu_addr": 65348,
+      "sha1": "3edd0b662fd61a93a87c786e7dbd1b56a1eff344",
+      "description": "Bank 6 (`$D762`), `JSR $800F` (bank 6 reset init `$8015`: queue, sound init, DMC timer, score, zero page)."
+    },
+    {
+      "id": "bank7.code_FF4A",
+      "offset": 130906,
+      "size": 19,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): the title (`$FF4A`, slot `$C14D`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65354,
+      "sha1": "b3a35c0157ded6ba4262213a041b69b8709dcc5f",
+      "description": "Stack reset; bank 0 (`$D714`), `JSR $800C` (bank 0 `$8332`: the sound-test check and the title screen and its menu); `$2F` zero goes on to `$FF5D`, else (the title's second item) bank 3 (`$D73B`) `JSR $800C`: the password screen, and then on."
+    },
+    {
+      "id": "bank7.code_FF5D",
+      "offset": 130925,
+      "size": 29,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): start the game (`$FF5D`, slot `$C150`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65373,
+      "sha1": "f4af8515cb26407261aef13d1526470faf25186c",
+      "description": "Stack reset, sound `$1F` (stop the music), the fade out (`$EDD1`), rendering off (`$D4C1`), bank 0 `JSR $8003` (the game set-up `$805B`), `JSR $E110` (the HUD's score row), bank 6, `JSR $CDA2` (the sprite allocator's start)."
+    },
+    {
+      "id": "bank7.code_FF7A",
+      "offset": 130954,
+      "size": 11,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): the main loop",
+      "confidence": "confirmed",
+      "cpu_addr": 65402,
+      "sha1": "09a7145ff7959168c4dad9d6b8a4c00dfe1d0da4",
+      "description": "`JSR $E655` (the stage step), `LDY #1 / JSR $FF8B` (one game-loop pass), `JSR $D76F` with `03 0E 80` (bank 3 `$800F`: the boss and miniboss routine `$917F`), and round again."
+    },
+    {
+      "id": "bank7.code_FF88",
+      "offset": 130968,
+      "size": 3,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): loop jump",
+      "confidence": "confirmed",
+      "cpu_addr": 65416,
+      "sha1": "aec1805ce1488f9e62543c49006e6d289af51311",
+      "description": "`JMP $FF7A`."
+    },
+    {
+      "id": "bank7.code_FF8B",
+      "offset": 130971,
+      "size": 13,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): game-loop passes (`$FF8B`, slot `$C024`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65419,
+      "sha1": "62ef553184f0712d32d4b80413ba66c335957404",
+      "description": "X and Y saved. Y times: **the frame sync (`$DA9A`), the pads and pause (`$F493`), `JSR $D76F` with `06 FF 7F` (bank 6 `$8000`, the object loop),**"
+    },
+    {
+      "id": "bank7.code_FF9B",
+      "offset": 130987,
+      "size": 14,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): game-loop passes, the rest",
+      "confidence": "confirmed",
+      "cpu_addr": 65435,
+      "sha1": "f1cad1729a146d0288ffe2c0b882b3d83f1f1311",
+      "description": "the HUD (`$E0F9`) and the decompressor's share (`$DB52`); Y counts down; X and Y restored; `RTS`."
+    },
+    {
+      "id": "bank7.code_FFD1",
+      "offset": 131041,
+      "size": 11,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): wait Y frames (`$FFD1`, slot `$C021`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65489,
+      "sha1": "e83eb399fa3f652c1641c6828ab42230e799813c",
+      "description": "`$2B` := 0 and the frame sync (`$DA9A`) Y times."
+    },
+    {
+      "id": "bank7.code_FFDC",
+      "offset": 131052,
+      "size": 8,
+      "kind": "code",
+      "name": "RESET AND MAIN LOOP (bank 7 `$FEDE-$FFDF`): area music (`$FFDC`, slot `$C15F`)",
+      "confidence": "confirmed",
+      "cpu_addr": 65500,
+      "sha1": "fe3fb2e32afc47025b6bac908ca6ab472750fdd5",
+      "description": "Plays the song `$EF16[$50]` (the labyrinth's music by area)."
+    }
+  ]
+}

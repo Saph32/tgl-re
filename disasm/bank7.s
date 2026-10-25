@@ -4,253 +4,499 @@
 .org $C000
 
 
-; ---- bank7.code_C000 (code) $C000-$C173, 372 bytes
+; ---- bank7.code_C000 (code) $C000-$C002, 3 bytes
 L7_C000:
         jmp     L7_FEDE
+
+; ---- bank7.code_C003 (code) $C003-$C005, 3 bytes
 L7_C003:
         jmp     L7_D705
+
+; ---- bank7.code_C006 (code) $C006-$C008, 3 bytes
 L7_C006:
         jmp     L7_D76F
+
+; ---- bank7.code_C009 (code) $C009-$C00B, 3 bytes
 L7_C009:
         jmp     L7_FD53
+
+; ---- bank7.code_C00C (code) $C00C-$C00E, 3 bytes
 L7_C00C:
         jmp     L7_FD67
+
+; ---- bank7.code_C00F (code) $C00F-$C011, 3 bytes
 L7_C00F:
         jmp     L7_D4C1
+
+; ---- bank7.code_C012 (code) $C012-$C014, 3 bytes
 L7_C012:
         jmp     L7_D4ED
+
+; ---- bank7.code_C015 (code) $C015-$C017, 3 bytes
 L7_C015:
         jmp     L7_D534
+
+; ---- bank7.code_C018 (code) $C018-$C01A, 3 bytes
 L7_C018:
         jmp     L7_E445
+
+; ---- bank7.code_C01B (code) $C01B-$C01D, 3 bytes
 L7_C01B:
         jmp     L7_D4FD
+
+; ---- bank7.code_C01E (code) $C01E-$C020, 3 bytes
 L7_C01E:
         jmp     L7_D64C
+
+; ---- bank7.code_C021 (code) $C021-$C023, 3 bytes
 L7_C021:
         jmp     L7_FFD1
+
+; ---- bank7.code_C024 (code) $C024-$C026, 3 bytes
 L7_C024:
         jmp     L7_FF8B
+
+; ---- bank7.code_C027 (code) $C027-$C029, 3 bytes
 L7_C027:
         jmp     L7_EA8C
+
+; ---- bank7.code_C02A (code) $C02A-$C02C, 3 bytes
 L7_C02A:
         jmp     L7_DFB1
+
+; ---- bank7.code_C02D (code) $C02D-$C02F, 3 bytes
 L7_C02D:
         jmp     L7_DAE1
+
+; ---- bank7.code_C030 (code) $C030-$C032, 3 bytes
 L7_C030:
         jmp     L7_D852
+
+; ---- bank7.code_C033 (code) $C033-$C035, 3 bytes
 L7_C033:
         jmp     L7_DF8C
+
+; ---- bank7.code_C036 (code) $C036-$C038, 3 bytes
 L7_C036:
         jmp     L7_D5F8
+
+; ---- bank7.code_C039 (code) $C039-$C03B, 3 bytes
 L7_C039:
         jmp     L7_D6C0
+
+; ---- bank7.code_C03C (code) $C03C-$C03E, 3 bytes
 L7_C03C:
         jmp     L7_D6E0
+
+; ---- bank7.code_C03F (code) $C03F-$C041, 3 bytes
 L7_C03F:
         jmp     L7_D6F7
+
+; ---- bank7.code_C042 (code) $C042-$C044, 3 bytes
 L7_C042:
         jmp     L7_D7F9
+
+; ---- bank7.code_C045 (code) $C045-$C047, 3 bytes
 L7_C045:
         jmp     L7_D7C3
+
+; ---- bank7.code_C048 (code) $C048-$C04A, 3 bytes
 L7_C048:
         jmp     L7_CCBF
+
+; ---- bank7.code_C04B (code) $C04B-$C04D, 3 bytes
 L7_C04B:
         jmp     L7_D6D3
+
+; ---- bank7.code_C04E (code) $C04E-$C050, 3 bytes
 L7_C04E:
         jmp     L7_E24B
+
+; ---- bank7.code_C051 (code) $C051-$C053, 3 bytes
 L7_C051:
         jmp     L7_E1CD
+
+; ---- bank7.code_C054 (code) $C054-$C056, 3 bytes
 L7_C054:
         jmp     L7_D865
+
+; ---- bank7.code_C057 (code) $C057-$C059, 3 bytes
 L7_C057:
         jmp     L7_DFBC
+
+; ---- bank7.code_C05A (code) $C05A-$C05C, 3 bytes
 L7_C05A:
         jmp     L7_E213
+
+; ---- bank7.code_C05D (code) $C05D-$C05F, 3 bytes
 L7_C05D:
         jmp     L7_D92D
+
+; ---- bank7.code_C060 (code) $C060-$C062, 3 bytes
 L7_C060:
         jmp     L7_EDE5
+
+; ---- bank7.code_C063 (code) $C063-$C065, 3 bytes
 L7_C063:
         jmp     L7_EDF4
+
+; ---- bank7.code_C066 (code) $C066-$C068, 3 bytes
 L7_C066:
         jmp     L7_EFE9
+
+; ---- bank7.code_C069 (code) $C069-$C06B, 3 bytes
 L7_C069:
         jmp     L7_F726
+
+; ---- bank7.code_C06C (code) $C06C-$C06E, 3 bytes
 L7_C06C:
         jmp     L7_D5CC
+
+; ---- bank7.code_C06F (code) $C06F-$C071, 3 bytes
 L7_C06F:
         jmp     L7_D576
+
+; ---- bank7.code_C072 (code) $C072-$C074, 3 bytes
 L7_C072:
         jmp     L7_E1C3
+
+; ---- bank7.code_C075 (code) $C075-$C077, 3 bytes
 L7_C075:
         jmp     L7_E498
+
+; ---- bank7.code_C078 (code) $C078-$C07A, 3 bytes
 L7_C078:
         jmp     L7_EFC7
+
+; ---- bank7.code_C07B (code) $C07B-$C07D, 3 bytes
 L7_C07B:
         jmp     L7_EFAC
+
+; ---- bank7.code_C07E (code) $C07E-$C080, 3 bytes
 L7_C07E:
         jmp     L7_D99C
+
+; ---- bank7.code_C081 (code) $C081-$C083, 3 bytes
 L7_C081:
         jmp     L7_D9ED
+
+; ---- bank7.code_C084 (code) $C084-$C086, 3 bytes
 L7_C084:
         jmp     L7_E453
+
+; ---- bank7.code_C087 (code) $C087-$C089, 3 bytes
 L7_C087:
         jmp     L7_E522
+
+; ---- bank7.code_C08A (code) $C08A-$C08C, 3 bytes
 L7_C08A:
         jmp     L7_ED51
+
+; ---- bank7.code_C08D (code) $C08D-$C08F, 3 bytes
 L7_C08D:
         jmp     L7_CBE8
+
+; ---- bank7.code_C090 (code) $C090-$C092, 3 bytes
 L7_C090:
         jmp     L7_CBFC
+
+; ---- bank7.code_C093 (code) $C093-$C095, 3 bytes
 L7_C093:
         jmp     L7_CC34
+
+; ---- bank7.code_C096 (code) $C096-$C098, 3 bytes
 L7_C096:
         jmp     L7_CDB4
+
+; ---- bank7.code_C099 (code) $C099-$C09B, 3 bytes
 L7_C099:
         jmp     L7_CE88
+
+; ---- bank7.code_C09C (code) $C09C-$C09E, 3 bytes
 L7_C09C:
         jmp     L7_CD12
+
+; ---- bank7.code_C09F (code) $C09F-$C0A1, 3 bytes
 L7_C09F:
         jmp     L7_CD46
+
+; ---- bank7.code_C0A2 (code) $C0A2-$C0A4, 3 bytes
 L7_C0A2:
         jmp     L7_CD99
+
+; ---- bank7.code_C0A5 (code) $C0A5-$C0A7, 3 bytes
 L7_C0A5:
         jmp     L7_CD7A
+
+; ---- bank7.code_C0A8 (code) $C0A8-$C0AA, 3 bytes
 L7_C0A8:
         jmp     L7_CF5F
+
+; ---- bank7.code_C0AB (code) $C0AB-$C0AD, 3 bytes
 L7_C0AB:
         jmp     L7_CF68
+
+; ---- bank7.code_C0AE (code) $C0AE-$C0B0, 3 bytes
 L7_C0AE:
         jmp     L7_CFA0
+
+; ---- bank7.code_C0B1 (code) $C0B1-$C0B3, 3 bytes
 L7_C0B1:
         jmp     L7_D229
+
+; ---- bank7.code_C0B4 (code) $C0B4-$C0B6, 3 bytes
 L7_C0B4:
         jmp     L7_D22C
+
+; ---- bank7.code_C0B7 (code) $C0B7-$C0B9, 3 bytes
 L7_C0B7:
         jmp     L7_D230
+
+; ---- bank7.code_C0BA (code) $C0BA-$C0BC, 3 bytes
 L7_C0BA:
         jmp     L7_D266
+
+; ---- bank7.code_C0BD (code) $C0BD-$C0BF, 3 bytes
 L7_C0BD:
         jmp     L7_D276
+
+; ---- bank7.code_C0C0 (code) $C0C0-$C0C2, 3 bytes
 L7_C0C0:
         jmp     L7_D279
+
+; ---- bank7.code_C0C3 (code) $C0C3-$C0C5, 3 bytes
 L7_C0C3:
         jmp     L7_D281
+
+; ---- bank7.code_C0C6 (code) $C0C6-$C0C8, 3 bytes
 L7_C0C6:
         jmp     L7_D294
+
+; ---- bank7.code_C0C9 (code) $C0C9-$C0CB, 3 bytes
 L7_C0C9:
         jmp     L7_D297
+
+; ---- bank7.code_C0CC (code) $C0CC-$C0CE, 3 bytes
 L7_C0CC:
         jmp     L7_D33F
+
+; ---- bank7.code_C0CF (code) $C0CF-$C0D1, 3 bytes
 L7_C0CF:
         jmp     L7_D29F
+
+; ---- bank7.code_C0D2 (code) $C0D2-$C0D4, 3 bytes
 L7_C0D2:
         jmp     L7_D2BB
+
+; ---- bank7.code_C0D5 (code) $C0D5-$C0D7, 3 bytes
 L7_C0D5:
         jmp     L7_D2C5
+
+; ---- bank7.code_C0D8 (code) $C0D8-$C0DA, 3 bytes
 L7_C0D8:
         jmp     L7_D39B
+
+; ---- bank7.code_C0DB (code) $C0DB-$C0DD, 3 bytes
 L7_C0DB:
         jmp     L7_CF05
+
+; ---- bank7.code_C0DE (code) $C0DE-$C0E0, 3 bytes
 L7_C0DE:
         jmp     L7_EDB7
+
+; ---- bank7.code_C0E1 (code) $C0E1-$C0E3, 3 bytes
 L7_C0E1:
         jmp     L7_EFE0
+
+; ---- bank7.code_C0E4 (code) $C0E4-$C0E6, 3 bytes
 L7_C0E4:
         jmp     L7_DA8B
+
+; ---- bank7.code_C0E7 (code) $C0E7-$C0E9, 3 bytes
 L7_C0E7:
         jmp     L7_DA1D
+
+; ---- bank7.code_C0EA (code) $C0EA-$C0EC, 3 bytes
 L7_C0EA:
         jmp     L7_F9D1
+
+; ---- bank7.code_C0ED (code) $C0ED-$C0EF, 3 bytes
 L7_C0ED:
         jmp     L7_EDD1
+
+; ---- bank7.code_C0F0 (code) $C0F0-$C0F2, 3 bytes
 L7_C0F0:
         jmp     L7_F9E9
+
+; ---- bank7.code_C0F3 (code) $C0F3-$C0F5, 3 bytes
 L7_C0F3:
         jmp     L7_FA17
+
+; ---- bank7.code_C0F6 (code) $C0F6-$C0F8, 3 bytes
 L7_C0F6:
         jmp     L7_F97E
+
+; ---- bank7.code_C0F9 (code) $C0F9-$C0FB, 3 bytes
 L7_C0F9:
         jmp     L7_F982
+
+; ---- bank7.code_C0FC (code) $C0FC-$C0FE, 3 bytes
 L7_C0FC:
         jmp     L7_F85D
+
+; ---- bank7.code_C0FF (code) $C0FF-$C101, 3 bytes
 L7_C0FF:
         jmp     L7_F863
+
+; ---- bank7.code_C102 (code) $C102-$C104, 3 bytes
 L7_C102:
         jmp     L7_F8CE
+
+; ---- bank7.code_C105 (code) $C105-$C107, 3 bytes
 L7_C105:
         jmp     L7_FA4B
+
+; ---- bank7.code_C108 (code) $C108-$C10A, 3 bytes
 L7_C108:
         jmp     L7_FA5B
+
+; ---- bank7.code_C10B (code) $C10B-$C10D, 3 bytes
 L7_C10B:
         jmp     L7_F9AE
+
+; ---- bank7.code_C10E (code) $C10E-$C110, 3 bytes
 L7_C10E:
         jmp     L7_F9BA
+
+; ---- bank7.code_C111 (code) $C111-$C113, 3 bytes
 L7_C111:
         jmp     L7_FA6B
+
+; ---- bank7.code_C114 (code) $C114-$C116, 3 bytes
 L7_C114:
         jmp     L7_F865
+
+; ---- bank7.code_C117 (code) $C117-$C119, 3 bytes
 L7_C117:
         jmp     L7_FA96
+
+; ---- bank7.code_C11A (code) $C11A-$C11C, 3 bytes
 L7_C11A:
         jmp     L7_FAB7
+
+; ---- bank7.code_C11D (code) $C11D-$C11F, 3 bytes
 L7_C11D:
         jmp     L7_FADE
+
+; ---- bank7.code_C120 (code) $C120-$C122, 3 bytes
 L7_C120:
         jmp     L7_FB12
+
+; ---- bank7.code_C123 (code) $C123-$C125, 3 bytes
 L7_C123:
         jmp     L7_FB64
+
+; ---- bank7.code_C126 (code) $C126-$C128, 3 bytes
 L7_C126:
         jmp     L7_FB52
+
+; ---- bank7.code_C129 (code) $C129-$C12B, 3 bytes
 L7_C129:
         jmp     L7_FB76
+
+; ---- bank7.code_C12C (code) $C12C-$C12E, 3 bytes
 L7_C12C:
         jmp     L7_FCD5
+
+; ---- bank7.code_C12F (code) $C12F-$C131, 3 bytes
 L7_C12F:
         jmp     L7_FCE7
+
+; ---- bank7.code_C132 (code) $C132-$C134, 3 bytes
 L7_C132:
         jmp     L7_FD0E
+
+; ---- bank7.code_C135 (code) $C135-$C137, 3 bytes
 L7_C135:
         jmp     L7_FD77
+
+; ---- bank7.code_C138 (code) $C138-$C13A, 3 bytes
 L7_C138:
         jmp     L7_FDAA
+
+; ---- bank7.code_C13B (code) $C13B-$C13D, 3 bytes
 L7_C13B:
         jmp     L7_FDF8
+
+; ---- bank7.code_C13E (code) $C13E-$C140, 3 bytes
 L7_C13E:
         jmp     L7_FE3D
+
+; ---- bank7.code_C141 (code) $C141-$C143, 3 bytes
 L7_C141:
         jmp     L7_FE57
+
+; ---- bank7.code_C144 (code) $C144-$C146, 3 bytes
 L7_C144:
         jmp     L7_FE63
+
+; ---- bank7.code_C147 (code) $C147-$C149, 3 bytes
 L7_C147:
         jmp     L7_FE79
+
+; ---- bank7.code_C14A (code) $C14A-$C14C, 3 bytes
 L7_C14A:
         jmp     L7_E655
+
+; ---- bank7.code_C14D (code) $C14D-$C14F, 3 bytes
 L7_C14D:
         jmp     L7_FF4A
+
+; ---- bank7.code_C150 (code) $C150-$C152, 3 bytes
 L7_C150:
         jmp     L7_FF5D
+
+; ---- bank7.code_C153 (code) $C153-$C155, 3 bytes
 L7_C153:
         jmp     L7_E0F9
+
+; ---- bank7.code_C156 (code) $C156-$C158, 3 bytes
 L7_C156:
         jmp     L7_DB52
+
+; ---- bank7.code_C159 (code) $C159-$C15B, 3 bytes
 L7_C159:
         jmp     L7_EA68
+
+; ---- bank7.code_C15C (code) $C15C-$C15E, 3 bytes
 L7_C15C:
         jmp     L7_E66A
+
+; ---- bank7.code_C15F (code) $C15F-$C161, 3 bytes
 L7_C15F:
         jmp     L7_FFDC
+
+; ---- bank7.code_C162 (code) $C162-$C164, 3 bytes
 L7_C162:
         jmp     L7_FE88
+
+; ---- bank7.code_C165 (code) $C165-$C167, 3 bytes
 L7_C165:
         jmp     L7_D385
+
+; ---- bank7.code_C168 (code) $C168-$C16A, 3 bytes
 L7_C168:
         jmp     L7_FECC
+
+; ---- bank7.code_C16B (code) $C16B-$C16D, 3 bytes
 L7_C16B:
         jmp     L7_F493
+
+; ---- bank7.code_C16E (code) $C16E-$C170, 3 bytes
 L7_C16E:
         jmp     L7_D950
+
+; ---- bank7.code_C171 (code) $C171-$C173, 3 bytes
 L7_C171:
         jmp     L7_D53F
 
@@ -1040,7 +1286,7 @@ L7_CFA0:
         .byte   $13,$1B,$13,$13,$13,$03,$1B,$11,$1B,$13,$11,$11,$13,$13,$17,$13
         .byte   $03,$03,$03,$03,$03,$13,$11,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-; ---- bank7.code_D229 (code) $D229-$D440, 536 bytes
+; ---- bank7.code_D229 (code) $D229-$D265, 61 bytes
 L7_D229:
         lda     $0548,X
 L7_D22C:
@@ -1075,6 +1321,8 @@ L7_D254:
 L7_D262:
         sta     $06E0,X
         rts
+
+; ---- bank7.code_D266 (code) $D266-$D275, 16 bytes
 L7_D266:
         pha
         lda     $0548,X
@@ -1085,13 +1333,19 @@ L7_D266:
         lda     #$00
 L7_D273:
         jmp     L7_D230
+
+; ---- bank7.code_D276 (code) $D276-$D278, 3 bytes
 L7_D276:
         jsr     L7_D229
+
+; ---- bank7.code_D279 (code) $D279-$D280, 8 bytes
 L7_D279:
         lda     #$04
         jsr     L7_D348
         bcs     L7_D2AA
         rts
+
+; ---- bank7.code_D281 (code) $D281-$D293, 19 bytes
 L7_D281:
         jsr     L7_D229
         ldy     #$00
@@ -1103,19 +1357,27 @@ L7_D281:
 L7_D292:
         clc
         rts
+
+; ---- bank7.code_D294 (code) $D294-$D296, 3 bytes
 L7_D294:
         jsr     L7_D229
+
+; ---- bank7.code_D297 (code) $D297-$D29E, 8 bytes
 L7_D297:
         lda     #$30
         jsr     L7_D348
         bcs     L7_D2AA
         rts
+
+; ---- bank7.code_D29F (code) $D29F-$D2A9, 11 bytes
 L7_D29F:
         jsr     L7_D229
         lda     #$20
         jsr     L7_D348
         bcs     L7_D2AA
         rts
+
+; ---- bank7.code_D2AA (code) $D2AA-$D2BA, 17 bytes
 L7_D2AA:
         sty     $6E
         lda     $0500,Y
@@ -1125,6 +1387,8 @@ L7_D2AA:
         and     #$7F
         sta     $6C
         rts
+
+; ---- bank7.code_D2BB (code) $D2BB-$D2C6, 12 bytes
 L7_D2BB:
         bcc     L7_D32A
         lda     #$20
@@ -1132,44 +1396,64 @@ L7_D2BB:
         jmp     L7_D2C7
 L7_D2C5:
         bcc     L7_D32A
+
+; ---- bank7.code_D2C7 (code) $D2C7-$D2CA, 4 bytes
 L7_D2C7:
         ldy     $6E
         bne     L7_D30E
+
+; ---- bank7.code_D2CB (code) $D2CB-$D2D0, 6 bytes
         lda     $48
         cmp     $49
         bne     L7_D2FD
+
+; ---- bank7.code_D2D1 (code) $D2D1-$D2DB, 11 bytes
         lda     $05A8,X
         beq     L7_D30A
         tay
         lda     #$38
         jsr     L7_D852
+
+; ---- bank7.code_D2DC (code) $D2DC-$D2E7, 12 bytes
         lda     $0590
         jsr     L7_F9AE
         and     #$FF
         bne     L7_D2E8
         lda     #$01
+
+; ---- bank7.code_D2E8 (code) $D2E8-$D2EE, 7 bytes
 L7_D2E8:
         eor     #$FF
         sec
         adc     $48
         bcs     L7_D2FB
+
+; ---- bank7.code_D2EF (code) $D2EF-$D2FA, 12 bytes
         lda     $49
         bne     L7_D2F9
         lda     $D442
         sta     $0500
 L7_D2F9:
         lda     #$00
+
+; ---- bank7.code_D2FB (code) $D2FB-$D2FC, 2 bytes
 L7_D2FB:
         sta     $48
+
+; ---- bank7.code_D2FD (code) $D2FD-$D309, 13 bytes
 L7_D2FD:
         lda     $0578
         ora     #$C0
         sta     $0578
         lda     #$0F
         sta     $0788
+
+; ---- bank7.code_D30A (code) $D30A-$D30D, 4 bytes
 L7_D30A:
         ldy     #$00
         beq     L7_D31C
+
+; ---- bank7.code_D30E (code) $D30E-$D31B, 14 bytes
 L7_D30E:
         lda     $0590,Y
         sec
@@ -1178,6 +1462,8 @@ L7_D30E:
         lda     #$00
 L7_D319:
         sta     $0590,Y
+
+; ---- bank7.code_D31C (code) $D31C-$D329, 14 bytes
 L7_D31C:
         lda     $0590,X
         sec
@@ -1186,6 +1472,8 @@ L7_D31C:
         lda     #$00
 L7_D327:
         sta     $0590,X
+
+; ---- bank7.code_D32A (code) $D32A-$D33E, 21 bytes
 L7_D32A:
         lda     $0590,X
         bne     L7_D33E
@@ -1197,11 +1485,15 @@ L7_D32A:
         sta     $0500,X
 L7_D33E:
         rts
+
+; ---- bank7.code_D33F (code) $D33F-$D347, 9 bytes
 L7_D33F:
         sta     $0180
         lda     #$03
         sta     $017F
         rts
+
+; ---- bank7.code_D348 (code) $D348-$D363, 28 bytes
 L7_D348:
         ldy     #$04
         sta     $6F
@@ -1220,6 +1512,8 @@ L7_D35F:
         clc
 L7_D363:
         rts
+
+; ---- bank7.code_D364 (code) $D364-$D384, 33 bytes
 L7_D364:
         lda     $06F8,Y
         cmp     $06E0,X
@@ -1235,6 +1529,8 @@ L7_D364:
         bcc     L7_D384
 L7_D384:
         rts
+
+; ---- bank7.code_D385 (code) $D385-$D39A, 22 bytes
 L7_D385:
         lda     #$00
         asl     $0590,X
@@ -1247,6 +1543,8 @@ L7_D385:
         rol     A
         sta     $0740,X
         rts
+
+; ---- bank7.code_D39B (code) $D39B-$D3A8, 14 bytes
 L7_D39B:
         bcc     L7_D384
         ldy     $6E
@@ -1255,6 +1553,8 @@ L7_D39B:
         pha
         lda     #$00
         beq     L7_D3C4
+
+; ---- bank7.code_D3A9 (code) $D3A9-$D3B4, 12 bytes
 L7_D3A9:
         cpy     $3B
         bcc     L7_D3B5
@@ -1262,6 +1562,8 @@ L7_D3A9:
         lda     $41
         and     #$07
         bne     L7_D384
+
+; ---- bank7.code_D3B5 (code) $D3B5-$D3C3, 15 bytes
 L7_D3B5:
         lda     #$39
         jsr     L7_D852
@@ -1270,6 +1572,8 @@ L7_D3B5:
         cmp     #$06
         bcc     L7_D3C4
         lda     #$05
+
+; ---- bank7.code_D3C4 (code) $D3C4-$D3D4, 17 bytes
 L7_D3C4:
         sta     $05A8,Y
         lda     $0740,X
@@ -1278,6 +1582,8 @@ L7_D3C4:
         ldy     $6E
         pla
         sta     $05A8,Y
+
+; ---- bank7.code_D3D5 (code) $D3D5-$D3EF, 27 bytes
         lda     $0590,X
         bne     L7_D3F0
         lda     $15
@@ -1289,6 +1595,8 @@ L7_D3C4:
         sta     $0500,X
         lda     $15
         sta     $0740,X
+
+; ---- bank7.code_D3F0 (code) $D3F0-$D412, 35 bytes
 L7_D3F0:
         ldy     $6E
         beq     L7_D41D
@@ -1306,11 +1614,15 @@ L7_D3F0:
         adc     $0728,Y
         ror     A
         jmp     L7_D425
+
+; ---- bank7.code_D413 (code) $D413-$D41C, 10 bytes
 L7_D413:
         lda     #$19
         sta     $0578,Y
         lda     #$09
         sta     $0500,Y
+
+; ---- bank7.code_D41D (code) $D41D-$D440, 36 bytes
 L7_D41D:
         lda     $0530,Y
         sta     $15
@@ -7428,20 +7740,12 @@ L7_FDF8:
         ldx     $10
         rts
 
-; ---- bank7.tbl_FE22 (data) $FE22-$FE22, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $00
+; ---- bank7.tbl_FE22 (data) $FE22-$FE3C, 27 bytes
+; Beam style records: 9 x [metasprite][`$0638`][half-width]
+        .byte   $00,$40,$03,$1A,$60,$08,$17,$F0,$18,$00,$20,$02,$00,$40,$02,$00
+        .byte   $60,$02,$1A,$F0,$08,$00,$F0,$08,$00,$10,$08
 
-; ---- bank7.tbl_FE23 (data) $FE23-$FE23, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $40
-
-; ---- bank7.tbl_FE24 (data) $FE24-$FE3C, 25 bytes
-; Table, 25 bytes (structural extent)
-        .byte   $03,$1A,$60,$08,$17,$F0,$18,$00,$20,$02,$00,$40,$02,$00,$60,$02
-        .byte   $1A,$F0,$08,$00,$F0,$08,$00,$10,$08
-
-; ---- bank7.code_FE3D (code) $FE3D-$FE87, 75 bytes
+; ---- bank7.code_FE3D (code) $FE3D-$FE56, 26 bytes
 L7_FE3D:
         lda     #$22
         jsr     L7_FA4B
@@ -7454,12 +7758,16 @@ L7_FE3D:
         lda     $0500,X
         sta     $0680,Y
         rts
+
+; ---- bank7.code_FE57 (code) $FE57-$FE62, 12 bytes
 L7_FE57:
         lda     $0518,X
         sta     $0758,X
         lda     #$00
         sta     $0788,X
         rts
+
+; ---- bank7.code_FE63 (code) $FE63-$FE78, 22 bytes
 L7_FE63:
         clc
         ldy     $0680,X
@@ -7472,6 +7780,8 @@ L7_FE63:
         sec
 L7_FE78:
         rts
+
+; ---- bank7.code_FE79 (code) $FE79-$FE87, 15 bytes
 L7_FE79:
         lda     #$00
         sta     $05C0,X
@@ -7530,7 +7840,7 @@ L7_FEC6:
         bne     L7_FEB2
         rts
 
-; ---- bank7.code_FECC (code) $FECC-$FF39, 110 bytes
+; ---- bank7.code_FECC (code) $FECC-$FEDD, 18 bytes
 L7_FECC:
         lda     #$21
         jsr     L7_D852
@@ -7541,23 +7851,33 @@ L7_FECC:
 L7_FEDA:
         sta     $0590,Y
         rts
+
+; ---- bank7.code_FEDE (code) $FEDE-$FEE2, 5 bytes
 L7_FEDE:
         sei
         cld
         ldx     #$FF
         txs
+
+; ---- bank7.code_FEE3 (code) $FEE3-$FEE7, 5 bytes
         lda     #$30
         sta     $2000
+
+; ---- bank7.code_FEE8 (code) $FEE8-$FEF1, 10 bytes
         ldx     #$03
 L7_FEEA:
         lda     $2002
         bpl     L7_FEEA
         dex
         bne     L7_FEEA
+
+; ---- bank7.code_FEF2 (code) $FEF2-$FEFB, 10 bytes
         lda     #$0F
         sta     $4015
         lda     #$C0
         sta     $4017
+
+; ---- bank7.code_FEFC (code) $FEFC-$FF18, 29 bytes
         lda     #$00
         tax
 L7_FEFF:
@@ -7571,10 +7891,14 @@ L7_FEFF:
         sta     $0700,X
         dex
         bne     L7_FEFF
+
+; ---- bank7.code_FF19 (code) $FF19-$FF22, 10 bytes
         lda     #$30
         jsr     L7_D4E7
         lda     #$06
         jsr     L7_D4CF
+
+; ---- bank7.code_FF23 (code) $FF23-$FF39, 23 bytes
         ldy     #$06
 L7_FF25:
         tya
@@ -7591,12 +7915,16 @@ L7_FF37:
 ; Bank-check failure codes
         .byte   $0F,$01,$06,$14,$0A,$31,$28
 
-; ---- bank7.code_FF41 (code) $FF41-$FF84, 68 bytes
+; ---- bank7.code_FF41 (code) $FF41-$FF43, 3 bytes
 L7_FF41:
         dey
         bpl     L7_FF25
+
+; ---- bank7.code_FF44 (code) $FF44-$FF49, 6 bytes
         jsr     L7_D762
         jsr     L6_800F
+
+; ---- bank7.code_FF4A (code) $FF4A-$FF5C, 19 bytes
 L7_FF4A:
         ldx     #$FF
         txs
@@ -7606,6 +7934,8 @@ L7_FF4A:
         beq     L7_FF5D
         jsr     L7_D73B
         jsr     L3_800C
+
+; ---- bank7.code_FF5D (code) $FF5D-$FF79, 29 bytes
 L7_FF5D:
         ldx     #$FF
         txs
@@ -7618,6 +7948,8 @@ L7_FF5D:
         jsr     L7_E110
         jsr     L7_D762
         jsr     L7_CDA2
+
+; ---- bank7.code_FF7A (code) $FF7A-$FF84, 11 bytes
 L7_FF7A:
         jsr     L7_E655
         ldy     #$01
@@ -7628,8 +7960,10 @@ L7_FF7A:
 ; Far-call argument at $FF85
         .byte   $03,$0E,$80
 
-; ---- bank7.code_FF88 (code) $FF88-$FF97, 16 bytes
+; ---- bank7.code_FF88 (code) $FF88-$FF8A, 3 bytes
         jmp     L7_FF7A
+
+; ---- bank7.code_FF8B (code) $FF8B-$FF97, 13 bytes
 L7_FF8B:
         txa
         pha
@@ -7663,7 +7997,7 @@ L7_FF8D:
 ; DMC sample: 17 zero bytes (a timer, not a sound)
         .fill   17,$00
 
-; ---- bank7.code_FFD1 (code) $FFD1-$FFE3, 19 bytes
+; ---- bank7.code_FFD1 (code) $FFD1-$FFDB, 11 bytes
 L7_FFD1:
         lda     #$00
         sta     $2B
@@ -7672,6 +8006,8 @@ L7_FFD5:
         dey
         bne     L7_FFD5
         rts
+
+; ---- bank7.code_FFDC (code) $FFDC-$FFE3, 8 bytes
 L7_FFDC:
         ldy     $50
         lda     $EF16,Y
