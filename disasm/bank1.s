@@ -5,15 +5,23 @@
 .org $8000
 
 
-; ---- bank1.code_8000 (code) $8000-$800E, 15 bytes
+; ---- bank1.code_8000 (code) $8000-$8002, 3 bytes
 L1_8000:
         jmp     L1_803C
+
+; ---- bank1.code_8003 (code) $8003-$8005, 3 bytes
 L1_8003:
         jmp     L1_812A
+
+; ---- bank1.code_8006 (code) $8006-$8008, 3 bytes
 L1_8006:
         jmp     L1_812E
+
+; ---- bank1.code_8009 (code) $8009-$800B, 3 bytes
 L1_8009:
         jmp     L1_8176
+
+; ---- bank1.code_800C (code) $800C-$800E, 3 bytes
 L1_800C:
         jmp     L1_82B5
 
@@ -27,12 +35,16 @@ L1_800C:
         .byte   $BE,$8A,$3F,$8B,$CB,$92,$AE,$96,$89,$9A,$32,$9C,$0C,$A6,$AF,$AD
         .byte   $AD,$AF,$59,$B4,$8D,$B4,$B1,$B4,$45,$B5,$64,$B6
 
-; ---- bank1.code_803C (code) $803C-$811B, 224 bytes
+; ---- bank1.code_803C (code) $803C-$803F, 4 bytes
 L1_803C:
         cmp     #$03
         beq     L1_809F
+
+; ---- bank1.code_8040 (code) $8040-$8044, 5 bytes
         lda     #$18
         jsr     L7_C09C
+
+; ---- bank1.code_8045 (code) $8045-$8056, 18 bytes
         lda     $0548
         pha
         lda     #$00
@@ -41,31 +53,45 @@ L1_803C:
         pla
         sta     $0548
         bcc     L1_805E
+
+; ---- bank1.code_8057 (code) $8057-$805D, 7 bytes
         lda     $A0
         ora     #$03
         sta     $A0
         rts
+
+; ---- bank1.code_805E (code) $805E-$8062, 5 bytes
 L1_805E:
         lda     $05D8
         bmi     L1_808A
+
+; ---- bank1.code_8063 (code) $8063-$8070, 14 bytes
         lda     $0518
         ldy     $07E8
         cpy     #$01
         beq     L1_807B
         cmp     #$96
         bcc     L1_8087
+
+; ---- bank1.code_8071 (code) $8071-$807A, 10 bytes
         inc     $07E8
         lda     #$00
         sta     $0638
         beq     L1_809F
+
+; ---- bank1.code_807B (code) $807B-$8086, 12 bytes
 L1_807B:
         cmp     #$6F
         bcc     L1_8087
         lda     $0560
         ora     #$20
         sta     $0560
+
+; ---- bank1.code_8087 (code) $8087-$8089, 3 bytes
 L1_8087:
         jmp     L7_C090
+
+; ---- bank1.code_808A (code) $808A-$809E, 21 bytes
 L1_808A:
         ldy     $07E8
         cpy     #$01
@@ -76,6 +102,8 @@ L1_808A:
         lda     #$00
         sta     $0560
         beq     L1_8087
+
+; ---- bank1.code_809F (code) $809F-$80B1, 19 bytes
 L1_809F:
         jsr     L7_C090
         inc     $0638
@@ -86,12 +114,16 @@ L1_809F:
         sta     $0668
 L1_80B1:
         rts
+
+; ---- bank1.code_80B2 (code) $80B2-$80BD, 12 bytes
 L1_80B2:
         lda     $0638
         cmp     #$E0
         bcc     L1_80BE
         bne     L1_80B1
         jmp     L1_8112
+
+; ---- bank1.code_80BE (code) $80BE-$80D2, 21 bytes
 L1_80BE:
         and     #$03
         bne     L1_80D3
@@ -103,6 +135,8 @@ L1_80BE:
         sta     $15
         sta     $14
         jsr     L7_C120
+
+; ---- bank1.code_80D3 (code) $80D3-$80E9, 23 bytes
 L1_80D3:
         lda     $0638
         and     #$0F
@@ -114,6 +148,8 @@ L1_80D3:
         bne     L1_80EA
         lda     #$07
         sta     $0500,Y
+
+; ---- bank1.code_80EA (code) $80EA-$80FD, 20 bytes
 L1_80EA:
         lda     $0638
         cmp     #$80
@@ -125,22 +161,30 @@ L1_80F7:
         sty     $19
         sta     $18
         jmp     L1_812A
+
+; ---- bank1.code_80FE (code) $80FE-$8107, 10 bytes
 L1_80FE:
         cmp     #$A0
         bne     L1_8108
         ldy     #$90
         lda     #$40
         bne     L1_80F7
+
+; ---- bank1.code_8108 (code) $8108-$8111, 10 bytes
 L1_8108:
         cmp     #$C0
         bne     L1_80B1
         ldy     #$90
         lda     #$80
         bne     L1_80F7
+
+; ---- bank1.code_8112 (code) $8112-$8118, 7 bytes
 L1_8112:
         ldy     #$50
         lda     #$40
         jsr     L1_80F7
+
+; ---- bank1.code_8119 (code) $8119-$811B, 3 bytes
         jsr     L7_C06F
 
 ; ---- bank1.inline_811C (text) $811C-$8120, 5 bytes
@@ -154,21 +198,29 @@ L1_8112:
 ; "]_" at $8124
         .byte   $02,$21,$CF,$5D,$5F
 
-; ---- bank1.code_8129 (code) $8129-$8169, 65 bytes
+; ---- bank1.code_8129 (code) $8129-$8129, 1 bytes
         rts
+
+; ---- bank1.code_812A (code) $812A-$812D, 4 bytes
 L1_812A:
         lda     #$00
         ldy     #$AA
+
+; ---- bank1.code_812E (code) $812E-$8135, 8 bytes
 L1_812E:
         sta     $16
         sty     $17
         ldy     #$00
         sty     $15
+
+; ---- bank1.code_8136 (code) $8136-$813D, 8 bytes
 L1_8136:
         lda     $8169,Y
         cmp     #$FF
         bne     L1_813E
         rts
+
+; ---- bank1.code_813E (code) $813E-$8168, 43 bytes
 L1_813E:
         lda     $19
         pha
@@ -195,23 +247,22 @@ L1_813E:
         pla
         sta     $19
         bcc     L1_8136
-        brk
 
-; ---- bank1.tbl_816A (data) $816A-$816A, 1 bytes
-; Table, 1 bytes (structural extent)
-        .byte   $00
+; ---- bank1.tbl_8169 (data) $8169-$8175, 13 bytes
+; Four-cell burst: 4 x [dx][dy][dtile] + $FF
+        .byte   $00,$00,$01,$10,$00,$04,$00,$10,$04,$10,$10,$04,$FF
 
-; ---- bank1.tbl_816B (data) $816B-$8175, 11 bytes
-; Table, 11 bytes (structural extent)
-        .byte   $01,$10,$00,$04,$00,$10,$04,$10,$10,$04,$FF
-
-; ---- bank1.code_8176 (code) $8176-$81CC, 87 bytes
+; ---- bank1.code_8176 (code) $8176-$817C, 7 bytes
 L1_8176:
         lda     $823D,Y
         beq     L1_818F
         sta     $10
+
+; ---- bank1.code_817D (code) $817D-$8180, 4 bytes
         ldy     $42
         lda     $43
+
+; ---- bank1.code_8181 (code) $8181-$818C, 12 bytes
 L1_8181:
         clc
         adc     #$01
@@ -219,27 +270,41 @@ L1_8181:
         beq     L1_8190
         dec     $10
         bne     L1_8181
+
+; ---- bank1.code_818D (code) $818D-$818E, 2 bytes
         sta     $43
+
+; ---- bank1.code_818F (code) $818F-$818F, 1 bytes
 L1_818F:
         rts
+
+; ---- bank1.code_8190 (code) $8190-$8191, 2 bytes
 L1_8190:
         sta     $43
+
+; ---- bank1.code_8192 (code) $8192-$819B, 10 bytes
         lda     $0518,X
         pha
         cmp     #$B0
         bcc     L1_819C
         lda     #$A0
+
+; ---- bank1.code_819C (code) $819C-$81A5, 10 bytes
 L1_819C:
         bit     $30
         bvs     L1_81A6
         cmp     #$20
         bcs     L1_81A6
         lda     #$20
+
+; ---- bank1.code_81A6 (code) $81A6-$81AF, 10 bytes
 L1_81A6:
         and     #$F0
         ora     #$08
         sta     $0518,X
         sta     $07B8,X
+
+; ---- bank1.code_81B0 (code) $81B0-$81BF, 16 bytes
         lda     $0530,X
         pha
         cmp     #$20
@@ -249,18 +314,22 @@ L1_81BA:
         cmp     #$E0
         bcc     L1_81C0
         lda     #$E0
+
+; ---- bank1.code_81C0 (code) $81C0-$81C9, 10 bytes
 L1_81C0:
         and     #$F0
         ora     #$08
         sta     $0530,X
         sta     $07D0,X
+
+; ---- bank1.code_81CA (code) $81CA-$81CC, 3 bytes
         jsr     L7_C006
 
 ; ---- bank1.inline_81CD (data) $81CD-$81CF, 3 bytes
 ; Far-call argument at $81CD
         .byte   $06,$05,$80
 
-; ---- bank1.code_81D0 (code) $81D0-$8218, 73 bytes
+; ---- bank1.code_81D0 (code) $81D0-$81E0, 17 bytes
         tay
         pla
         sta     $0530,X
@@ -270,11 +339,15 @@ L1_81C0:
         beq     L1_81E1
         dec     $43
         rts
+
+; ---- bank1.code_81E1 (code) $81E1-$81EA, 10 bytes
 L1_81E1:
         inc     $0788,X
         ldy     $42
         lda     $8221,Y
         bne     L1_8200
+
+; ---- bank1.code_81EB (code) $81EB-$81FF, 21 bytes
         lda     $44
         inc     $44
         and     #$03
@@ -285,12 +358,16 @@ L1_81E1:
         bit     $04AE
         bvs     L1_8200
         lda     #$0C
+
+; ---- bank1.code_8200 (code) $8200-$820A, 11 bytes
 L1_8200:
         sta     $0680,X
         inc     $42
         lda     $43
         bne     L1_820B
         sta     $42
+
+; ---- bank1.code_820B (code) $820B-$8218, 14 bytes
 L1_820B:
         lda     #$C2
         sta     $0578,X
@@ -326,38 +403,60 @@ L1_820B:
         .byte   $04,$04,$02,$02,$04,$06,$02,$04,$06,$05,$07,$03,$02,$02,$06,$01
         .byte   $08,$03,$08,$20,$20,$04,$06,$01
 
-; ---- bank1.code_82B5 (code) $82B5-$842F, 379 bytes
+; ---- bank1.code_82B5 (code) $82B5-$82B9, 5 bytes
 L1_82B5:
         lda     $0500,X
         bmi     L1_82F8
+
+; ---- bank1.code_82BA (code) $82BA-$82BF, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank1.code_82C0 (code) $82C0-$82C4, 5 bytes
         lda     #$51
         sta     $0548,X
+
+; ---- bank1.code_82C5 (code) $82C5-$82C9, 5 bytes
         lda     #$02
         sta     $0560,X
+
+; ---- bank1.code_82CA (code) $82CA-$82D6, 13 bytes
         lda     #$80
         sta     $0530,X
         sta     $0680,X
         lda     #$30
         sta     $0518,X
+
+; ---- bank1.code_82D7 (code) $82D7-$82DB, 5 bytes
         lda     #$40
         sta     $0668,X
+
+; ---- bank1.code_82DC (code) $82DC-$82E0, 5 bytes
         lda     #$02
         sta     $0608,X
+
+; ---- bank1.code_82E1 (code) $82E1-$82E7, 7 bytes
         lda     #$B4
         sta     $0788,X
         lda     #$40
+
+; ---- bank1.code_82E8 (code) $82E8-$82F2, 11 bytes
         sta     $07B8,X
         sta     $07D0,X
         lda     #$01
         sta     $0650,X
+
+; ---- bank1.code_82F3 (code) $82F3-$82F7, 5 bytes
         lda     #$81
         sta     $07A0,X
+
+; ---- bank1.code_82F8 (code) $82F8-$82FF, 8 bytes
 L1_82F8:
         lda     $0560,X
         eor     #$40
         sta     $0560,X
+
+; ---- bank1.code_8300 (code) $8300-$8314, 21 bytes
         lda     $07A0,X
         bpl     L1_831F
         dec     $0788,X
@@ -368,16 +467,22 @@ L1_82F8:
         rts
 L1_8312:
         jmp     L1_8349
+
+; ---- bank1.code_8315 (code) $8315-$831E, 10 bytes
 L1_8315:
         lda     #$00
         sta     $07A0,X
         lda     #$C8
         sta     $0788,X
+
+; ---- bank1.code_831F (code) $831F-$8328, 10 bytes
 L1_831F:
         lda     $0740,X
         cmp     #$02
         bcs     L1_8329
         sta     $0560,X
+
+; ---- bank1.code_8329 (code) $8329-$8348, 32 bytes
 L1_8329:
         dec     $0788,X
         bne     L1_8349
@@ -392,6 +497,8 @@ L1_8329:
         beq     L1_8349
         lsr     $0788,X
         lsr     $0788,X
+
+; ---- bank1.code_8349 (code) $8349-$8362, 26 bytes
 L1_8349:
         lda     $07A0,X
         and     #$01
@@ -404,6 +511,8 @@ L1_8356:
         lda     #$08
         jsr     L7_C09F
         jsr     L7_C08D
+
+; ---- bank1.code_8363 (code) $8363-$8381, 31 bytes
 L1_8363:
         lda     $07A0,X
         bmi     L1_83A2
@@ -418,12 +527,16 @@ L1_8363:
         tay
         lda     $8430,Y
         sta     $0638,X
+
+; ---- bank1.code_8382 (code) $8382-$838F, 14 bytes
 L1_8382:
         lda     $0638,X
         and     #$07
         ldy     $07B8,X
         jsr     L1_8440
         sta     $07B8,X
+
+; ---- bank1.code_8390 (code) $8390-$83A1, 18 bytes
         lda     $0638,X
         lsr     A
         lsr     A
@@ -433,6 +546,8 @@ L1_8382:
         ldy     $07D0,X
         jsr     L1_8440
         sta     $07D0,X
+
+; ---- bank1.code_83A2 (code) $83A2-$83BD, 28 bytes
 L1_83A2:
         lda     $86
         and     #$03
@@ -447,9 +562,13 @@ L1_83A2:
         lda     #$1C
         ldy     $07D0,X
         jsr     L1_8457
+
+; ---- bank1.code_83BE (code) $83BE-$83C3, 6 bytes
         lda     $07A0,X
         bpl     L1_83C4
         rts
+
+; ---- bank1.code_83C4 (code) $83C4-$83D7, 20 bytes
 L1_83C4:
         ldy     #$0F
         lda     $0740,X
@@ -462,6 +581,8 @@ L1_83D3:
         tya
         and     $41
         bne     L1_841A
+
+; ---- bank1.code_83D8 (code) $83D8-$83EB, 20 bytes
         jsr     L7_C108
         bcs     L1_841A
         lda     #$27
@@ -470,6 +591,8 @@ L1_83D3:
         sta     $07A0,Y
         lda     #$04
         sta     $0788,Y
+
+; ---- bank1.code_83EC (code) $83EC-$8419, 46 bytes
         jsr     L7_C108
         bcs     L1_841A
         lda     #$2A
@@ -488,6 +611,8 @@ L1_83D3:
         sta     $0548,Y
         lda     #$00
         sta     $07A0,Y
+
+; ---- bank1.code_841A (code) $841A-$8429, 16 bytes
 L1_841A:
         lda     #$E0
         ldy     $07B8,X
@@ -495,14 +620,16 @@ L1_841A:
         lda     #$20
         ldy     $07D0,X
         jsr     L1_84CA
+
+; ---- bank1.code_842A (code) $842A-$842F, 6 bytes
         jsr     L7_C0C6
         jmp     L7_C0D8
 
 ; ---- bank1.tbl_8430 (data) $8430-$843F, 16 bytes
-; Table, 16 bytes (structural extent)
+; IT: the arms' move codes (16 bytes)
         .byte   $77,$02,$74,$20,$33,$21,$34,$15,$72,$42,$31,$24,$01,$36,$12,$34
 
-; ---- bank1.code_8440 (code) $8440-$8501, 194 bytes
+; ---- bank1.code_8440 (code) $8440-$8456, 23 bytes
 L1_8440:
         sty     $10
         clc
@@ -519,6 +646,8 @@ L1_8450:
         lda     #$70
 L1_8456:
         rts
+
+; ---- bank1.code_8457 (code) $8457-$8467, 17 bytes
 L1_8457:
         sta     $19
         sty     $18
@@ -529,8 +658,12 @@ L1_8457:
         clc
         adc     $0518,X
         sta     $84
+
+; ---- bank1.code_8468 (code) $8468-$846C, 5 bytes
         lda     $06C8,X
         sta     $87
+
+; ---- bank1.code_846D (code) $846D-$8484, 24 bytes
         tya
         sec
         sbc     #$30
@@ -547,8 +680,12 @@ L1_847F:
         adc     $85
         sta     $85
         sty     $15
+
+; ---- bank1.code_8485 (code) $8485-$8489, 5 bytes
         lda     #$52
         jsr     L7_C093
+
+; ---- bank1.code_848A (code) $848A-$84A8, 31 bytes
         lda     $0530,X
         clc
         adc     $19
@@ -566,6 +703,8 @@ L1_8497:
         clc
         adc     $06C8,X
         sta     $87
+
+; ---- bank1.code_84A9 (code) $84A9-$84C8, 32 bytes
 L1_84A9:
         lda     $18
         cmp     #$31
@@ -583,8 +722,12 @@ L1_84A9:
         adc     #$F0
         sta     $18
         jmp     L1_84A9
+
+; ---- bank1.code_84C9 (code) $84C9-$84C9, 1 bytes
 L1_84C9:
         rts
+
+; ---- bank1.code_84CA (code) $84CA-$84F7, 46 bytes
 L1_84CA:
         sta     $10
         sty     $11
@@ -609,6 +752,8 @@ L1_84EF:
         pla
         sta     $0530,X
         rts
+
+; ---- bank1.code_84F8 (code) $84F8-$8501, 10 bytes
 L1_84F8:
         ldy     $6E
         bne     L1_84FF
