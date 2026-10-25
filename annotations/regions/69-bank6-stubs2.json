@@ -1,0 +1,49 @@
+{
+  "_comment": "Hand-authored. Small remaining code claims.",
+  "regions": [
+    {
+      "id": "bank6.code_907A",
+      "offset": 102538,
+      "size": 3,
+      "kind": "code",
+      "name": "BOSS STUB: Optomon (bank 6 `$907A`; types `$2D-$2F`)",
+      "confidence": "confirmed",
+      "cpu_addr": 36986,
+      "sha1": "24a6efcac2a93089907bc78f83c3aa87ee38bb16",
+      "description": "`JSR $C006` with `03 11 80`: a far call into bank 3 `$8012` (-> `$93FA`); see the Optomon entry."
+    },
+    {
+      "id": "bank6.code_9080",
+      "offset": 102544,
+      "size": 1,
+      "kind": "code",
+      "name": "BOSS STUB: Optomon, return",
+      "confidence": "confirmed",
+      "cpu_addr": 36992,
+      "sha1": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "description": "`RTS`."
+    },
+    {
+      "id": "bank6.code_9081",
+      "offset": 102545,
+      "size": 3,
+      "kind": "code",
+      "name": "BOSS STUB: Fleepa (bank 6 `$9081`; types `$40`, `$41`)",
+      "confidence": "confirmed",
+      "cpu_addr": 36993,
+      "sha1": "24a6efcac2a93089907bc78f83c3aa87ee38bb16",
+      "description": "`JSR $C006` with `03 14 80`: a far call into bank 3 `$8015` (-> `$952E`)."
+    },
+    {
+      "id": "bank6.code_9087",
+      "offset": 102551,
+      "size": 1,
+      "kind": "code",
+      "name": "BOSS STUB: Fleepa, return",
+      "confidence": "confirmed",
+      "cpu_addr": 36999,
+      "sha1": "7e15bb5c01e7dd56499e37c634cf791d3a519aee",
+      "description": "`RTS`."
+    }
+  ]
+}

@@ -5,25 +5,43 @@
 .org $8000
 
 
-; ---- bank3.code_8000 (code) $8000-$801D, 30 bytes
+; ---- bank3.code_8000 (code) $8000-$8002, 3 bytes
 L3_8000:
         jmp     L3_8C98
+
+; ---- bank3.code_8003 (code) $8003-$8005, 3 bytes
 L3_8003:
         jmp     L3_8F89
+
+; ---- bank3.code_8006 (code) $8006-$8008, 3 bytes
 L3_8006:
         jmp     L3_90C6
+
+; ---- bank3.code_8009 (code) $8009-$800B, 3 bytes
 L3_8009:
         jmp     L3_832D
+
+; ---- bank3.code_800C (code) $800C-$800E, 3 bytes
 L3_800C:
         jmp     L3_8300
+
+; ---- bank3.code_800F (code) $800F-$8011, 3 bytes
 L3_800F:
         jmp     L3_917F
+
+; ---- bank3.code_8012 (code) $8012-$8014, 3 bytes
 L3_8012:
         jmp     L3_93FA
+
+; ---- bank3.code_8015 (code) $8015-$8017, 3 bytes
 L3_8015:
         jmp     L3_952E
+
+; ---- bank3.code_8018 (code) $8018-$801A, 3 bytes
 L3_8018:
         jmp     L3_80A0
+
+; ---- bank3.code_801B (code) $801B-$801D, 3 bytes
 L3_801B:
         jmp     L3_822A
 

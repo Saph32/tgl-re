@@ -5,9 +5,11 @@
 .org $8000
 
 
-; ---- bank4.code_8000 (code) $8000-$8012, 19 bytes
+; ---- bank4.code_8000 (code) $8000-$8002, 3 bytes
 L4_8000:
         jmp     L4_8003
+
+; ---- bank4.code_8003 (code) $8003-$8012, 16 bytes
 L4_8003:
         clc
         adc     #$02

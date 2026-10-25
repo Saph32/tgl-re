@@ -1,0 +1,115 @@
+{
+  "_comment": "Hand-authored. Small remaining code claims.",
+  "regions": [
+    {
+      "id": "bank3.code_8000",
+      "offset": 49168,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8000`",
+      "confidence": "confirmed",
+      "cpu_addr": 32768,
+      "sha1": "8a45e9e64ec9d5e6271379d4ef510d9dc771796c",
+      "description": "`JMP $8C98`: the player's ship (type 1, slot 0), called by bank 6 `$8471` (far call `03 FF 7F`)."
+    },
+    {
+      "id": "bank3.code_8003",
+      "offset": 49171,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8003`",
+      "confidence": "confirmed",
+      "cpu_addr": 32771,
+      "sha1": "bcdf33f04367c7cfae43c9d53ccf4a22b9c6cb48",
+      "description": "`JMP $8F89`: the ship's animation step alone (the room-change scrolls draw the ship with it); caller: bank 7 `$F260`."
+    },
+    {
+      "id": "bank3.code_8006",
+      "offset": 49174,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8006`",
+      "confidence": "confirmed",
+      "cpu_addr": 32774,
+      "sha1": "f71852568179f8dc9e61419375a01d67cf0eead7",
+      "description": "`JMP $90C6`: the dying ship (type 4 / `$84`); caller: bank 6 `$8478`."
+    },
+    {
+      "id": "bank3.code_8009",
+      "offset": 49177,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8009`",
+      "confidence": "confirmed",
+      "cpu_addr": 32777,
+      "sha1": "b1e782962cd27bca63f556ffde782d8a9c7066ed",
+      "description": "`JMP $832D`: SHOW the password (the progress recorder); caller: bank 5 `$A2D7`."
+    },
+    {
+      "id": "bank3.code_800C",
+      "offset": 49180,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$800C`",
+      "confidence": "confirmed",
+      "cpu_addr": 32780,
+      "sha1": "7cbe7170589311aededeb0ab630daaaeb4f98ab5",
+      "description": "`JMP $8300`: TYPE a password (the title's second item); caller: bank 7 `$FF57`."
+    },
+    {
+      "id": "bank3.code_800F",
+      "offset": 49183,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$800F`",
+      "confidence": "confirmed",
+      "cpu_addr": 32783,
+      "sha1": "650218b220ff0089dc6626c2236f43b0d3aef452",
+      "description": "`JMP $917F`: the boss and miniboss routine, once a pass; caller: bank 7 `$FF85`."
+    },
+    {
+      "id": "bank3.code_8012",
+      "offset": 49186,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8012`",
+      "confidence": "confirmed",
+      "cpu_addr": 32786,
+      "sha1": "88e853bbd4d5c86da132f930055745bd5381523c",
+      "description": "`JMP $93FA`: Optomon (types `$2D-$2F`); caller: the bank 6 stub `$907D`."
+    },
+    {
+      "id": "bank3.code_8015",
+      "offset": 49189,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8015`",
+      "confidence": "confirmed",
+      "cpu_addr": 32789,
+      "sha1": "d533ddf6bc0ba27900ef2cdf9c56b86f4f1807dd",
+      "description": "`JMP $952E`: Fleepa (types `$40`, `$41`); caller: the bank 6 stub `$9084`."
+    },
+    {
+      "id": "bank3.code_8018",
+      "offset": 49192,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$8018`",
+      "confidence": "confirmed",
+      "cpu_addr": 32792,
+      "sha1": "b38f170724a0699a014f6097d1067e806baeb37d",
+      "description": "`JMP $80A0`: the reward screen YOU GOT ITEM; caller: bank 7 `$ECF9`."
+    },
+    {
+      "id": "bank3.code_801B",
+      "offset": 49195,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 3 JUMP TABLE: slot `$801B`",
+      "confidence": "confirmed",
+      "cpu_addr": 32795,
+      "sha1": "c1ec188f0b9a06dd2e51d6b1783aeb66e85bf2e9",
+      "description": "`JMP $822A`: the sound test; caller: bank 0 `$834A`. (Ten entries; `$801E` on is padding.)"
+    }
+  ]
+}

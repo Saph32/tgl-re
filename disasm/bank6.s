@@ -2488,8 +2488,10 @@ L6_907A:
 ; Far-call argument at $907D
         .byte   $03,$11,$80
 
-; ---- bank6.code_9080 (code) $9080-$9083, 4 bytes
+; ---- bank6.code_9080 (code) $9080-$9080, 1 bytes
         rts
+
+; ---- bank6.code_9081 (code) $9081-$9083, 3 bytes
 L6_9081:
         jsr     L7_C006
 
@@ -3000,16 +3002,22 @@ L6_93D0:
 ; Glider's shot headings
         .byte   $00,$08,$0C
 
-; ---- bank6.code_93DC (code) $93DC-$95C2, 487 bytes
+; ---- bank6.code_93DC (code) $93DC-$93E0, 5 bytes
 L6_93DC:
         ldy     $0500,X
         bmi     L6_9419
+
+; ---- bank6.code_93E1 (code) $93E1-$93EC, 12 bytes
         lda     $8FEA,Y
         sta     $0560,X
         lda     $9586,Y
         sta     $07D0,X
+
+; ---- bank6.code_93ED (code) $93ED-$93F2, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank6.code_93F3 (code) $93F3-$9418, 38 bytes
         lda     #$68
         sta     $0668,X
         lda     #$80
@@ -3025,14 +3033,20 @@ L6_93DC:
         sta     $0788,X
         lda     #$9F
         sta     $07A0,X
+
+; ---- bank6.code_9419 (code) $9419-$941D, 5 bytes
 L6_9419:
         lda     $07A0,X
         bpl     L6_9438
+
+; ---- bank6.code_941E (code) $941E-$9429, 12 bytes
         dec     $0788,X
         bne     L6_942A
         lda     #$1F
         sta     $07A0,X
         bne     L6_9438
+
+; ---- bank6.code_942A (code) $942A-$9437, 14 bytes
 L6_942A:
         lda     $0788,X
         and     #$01
@@ -3041,9 +3055,13 @@ L6_942A:
 L6_9432:
         jsr     L7_C090
         jmp     L6_9481
+
+; ---- bank6.code_9438 (code) $9438-$943C, 5 bytes
 L6_9438:
         lda     #$07
         jsr     L6_9B09
+
+; ---- bank6.code_943D (code) $943D-$9453, 23 bytes
         lda     $07A0,X
         and     #$20
         beq     L6_9454
@@ -3054,8 +3072,12 @@ L6_9438:
 L6_944E:
         jsr     L7_C090
         jmp     L6_9479
+
+; ---- bank6.code_9454 (code) $9454-$9456, 3 bytes
 L6_9454:
         jsr     L6_95D0
+
+; ---- bank6.code_9457 (code) $9457-$9478, 34 bytes
         ldy     $0740,X
         cpy     #$03
         bcs     L6_9479
@@ -3072,10 +3094,14 @@ L6_9454:
         lda     #$20
 L6_9476:
         sta     $07A0,X
+
+; ---- bank6.code_9479 (code) $9479-$9480, 8 bytes
 L6_9479:
         lda     $07D0,X
         ldy     #$1C
         jsr     L7_C0A5
+
+; ---- bank6.code_9481 (code) $9481-$949F, 31 bytes
 L6_9481:
         lda     $07A0,X
         and     #$10
@@ -3095,10 +3121,14 @@ L6_949B:
         lda     $95C3,Y
 L6_949E:
         sta     $17
+
+; ---- bank6.code_94A0 (code) $94A0-$94A8, 9 bytes
         jsr     L7_C093
         lda     $86
         and     #$03
         sta     $86
+
+; ---- bank6.code_94A9 (code) $94A9-$94C9, 33 bytes
         lda     $07A0,X
         and     #$04
         bne     L6_94B4
@@ -3118,6 +3148,8 @@ L6_94C3:
 L6_94C5:
         sta     $15
         jsr     L7_C093
+
+; ---- bank6.code_94CA (code) $94CA-$94EA, 33 bytes
         lda     $07A0,X
         and     #$01
         bne     L6_94D5
@@ -3137,6 +3169,8 @@ L6_94E4:
 L6_94E6:
         sta     $14
         jsr     L7_C093
+
+; ---- bank6.code_94EB (code) $94EB-$94FA, 16 bytes
         lda     $86
         eor     #$40
         sta     $86
@@ -3144,23 +3178,33 @@ L6_94E6:
         jsr     L7_C093
         lda     $14
         jsr     L7_C093
+
+; ---- bank6.code_94FB (code) $94FB-$9500, 6 bytes
         lda     $07A0,X
         bpl     L6_9501
         rts
+
+; ---- bank6.code_9501 (code) $9501-$9508, 8 bytes
 L6_9501:
         lda     $0650,X
         cmp     $07D0,X
         bcs     L6_9546
+
+; ---- bank6.code_9509 (code) $9509-$9512, 10 bytes
         lda     $17
         cmp     #$44
         beq     L6_9520
         cmp     #$41
         beq     L6_9549
+
+; ---- bank6.code_9513 (code) $9513-$951F, 13 bytes
         jsr     L7_C108
         bcs     L6_9546
         lda     #$0B
         jsr     L7_C105
         jmp     L6_95BD
+
+; ---- bank6.code_9520 (code) $9520-$9545, 38 bytes
 L6_9520:
         jsr     L7_C108
         bcs     L6_9546
@@ -3177,8 +3221,12 @@ L6_9520:
         sta     $0548,Y
         lda     #$00
         sta     $07A0,Y
+
+; ---- bank6.code_9546 (code) $9546-$9548, 3 bytes
 L6_9546:
         jmp     L6_95BD
+
+; ---- bank6.code_9549 (code) $9549-$95BC, 116 bytes
 L6_9549:
         ldy     $0638,X
         lda     $15
@@ -3237,21 +3285,33 @@ L6_9583:
         sta     $07A0,Y
         dec     $14
         bne     L6_9583
+
+; ---- bank6.code_95BD (code) $95BD-$95C2, 6 bytes
 L6_95BD:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- bank6.tbl_95C3 (data) $95C3-$95CF, 13 bytes
-; Table, 13 bytes (structural extent)
-        .byte   $F0,$F4,$10,$F4,$F4,$14,$0C,$14,$42,$43,$42,$30,$40
+; ---- bank6.tbl_95C3 (data) $95C3-$95CA, 8 bytes
+; Grimgrin's eye offsets
+        .byte   $F0,$F4,$10,$F4,$F4,$14,$0C,$14
 
-; ---- bank6.code_95D0 (code) $95D0-$9607, 56 bytes
+; ---- bank6.tbl_95CB (data) $95CB-$95CD, 3 bytes
+; Grimgrin's mouth pictures
+        .byte   $42,$43,$42
+
+; ---- bank6.tbl_95CE (data) $95CE-$95CF, 2 bytes
+; Grimgrin's phase step by type
+        .byte   $30,$40
+
+; ---- bank6.code_95D0 (code) $95D0-$95DC, 13 bytes
 L6_95D0:
         lda     #$18
         jsr     L7_C09C
         lda     #$10
         jsr     L7_C09F
         jmp     L7_C08D
+
+; ---- bank6.code_95DD (code) $95DD-$95F7, 27 bytes
 L6_95DD:
         lda     $0500,X
         bmi     L6_95F8
@@ -3263,12 +3323,16 @@ L6_95DD:
         lda     $0788,X
         jsr     L7_C102
         jsr     L7_C0A2
+
+; ---- bank6.code_95F8 (code) $95F8-$9604, 13 bytes
 L6_95F8:
         lda     #$60
         ldy     #$08
         jsr     L7_C0A5
         jsr     L6_A1CB
         jmp     L6_9F4F
+
+; ---- bank6.code_9605 (code) $9605-$9607, 3 bytes
 L6_9605:
         jsr     L7_C006
 

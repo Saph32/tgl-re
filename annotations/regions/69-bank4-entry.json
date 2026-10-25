@@ -1,0 +1,27 @@
+{
+  "_comment": "Hand-authored. Small remaining code claims.",
+  "regions": [
+    {
+      "id": "bank4.code_8000",
+      "offset": 65552,
+      "size": 3,
+      "kind": "code",
+      "name": "BANK 4 ENTRY: the screen-data block of a corridor (`$8000`)",
+      "confidence": "confirmed",
+      "cpu_addr": 32768,
+      "sha1": "3b8963a21bbce223e1cd6fd4aea984ae3f2ad3f4",
+      "description": "`JMP $8003`: **the single entry**. A = the corridor number (`$FF` and `$FE` are the launch and landing blocks): `$8003` adds 2, doubles it, and returns the block's pointer from the 25-entry table at `$8013` in `$19:$18` - code that returns DATA, which is why the trace saw only these 19 bytes. Called through bank 4 by the corridor loaders of bank 7 (`$EF6C` and the launch / landing code)."
+    },
+    {
+      "id": "bank4.code_8003",
+      "offset": 65555,
+      "size": 16,
+      "kind": "code",
+      "name": "BANK 4 ENTRY: the pointer lookup (`$8003`)",
+      "confidence": "confirmed",
+      "cpu_addr": 32771,
+      "sha1": "89d8d0f6635118fc34c0553ba385e4f7d4c90b4b",
+      "description": "`CLC / ADC #2 / ASL A / TAY`; `$18` := `$8013,Y`, `$19` := `$8014,Y`; `RTS`."
+    }
+  ]
+}

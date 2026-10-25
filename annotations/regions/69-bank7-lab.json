@@ -1,0 +1,16 @@
+{
+  "_comment": "Hand-authored. Small remaining code claims.",
+  "regions": [
+    {
+      "id": "bank7.code_E15F",
+      "offset": 123247,
+      "size": 3,
+      "kind": "code",
+      "name": "HUD LABEL: AREA (bank 7 `$E15F`)",
+      "confidence": "confirmed",
+      "cpu_addr": 57695,
+      "sha1": "03da2e33aa5b962f9a2a263d206f6d662d7b7a30",
+      "description": "`JSR $D576` with `04 27 62 'AREA'`: the word AREA at PPU `$2762` (row 27, column 2); the routine then runs on into the number printer at `$E169`."
+    }
+  ]
+}
