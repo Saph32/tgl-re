@@ -2449,11 +2449,13 @@ L7_D92F:
 ; Far-call argument at $D93A
         .byte   $05,$17,$80
 
-; ---- bank7.code_D93D (code) $D93D-$DB21, 485 bytes
+; ---- bank7.code_D93D (code) $D93D-$D941, 5 bytes
 L7_D93D:
         iny
         cpy     #$08
         bne     L7_D92F
+
+; ---- bank7.code_D942 (code) $D942-$D94F, 14 bytes
 L7_D942:
         lda     #$0F
         sta     $0180
@@ -2461,6 +2463,8 @@ L7_D942:
         ora     $017F
         sta     $017F
         rts
+
+; ---- bank7.code_D950 (code) $D950-$D99B, 76 bytes
 L7_D950:
         ldy     #$00
         sty     $15
@@ -2502,6 +2506,8 @@ L7_D991:
         lda     #$03
         sta     $017F
         rts
+
+; ---- bank7.code_D99C (code) $D99C-$D9EC, 81 bytes
 L7_D99C:
         txa
         pha
@@ -2548,6 +2554,8 @@ L7_D9E8:
         tax
         ldy     $1B
         rts
+
+; ---- bank7.code_D9ED (code) $D9ED-$DA1C, 48 bytes
 L7_D9ED:
         lda     $15
         beq     L7_DA0F
@@ -2581,6 +2589,8 @@ L7_DA15:
         bne     L7_DA15
 L7_DA1C:
         rts
+
+; ---- bank7.code_DA1D (code) $DA1D-$DA55, 57 bytes
 L7_DA1D:
         lda     $18
         clc
@@ -2617,6 +2627,8 @@ L7_DA4E:
         inc     $14
         bne     L7_DA4E
         rts
+
+; ---- bank7.code_DA56 (code) $DA56-$DA8A, 53 bytes
 L7_DA56:
         lda     $18
         sec
@@ -2652,6 +2664,8 @@ L7_DA86:
         tay
 L7_DA8A:
         rts
+
+; ---- bank7.code_DA8B (code) $DA8B-$DA99, 15 bytes
 L7_DA8B:
         tya
         pha
@@ -2662,6 +2676,8 @@ L7_DA8B:
         tay
         lda     $F5
         rts
+
+; ---- bank7.code_DA9A (code) $DA9A-$DAE0, 71 bytes
 L7_DA9A:
         lda     $2B
         bne     L7_DADC
@@ -2705,6 +2721,8 @@ L7_DADC:
         lda     #$00
         sta     $2B
         rts
+
+; ---- bank7.code_DAE1 (code) $DAE1-$DB21, 65 bytes
 L7_DAE1:
         lda     $30
         bpl     L7_DB15
@@ -3553,7 +3571,7 @@ L7_E00C:
         .byte   $01,$00,$00,$00,$00,$00,$01,$05,$00,$00,$00,$00,$02,$00,$00,$00
         .byte   $00,$00,$03,$00,$00,$00,$00,$00,$04,$00,$00,$00
 
-; ---- bank7.code_E0F9 (code) $E0F9-$E161, 105 bytes
+; ---- bank7.code_E0F9 (code) $E0F9-$E10F, 23 bytes
 L7_E0F9:
         jsr     L7_E30C
         lda     $40
@@ -3567,6 +3585,8 @@ L7_E0F9:
 L7_E10D:
         inc     $41
         rts
+
+; ---- bank7.code_E110 (code) $E110-$E15E, 79 bytes
 L7_E110:
         lda     #$27
         sta     $19
@@ -3612,6 +3632,8 @@ L7_E150:
         jsr     L7_D6F7
 L7_E15E:
         rts
+
+; ---- bank7.code_E15F (code) $E15F-$E161, 3 bytes
 L7_E15F:
         jsr     L7_D576
 
@@ -7830,7 +7852,7 @@ L7_FCD5:
 L7_FCE6:
         rts
 
-; ---- bank7.code_FCE7 (code) $FCE7-$FD4A, 100 bytes
+; ---- bank7.code_FCE7 (code) $FCE7-$FD0D, 39 bytes
 L7_FCE7:
         clc
         adc     $4C
@@ -7854,6 +7876,8 @@ L7_FD05:
         jsr     L7_FD77
         jsr     L7_E1C3
         jmp     L7_E213
+
+; ---- bank7.code_FD0E (code) $FD0E-$FD4A, 61 bytes
 L7_FD0E:
         ldy     $4A
         cpy     #$04
@@ -7895,7 +7919,7 @@ L7_FD44:
 ; Player attack by attack level, and a value by mode
         .byte   $01,$02,$03,$05,$03,$05,$41,$06
 
-; ---- bank7.code_FD53 (code) $FD53-$FDC9, 119 bytes
+; ---- bank7.code_FD53 (code) $FD53-$FD66, 20 bytes
 L7_FD53:
         lda     $0788,X
         bne     L7_FD59
@@ -7909,6 +7933,8 @@ L7_FD59:
         lsr     A
         bcc     L7_FD58
         jmp     L7_CBFC
+
+; ---- bank7.code_FD67 (code) $FD67-$FD76, 16 bytes
 L7_FD67:
         clc
         adc     $48
@@ -7921,6 +7947,8 @@ L7_FD6E:
 L7_FD74:
         sta     $48
         rts
+
+; ---- bank7.code_FD77 (code) $FD77-$FDA9, 51 bytes
 L7_FD77:
         lda     #$00
         sta     $45
@@ -7949,6 +7977,8 @@ L7_FD85:
         tay
         lda     $FDD3,Y
         sta     $45
+
+; ---- bank7.code_FDAA (code) $FDAA-$FDC9, 32 bytes
 L7_FDAA:
         sta     $10
         lda     #$FF

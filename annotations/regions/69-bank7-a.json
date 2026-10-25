@@ -1128,11 +1128,11 @@
       "offset": 115010,
       "size": 3,
       "kind": "code",
-      "name": "BANK 7 JUMP TABLE, slot $C132: attack and shield stats",
+      "name": "BANK 7 JUMP TABLE, slot $C132: attack, shield and speed",
       "confidence": "confirmed",
       "cpu_addr": 49458,
       "sha1": "8dfcc57b599ec566332010621ba3dd157ba403ad",
-      "description": "`JMP $FD0E`: The ship's attack (`$05A8`) and hit points (`$0590`) from `$4A`, `$4B`."
+      "description": "`JMP $FD0E`: The attack (`$05A8`), damage divisor (`$0590`) and speed class (`$0698`) of the ship from `$4A`, `$4B` and the mode."
     },
     {
       "id": "bank7.code_C135",
@@ -1161,11 +1161,11 @@
       "offset": 115019,
       "size": 3,
       "kind": "code",
-      "name": "BANK 7 JUMP TABLE, slot $C13B: Hyper Laser attack",
+      "name": "BANK 7 JUMP TABLE, slot $C13B: set up a beam piece",
       "confidence": "confirmed",
       "cpu_addr": 49467,
       "sha1": "29636f0c315c0e0e4d215c2e41157e8598bb98d6",
-      "description": "`JMP $FDF8`: Overwrites the attack for weapon 9."
+      "description": "`JMP $FDF8`: CORRECTION: this slot was first described as overwriting the Hyper Laser attack; it copies a style record (`$FE22 + A`) into the new object Y: metasprite, `$0638`, half-width, hit points `$FF`, attack 1."
     },
     {
       "id": "bank7.code_C13E",
