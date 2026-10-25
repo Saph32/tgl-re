@@ -3166,42 +3166,72 @@ L3_950E:
 ; Optomon beam style record by type
         .byte   $09,$0C,$0F
 
-; ---- bank3.code_952E (code) $952E-$9672, 325 bytes
+; ---- bank3.code_952E (code) $952E-$9532, 5 bytes
 L3_952E:
         ldy     $0500,X
         bmi     L3_9562
+
+; ---- bank3.code_9533 (code) $9533-$9538, 6 bytes
         lda     $9633,Y
         sta     $0560,X
+
+; ---- bank3.code_9539 (code) $9539-$953E, 6 bytes
         lda     $9635,Y
         sta     $07A0,X
+
+; ---- bank3.code_953F (code) $953F-$9544, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank3.code_9545 (code) $9545-$954A, 6 bytes
         jsr     L7_C0A2
         jsr     L7_C0F0
+
+; ---- bank3.code_954B (code) $954B-$954F, 5 bytes
         lda     #$83
         sta     $0548,X
+
+; ---- bank3.code_9550 (code) $9550-$9557, 8 bytes
         lda     #$10
         sta     $0518,X
         sta     $0668,X
+
+; ---- bank3.code_9558 (code) $9558-$955C, 5 bytes
         lda     #$00
         sta     $07B8,X
+
+; ---- bank3.code_955D (code) $955D-$9561, 5 bytes
         lda     #$78
         sta     $0788,X
+
+; ---- bank3.code_9562 (code) $9562-$9566, 5 bytes
 L3_9562:
         lda     $0788,X
         beq     L3_9579
+
+; ---- bank3.code_9567 (code) $9567-$956B, 5 bytes
         dec     $0788,X
         beq     L3_9574
+
+; ---- bank3.code_956C (code) $956C-$9572, 7 bytes
         lda     $0788,X
         and     #$01
         bne     L3_959F
+
+; ---- bank3.code_9573 (code) $9573-$9573, 1 bytes
         rts
+
+; ---- bank3.code_9574 (code) $9574-$9578, 5 bytes
 L3_9574:
         lda     #$04
         sta     $05D8,X
+
+; ---- bank3.code_9579 (code) $9579-$957D, 5 bytes
 L3_9579:
         lda     #$10
         jsr     L7_C09C
+
+; ---- bank3.code_957E (code) $957E-$959E, 33 bytes
         lda     $41
         and     #$01
         bne     L3_959F
@@ -3216,6 +3246,8 @@ L3_9579:
         bcc     L3_959F
 L3_959C:
         dec     $0530,X
+
+; ---- bank3.code_959F (code) $959F-$95BA, 28 bytes
 L3_959F:
         lda     $05D8,X
         bmi     L3_95AE
@@ -3233,6 +3265,8 @@ L3_95AE:
         lda     $41
         and     #$10
         lsr     A
+
+; ---- bank3.code_95BB (code) $95BB-$95C9, 15 bytes
 L3_95BB:
         lsr     A
         lsr     A
@@ -3242,7 +3276,11 @@ L3_95BB:
         and     #$03
         ora     $9677,Y
         sta     $0560,X
+
+; ---- bank3.code_95CA (code) $95CA-$95CC, 3 bytes
         jsr     L7_C08D
+
+; ---- bank3.code_95CD (code) $95CD-$95DF, 19 bytes
         ldy     $16
         lda     $9679,Y
         pha
@@ -3252,6 +3290,8 @@ L3_95BB:
         sta     $86
         pla
         jsr     L7_C093
+
+; ---- bank3.code_95E0 (code) $95E0-$95F5, 22 bytes
         ldy     $07B8,X
         lda     $967B,Y
         sta     $86
@@ -3261,34 +3301,56 @@ L3_95BB:
         sta     $87
         lda     $9681,Y
         jsr     L7_C093
+
+; ---- bank3.code_95F6 (code) $95F6-$95F9, 4 bytes
         lda     #$00
         sta     $17
+
+; ---- bank3.code_95FA (code) $95FA-$95FE, 5 bytes
         lda     $0788,X
         bne     L3_9638
+
+; ---- bank3.code_95FF (code) $95FF-$960A, 12 bytes
         ldy     $05C0,X
         lda     $05D8,X
         beq     L3_960B
         cmp     #$FF
         bne     L3_9638
+
+; ---- bank3.code_960B (code) $960B-$960E, 4 bytes
 L3_960B:
         lda     #$01
         sta     $17
+
+; ---- bank3.code_960F (code) $960F-$9615, 7 bytes
         lda     $41
         and     $07A0,X
         bne     L3_9638
+
+; ---- bank3.code_9616 (code) $9616-$961A, 5 bytes
         jsr     L7_C108
         bcs     L3_9638
+
+; ---- bank3.code_961B (code) $961B-$961F, 5 bytes
         lda     #$27
         jsr     L7_C105
+
+; ---- bank3.code_9620 (code) $9620-$9627, 8 bytes
         lda     $0518,Y
         adc     #$24
         sta     $0518,Y
+
+; ---- bank3.code_9628 (code) $9628-$9632, 11 bytes
         inc     $0638,X
         lda     $0638,X
         ora     #$08
         sta     $0788,Y
+
+; ---- bank3.code_9633 (code) $9633-$9637, 5 bytes
         lda     #$00
         sta     $07A0,Y
+
+; ---- bank3.code_9638 (code) $9638-$9650, 25 bytes
 L3_9638:
         lda     $0560,X
         sta     $86
@@ -3301,6 +3363,8 @@ L3_9638:
         ldy     $17
         lda     $9684,Y
         jsr     L7_C093
+
+; ---- bank3.code_9651 (code) $9651-$9666, 22 bytes
         lda     $0518,X
         cmp     #$10
         bcs     L3_9667
@@ -3310,18 +3374,51 @@ L3_9638:
         sta     $05D8,X
         lda     #$00
         sta     $05C0,X
+
+; ---- bank3.code_9667 (code) $9667-$966B, 5 bytes
 L3_9667:
         lda     $0788,X
         beq     L3_966D
+
+; ---- bank3.code_966C (code) $966C-$966C, 1 bytes
         rts
+
+; ---- bank3.code_966D (code) $966D-$9672, 6 bytes
 L3_966D:
         jsr     L7_C0C6
         jmp     L7_C0D8
 
-; ---- bank3.tbl_9673 (data) $9673-$9685, 19 bytes
-; Fleepa (types $40/$41): eight small tables for $952E
-        .byte   $02,$00,$0F,$07,$00,$40,$84,$85,$00,$40,$00,$3A,$36,$36,$7B,$19
-        .byte   $19,$86,$87
+; ---- bank3.tbl_9673 (data) $9673-$9674, 2 bytes
+; Fleepa palette by type
+        .byte   $02,$00
+
+; ---- bank3.tbl_9675 (data) $9675-$9676, 2 bytes
+; Fleepa fire mask by type
+        .byte   $0F,$07
+
+; ---- bank3.tbl_9677 (data) $9677-$9678, 2 bytes
+; Fleepa palette flip
+        .byte   $00,$40
+
+; ---- bank3.tbl_9679 (data) $9679-$967A, 2 bytes
+; Fleepa wing metasprite
+        .byte   $84,$85
+
+; ---- bank3.tbl_967B (data) $967B-$967D, 3 bytes
+; Fleepa head flip by side state
+        .byte   $00,$40,$00
+
+; ---- bank3.tbl_967E (data) $967E-$9680, 3 bytes
+; Fleepa head tile offset by side state
+        .byte   $3A,$36,$36
+
+; ---- bank3.tbl_9681 (data) $9681-$9683, 3 bytes
+; Fleepa head metasprite by side state
+        .byte   $7B,$19,$19
+
+; ---- bank3.tbl_9684 (data) $9684-$9685, 2 bytes
+; Fleepa belly metasprite
+        .byte   $86,$87
 
 ; ---- bank3.gfx_9686 (graphics) $9686-$9712, 141 bytes
 ; Tile block: 10 tiles
