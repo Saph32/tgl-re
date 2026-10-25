@@ -67,52 +67,64 @@ L3_802E:
         .byte   $FD,$B5,$81,$B6,$81,$B6,$E0,$B6,$43,$B7,$3B,$B9,$0B,$BA,$35,$BB
         .byte   $B9,$BB,$3D,$BC,$39,$BD,$1D,$BE,$9E,$BE,$56,$BF,$6E,$A3,$F2,$A3
 
-; ---- bank3.code_80A0 (code) $80A0-$80AA, 11 bytes
+; ---- bank3.code_80A0 (code) $80A0-$80A7, 8 bytes
 L3_80A0:
         jsr     L7_C01B
         lda     #$20
         jsr     L7_C018
+
+; ---- bank3.code_80A8 (code) $80A8-$80AA, 3 bytes
         jsr     L7_C06C
 
 ; ---- bank3.inline_80AB (data) $80AB-$80AE, 4 bytes
 ; Inline argument at $80AB
         .byte   $40,$23,$C0,$00
 
-; ---- bank3.code_80AF (code) $80AF-$80C0, 18 bytes
+; ---- bank3.code_80AF (code) $80AF-$80BD, 15 bytes
         lda     #$30
         sta     $0181
         lda     #$21
         sta     $0182
         lda     #$16
         sta     $0183
+
+; ---- bank3.code_80BE (code) $80BE-$80C0, 3 bytes
         jsr     L7_C06F
 
 ; ---- bank3.inline_80C1 (text) $80C1-$80CF, 15 bytes
 ; "YOU GOT ITEM" at $80C1
         .byte   $0C,$20,$84,$59,$4F,$55,$20,$47,$4F,$54,$20,$49,$54,$45,$4D
 
-; ---- bank3.code_80D0 (code) $80D0-$80D5, 6 bytes
+; ---- bank3.code_80D0 (code) $80D0-$80D2, 3 bytes
         jsr     L7_C0DE
+
+; ---- bank3.code_80D3 (code) $80D3-$80D5, 3 bytes
         jsr     L7_C006
 
 ; ---- bank3.inline_80D6 (data) $80D6-$80D8, 3 bytes
 ; Far-call argument at $80D6
         .byte   $06,$11,$80
 
-; ---- bank3.code_80D9 (code) $80D9-$8106, 46 bytes
+; ---- bank3.code_80D9 (code) $80D9-$80E4, 12 bytes
         lda     #$80
         sta     $14
         lda     #$C8
         sta     $18
         lda     #$20
         sta     $19
+
+; ---- bank3.code_80E5 (code) $80E5-$80EA, 6 bytes
         ldx     $76
 L3_80E7:
         cpx     #$92
         bcs     L3_8158
+
+; ---- bank3.code_80EB (code) $80EB-$80F1, 7 bytes
         lda     $15
         cmp     $817A,X
         bcc     L3_8158
+
+; ---- bank3.code_80F2 (code) $80F2-$80FD, 12 bytes
         lda     $15
         pha
         lda     $14
@@ -121,7 +133,11 @@ L3_80E7:
         pha
         lda     $18
         pha
+
+; ---- bank3.code_80FE (code) $80FE-$8100, 3 bytes
         jsr     L3_820C
+
+; ---- bank3.code_8101 (code) $8101-$8106, 6 bytes
         lda     $817B,X
         jsr     L7_C006
 
@@ -129,7 +145,7 @@ L3_80E7:
 ; Far-call argument at $8107
         .byte   $02,$14,$80
 
-; ---- bank3.code_810A (code) $810A-$815A, 81 bytes
+; ---- bank3.code_810A (code) $810A-$8117, 14 bytes
         ldx     $76
         pla
         sta     $18
@@ -139,9 +155,13 @@ L3_80E7:
         sta     $14
         pla
         sta     $15
+
+; ---- bank3.code_8118 (code) $8118-$8120, 9 bytes
         lda     $817A,X
         jsr     L7_C051
         jsr     L3_802E
+
+; ---- bank3.code_8121 (code) $8121-$8132, 18 bytes
         lda     $18
         clc
         adc     #$05
@@ -151,8 +171,12 @@ L3_80E7:
         ldy     #$C0
         lda     $14
         jsr     L7_C054
+
+; ---- bank3.code_8133 (code) $8133-$8137, 5 bytes
         ldy     #$64
         jsr     L7_C021
+
+; ---- bank3.code_8138 (code) $8138-$8157, 32 bytes
         inx
         inx
         stx     $76
@@ -172,6 +196,8 @@ L3_8152:
         lda     $19
         cmp     #$23
         bcc     L3_80E7
+
+; ---- bank3.code_8158 (code) $8158-$815A, 3 bytes
 L3_8158:
         jsr     L7_C06F
 
@@ -219,8 +245,10 @@ L3_820C:
 ; Far-call argument at $8226
         .byte   $02,$02,$80
 
-; ---- bank3.code_8229 (code) $8229-$822F, 7 bytes
+; ---- bank3.code_8229 (code) $8229-$8229, 1 bytes
         rts
+
+; ---- bank3.code_822A (code) $822A-$822F, 6 bytes
 L3_822A:
         ldx     #$FF
         txs
