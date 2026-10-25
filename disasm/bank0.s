@@ -1196,11 +1196,13 @@ L0_89F8:
         .byte   $4F,$38,$08,$22,$9F,$04,$01,$82,$F9,$04,$1D,$BF,$E0,$C2,$FF,$7D
         .byte   $04,$FE,$FA,$42,$3F,$BD,$00,$1C,$92,$8D,$18,$18
 
-; ---- bank0.code_917C (code) $917C-$932B, 432 bytes
+; ---- bank0.code_917C (code) $917C-$9181, 6 bytes
 L0_917C:
         lda     $0307
         beq     L0_9182
         rts
+
+; ---- bank0.code_9182 (code) $9182-$91A2, 33 bytes
 L0_9182:
         lda     $0301
         and     #$FE
@@ -1217,8 +1219,12 @@ L0_9196:
         inx
         cpx     #$07
         bne     L0_9196
+
+; ---- bank0.code_91A3 (code) $91A3-$91A5, 3 bytes
 L0_91A3:
         jsr     L0_96A9
+
+; ---- bank0.code_91A6 (code) $91A6-$91B5, 16 bytes
         ldy     #$05
         lda     $0301
         and     #$02
@@ -1227,16 +1233,22 @@ L0_91A3:
         iny
 L0_91B3:
         sty     $0302
+
+; ---- bank0.code_91B6 (code) $91B6-$91C0, 11 bytes
 L0_91B6:
         ldx     $0302
         lda     $0319,X
         bne     L0_91C1
         jmp     L0_9239
+
+; ---- bank0.code_91C1 (code) $91C1-$91C9, 9 bytes
 L0_91C1:
         tay
         lda     $03E4,X
         and     #$7F
         sta     $03E4,X
+
+; ---- bank0.code_91CA (code) $91CA-$91DC, 19 bytes
         lda     $0358,X
         and     #$01
         beq     L0_91DD
@@ -1245,6 +1257,8 @@ L0_91C1:
         adc     $039E,X
         sta     $039E,X
         bcc     L0_91F6
+
+; ---- bank0.code_91DD (code) $91DD-$91F5, 25 bytes
 L0_91DD:
         dec     $0374,X
         bne     L0_91F6
@@ -1255,14 +1269,22 @@ L0_91DD:
         cmp     $0366,X
         bne     L0_91F6
         jsr     L0_92F7
+
+; ---- bank0.code_91F6 (code) $91F6-$91FB, 6 bytes
 L0_91F6:
         jsr     L0_95B2
         jsr     L0_964A
+
+; ---- bank0.code_91FC (code) $91FC-$9203, 8 bytes
         lda     $0358,X
         bpl     L0_9204
         jsr     L0_92A7
+
+; ---- bank0.code_9204 (code) $9204-$9206, 3 bytes
 L0_9204:
         jsr     L0_96BF
+
+; ---- bank0.code_9207 (code) $9207-$9238, 50 bytes
         lda     $0358,X
         and     #$20
         beq     L0_9239
@@ -1284,6 +1306,8 @@ L0_922E:
         and     #$FD
         sta     $0358,X
         dec     $0320,X
+
+; ---- bank0.code_9239 (code) $9239-$9245, 13 bytes
 L0_9239:
         cpx     #$06
         beq     L0_9246
@@ -1291,6 +1315,8 @@ L0_9239:
         stx     $0302
         bmi     L0_9246
         jmp     L0_91B6
+
+; ---- bank0.code_9246 (code) $9246-$92A6, 97 bytes
 L0_9246:
         lda     $0306
         ldx     #$30
@@ -1350,6 +1376,8 @@ L0_92A0:
         dex
         bpl     L0_9267
         rts
+
+; ---- bank0.code_92A7 (code) $92A7-$92F6, 80 bytes
 L0_92A7:
         lda     $03D6,X
         beq     L0_92F6
@@ -1392,21 +1420,29 @@ L0_92EE:
         sta     $03BA,X
 L0_92F6:
         rts
+
+; ---- bank0.code_92F7 (code) $92F7-$9302, 12 bytes
 L0_92F7:
         lda     $034A,X
         sta     $1C
         lda     $0351,X
         sta     $1D
         ldy     #$FF
+
+; ---- bank0.code_9303 (code) $9303-$930D, 11 bytes
         iny
         ldx     $0302
         lda     ($1C),Y
         bmi     L0_930E
         jmp     L0_94C8
+
+; ---- bank0.code_930E (code) $930E-$9314, 7 bytes
 L0_930E:
         cmp     #$B0
         bcc     L0_9315
         jmp     L0_94C2
+
+; ---- bank0.code_9315 (code) $9315-$932B, 23 bytes
 L0_9315:
         asl     A
         tax
@@ -1429,7 +1465,7 @@ L0_9315:
         .byte   $A0,$93,$56,$94,$AC,$93,$13,$94,$E0,$93,$76,$94,$05,$94,$38,$94
         .byte   $9D,$94,$BD,$94,$89,$93,$CB,$97,$D9,$93
 
-; ---- bank0.code_9356 (code) $9356-$95F8, 675 bytes
+; ---- bank0.code_9356 (code) $9356-$9360, 11 bytes
 L0_9356:
         tax
         iny
@@ -1438,6 +1474,8 @@ L0_9356:
         stx     $1C
         ldy     #$FF
         rts
+
+; ---- bank0.code_9361 (code) $9361-$936F, 15 bytes
 L0_9361:
         clc
         adc     $0302
@@ -1448,6 +1486,8 @@ L0_9361:
         bne     L0_9356
         iny
         rts
+
+; ---- bank0.code_9370 (code) $9370-$9381, 18 bytes
 L0_9370:
         lda     $03DD,X
         sta     $0300
@@ -1459,12 +1499,18 @@ L0_9376:
         pla
         pla
         jmp     L0_9239
+
+; ---- bank0.code_9382 (code) $9382-$9385, 4 bytes
 L0_9382:
         sta     $032E,X
         rts
+
+; ---- bank0.code_9386 (code) $9386-$9389, 4 bytes
 L0_9386:
         sta     $0327,X
         rts
+
+; ---- bank0.code_938A (code) $938A-$9396, 13 bytes
 L0_938A:
         sta     $1E
         lda     $0320,X
@@ -1472,6 +1518,8 @@ L0_938A:
         ora     $1E
         sta     $0320,X
         rts
+
+; ---- bank0.code_9397 (code) $9397-$93A0, 10 bytes
 L0_9397:
         beq     L0_939D
         clc
@@ -1479,6 +1527,8 @@ L0_9397:
 L0_939D:
         sta     $0335,X
         rts
+
+; ---- bank0.code_93A1 (code) $93A1-$93AC, 12 bytes
 L0_93A1:
         clc
         adc     $0302
@@ -1487,9 +1537,13 @@ L0_93A1:
         lda     ($1C),Y
         sta     $0319,X
         rts
+
+; ---- bank0.code_93AD (code) $93AD-$93B0, 4 bytes
 L0_93AD:
         sta     $0319,X
         rts
+
+; ---- bank0.code_93B1 (code) $93B1-$93D9, 41 bytes
 L0_93B1:
         pha
         lda     $0320,X
@@ -1514,10 +1568,14 @@ L0_93CD:
         ora     $1E
         sta     $0320,X
         rts
+
+; ---- bank0.code_93DA (code) $93DA-$93E0, 7 bytes
 L0_93DA:
         ora     $0300
         sta     $0300
         rts
+
+; ---- bank0.code_93E1 (code) $93E1-$9405, 37 bytes
 L0_93E1:
         sta     $1E
         and     #$3F
@@ -1536,6 +1594,8 @@ L0_93E1:
         sta     $0358,X
 L0_9405:
         rts
+
+; ---- bank0.code_9406 (code) $9406-$9413, 14 bytes
 L0_9406:
         lda     $0358,X
         and     #$02
@@ -1545,6 +1605,8 @@ L0_9406:
 L0_9412:
         iny
         rts
+
+; ---- bank0.code_9414 (code) $9414-$9438, 37 bytes
 L0_9414:
         clc
         dec     $0389,X
@@ -1563,6 +1625,8 @@ L0_9414:
         adc     $0335,X
         sta     $0335,X
         rts
+
+; ---- bank0.code_9439 (code) $9439-$9456, 30 bytes
 L0_9439:
         sta     $0397,X
         lda     #$80
@@ -1577,6 +1641,8 @@ L0_9439:
         sta     $0358,X
 L0_9456:
         rts
+
+; ---- bank0.code_9457 (code) $9457-$9476, 32 bytes
 L0_9457:
         sta     $1E
         asl     A
@@ -1599,6 +1665,8 @@ L0_9472:
         lsr     A
         sta     $03EB,X
         rts
+
+; ---- bank0.code_9477 (code) $9477-$949D, 39 bytes
 L0_9477:
         bmi     L0_9487
         beq     L0_9495
@@ -1620,6 +1688,8 @@ L0_9495:
         and     #$7F
         sta     $0358,X
         rts
+
+; ---- bank0.code_949E (code) $949E-$94BD, 32 bytes
 L0_949E:
         sta     $03F2,X
         iny
@@ -1636,12 +1706,18 @@ L0_94B5:
         and     #$F7
         sta     $0358,X
         rts
+
+; ---- bank0.code_94BE (code) $94BE-$94C1, 4 bytes
 L0_94BE:
         sta     $0343,X
         rts
+
+; ---- bank0.code_94C2 (code) $94C2-$94C7, 6 bytes
 L0_94C2:
         lda     $036D,X
         jmp     L0_94CC
+
+; ---- bank0.code_94C8 (code) $94C8-$94F0, 41 bytes
 L0_94C8:
         sta     $036D,X
         iny
@@ -1666,6 +1742,8 @@ L0_94E6:
         ldy     $0303
 L0_94F0:
         iny
+
+; ---- bank0.code_94F1 (code) $94F1-$9529, 57 bytes
 L0_94F1:
         sta     $0366,X
         sta     $037B,X
@@ -1692,6 +1770,8 @@ L0_9522:
         lda     $03E4,X
         ora     #$80
         sta     $03E4,X
+
+; ---- bank0.code_952A (code) $952A-$956E, 69 bytes
         lda     $0358,X
         and     #$08
         beq     L0_956E
@@ -1729,6 +1809,8 @@ L0_9558:
         sta     $0319,X
 L0_956E:
         rts
+
+; ---- bank0.code_956F (code) $956F-$95B1, 67 bytes
 L0_956F:
         sta     $03B3,X
         and     #$FF
@@ -1762,6 +1844,8 @@ L0_9596:
         sta     $03BA,X
         ldy     $0303
         rts
+
+; ---- bank0.code_95B2 (code) $95B2-$95F8, 71 bytes
 L0_95B2:
         lda     $0320,X
         and     #$10
@@ -1822,7 +1906,7 @@ L0_95F2:
         sta     $03A5,X
         rts
 
-; ---- bank0.code_9627 (code) $9627-$9770, 330 bytes
+; ---- bank0.code_9627 (code) $9627-$9649, 35 bytes
 L0_9627:
         lda     ($1E),Y
         bmi     L0_962C
@@ -1850,6 +1934,8 @@ L0_9641:
         lda     ($1E),Y
 L0_9649:
         rts
+
+; ---- bank0.code_964A (code) $964A-$96A8, 95 bytes
 L0_964A:
         lda     $03B3,X
         ora     $03BA,X
@@ -1901,6 +1987,8 @@ L0_969B:
         sta     $03BA,X
 L0_96A8:
         rts
+
+; ---- bank0.code_96A9 (code) $96A9-$96BE, 22 bytes
 L0_96A9:
         ldy     #$FF
         sty     $030B
@@ -1912,6 +2000,8 @@ L0_96A9:
         sty     $0318
 L0_96BE:
         rts
+
+; ---- bank0.code_96BF (code) $96BF-$9770, 178 bytes
 L0_96BF:
         lda     $0318
         and     #$20
@@ -1997,7 +2087,7 @@ L0_9768:
 ; Hardware channel masks
         .byte   $01,$02,$04,$08,$FE,$FD,$FB,$F7
 
-; ---- bank0.code_9779 (code) $9779-$9859, 225 bytes
+; ---- bank0.code_9779 (code) $9779-$979F, 39 bytes
 L0_9779:
         lda     $0306
         and     #$08
@@ -2015,6 +2105,8 @@ L0_9779:
         sta     $0317
 L0_979F:
         rts
+
+; ---- bank0.code_97A0 (code) $97A0-$97CB, 44 bytes
 L0_97A0:
         lda     #$00
         sta     $0301
@@ -2039,6 +2131,8 @@ L0_97AC:
         sta     $4004
         sta     $400C
         rts
+
+; ---- bank0.code_97CC (code) $97CC-$97E3, 24 bytes
 L0_97CC:
         inc     $0307
         sta     $1E
@@ -2055,6 +2149,8 @@ L0_97CC:
         pla
         tax
         rts
+
+; ---- bank0.code_97E4 (code) $97E4-$97FF, 28 bytes
 L0_97E4:
         sta     $0304
         asl     A
@@ -2071,6 +2167,8 @@ L0_97E4:
         lda     $1E
         pha
         rts
+
+; ---- bank0.code_9800 (code) $9800-$9858, 89 bytes
 L0_9800:
         iny
         sta     $0305
@@ -2118,6 +2216,8 @@ L0_9850:
 L0_9854:
         dec     $0305
         bne     L0_9804
+
+; ---- bank0.code_9859 (code) $9859-$9859, 1 bytes
 L0_9859:
         rts
 
@@ -2142,11 +2242,13 @@ L0_9859:
 ; Song header $00 at $9932: code follows
         .byte   $00
 
-; ---- bank0.code_9933 (code) $9933-$9938, 6 bytes
+; ---- bank0.code_9933 (code) $9933-$9937, 5 bytes
 L0_9933:
         lda     #$03
 L0_9935:
         sta     $0301
+
+; ---- bank0.code_9938 (code) $9938-$9938, 1 bytes
         rts
 
 ; ---- bank0.hdr_9939 (data) $9939-$9939, 1 bytes

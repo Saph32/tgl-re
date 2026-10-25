@@ -99,7 +99,7 @@ COMMANDS: dict[int, tuple[str, int, str]] = {
     0x88: ("set field", 2, "$93A1: operand 0 plus the channel index selects a field, "
                            "operand 1 is stored into it."),
     0x89: ("detune", 1, "$9457: a signed value folded into $03EB,X."),
-    0x8A: ("field $0327", 1, "$93AD: stores straight into $0327,X."),
+    0x8A: ("control", 1, "$93AD: stores straight into $0319,X, the channel's CONTROL field (routing bits 0-1, envelope bit 4). CORRECTION: this said $0327,X; the instruction is STA $0319,X."),
     0x8B: ("transpose via pointer", 2, "$9414: the two operands build a pointer in $1E/$1F, "
                                     "biased by a per-channel counter at $0389,X, and the "
                                     "byte read through it is added to $0335,X - a transpose "

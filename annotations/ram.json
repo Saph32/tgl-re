@@ -1674,9 +1674,9 @@
     {
       "f": 0,
       "name": "control",
-      "what": "Channel control: 0 = idle. Bits 0-1 take the duty from the note sequence; bit 4 is tested when a note starts.",
+      "what": "Channel control: 0 = idle. Bits 0-1 are the OUTPUT ROUTING: bit 0 writes the channel's own APU registers, bit 1 also drives the noise channel ($9779), 0 = no output; a note sequence (command $90) overwrites them at each note from bits 5-6 of its value ($9558-$956B). Bit 4 = volume envelope active (tested when a note starts). CORRECTION: the first reading said bits 0-1 'take the duty'.",
       "status": "confirmed",
-      "evidence": "bank 0 $91B9, $9564-$956B, $9516"
+      "evidence": "bank 0 $91B9, $9564-$956B, $9516, $96D8-$9726"
     },
     {
       "f": 1,
@@ -1716,7 +1716,7 @@
     {
       "f": 6,
       "name": "hw_channel",
-      "what": "The hardware channel wanted (compared with 3 for the triangle).",
+      "what": "The hardware channel wanted: 0 square 1, 1 square 2, 2 triangle, 3 NOISE (shadow offsets $0308 / $030C / $0310 / $0314). CORRECTION: it said 'compared with 3 for the triangle'; the compare at $957D selects the noise channel's period mapping.",
       "status": "confirmed",
       "evidence": "bank 0 $957A-$957D, $96DF"
     },
