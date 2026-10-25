@@ -248,48 +248,66 @@ L3_820C:
 ; ---- bank3.code_8229 (code) $8229-$8229, 1 bytes
         rts
 
-; ---- bank3.code_822A (code) $822A-$822F, 6 bytes
+; ---- bank3.code_822A (code) $822A-$822C, 3 bytes
 L3_822A:
         ldx     #$FF
         txs
+
+; ---- bank3.code_822D (code) $822D-$822F, 3 bytes
         jsr     L7_C06F
 
 ; ---- bank3.inline_8230 (text) $8230-$823C, 13 bytes
 ; "SOUND TEST" at $8230
         .byte   $0A,$20,$88,$53,$4F,$55,$4E,$44,$20,$54,$45,$53,$54
 
-; ---- bank3.code_823D (code) $823D-$827F, 67 bytes
+; ---- bank3.code_823D (code) $823D-$8244, 8 bytes
         lda     #$01
         sta     $15
         lda     #$01
         sta     $14
+
+; ---- bank3.code_8245 (code) $8245-$824C, 8 bytes
 L3_8245:
         lda     #$20
         sta     $19
         lda     #$CD
         sta     $18
+
+; ---- bank3.code_824D (code) $824D-$8251, 5 bytes
         lda     $15
         jsr     L7_C051
+
+; ---- bank3.code_8252 (code) $8252-$8258, 7 bytes
 L3_8252:
         jsr     L7_C0E4
         sta     $19
         beq     L3_8252
+
+; ---- bank3.code_8259 (code) $8259-$8264, 12 bytes
         lda     $F5
         bne     L3_8265
         dec     $14
         bne     L3_8252
         lda     #$02
         bne     L3_8267
+
+; ---- bank3.code_8265 (code) $8265-$8266, 2 bytes
 L3_8265:
         lda     #$0F
+
+; ---- bank3.code_8267 (code) $8267-$8268, 2 bytes
 L3_8267:
         sta     $14
+
+; ---- bank3.code_8269 (code) $8269-$8276, 14 bytes
         lda     $19
         and     #$04
         beq     L3_8277
         lda     $15
         jsr     L7_C030
         jmp     L3_8252
+
+; ---- bank3.code_8277 (code) $8277-$827F, 9 bytes
 L3_8277:
         lda     $19
         and     #$08
@@ -300,12 +318,16 @@ L3_8277:
 ; Far-call argument at $8280
         .byte   $00,$FF,$7F
 
-; ---- bank3.code_8283 (code) $8283-$82BC, 58 bytes
+; ---- bank3.code_8283 (code) $8283-$8285, 3 bytes
         jmp     L3_8252
+
+; ---- bank3.code_8286 (code) $8286-$828B, 6 bytes
 L3_8286:
         lda     $19
         and     #$03
         beq     L3_8252
+
+; ---- bank3.code_828C (code) $828C-$8299, 14 bytes
         cmp     #$02
         bne     L3_829A
         dec     $15
@@ -313,6 +335,8 @@ L3_8286:
         lda     #$47
         sta     $15
         bne     L3_8245
+
+; ---- bank3.code_829A (code) $829A-$82AB, 18 bytes
 L3_829A:
         cmp     #$01
         bne     L3_8252
@@ -323,6 +347,8 @@ L3_829A:
         lda     #$01
         sta     $15
         bne     L3_8245
+
+; ---- bank3.code_82AC (code) $82AC-$82BC, 17 bytes
 L3_82AC:
         lda     #$1F
         jsr     L7_C030
@@ -336,12 +362,14 @@ L3_82AC:
 ; Inline argument at $82BD
         .byte   $40,$23,$C0,$00
 
-; ---- bank3.code_82C1 (code) $82C1-$82DB, 27 bytes
+; ---- bank3.code_82C1 (code) $82C1-$82CB, 11 bytes
         lda     $FF
         ora     #$08
         and     #$DF
         sta     $FF
         sta     $2000
+
+; ---- bank3.code_82CC (code) $82CC-$82DB, 16 bytes
         lda     #$10
         sta     $19
         sta     $18
@@ -354,7 +382,7 @@ L3_82AC:
 ; Far-call argument at $82DC
         .byte   $02,$11,$80
 
-; ---- bank3.code_82DF (code) $82DF-$8351, 115 bytes
+; ---- bank3.code_82DF (code) $82DF-$82F5, 23 bytes
         lda     #$22
         sta     $19
         lda     #$84
@@ -365,11 +393,15 @@ L3_82AC:
         jsr     L3_8B7E
         lda     #$19
         jmp     L7_C030
+
+; ---- bank3.code_82F6 (code) $82F6-$82FF, 10 bytes
 L3_82F6:
         jsr     L7_C0E4
         and     #$F0
         beq     L3_82F6
         jmp     L3_8B7E
+
+; ---- bank3.code_8300 (code) $8300-$8314, 21 bytes
 L3_8300:
         lda     #$1F
         jsr     L7_C030
@@ -379,18 +411,26 @@ L3_8300:
         jsr     L3_834F
         lda     #$01
         sta     $0400
+
+; ---- bank3.code_8315 (code) $8315-$8319, 5 bytes
 L3_8315:
         jsr     L3_887F
         bcc     L3_8323
+
+; ---- bank3.code_831A (code) $831A-$8322, 9 bytes
         jsr     L3_876F
         jsr     L3_82F6
         jmp     L3_8315
+
+; ---- bank3.code_8323 (code) $8323-$832C, 10 bytes
 L3_8323:
         lda     $2F
         beq     L3_832A
         jsr     L3_8473
 L3_832A:
         jmp     L3_8397
+
+; ---- bank3.code_832D (code) $832D-$8348, 28 bytes
 L3_832D:
         jsr     L3_82AC
         jsr     L3_83AE
@@ -404,8 +444,12 @@ L3_8338:
         jsr     L3_866B
         jsr     L3_8711
         beq     L3_8397
+
+; ---- bank3.code_8349 (code) $8349-$834E, 6 bytes
         jsr     L3_834F
         jmp     L3_8380
+
+; ---- bank3.code_834F (code) $834F-$8351, 3 bytes
 L3_834F:
         jsr     L7_C06C
 
@@ -434,7 +478,7 @@ L3_834F:
 ; Inline argument at $8367
         .byte   $14,$23,$06,$20
 
-; ---- bank3.code_836B (code) $836B-$8512, 424 bytes
+; ---- bank3.code_836B (code) $836B-$8375, 11 bytes
         lda     #$00
         ldy     #$20
 L3_836F:
@@ -442,22 +486,34 @@ L3_836F:
         dey
         bne     L3_836F
         rts
+
+; ---- bank3.code_8376 (code) $8376-$837A, 5 bytes
 L3_8376:
         jsr     L3_8711
         beq     L3_8397
+
+; ---- bank3.code_837B (code) $837B-$837F, 5 bytes
         lda     #$00
         sta     $0400
+
+; ---- bank3.code_8380 (code) $8380-$8382, 3 bytes
 L3_8380:
         jsr     L3_8B7E
+
+; ---- bank3.code_8383 (code) $8383-$8390, 14 bytes
         jsr     L3_887F
         bcs     L3_838E
         jsr     L3_87F2
         jmp     L3_8391
 L3_838E:
         jsr     L3_87B5
+
+; ---- bank3.code_8391 (code) $8391-$8396, 6 bytes
 L3_8391:
         jsr     L3_82F6
         jmp     L3_8376
+
+; ---- bank3.code_8397 (code) $8397-$83AD, 23 bytes
 L3_8397:
         jsr     L7_C015
         lda     #$1F
@@ -469,6 +525,8 @@ L3_8397:
         sta     $FF
         sta     $2000
         rts
+
+; ---- bank3.code_83AE (code) $83AE-$83B8, 11 bytes
 L3_83AE:
         ldy     #$11
 L3_83B0:
@@ -476,6 +534,8 @@ L3_83B0:
         sta     $0438,Y
         dey
         bne     L3_83B0
+
+; ---- bank3.code_83B9 (code) $83B9-$83CA, 18 bytes
         lda     $46
         lsr     A
         rol     $0441
@@ -485,9 +545,13 @@ L3_83B0:
         rol     $0441
         lsr     A
         rol     $0441
+
+; ---- bank3.code_83CB (code) $83CB-$83D2, 8 bytes
         lda     $0447
         and     #$7F
         sta     $0447
+
+; ---- bank3.code_83D3 (code) $83D3-$83DF, 13 bytes
         lda     $47
         cmp     #$FF
         bne     L3_83DB
@@ -495,15 +559,21 @@ L3_83B0:
 L3_83DB:
         ora     $6B
         sta     $044A
+
+; ---- bank3.code_83E0 (code) $83E0-$83EA, 11 bytes
         lda     $52
         ldy     $4A
         dey
         jsr     L3_8430
         sta     $044B
+
+; ---- bank3.code_83EB (code) $83EB-$83F4, 10 bytes
         lda     $53
         ldy     $4B
         jsr     L3_8430
         sta     $044C
+
+; ---- bank3.code_83F5 (code) $83F5-$8411, 29 bytes
         lda     $0170
         sta     $19
         lda     $0171
@@ -515,6 +585,8 @@ L3_83DB:
         rol     $0444
         lsr     $18
         rol     $0444
+
+; ---- bank3.code_8412 (code) $8412-$842F, 30 bytes
         lda     $0173
         sta     $19
         lda     $0174
@@ -527,12 +599,16 @@ L3_83DB:
         lsr     $18
         rol     $0444
         rts
+
+; ---- bank3.code_8430 (code) $8430-$8438, 9 bytes
 L3_8430:
         sta     $10
         tya
         jsr     L3_8439
         lda     $10
         rts
+
+; ---- bank3.code_8439 (code) $8439-$8442, 10 bytes
 L3_8439:
         lsr     A
         rol     $10
@@ -541,12 +617,16 @@ L3_8439:
         lsr     A
         rol     $10
         rts
+
+; ---- bank3.code_8443 (code) $8443-$844C, 10 bytes
 L3_8443:
         ldy     #$00
         sty     $10
         jsr     L3_8439
         ldy     $10
         rts
+
+; ---- bank3.code_844D (code) $844D-$8472, 38 bytes
 L3_844D:
         sta     $10
         lda     $18
@@ -573,6 +653,8 @@ L3_844D:
         inc     $18
 L3_8472:
         rts
+
+; ---- bank3.code_8473 (code) $8473-$847D, 11 bytes
 L3_8473:
         ldy     #$11
 L3_8475:
@@ -580,12 +662,16 @@ L3_8475:
         sta     $049F,Y
         dey
         bne     L3_8475
+
+; ---- bank3.code_847E (code) $847E-$848D, 16 bytes
         lda     $04AE
         and     #$7F
         sta     $04AE
         lda     $04B0
         and     #$7F
         sta     $04B0
+
+; ---- bank3.code_848E (code) $848E-$84A1, 20 bytes
         lda     #$00
         lsr     $04A8
         rol     A
@@ -596,6 +682,8 @@ L3_8475:
         lsr     $04A8
         rol     A
         sta     $46
+
+; ---- bank3.code_84A2 (code) $84A2-$84B3, 18 bytes
         lda     $044A
         and     #$07
         sta     $6B
@@ -605,15 +693,21 @@ L3_8475:
         lda     #$FF
 L3_84B2:
         sta     $47
+
+; ---- bank3.code_84B4 (code) $84B4-$84BE, 11 bytes
         lda     $044B
         jsr     L3_8443
         sta     $7C
         iny
         sty     $4A
+
+; ---- bank3.code_84BF (code) $84BF-$84C8, 10 bytes
         lda     $044C
         jsr     L3_8443
         sta     $7D
         sty     $4B
+
+; ---- bank3.code_84C9 (code) $84C9-$84E4, 28 bytes
         lda     #$00
         lsr     $04AB
         rol     A
@@ -626,6 +720,8 @@ L3_84B2:
         sta     $0174
         lda     $19
         sta     $0173
+
+; ---- bank3.code_84E5 (code) $84E5-$8501, 29 bytes
         lda     #$00
         lsr     $04AB
         rol     A
@@ -639,6 +735,8 @@ L3_84B2:
         lda     $19
         sta     $0170
         rts
+
+; ---- bank3.code_8502 (code) $8502-$8512, 17 bytes
 L3_8502:
         pha
         lda     #$64
