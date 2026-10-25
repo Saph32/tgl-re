@@ -1106,10 +1106,10 @@ L3_8701:
         jmp     L7_C03F
 
 ; ---- bank3.tbl_870D (data) $870D-$8710, 4 bytes
-; OAM template: one sprite
+; Check menu cursor start (sprite 1)
         .byte   $54,$00,$00,$50
 
-; ---- bank3.code_8711 (code) $8711-$8722, 18 bytes
+; ---- bank3.code_8711 (code) $8711-$871F, 15 bytes
 L3_8711:
         lda     #$20
         sta     $19
@@ -1118,6 +1118,8 @@ L3_8711:
         ldx     #$0E
         ldy     #$07
         jsr     L3_8BB3
+
+; ---- bank3.code_8720 (code) $8720-$8722, 3 bytes
         jsr     L7_C06F
 
 ; ---- bank3.inline_8723 (text) $8723-$872B, 9 bytes
@@ -1131,24 +1133,34 @@ L3_8711:
 ; "WORD CHECK" at $872F
         .byte   $0A,$21,$8B,$57,$4F,$52,$44,$20,$43,$48,$45,$43,$4B
 
-; ---- bank3.code_873C (code) $873C-$8774, 57 bytes
+; ---- bank3.code_873C (code) $873C-$8746, 11 bytes
         ldx     #$04
 L3_873E:
         lda     $870C,X
         sta     $0203,X
         dex
         bne     L3_873E
+
+; ---- bank3.code_8747 (code) $8747-$8749, 3 bytes
 L3_8747:
         jsr     L3_8864
+
+; ---- bank3.code_874A (code) $874A-$8750, 7 bytes
         jsr     L7_C0E4
         and     #$2C
         bne     L3_875D
+
+; ---- bank3.code_8751 (code) $8751-$8756, 6 bytes
         lda     $F5
         and     #$D0
         beq     L3_8747
+
+; ---- bank3.code_8757 (code) $8757-$875C, 6 bytes
         lda     $0204
         cmp     #$54
         rts
+
+; ---- bank3.code_875D (code) $875D-$876E, 18 bytes
 L3_875D:
         lda     $0204
         cmp     #$54
@@ -1160,8 +1172,12 @@ L3_8768:
 L3_876A:
         sta     $0204
         bne     L3_8747
+
+; ---- bank3.code_876F (code) $876F-$8771, 3 bytes
 L3_876F:
         jsr     L3_8783
+
+; ---- bank3.code_8772 (code) $8772-$8774, 3 bytes
 L3_8772:
         jsr     L7_C06F
 
@@ -1169,39 +1185,55 @@ L3_8772:
 ; "WRONG WORD" at $8775
         .byte   $0A,$21,$8A,$57,$52,$4F,$4E,$47,$20,$57,$4F,$52,$44
 
-; ---- bank3.code_8782 (code) $8782-$87CC, 75 bytes
+; ---- bank3.code_8782 (code) $8782-$8782, 1 bytes
         rts
+
+; ---- bank3.code_8783 (code) $8783-$8788, 6 bytes
 L3_8783:
         lda     #$21
         sta     $19
         lda     #$88
+
+; ---- bank3.code_8789 (code) $8789-$8792, 10 bytes
 L3_8789:
         sta     $18
         ldx     #$0E
         ldy     #$00
         tya
         jsr     L3_8BB3
+
+; ---- bank3.code_8793 (code) $8793-$879D, 11 bytes
         lda     $18
         sec
         sbc     #$20
         sta     $18
         bcs     L3_879E
         dec     $19
+
+; ---- bank3.code_879E (code) $879E-$87A4, 7 bytes
 L3_879E:
         ldy     #$01
         lda     #$00
         jsr     L3_8BB3
+
+; ---- bank3.code_87A5 (code) $87A5-$87AF, 11 bytes
         lda     $18
         sec
         sbc     #$20
         sta     $18
         bcs     L3_87B0
         dec     $19
+
+; ---- bank3.code_87B0 (code) $87B0-$87B4, 5 bytes
 L3_87B0:
         ldy     #$03
         jmp     L3_8BB3
+
+; ---- bank3.code_87B5 (code) $87B5-$87B7, 3 bytes
 L3_87B5:
         jsr     L3_8B7E
+
+; ---- bank3.code_87B8 (code) $87B8-$87C9, 18 bytes
         lda     #$21
         sta     $19
         lda     #$48
@@ -1210,14 +1242,18 @@ L3_87B5:
         ldy     #$07
         jsr     L3_8BB3
         jsr     L3_8772
+
+; ---- bank3.code_87CA (code) $87CA-$87CC, 3 bytes
         jsr     L7_C06F
 
 ; ---- bank3.inline_87CD (text) $87CD-$87D8, 12 bytes
 ; "THE ABOVE" at $87CD
         .byte   $09,$21,$CA,$54,$48,$45,$20,$41,$42,$4F,$56,$45
 
-; ---- bank3.code_87D9 (code) $87D9-$87FD, 37 bytes
+; ---- bank3.code_87D9 (code) $87D9-$87DB, 3 bytes
         jsr     L3_87FB
+
+; ---- bank3.code_87DC (code) $87DC-$87F1, 22 bytes
         lda     #$20
         sta     $19
         lda     #$86
@@ -1230,11 +1266,15 @@ L3_87E6:
         cpx     #$20
         bne     L3_87E6
         rts
+
+; ---- bank3.code_87F2 (code) $87F2-$87FA, 9 bytes
 L3_87F2:
         lda     #$22
         sta     $19
         lda     #$08
         jsr     L3_8789
+
+; ---- bank3.code_87FB (code) $87FB-$87FD, 3 bytes
 L3_87FB:
         jsr     L7_C06F
 
@@ -1242,8 +1282,10 @@ L3_87FB:
 ; "WORD IS RIGHT" at $87FE
         .byte   $0D,$22,$0A,$57,$4F,$52,$44,$20,$49,$53,$20,$52,$49,$47,$48,$54
 
-; ---- bank3.code_880E (code) $880E-$8876, 105 bytes
+; ---- bank3.code_880E (code) $880E-$880E, 1 bytes
         rts
+
+; ---- bank3.code_880F (code) $880F-$8838, 42 bytes
 L3_880F:
         lda     $0207
         cmp     #$80
@@ -1274,6 +1316,8 @@ L3_882F:
         sta     $16
         dex
         bne     L3_882F
+
+; ---- bank3.code_8839 (code) $8839-$8862, 42 bytes
 L3_8839:
         lda     $020B
         lsr     A
@@ -1303,8 +1347,12 @@ L3_8855:
         txa
         adc     #$0F
         sta     $17
+
+; ---- bank3.code_8863 (code) $8863-$8863, 1 bytes
 L3_8863:
         rts
+
+; ---- bank3.code_8864 (code) $8864-$8876, 19 bytes
 L3_8864:
         inc     $41
         lda     $41
@@ -1317,21 +1365,27 @@ L3_8864:
         rts
 
 ; ---- bank3.tbl_8877 (data) $8877-$887E, 8 bytes
-; Table, 8 bytes (structural extent)
+; Editor cursor flicker colours
         .byte   $30,$10,$00,$0C,$0F,$0C,$00,$10
 
-; ---- bank3.code_887F (code) $887F-$8B1A, 668 bytes
+; ---- bank3.code_887F (code) $887F-$8884, 6 bytes
 L3_887F:
         jsr     L3_8B23
         jsr     L3_8B0F
+
+; ---- bank3.code_8885 (code) $8885-$8887, 3 bytes
 L3_8885:
         jsr     L3_8864
+
+; ---- bank3.code_8888 (code) $8888-$8897, 16 bytes
         jsr     L7_C0E4
         sta     $0457
         lda     $F7
         and     #$40
         ora     $0457
         sta     $0457
+
+; ---- bank3.code_8898 (code) $8898-$88B3, 28 bytes
         ldy     #$00
         lda     $F5
         bne     L3_88B4
@@ -1344,29 +1398,43 @@ L3_8885:
         and     #$0F
         ora     $0457
         sta     $0457
+
+; ---- bank3.code_88B4 (code) $88B4-$88BA, 7 bytes
 L3_88B4:
         beq     L3_88BB
         lda     #$33
         jsr     L7_C030
+
+; ---- bank3.code_88BB (code) $88BB-$88C6, 12 bytes
 L3_88BB:
         sty     $0458
         jsr     L3_893E
         jsr     L3_88C7
         jmp     L3_8885
+
+; ---- bank3.code_88C7 (code) $88C7-$88CD, 7 bytes
 L3_88C7:
         lda     $0457
         and     #$80
         bne     L3_88CF
+
+; ---- bank3.code_88CE (code) $88CE-$88CE, 1 bytes
         rts
+
+; ---- bank3.code_88CF (code) $88CF-$88DB, 13 bytes
 L3_88CF:
         lda     $0457
         ora     #$40
         sta     $0457
         lda     #$34
         jsr     L7_C030
+
+; ---- bank3.code_88DC (code) $88DC-$88E2, 7 bytes
         lda     $0204
         cmp     #$90
         beq     L3_891E
+
+; ---- bank3.code_88E3 (code) $88E3-$88F7, 21 bytes
 L3_88E3:
         jsr     L3_880F
         lda     #$22
@@ -1377,6 +1445,8 @@ L3_88E3:
         lda     $16
         sta     $0411,X
         jsr     L3_8681
+
+; ---- bank3.code_88F8 (code) $88F8-$8908, 17 bytes
 L3_88F8:
         lda     $0208
         cmp     #$C8
@@ -1386,33 +1456,47 @@ L3_88F8:
         beq     L3_8912
 L3_8906:
         jsr     L3_8A93
+
+; ---- bank3.code_8909 (code) $8909-$8911, 9 bytes
 L3_8909:
         lda     $0457
         and     #$BF
         sta     $0457
         rts
+
+; ---- bank3.code_8912 (code) $8912-$891D, 12 bytes
 L3_8912:
         lda     #$C0
         sta     $0207
         lda     #$90
         sta     $0204
         bne     L3_8909
+
+; ---- bank3.code_891E (code) $891E-$8924, 7 bytes
 L3_891E:
         lda     $0207
         cmp     #$80
         beq     L3_88F8
+
+; ---- bank3.code_8925 (code) $8925-$8931, 13 bytes
         lda     $0207
         cmp     #$A0
         bne     L3_8932
         jsr     L3_8A0B
         jmp     L3_8909
+
+; ---- bank3.code_8932 (code) $8932-$8938, 7 bytes
 L3_8932:
         lda     $0207
         cmp     #$C0
         bne     L3_88E3
+
+; ---- bank3.code_8939 (code) $8939-$893D, 5 bytes
         pla
         pla
         jmp     L3_8516
+
+; ---- bank3.code_893E (code) $893E-$8966, 41 bytes
 L3_893E:
         lda     #$08
         bit     $0457
@@ -1435,6 +1519,8 @@ L3_895C:
         jmp     L3_8A93
 L3_8966:
         rts
+
+; ---- bank3.code_8967 (code) $8967-$89A8, 66 bytes
 L3_8967:
         lda     $0457
         and     #$40
@@ -1472,6 +1558,8 @@ L3_899B:
         lda     #$88
         sta     $0207
         bne     L3_8991
+
+; ---- bank3.code_89A9 (code) $89A9-$89B7, 15 bytes
 L3_89A9:
         lda     $0208
         cmp     #$B8
@@ -1482,6 +1570,8 @@ L3_89B1:
         adc     #$F0
         sta     $0208
         rts
+
+; ---- bank3.code_89B8 (code) $89B8-$89FB, 68 bytes
 L3_89B8:
         lda     $0457
         and     #$40
@@ -1520,6 +1610,8 @@ L3_89F5:
 L3_89F7:
         sta     $0207
         bne     L3_89DC
+
+; ---- bank3.code_89FC (code) $89FC-$8A0A, 15 bytes
 L3_89FC:
         lda     $0208
         cmp     #$C8
@@ -1530,6 +1622,8 @@ L3_8A04:
         adc     #$10
         sta     $0208
         rts
+
+; ---- bank3.code_8A0B (code) $8A0B-$8A5C, 82 bytes
 L3_8A0B:
         lda     $0457
         and     #$40
@@ -1577,6 +1671,8 @@ L3_8A51:
 L3_8A59:
         lda     #$A0
         bne     L3_8A3E
+
+; ---- bank3.code_8A5D (code) $8A5D-$8A92, 54 bytes
 L3_8A5D:
         lda     $020B
         cmp     #$30
@@ -1610,6 +1706,8 @@ L3_8A8E:
         clc
         adc     #$E8
         bne     L3_8A85
+
+; ---- bank3.code_8A93 (code) $8A93-$8AD8, 70 bytes
 L3_8A93:
         lda     $0457
         and     #$40
@@ -1652,6 +1750,8 @@ L3_8ACD:
 L3_8AD5:
         lda     #$C0
         bne     L3_8AB8
+
+; ---- bank3.code_8AD9 (code) $8AD9-$8B0E, 54 bytes
 L3_8AD9:
         lda     $020B
         cmp     #$C8
@@ -1684,6 +1784,8 @@ L3_8B0A:
         clc
         adc     #$18
         bne     L3_8B01
+
+; ---- bank3.code_8B0F (code) $8B0F-$8B1A, 12 bytes
 L3_8B0F:
         ldx     #$08
 L3_8B11:
@@ -1694,10 +1796,10 @@ L3_8B11:
         rts
 
 ; ---- bank3.tbl_8B1B (data) $8B1B-$8B22, 8 bytes
-; OAM template: two sprites
+; Editor cursors' start (2 sprites)
         .byte   $30,$00,$00,$30,$B8,$00,$00,$30
 
-; ---- bank3.code_8B23 (code) $8B23-$8B5B, 57 bytes
+; ---- bank3.code_8B23 (code) $8B23-$8B58, 54 bytes
 L3_8B23:
         lda     #$20
         sta     $19
@@ -1730,6 +1832,8 @@ L3_8B4F:
         ldx     #$00
         inc     $14
         bne     L3_8B31
+
+; ---- bank3.code_8B59 (code) $8B59-$8B5B, 3 bytes
 L3_8B59:
         jsr     L7_C06F
 

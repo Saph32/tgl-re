@@ -134,28 +134,6 @@
       "description": "$8020 + 2 x 15: $FFFF, between the ids 1-6 at $8022 (plus the code at $802E, which ids 7-14 would land on) and ids 16-63 at $8040."
     },
     {
-      "id": "bank3.tbl_870D",
-      "offset": 50973,
-      "size": 4,
-      "kind": "data",
-      "name": "OAM template: one sprite",
-      "confidence": "confirmed",
-      "cpu_addr": 34573,
-      "sha1": "f159cd7094e9a351b4f46732b401b6fe75a15421",
-      "description": "$873C: LDX #$04 / LDA $870C,X / STA $0203,X / DEX / BNE ($873E) - these 4 bytes to $0204-$0207, sprite 1: Y $54, tile 0, attributes 0, X $50."
-    },
-    {
-      "id": "bank3.tbl_8B1B",
-      "offset": 52011,
-      "size": 8,
-      "kind": "data",
-      "name": "OAM template: two sprites",
-      "confidence": "confirmed",
-      "cpu_addr": 35611,
-      "sha1": "2de01b84658ba59affaa356ffb37380cef67fd13",
-      "description": "$8B0F: LDX #$08 / LDA $8B1A,X / STA $0203,X / DEX / BNE ($8B11) - copies these 8 bytes to $0204-$020B, hardware sprites 1 and 2: Y $30, tile 0, attributes 0, X $30, and Y $B8, same tile and X."
-    },
-    {
       "id": "bank3.tbl_9151",
       "offset": 53601,
       "size": 23,
