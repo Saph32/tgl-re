@@ -1,0 +1,170 @@
+{
+  "_comment": "Hand-authored. Bank 6: Glider ($931A-$93DB). The generators subtract these.",
+  "regions": [
+    {
+      "id": "bank6.code_931A",
+      "offset": 103210,
+      "size": 5,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): first frame?",
+      "confidence": "confirmed",
+      "cpu_addr": 37658,
+      "sha1": "8b037d35cf7c302dc7d7baf6c1d9c9e64f6099a4",
+      "description": "Type bit 7 set goes to `$9350`. Table stats: flags `$5A`, hit points 6 x 16 = 96, attack 48, art block `$34`, dies as type 7."
+    },
+    {
+      "id": "bank6.code_931F",
+      "offset": 103215,
+      "size": 6,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): art and hit points",
+      "confidence": "confirmed",
+      "cpu_addr": 37663,
+      "sha1": "a58c8f0c7e22172882bb290b3484eb33fc4f6ca4",
+      "description": "`JSR $C0A8`, `JSR $C165`."
+    },
+    {
+      "id": "bank6.code_9325",
+      "offset": 103221,
+      "size": 43,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): set-up",
+      "confidence": "confirmed",
+      "cpu_addr": 37669,
+      "sha1": "74515ea90b2c7ece3184b09b44d5fd81f9b09ac0",
+      "description": "Metasprite `$7A`, attribute 2, the y target `$0668` := `$60` and y := `$28`, the x target `$0680` := `$80` and x := `$30`, the arrival timer `$0788` := `$78`, **the hover counter `$07A0` := `$FA`**, the phase cleared."
+    },
+    {
+      "id": "bank6.code_9350",
+      "offset": 103264,
+      "size": 3,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): the arrival",
+      "confidence": "confirmed",
+      "cpu_addr": 37712,
+      "sha1": "c947fa01d1688f9226bad0cb16178886c969296d",
+      "description": "`JSR $C009`: 120 frames of flicker."
+    },
+    {
+      "id": "bank6.code_9353",
+      "offset": 103267,
+      "size": 7,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): hover or animate?",
+      "confidence": "confirmed",
+      "cpu_addr": 37715,
+      "sha1": "37df87283c517c5ccfdac994bda44c6709eaf4cf",
+      "description": "The counter `$07A0` of 4 or more goes to the hover code (`$93AB`)."
+    },
+    {
+      "id": "bank6.code_935A",
+      "offset": 103274,
+      "size": 8,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): the animation clock",
+      "confidence": "confirmed",
+      "cpu_addr": 37722,
+      "sha1": "4fc99db5d5b34173346f682d5df6d81e76e69a56",
+      "description": "`JSR $C0A5` with A = `$40`, Y = 6: the phase `$0638` 0-5, four frames a phase; the flags kept (`PHP`)."
+    },
+    {
+      "id": "bank6.code_9362",
+      "offset": 103282,
+      "size": 9,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): the picture",
+      "confidence": "confirmed",
+      "cpu_addr": 37730,
+      "sha1": "d068f3a0ed977b71b864a71fb97dbccc5adabc6c",
+      "description": "Tile offset `$93D3[phase]` (`00 08 10 18 10 08`: the wings opening and closing) through `$A1E7`, then the draw (`$C090`)."
+    },
+    {
+      "id": "bank6.code_936B",
+      "offset": 103291,
+      "size": 8,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): the end of an animation cycle",
+      "confidence": "confirmed",
+      "cpu_addr": 37739,
+      "sha1": "0adda1020bea2b87e2d87a9350ef36468b32e2ec",
+      "description": "A carry (the phase wrapped, every 24 frames) decrements the counter `$07A0`; non-zero goes on. At zero it would load a random pause (80-207) - see below."
+    },
+    {
+      "id": "bank6.code_9373",
+      "offset": 103299,
+      "size": 12,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): a random pause (never reached)",
+      "confidence": "confirmed",
+      "cpu_addr": 37747,
+      "sha1": "146b3660b697e414ca06307987fd58b4cd656e26",
+      "description": "(random AND `$7F`) + `$50` into `$07A0`. **This code is dead: the counter reaches 0 earlier, through the shot's fall-through, so this branch never runs.**"
+    },
+    {
+      "id": "bank6.code_937F",
+      "offset": 103311,
+      "size": 42,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): a shot",
+      "confidence": "confirmed",
+      "cpu_addr": 37759,
+      "sha1": "35d1c6a5de5fe2b783ffefa8b6bef6247bca8a0b",
+      "description": "Only at phase 3 and on the phase's first frame (fraction under `$40`): the heading `$93D8[counter]`, a free slot, a type-`$27` bullet of **kind 5** (palette 2, speed class `$81`, re-aim every 5 frames, hit points 1, attack 4) with that initial heading."
+    },
+    {
+      "id": "bank6.code_93A9",
+      "offset": 103353,
+      "size": 2,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): the shot's fall-through (a quirk)",
+      "confidence": "confirmed",
+      "cpu_addr": 37801,
+      "sha1": "cf5c33a4faa1391750051f26edc59107932d0465",
+      "description": "`BNE $93BB` is taken unless the heading is 0 - **the counter value 1 gives heading 0, so that shot falls into the hover code: the counter is decremented to 0 a cycle early (and the boss moves for a frame)**. The next wrap then decrements 0 to `$FF`, a long hover. RUN: the animation lasts 72 frames (states 3, 2, 1: headings up, left, right) and the hover 252 frames; the cycle is 324 frames."
+    },
+    {
+      "id": "bank6.code_93AB",
+      "offset": 103355,
+      "size": 16,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): hover (`$93AB`)",
+      "confidence": "confirmed",
+      "cpu_addr": 37803,
+      "sha1": "82f2bffbe0ba105fa351e5e2fabce59298bf011c",
+      "description": "The counter decrements; the y spring (acceleration 16) toward y `$60` and the x spring (16) toward x `$80`; move and draw (`$C08D`). Bang-bang about (128, 96)."
+    },
+    {
+      "id": "bank6.code_93BB",
+      "offset": 103371,
+      "size": 24,
+      "kind": "code",
+      "name": "GLIDER, type `$47` (corridor 6's boss; bank 6 `$931A`): the hit test and its quirk",
+      "confidence": "confirmed",
+      "cpu_addr": 37819,
+      "sha1": "3acecde32879c1934af8bcbea179e4636a272cfe",
+      "description": "`JSR $C0C6`. **Only while the animation phase is not 0 does a hit count (the boss rules `$C0D8`); with phase 0 - which is the whole hover - a shot on it is spent (`$C168`) and the boss loses nothing, while the ship touching it is still hurt.** RUN: a shot while hovering left the hit points at 96; while animating they went 92 -> 90 and the shot became a type-9 countdown."
+    },
+    {
+      "id": "bank6.tbl_93D3",
+      "offset": 103395,
+      "size": 6,
+      "kind": "data",
+      "name": "Glider's wing tile offsets",
+      "confidence": "confirmed",
+      "cpu_addr": 37843,
+      "sha1": "ead373d6802e2a819ffd2c908187cc6e24de0101",
+      "description": "`00 08 10 18 10 08`: by phase."
+    },
+    {
+      "id": "bank6.tbl_93D9",
+      "offset": 103401,
+      "size": 3,
+      "kind": "data",
+      "name": "Glider's shot headings",
+      "confidence": "confirmed",
+      "cpu_addr": 37849,
+      "sha1": "4c89c8b6945355d14aa1ec579507fc21f0e1a938",
+      "description": "`00 08 0C` read at `$93D8 + counter` (counter 1, 2, 3): right, left, up."
+    }
+  ]
+}

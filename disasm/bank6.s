@@ -2497,13 +2497,19 @@ L6_9081:
 ; Far-call argument at $9084
         .byte   $03,$14,$80
 
-; ---- bank6.code_9087 (code) $9087-$9170, 234 bytes
+; ---- bank6.code_9087 (code) $9087-$9087, 1 bytes
         rts
+
+; ---- bank6.code_9088 (code) $9088-$908C, 5 bytes
 L6_9088:
         lda     $0500,X
         bmi     L6_90B9
+
+; ---- bank6.code_908D (code) $908D-$9092, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank6.code_9093 (code) $9093-$90B8, 38 bytes
         lda     #$80
         sta     $0530,X
         lda     #$60
@@ -2519,33 +2525,49 @@ L6_9088:
         lda     #$78
         sta     $0788,X
         jsr     L7_C0A2
+
+; ---- bank6.code_90B9 (code) $90B9-$90BB, 3 bytes
 L6_90B9:
         jsr     L7_C009
+
+; ---- bank6.code_90BC (code) $90BC-$90C0, 5 bytes
         lda     #$09
         jsr     L7_C09C
+
+; ---- bank6.code_90C1 (code) $90C1-$90CB, 11 bytes
         lda     $0530
         sta     $0680,X
         lda     #$04
         jsr     L7_C09F
+
+; ---- bank6.code_90CC (code) $90CC-$90D6, 11 bytes
         jsr     L7_C08D
         bcc     L6_90D7
         jsr     L6_8E20
         jmp     L6_9144
+
+; ---- bank6.code_90D7 (code) $90D7-$90E1, 11 bytes
 L6_90D7:
         lda     #$20
         ldy     #$08
         jsr     L7_C0A5
         and     #$01
         bne     L6_9124
+
+; ---- bank6.code_90E2 (code) $90E2-$90E8, 7 bytes
         lda     $0650,X
         cmp     #$20
         bcs     L6_9124
+
+; ---- bank6.code_90E9 (code) $90E9-$90F7, 15 bytes
         jsr     L7_C0FF
         sta     $15
         jsr     L7_C108
         bcs     L6_9124
         lda     #$2C
         jsr     L7_C105
+
+; ---- bank6.code_90F8 (code) $90F8-$9123, 44 bytes
         lda     $0518,X
         clc
         adc     #$38
@@ -2564,6 +2586,8 @@ L6_90D7:
         sta     $0548,Y
         lda     #$80
         sta     $0560,Y
+
+; ---- bank6.code_9124 (code) $9124-$9143, 32 bytes
 L6_9124:
         ldy     $0638,X
         lda     $9180,Y
@@ -2579,9 +2603,13 @@ L6_9124:
         sta     $15
         lda     #$0A
         jsr     L6_914A
+
+; ---- bank6.code_9144 (code) $9144-$9149, 6 bytes
 L6_9144:
         jsr     L7_C0C6
         jmp     L7_C0D8
+
+; ---- bank6.code_914A (code) $914A-$9170, 39 bytes
 L6_914A:
         clc
         bmi     L6_9154
@@ -2606,38 +2634,54 @@ L6_9170:
         rts
 
 ; ---- bank6.tbl_9171 (data) $9171-$9175, 5 bytes
-; Table, 5 bytes
+; Crawdaddy's claw attributes
         .byte   $40,$40,$00,$00,$00
 
-; ---- bank6.tbl_9176 (data) $9176-$917F, 10 bytes
-; Table, 10 bytes (structural extent)
-        .byte   $22,$23,$24,$23,$22,$14,$0C,$FC,$F4,$EC
+; ---- bank6.tbl_9176 (data) $9176-$917A, 5 bytes
+; Crawdaddy's claw metasprites
+        .byte   $22,$23,$24,$23,$22
+
+; ---- bank6.tbl_917B (data) $917B-$917F, 5 bytes
+; Crawdaddy: five bytes no traced code reads
+        .byte   $14,$0C,$FC,$F4,$EC
 
 ; ---- bank6.tbl_9180 (data) $9180-$9187, 8 bytes
-; Table, 8 bytes (structural extent)
+; Crawdaddy's claw animation
         .byte   $00,$01,$02,$03,$04,$03,$02,$01
 
-; ---- bank6.code_9188 (code) $9188-$92FC, 373 bytes
+; ---- bank6.code_9188 (code) $9188-$9190, 9 bytes
 L6_9188:
         ldy     $0500,X
         bmi     L6_91D9
         cpy     #$46
         beq     L6_91A1
+
+; ---- bank6.code_9191 (code) $9191-$919C, 12 bytes
         lda     $92CC,Y
         sta     $07B8,X
         lda     $8FE6,Y
         sta     $0560,X
+
+; ---- bank6.code_919D (code) $919D-$91A0, 4 bytes
         ldy     #$6D
         bne     L6_91A5
+
+; ---- bank6.code_91A1 (code) $91A1-$91A4, 4 bytes
 L6_91A1:
         lda     #$01
         ldy     #$88
+
+; ---- bank6.code_91A5 (code) $91A5-$91AB, 7 bytes
 L6_91A5:
         sta     $0560,X
         tya
         sta     $0548,X
+
+; ---- bank6.code_91AC (code) $91AC-$91B1, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank6.code_91B2 (code) $91B2-$91C6, 21 bytes
 L6_91B2:
         jsr     L7_C0F0
         lda     $0560,X
@@ -2647,6 +2691,8 @@ L6_91B2:
         and     #$7F
         adc     #$20
         sta     $0518,X
+
+; ---- bank6.code_91C7 (code) $91C7-$91D8, 18 bytes
         lda     #$78
         sta     $0788,X
         lda     #$00
@@ -2654,6 +2700,8 @@ L6_91B2:
         lda     #$04
         sta     $0680,X
         jsr     L7_C0A2
+
+; ---- bank6.code_91D9 (code) $91D9-$91EB, 19 bytes
 L6_91D9:
         dec     $0788,X
         bpl     L6_91EC
@@ -2662,6 +2710,8 @@ L6_91D9:
         inc     $07A0,X
         lda     #$78
         sta     $0788,X
+
+; ---- bank6.code_91EC (code) $91EC-$91FA, 15 bytes
 L6_91EC:
         lda     $07A0,X
         beq     L6_91FB
@@ -2670,6 +2720,8 @@ L6_91EC:
         bcs     L6_91B2
         cmp     #$02
         bne     L6_920C
+
+; ---- bank6.code_91FB (code) $91FB-$9205, 11 bytes
 L6_91FB:
         dec     $0788,X
         lda     $0788,X
@@ -2677,21 +2729,33 @@ L6_91FB:
         bne     L6_9206
 L6_9205:
         rts
+
+; ---- bank6.code_9206 (code) $9206-$920B, 6 bytes
 L6_9206:
         jsr     L7_C090
         jmp     L6_92BE
+
+; ---- bank6.code_920C (code) $920C-$9215, 10 bytes
 L6_920C:
         jsr     L7_C090
         lda     #$20
         ldy     #$09
         jsr     L7_C0A5
+
+; ---- bank6.code_9216 (code) $9216-$921C, 7 bytes
         lda     $0500,X
         cmp     #$C6
         beq     L6_9257
+
+; ---- bank6.code_921D (code) $921D-$9223, 7 bytes
         lda     $0638,X
         cmp     #$02
         beq     L6_9227
+
+; ---- bank6.code_9224 (code) $9224-$9226, 3 bytes
         jmp     L6_92B2
+
+; ---- bank6.code_9227 (code) $9227-$9256, 48 bytes
 L6_9227:
         inc     $0638,X
         lda     #$1E
@@ -2714,6 +2778,8 @@ L6_9233:
         dec     $15
         bne     L6_9233
         beq     L6_92B2
+
+; ---- bank6.code_9257 (code) $9257-$92B1, 91 bytes
 L6_9257:
         lda     $0650,X
         cmp     #$20
@@ -2753,11 +2819,15 @@ L6_9257:
         sta     $0548,Y
         lda     #$81
         sta     $0560,Y
+
+; ---- bank6.code_92B2 (code) $92B2-$92BD, 12 bytes
 L6_92B2:
         jsr     L7_C0B1
         jsr     L6_92BE
         jsr     L7_C0C9
         jmp     L7_C0D8
+
+; ---- bank6.code_92BE (code) $92BE-$92E1, 36 bytes
 L6_92BE:
         lda     $0500,X
         cmp     #$C6
@@ -2776,6 +2846,8 @@ L6_92BE:
         tay
         lda     $9316,Y
         jmp     L7_C093
+
+; ---- bank6.code_92E2 (code) $92E2-$92FC, 27 bytes
 L6_92E2:
         lda     $84
         adc     #$1F
@@ -2792,35 +2864,35 @@ L6_92E2:
         rts
 
 ; ---- bank6.tbl_92FD (data) $92FD-$9305, 9 bytes
-; Table, 9 bytes
+; Teramute's fan offsets
         .byte   $FC,$FD,$FE,$FF,$00,$01,$02,$03,$04
 
 ; ---- bank6.tbl_9306 (data) $9306-$930D, 8 bytes
-; Table, 8 bytes
+; Picture index by heading AND 7
         .byte   $00,$00,$00,$01,$01,$01,$00,$00
 
-; ---- bank6.tbl_930E (data) $930E-$930F, 2 bytes
-; Table, 2 bytes (structural extent)
-        .byte   $00,$04
-
-; ---- bank6.tbl_9310 (data) $9310-$9311, 2 bytes
-; Table, 2 bytes (structural extent)
-        .byte   $19,$37
+; ---- bank6.tbl_930E (data) $930E-$9311, 4 bytes
+; Missile tile offset and metasprite
+        .byte   $00,$04,$19,$37
 
 ; ---- bank6.tbl_9312 (data) $9312-$9315, 4 bytes
-; Table, 4 bytes
+; Teramute's head flip by heading / 4
         .byte   $40,$00,$00,$40
 
 ; ---- bank6.tbl_9316 (data) $9316-$9319, 4 bytes
-; Table, 4 bytes (structural extent)
+; Head metasprites, then the Bombarder kinds
         .byte   $8A,$89,$01,$05
 
-; ---- bank6.code_931A (code) $931A-$93D2, 185 bytes
+; ---- bank6.code_931A (code) $931A-$931E, 5 bytes
 L6_931A:
         lda     $0500,X
         bmi     L6_9350
+
+; ---- bank6.code_931F (code) $931F-$9324, 6 bytes
         jsr     L7_C0A8
         jsr     L7_C165
+
+; ---- bank6.code_9325 (code) $9325-$934F, 43 bytes
         lda     #$7A
         sta     $0548,X
         lda     #$02
@@ -2838,27 +2910,41 @@ L6_931A:
         lda     #$FA
         sta     $07A0,X
         jsr     L7_C0A2
+
+; ---- bank6.code_9350 (code) $9350-$9352, 3 bytes
 L6_9350:
         jsr     L7_C009
+
+; ---- bank6.code_9353 (code) $9353-$9359, 7 bytes
         lda     $07A0,X
         cmp     #$04
         bcs     L6_93AB
+
+; ---- bank6.code_935A (code) $935A-$9361, 8 bytes
         lda     #$40
         ldy     #$06
         jsr     L7_C0A5
         php
+
+; ---- bank6.code_9362 (code) $9362-$936A, 9 bytes
         lda     $93D3,Y
         jsr     L6_A1E7
         jsr     L7_C090
+
+; ---- bank6.code_936B (code) $936B-$9372, 8 bytes
         plp
         bcc     L6_937F
         dec     $07A0,X
         bne     L6_93BB
+
+; ---- bank6.code_9373 (code) $9373-$937E, 12 bytes
         jsr     L7_C0EA
         and     #$7F
         adc     #$50
         sta     $07A0,X
         bne     L6_93BB
+
+; ---- bank6.code_937F (code) $937F-$93A8, 42 bytes
 L6_937F:
         lda     $0638,X
         cmp     #$03
@@ -2877,7 +2963,11 @@ L6_937F:
         sta     $07A0,Y
         lda     $15
         sta     $0788,Y
+
+; ---- bank6.code_93A9 (code) $93A9-$93AA, 2 bytes
         bne     L6_93BB
+
+; ---- bank6.code_93AB (code) $93AB-$93BA, 16 bytes
 L6_93AB:
         dec     $07A0,X
         lda     #$10
@@ -2885,6 +2975,8 @@ L6_93AB:
         lda     #$10
         jsr     L7_C09F
         jsr     L7_C08D
+
+; ---- bank6.code_93BB (code) $93BB-$93D2, 24 bytes
 L6_93BB:
         jsr     L7_C0C6
         lda     $0638,X
@@ -2900,13 +2992,13 @@ L6_93C9:
 L6_93D0:
         jmp     L7_C168
 
-; ---- bank6.tbl_93D3 (data) $93D3-$93D7, 5 bytes
-; Table, 5 bytes (structural extent)
-        .byte   $00,$08,$10,$18,$10
+; ---- bank6.tbl_93D3 (data) $93D3-$93D8, 6 bytes
+; Glider's wing tile offsets
+        .byte   $00,$08,$10,$18,$10,$08
 
-; ---- bank6.tbl_93D8 (data) $93D8-$93DB, 4 bytes
-; Table, 4 bytes (structural extent)
-        .byte   $08,$00,$08,$0C
+; ---- bank6.tbl_93D9 (data) $93D9-$93DB, 3 bytes
+; Glider's shot headings
+        .byte   $00,$08,$0C
 
 ; ---- bank6.code_93DC (code) $93DC-$95C2, 487 bytes
 L6_93DC:
